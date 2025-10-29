@@ -11,6 +11,7 @@ import hitsLogo from "@/assets/hits-logo-minimal.png";
 
 export default function CoachAuth() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [organizationName, setOrganizationName] = useState("");
@@ -40,6 +41,22 @@ export default function CoachAuth() {
     setLoading(true);
 
     try {
+      if (isForgotPassword) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/coach-auth`,
+        });
+
+        if (error) {
+          setLoading(false);
+          toast.error(error.message || "An error occurred");
+          return;
+        }
+        toast.success("Password reset email sent! Check your inbox.");
+        setIsForgotPassword(false);
+        setLoading(false);
+        return;
+      }
+
       if (isSignUp) {
         if (!organizationName.trim()) {
           toast.error("Organization name is required");
@@ -103,17 +120,19 @@ export default function CoachAuth() {
               className="h-20 mx-auto mb-4"
             />
             <CardTitle className="text-2xl font-black uppercase">
-              {isSignUp ? "Coach Registration" : "Coach Sign In"}
+              {isForgotPassword ? "Reset Password" : isSignUp ? "Coach Registration" : "Coach Sign In"}
             </CardTitle>
             <CardDescription className="text-gray-400">
-              {isSignUp 
+              {isForgotPassword
+                ? "Enter your email to receive a password reset link"
+                : isSignUp 
                 ? "Create your coaching organization account" 
                 : "Sign in to your coaching dashboard"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAuth} className="space-y-4">
-              {isSignUp && (
+              {isSignUp && !isForgotPassword && (
                 <div className="space-y-2">
                   <Label htmlFor="organizationName">Organization Name</Label>
                   <Input
@@ -142,36 +161,53 @@ export default function CoachAuth() {
                   className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                  minLength={6}
-                  autoComplete={isSignUp ? "new-password" : "current-password"}
-                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
-                />
-              </div>
+              {!isForgotPassword && (
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                    minLength={6}
+                    autoComplete={isSignUp ? "new-password" : "current-password"}
+                    className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
+                  />
+                </div>
+              )}
               <Button type="submit" className="w-full bg-yellow-500 text-black font-bold uppercase hover:bg-yellow-400" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isSignUp ? "Create Coach Account" : "Sign In"}
+                {isForgotPassword ? "Send Reset Link" : isSignUp ? "Create Coach Account" : "Sign In"}
               </Button>
             </form>
-            <div className="mt-4 text-center">
+            <div className="mt-4 text-center space-y-2">
+              {!isForgotPassword && (
+                <Button
+                  variant="link"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  disabled={loading}
+                  className="text-yellow-500 hover:text-yellow-400"
+                >
+                  {isSignUp 
+                    ? "Already have a coach account? Sign in" 
+                    : "Need to register your organization? Sign up"}
+                </Button>
+              )}
               <Button
                 variant="link"
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={() => {
+                  setIsForgotPassword(!isForgotPassword);
+                  if (isForgotPassword) {
+                    setIsSignUp(false);
+                  }
+                }}
                 disabled={loading}
-                className="text-yellow-500 hover:text-yellow-400"
+                className="text-gray-400 hover:text-yellow-400 block w-full"
               >
-                {isSignUp 
-                  ? "Already have a coach account? Sign in" 
-                  : "Need to register your organization? Sign up"}
+                {isForgotPassword ? "Back to sign in" : "Forgot password?"}
               </Button>
             </div>
           </CardContent>

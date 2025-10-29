@@ -11,6 +11,7 @@ import hitsLogo from "@/assets/hits-logo-minimal.png";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,22 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      if (isForgotPassword) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth`,
+        });
+
+        if (error) {
+          setLoading(false);
+          toast.error(error.message || "An error occurred");
+          return;
+        }
+        toast.success("Password reset email sent! Check your inbox.");
+        setIsForgotPassword(false);
+        setLoading(false);
+        return;
+      }
+
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
@@ -116,9 +133,13 @@ export default function Auth() {
             alt="H.I.T.S. Logo" 
             className="h-20 mx-auto mb-4"
           />
-          <CardTitle className="text-2xl font-black uppercase">{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
+          <CardTitle className="text-2xl font-black uppercase">
+            {isForgotPassword ? "Reset Password" : isSignUp ? "Create Account" : "Welcome Back"}
+          </CardTitle>
           <CardDescription className="text-gray-400">
-            {isSignUp 
+            {isForgotPassword 
+              ? "Enter your email to receive a password reset link"
+              : isSignUp 
               ? "Sign up to start your hitting journey" 
               : "Sign in to continue your training"}
           </CardDescription>
@@ -139,36 +160,53 @@ export default function Auth() {
                 className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={loading}
-                minLength={6}
-                autoComplete={isSignUp ? "new-password" : "current-password"}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
-              />
-            </div>
+            {!isForgotPassword && (
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                  minLength={6}
+                  autoComplete={isSignUp ? "new-password" : "current-password"}
+                  className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
+                />
+              </div>
+            )}
             <Button type="submit" className="w-full bg-yellow-500 text-black font-bold uppercase hover:bg-yellow-400" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? "Sign Up" : "Sign In"}
+              {isForgotPassword ? "Send Reset Link" : isSignUp ? "Sign Up" : "Sign In"}
             </Button>
           </form>
-          <div className="mt-4 text-center">
+          <div className="mt-4 text-center space-y-2">
+            {!isForgotPassword && (
+              <Button
+                variant="link"
+                onClick={() => setIsSignUp(!isSignUp)}
+                disabled={loading}
+                className="text-yellow-500 hover:text-yellow-400"
+              >
+                {isSignUp 
+                  ? "Already have an account? Sign in" 
+                  : "Don't have an account? Sign up"}
+              </Button>
+            )}
             <Button
               variant="link"
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={() => {
+                setIsForgotPassword(!isForgotPassword);
+                if (isForgotPassword) {
+                  setIsSignUp(false);
+                }
+              }}
               disabled={loading}
-              className="text-yellow-500 hover:text-yellow-400"
+              className="text-gray-400 hover:text-yellow-400 block w-full"
             >
-              {isSignUp 
-                ? "Already have an account? Sign in" 
-                : "Don't have an account? Sign up"}
+              {isForgotPassword ? "Back to sign in" : "Forgot password?"}
             </Button>
           </div>
         </CardContent>
