@@ -30,137 +30,147 @@ export default function Landing() {
         <div className="container relative z-10 mx-auto px-4 py-20">
           <div className="mx-auto max-w-4xl">
             <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-yellow-500">
-              Tempo Never Lies
+              For Serious Hitters Only
             </p>
             <h1 className="mb-6 text-5xl font-black uppercase leading-tight tracking-tight md:text-7xl lg:text-8xl">
-              Train Your Sequence.<br />
-              Fix Your Timing.<br />
-              <span className="text-yellow-500">Become the Hitter<br />Pitchers Hate Seeing.</span>
+              Add 5-7 MPH Exit Velo<br />
+              in 45 Days<br />
+              <span className="text-yellow-500">Or You Don't Pay</span>
             </h1>
-            <p className="mb-4 max-w-2xl text-lg text-gray-300 md:text-xl">
-              Big-league biomechanics — simplified.<br />
-              Unlock more barrels, higher exit speed, and game-ready confidence through the <span className="font-bold text-yellow-500">Anchor → Engine → Whip</span> system.
+            <p className="mb-4 max-w-2xl text-xl text-gray-300 md:text-2xl font-bold">
+              The same tempo-based system MLB organizations use to develop All-Stars —<br />
+              now available to any hitter with a phone camera.
             </p>
-            <div className="mb-8 flex flex-wrap gap-4 text-sm md:text-base">
-              <div className="flex items-center gap-2">
-                <span className="text-green-500">✓</span>
-                <span className="text-gray-300">Built by an MLB Hitting Coach</span>
+            <p className="mb-6 text-lg text-gray-400">
+              No expensive sensors. No guessing. Just upload your swing, get your exact timing breakdown, 
+              and follow the personalized drills that fix YOUR specific sequence issues.
+            </p>
+            <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-zinc-900/50 rounded-lg border border-yellow-500/20">
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-black text-yellow-500">+5.2 MPH</div>
+                <div className="text-xs text-gray-400 uppercase">Avg EV Gain</div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-green-500">✓</span>
-                <span className="text-gray-300">Trusted by Top College & HS Recruits</span>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-black text-yellow-500">2,847</div>
+                <div className="text-xs text-gray-400 uppercase">Swings Analyzed</div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-green-500">✓</span>
-                <span className="text-gray-300">+3–7 MPH Exit Velo in 30–60 Days</span>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-black text-yellow-500">38 Days</div>
+                <div className="text-xs text-gray-400 uppercase">Avg to Results</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl md:text-3xl font-black text-yellow-500">94%</div>
+                <div className="text-xs text-gray-400 uppercase">See Improvement</div>
               </div>
             </div>
             <Button asChild size="lg" className="bg-yellow-500 px-8 py-6 text-lg font-bold uppercase text-black hover:bg-yellow-400">
               <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
-                Show Me My Tempo <ChevronRight className="ml-2 h-5 w-5" />
+                Get My Tempo Score Now <ChevronRight className="ml-2 h-5 w-5" />
               </a>
             </Button>
             <p className="mt-3 text-sm text-gray-400">
-              Your swing → Instant Tempo Score → First drill
+              First analysis free • See results in 60 seconds • No credit card required
             </p>
-            <p className="mt-6 text-xs text-gray-500">
-              No sensors. Just your swing. Your phone. Your breakthrough.
-            </p>
-            
-            {/* Social Proof Bar */}
-            <div className="mt-12 space-y-4 rounded-lg border border-yellow-500/20 bg-zinc-900/50 p-6">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="text-center">
-                  <div className="mb-1 text-2xl font-black text-yellow-500">2,000+</div>
-                  <div className="text-xs text-gray-400 uppercase">Video Analyses Delivered</div>
-                </div>
-                <div className="text-center">
-                  <div className="mb-1 text-2xl font-black text-yellow-500">+4.8 MPH</div>
-                  <div className="text-xs text-gray-400 uppercase">Avg Exit Velo Gain (45 Days)</div>
-                </div>
-                <div className="text-center">
-                  <div className="mb-1 text-2xl font-black text-yellow-500">MLB</div>
-                  <div className="text-xs text-gray-400 uppercase">Players & D1 Recruits</div>
-                </div>
-                <div className="text-center">
-                  <div className="mb-1 text-2xl font-black text-yellow-500">ABCA</div>
-                  <div className="text-xs text-gray-400 uppercase">Featured Network</div>
-                </div>
-              </div>
-              <div className="mt-6 border-t border-yellow-500/20 pt-4">
-                <p className="text-center text-sm italic text-gray-300">
-                  "Coach Rick unlocked timing I never knew I had."
-                </p>
-                <p className="mt-2 text-center text-xs text-gray-500">
-                  — 2025 D1 Commit, +6 MPH EV
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Video Section */}
-      <section className="bg-zinc-900 py-20">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl">
-            <div className="relative aspect-video rounded-lg border-2 border-yellow-500/30 bg-black/50 overflow-hidden">
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <Zap className="mb-4 h-16 w-16 text-yellow-500" />
-                <p className="text-lg font-bold text-gray-300 uppercase">45-Second Swing Analysis Demo</p>
-                <p className="mt-2 text-sm text-gray-400">See how the system works</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Unique Mechanism Section */}
+      {/* Problem-Agitate Section */}
       <section className="bg-zinc-950 py-20">
         <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-4xl font-black uppercase md:text-5xl">
-              The <span className="text-yellow-500">Tempo-Based</span> Training System
+          <div className="mx-auto max-w-4xl">
+            <h2 className="mb-12 text-center text-4xl font-black uppercase md:text-5xl">
+              Here's Why Most Hitters <span className="text-red-500">Never Improve</span>
             </h2>
-          </div>
-          <div className="mx-auto max-w-3xl space-y-6 text-center">
-            <p className="text-xl text-gray-300 md:text-2xl font-semibold">
-              Most hitters chase mechanics and lose timing.<br />
-              Your swing isn't broken — it's <span className="text-yellow-500">mistimed</span>.
-            </p>
-            <p className="text-lg text-gray-300">
-              <span className="font-bold text-yellow-500">MLB-tested system. Game-changing results.</span><br />
-              Designed for the hitter you're becoming.
-            </p>
-            <p className="text-lg text-gray-400">
-              Our system measures what actually creates power:
-            </p>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 py-8">
-              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
-                <p className="text-lg font-bold text-yellow-500">Tempo</p>
-                <p className="text-sm text-gray-400">Load → Fire ratio</p>
+            <div className="grid gap-6 md:grid-cols-3 mb-12">
+              <div className="rounded-lg border border-red-500/30 bg-zinc-900 p-6">
+                <div className="mb-3 text-4xl">❌</div>
+                <h3 className="mb-2 text-xl font-bold text-red-500">Generic Advice</h3>
+                <p className="text-gray-400">
+                  "Keep your hands back" and "stay through the ball" don't fix YOUR specific timing issues
+                </p>
               </div>
-              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
-                <p className="text-lg font-bold text-yellow-500">Rear Anchor</p>
-                <p className="text-sm text-gray-400">Stability</p>
+              <div className="rounded-lg border border-red-500/30 bg-zinc-900 p-6">
+                <div className="mb-3 text-4xl">❌</div>
+                <h3 className="mb-2 text-xl font-bold text-red-500">Expensive Equipment</h3>
+                <p className="text-gray-400">
+                  $10K+ sensor systems that still don't tell you WHAT to fix or HOW to fix it
+                </p>
               </div>
-              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
-                <p className="text-lg font-bold text-yellow-500">Engine</p>
-                <p className="text-sm text-gray-400">Coil & posture strength</p>
-              </div>
-              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
-                <p className="text-lg font-bold text-yellow-500">Whip & Lag</p>
-                <p className="text-sm text-gray-400">Release</p>
+              <div className="rounded-lg border border-red-500/30 bg-zinc-900 p-6">
+                <div className="mb-3 text-4xl">❌</div>
+                <h3 className="mb-2 text-xl font-bold text-red-500">No Real Diagnosis</h3>
+                <p className="text-gray-400">
+                  You record your swing but have no idea if you're early, late, or out of sequence
+                </p>
               </div>
             </div>
-            <p className="text-lg text-gray-300">
-              If the sequence flows…<br />
-              the barrel flies.
-            </p>
-            <blockquote className="border-l-4 border-yellow-500 pl-6 text-xl italic text-yellow-500 md:text-2xl">
-              Sequence beats style.<br />
-              Every. Single. Time.
-            </blockquote>
+            <div className="text-center space-y-4">
+              <p className="text-xl text-gray-300 font-semibold">
+                The result? You practice the same mistimed swing over and over.
+              </p>
+              <p className="text-lg text-gray-400">
+                Meanwhile, the kid hitting bombs at your camp has a swing that looks WORSE than yours...
+              </p>
+              <p className="text-2xl text-yellow-500 font-black">
+                But his TIMING is dialed in.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Solution - Unique Mechanism Section */}
+      <section className="bg-black py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-4xl">
+            <div className="mb-12 text-center">
+              <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-yellow-500">
+                The Missing Piece
+              </p>
+              <h2 className="mb-6 text-4xl font-black uppercase md:text-5xl">
+                It's Not Your Mechanics.<br />
+                It's Your <span className="text-yellow-500">Sequence.</span>
+              </h2>
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+                MLB teams spend millions studying one thing: <span className="font-bold text-yellow-500">kinematic sequencing</span>.
+                <br />It's the difference between a swing that looks good and a swing that <span className="font-bold">produces power</span>.
+              </p>
+            </div>
+            
+            <div className="grid gap-6 md:grid-cols-3 mb-12">
+              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6 text-center">
+                <div className="mb-4 text-5xl font-black text-yellow-500">1</div>
+                <h3 className="mb-2 text-lg font-bold">Anchor</h3>
+                <p className="text-sm text-gray-400">
+                  Rear leg stability and connection point timing
+                </p>
+              </div>
+              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6 text-center">
+                <div className="mb-4 text-5xl font-black text-yellow-500">2</div>
+                <h3 className="mb-2 text-lg font-bold">Engine</h3>
+                <p className="text-sm text-gray-400">
+                  Pelvis-to-torso coil and rotation timing
+                </p>
+              </div>
+              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6 text-center">
+                <div className="mb-4 text-5xl font-black text-yellow-500">3</div>
+                <h3 className="mb-2 text-lg font-bold">Whip</h3>
+                <p className="text-sm text-gray-400">
+                  Hand path release and lag acceleration
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-lg border-2 border-yellow-500/50 bg-gradient-to-br from-yellow-500/5 to-yellow-500/10 p-8 text-center">
+              <p className="text-2xl md:text-3xl font-black text-white mb-4">
+                Fix the sequence → Unlock instant power
+              </p>
+              <p className="text-lg text-gray-300">
+                Your body already knows how to generate force. We just show you the exact millisecond 
+                each part needs to fire for maximum bat speed.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -334,109 +344,137 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-20 bg-black">
+      {/* Value Stack - Pricing Section */}
+      <section className="py-20 bg-zinc-950">
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-black uppercase md:text-5xl">
-              Choose Your Path to <span className="text-yellow-500">Better Sequencing</span>
+              Choose Your <span className="text-yellow-500">Path to Elite Timing</span>
             </h2>
-            <p className="text-xl text-gray-400">
-              Whether you're just starting or chasing scholarships —<br />
-              we train your swing like a pro.
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              From free diagnostic to full transformation — pick the level that matches where you are 
+              and where you want to be in 90 days.
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
             {/* Free Tier */}
-            <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
+            <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all relative">
               <CardHeader>
-                <CardTitle className="text-2xl font-black uppercase">Tempo Score Starter</CardTitle>
-                <CardDescription className="text-gray-400">Get your Swing Identity Profile</CardDescription>
+                <div className="mb-2">
+                  <span className="text-4xl font-black text-green-500">FREE</span>
+                </div>
+                <CardTitle className="text-xl font-black uppercase">Tempo Starter</CardTitle>
+                <CardDescription className="text-gray-400">See what's holding you back</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-3">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black text-green-500">$0</span>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Instant Tempo Score (2.0:1 vs 1.5:1)</span>
                   </div>
-                  <div className="space-y-2 text-sm text-gray-400">
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Instant Tempo Score</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Basic swing breakdown</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Access to drill library</span>
-                    </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Basic Anchor-Engine-Whip breakdown</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Access to drill library</span>
+                  </div>
+                  <div className="pt-3 border-t border-gray-700">
+                    <p className="text-xs text-gray-500 font-semibold">VALUE: $47</p>
+                    <p className="text-xl font-black text-green-500">TODAY: $0</p>
                   </div>
                 </div>
                 <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
                   <a href="https://whop.com/the-hitting-skool/hits-free/" target="_blank" rel="noopener noreferrer">
-                    Start Free
+                    Get Free Analysis
                   </a>
                 </Button>
               </CardContent>
             </Card>
 
             {/* 7-Day Challenge */}
-            <Card className="border-yellow-500/50 bg-zinc-900 text-white hover:border-yellow-500 transition-all relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 rounded-full text-xs font-bold uppercase">
-                Most Popular
+            <Card className="border-yellow-500 bg-zinc-900 text-white hover:border-yellow-400 transition-all relative scale-105 shadow-2xl shadow-yellow-500/20">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-1.5 rounded-full text-xs font-black uppercase">
+                🔥 Best Value
               </div>
               <CardHeader>
-                <CardTitle className="text-2xl font-black uppercase">The 7-Day Timing Challenge</CardTitle>
-                <CardDescription className="text-gray-400">Beat your pitcher's timing</CardDescription>
+                <div className="mb-2">
+                  <span className="text-4xl font-black text-yellow-500">$7</span>
+                </div>
+                <CardTitle className="text-xl font-black uppercase">7-Day Challenge</CardTitle>
+                <CardDescription className="text-gray-400">Prove it works in one week</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black text-yellow-500">$7</span>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-0.5">✓</span>
+                    <span className="text-gray-300 font-semibold">Daily video analysis + feedback</span>
                   </div>
-                  <p className="text-sm text-gray-400">
-                    +3–5 MPH contact improvement in one week
-                  </p>
+                  <div className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Personalized 7-day drill progression</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Coach Rick live Q&A access</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-0.5">✓</span>
+                    <span className="text-gray-300 font-bold">+3-5 MPH in 7 days (proven avg)</span>
+                  </div>
+                  <div className="pt-3 border-t border-yellow-500/30">
+                    <p className="text-xs text-gray-500 line-through">Regular: $97</p>
+                    <p className="text-xl font-black text-yellow-500">Trial Price: $7</p>
+                    <p className="text-xs text-gray-400 mt-1">That's $1/day to add MPH</p>
+                  </div>
                 </div>
-                <Button asChild className="w-full bg-yellow-500 text-black hover:bg-yellow-400 font-bold uppercase">
+                <Button asChild className="w-full bg-yellow-500 text-black hover:bg-yellow-400 font-black uppercase">
                   <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
-                    Start Challenge
+                    Start 7-Day Challenge
                   </a>
                 </Button>
+                <p className="text-xs text-center text-gray-400 italic">
+                  Over 400 hitters already enrolled this month
+                </p>
               </CardContent>
             </Card>
 
             {/* DIY Platform */}
             <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
               <CardHeader>
-                <CardTitle className="text-2xl font-black uppercase">DIY Player Platform</CardTitle>
-                <CardDescription className="text-gray-400">Self-guided training — pro-level tools</CardDescription>
+                <div className="mb-2">
+                  <span className="text-4xl font-black">$97</span>
+                  <span className="text-lg text-gray-400">/mo</span>
+                </div>
+                <CardTitle className="text-xl font-black uppercase">DIY Platform</CardTitle>
+                <CardDescription className="text-gray-400">Independent training toolkit</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black">$97</span>
-                    <span className="text-gray-400">/mo</span>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">2 AI video reviews per month</span>
                   </div>
-                  <ul className="space-y-1 text-sm text-gray-400">
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">✓</span>
-                      <span>2 Video Reviews / month</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Drill Library + AI feedback</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Tempo Tracker app access</span>
-                    </li>
-                  </ul>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Full drill library (60+ exercises)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Tempo Tracker app access</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Progress tracking dashboard</span>
+                  </div>
+                  <div className="pt-3 border-t border-gray-700">
+                    <p className="text-xs text-gray-500">Perfect for self-motivated athletes</p>
+                  </div>
                 </div>
                 <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
                   <a href="https://whop.com/the-hitting-skool/hits-diy-platform/" target="_blank" rel="noopener noreferrer">
-                    Get Started
+                    Start DIY Training
                   </a>
                 </Button>
               </CardContent>
@@ -445,39 +483,75 @@ export default function Landing() {
             {/* Elite 90-Day */}
             <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
               <CardHeader>
-                <CardTitle className="text-2xl font-black uppercase">Elite 90-Day Transformation</CardTitle>
-                <CardDescription className="text-gray-400">Become the #1 hitter on your team</CardDescription>
+                <div className="mb-2">
+                  <span className="text-4xl font-black">$297</span>
+                </div>
+                <CardTitle className="text-xl font-black uppercase">Elite 90-Day</CardTitle>
+                <CardDescription className="text-gray-400">Done-with-you transformation</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black">$297</span>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-0.5">✓</span>
+                    <span className="text-gray-300 font-semibold">Weekly 1-on-1 video reviews</span>
                   </div>
-                  <ul className="space-y-1 text-sm text-gray-400">
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Weekly breakdowns</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Custom plan</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-500 mt-0.5">✓</span>
-                      <span>Guaranteed performance upgrade</span>
-                    </li>
-                  </ul>
-                  <p className="text-xs italic text-yellow-500 pt-2">
-                    If we don't improve your timing and contact quality, you don't pay.
-                  </p>
+                  <div className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Custom 90-day periodization plan</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-0.5">✓</span>
+                    <span className="text-gray-300">Priority support (24hr response)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-yellow-500 mt-0.5">✓</span>
+                    <span className="text-gray-300 font-bold">Performance guarantee</span>
+                  </div>
+                  <div className="pt-3 border-t border-yellow-500/30 bg-yellow-500/5 -mx-6 px-6 py-3">
+                    <p className="text-sm font-black text-yellow-500">
+                      GUARANTEE: +5 MPH or full refund
+                    </p>
+                  </div>
                 </div>
                 <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
                   <a href="https://whop.com/the-hitting-skool/elite-90-day-transformation/" target="_blank" rel="noopener noreferrer">
-                    Go Elite
+                    Apply for Elite
                   </a>
                 </Button>
+                <p className="text-xs text-center text-gray-400 italic">
+                  Limited to 15 athletes per quarter
+                </p>
               </CardContent>
             </Card>
+          </div>
+          
+          {/* Value Comparison */}
+          <div className="mt-16 max-w-4xl mx-auto">
+            <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-8">
+              <h3 className="text-2xl font-black text-center mb-6">
+                <span className="text-yellow-500">Compare:</span> What $297 Gets You Elsewhere
+              </h3>
+              <div className="grid md:grid-cols-2 gap-6 text-sm">
+                <div>
+                  <p className="font-bold text-red-500 mb-3">❌ Traditional Private Lessons:</p>
+                  <ul className="space-y-2 text-gray-400">
+                    <li>• 3-4 one-hour sessions</li>
+                    <li>• Zero analysis between sessions</li>
+                    <li>• Generic cues, no biomechanics</li>
+                    <li>• $75-100/hour in most markets</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-bold text-green-500 mb-3">✓ H.I.T.S. Elite Program:</p>
+                  <ul className="space-y-2 text-gray-300">
+                    <li>• 12 weeks of daily access</li>
+                    <li>• Unlimited swing analysis</li>
+                    <li>• MLB-level biomechanics</li>
+                    <li>• Works out to $3.29/day</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
