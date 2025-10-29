@@ -11,6 +11,7 @@ import Progress from "./pages/Progress";
 import Drills from "./pages/Drills";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/analyze" element={<Analyze />} />
           <Route path="/result/:id" element={<AnalysisResult />} />
           <Route path="/progress" element={<Progress />} />

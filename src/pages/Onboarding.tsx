@@ -1,0 +1,295 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Upload, User, BarChart3, ChevronRight, Camera } from "lucide-react";
+import { toast } from "sonner";
+import hitsLogo from "@/assets/hits-logo-modern.png";
+
+export default function Onboarding() {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [athleteInfo, setAthleteInfo] = useState({
+    name: "",
+    age: "",
+    position: "",
+    handedness: "",
+  });
+  const [videos, setVideos] = useState<File[]>([]);
+
+  const progress = (step / 3) * 100;
+
+  const handleNext = () => {
+    if (step === 1) {
+      if (!athleteInfo.name) {
+        toast.error("Please enter your name");
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      if (videos.length === 0) {
+        toast.error("Please upload at least one swing video");
+        return;
+      }
+      // Store athlete info
+      localStorage.setItem('athleteInfo', JSON.stringify(athleteInfo));
+      localStorage.setItem('onboardingComplete', 'true');
+      setStep(3);
+    } else if (step === 3) {
+      // Redirect to analyze page with onboarding flag
+      navigate('/analyze?from=onboarding');
+    }
+  };
+
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (videos.length + files.length > 5) {
+      toast.error("Maximum 5 videos allowed");
+      return;
+    }
+    setVideos([...videos, ...files]);
+    toast.success(`${files.length} video(s) added`);
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(videos.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 flex items-center justify-center p-6">
+      <Card className="w-full max-w-2xl p-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <img 
+            src={hitsLogo} 
+            alt="HITS Logo" 
+            className="w-20 h-20 mx-auto mb-4"
+          />
+          <h1 className="text-3xl font-bold mb-2">Welcome to HITS</h1>
+          <p className="text-muted-foreground">
+            Let's get you set up in 3 simple steps
+          </p>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex justify-between mb-2">
+            <span className="text-sm font-medium">Step {step} of 3</span>
+            <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+          </div>
+          <Progress value={progress} className="h-2" />
+        </div>
+
+        {/* Step 1: Athlete Info */}
+        {step === 1 && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <User className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Tell us about yourself</h2>
+                <p className="text-sm text-muted-foreground">
+                  Basic information to personalize your experience
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Full Name *</Label>
+                <Input
+                  id="name"
+                  placeholder="Enter your full name"
+                  value={athleteInfo.name}
+                  onChange={(e) => setAthleteInfo({ ...athleteInfo, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="age">Age</Label>
+                  <Input
+                    id="age"
+                    type="number"
+                    placeholder="Age"
+                    value={athleteInfo.age}
+                    onChange={(e) => setAthleteInfo({ ...athleteInfo, age: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="position">Position</Label>
+                  <Input
+                    id="position"
+                    placeholder="e.g., Shortstop"
+                    value={athleteInfo.position}
+                    onChange={(e) => setAthleteInfo({ ...athleteInfo, position: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="handedness">Batting Stance</Label>
+                <select
+                  id="handedness"
+                  className="w-full px-4 py-2 rounded-md border bg-background"
+                  value={athleteInfo.handedness}
+                  onChange={(e) => setAthleteInfo({ ...athleteInfo, handedness: e.target.value })}
+                >
+                  <option value="">Select...</option>
+                  <option value="right">Right-handed</option>
+                  <option value="left">Left-handed</option>
+                  <option value="switch">Switch hitter</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Upload Videos */}
+        {step === 2 && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <Camera className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Upload Your Swings</h2>
+                <p className="text-sm text-muted-foreground">
+                  Upload up to 5 swing videos
+                </p>
+              </div>
+            </div>
+
+            <Card className="p-6 bg-blue-500/10 border-blue-500/20">
+              <p className="text-sm text-foreground">
+                <strong>💡 Pro Tip:</strong> We get more accurate data and better insights with more swings. 
+                Upload 3-5 videos for the best analysis!
+              </p>
+            </Card>
+
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-primary/30 rounded-lg p-8 text-center">
+                <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">
+                  Upload Videos ({videos.length}/5)
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Click to upload or drag and drop
+                </p>
+                <input
+                  type="file"
+                  accept="video/*"
+                  multiple
+                  onChange={handleVideoUpload}
+                  className="hidden"
+                  id="video-upload"
+                  disabled={videos.length >= 5}
+                />
+                <Button 
+                  onClick={() => document.getElementById('video-upload')?.click()}
+                  disabled={videos.length >= 5}
+                >
+                  Choose Videos
+                </Button>
+              </div>
+
+              {/* Video List */}
+              {videos.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Uploaded Videos:</h4>
+                  {videos.map((video, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <span className="text-sm truncate flex-1">{video.name}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeVideo(index)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Ready to Analyze */}
+        {step === 3 && (
+          <div className="space-y-6 text-center">
+            <div className="flex items-center justify-center">
+              <div className="p-4 rounded-full bg-green-500/10">
+                <BarChart3 className="h-16 w-16 text-green-500" />
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold mb-2">You're All Set!</h2>
+              <p className="text-muted-foreground">
+                Your profile is ready. Let's analyze your swings and see your H.I.T.S. scores!
+              </p>
+            </div>
+
+            <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-primary">3</div>
+                  <div className="text-xs text-muted-foreground">Pillars</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-primary">{videos.length}</div>
+                  <div className="text-xs text-muted-foreground">Videos</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-primary">54+</div>
+                  <div className="text-xs text-muted-foreground">Metrics</div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="flex gap-3 mt-8">
+          {step > 1 && (
+            <Button
+              variant="outline"
+              onClick={() => setStep(step - 1)}
+              className="flex-1"
+            >
+              Back
+            </Button>
+          )}
+          <Button
+            onClick={handleNext}
+            className="flex-1"
+          >
+            {step === 3 ? "Start Analyzing" : "Continue"}
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Skip Option */}
+        {step < 3 && (
+          <div className="text-center mt-4">
+            <button
+              onClick={() => {
+                localStorage.setItem('onboardingComplete', 'true');
+                navigate('/');
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Skip for now
+            </button>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}

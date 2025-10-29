@@ -4,12 +4,23 @@ import { PillarCard } from "@/components/PillarCard";
 import { BottomNav } from "@/components/BottomNav";
 import { Camera, TrendingUp, Target, Play, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if onboarding is needed
+    const onboardingComplete = localStorage.getItem('onboardingComplete');
+    if (!onboardingComplete) {
+      navigate('/onboarding');
+    }
+  }, [navigate]);
+
   // Mock user data
-  const userName = "Alex";
+  const storedAthleteInfo = localStorage.getItem('athleteInfo');
+  const athleteInfo = storedAthleteInfo ? JSON.parse(storedAthleteInfo) : null;
+  const userName = athleteInfo?.name?.split(' ')[0] || "Athlete";
   const hitsScore = 75;
   const trend = 3;
   const streak = 5;
