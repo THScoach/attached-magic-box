@@ -7,7 +7,7 @@ import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
-import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History } from "lucide-react";
+import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
@@ -24,9 +24,13 @@ export default function AnalysisResult() {
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [sessionSwings, setSessionSwings] = useState<any[]>([]);
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentFrame, setCurrentFrame] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const velocityData = generateVelocityData();
+  const FPS = 30; // Frames per second
 
   useEffect(() => {
     const stored = sessionStorage.getItem('latestAnalysis');
@@ -91,6 +95,44 @@ export default function AnalysisResult() {
     } else {
       toast.info("No pose data available for this analysis");
     }
+  };
+
+  const stepForward = () => {
+    if (!videoRef.current) return;
+    const frameTime = 1 / FPS;
+    videoRef.current.currentTime = Math.min(
+      videoRef.current.currentTime + frameTime,
+      videoRef.current.duration
+    );
+  };
+
+  const stepBackward = () => {
+    if (!videoRef.current) return;
+    const frameTime = 1 / FPS;
+    videoRef.current.currentTime = Math.max(
+      videoRef.current.currentTime - frameTime,
+      0
+    );
+  };
+
+  const handleTimeUpdate = () => {
+    if (!videoRef.current) return;
+    const time = videoRef.current.currentTime;
+    setCurrentTime(time);
+    setCurrentFrame(Math.floor(time * FPS));
+  };
+
+  const handleLoadedMetadata = () => {
+    if (!videoRef.current) return;
+    setDuration(videoRef.current.duration);
+    console.log('Video loaded successfully');
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    const ms = Math.floor((seconds % 1) * 100);
+    return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
 
   // Update skeleton drawing during video playback
@@ -193,7 +235,8 @@ export default function AnalysisResult() {
                   onPause={() => setIsPlaying(false)}
                   onEnded={() => setIsPlaying(false)}
                   onError={handleVideoError}
-                  onLoadedMetadata={() => console.log('Video loaded successfully')}
+                  onLoadedMetadata={handleLoadedMetadata}
+                  onTimeUpdate={handleTimeUpdate}
                   loop
                   playsInline
                 />
@@ -220,7 +263,7 @@ export default function AnalysisResult() {
                 </div>
 
                 {/* Overlay Controls */}
-                <div className="absolute bottom-4 left-4 right-4 flex gap-2">
+                <div className="absolute top-4 left-4 right-4 flex gap-2">
                   <Button 
                     size="sm" 
                     variant={showSkeleton ? "default" : "secondary"}
@@ -246,6 +289,35 @@ export default function AnalysisResult() {
                   >
                     COM Path
                   </Button>
+                </div>
+
+                {/* Bottom Controls - Frame Navigation */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent pt-8 pb-3 px-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                      onClick={stepBackward}
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                      onClick={stepForward}
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
+                    <div className="flex-1 text-white text-sm font-mono">
+                      <span>{formatTime(currentTime)}</span>
+                      <span className="text-white/60"> / {formatTime(duration)}</span>
+                    </div>
+                    <div className="text-white text-sm font-mono">
+                      Frame: <span className="font-bold">{currentFrame}</span>
+                    </div>
+                  </div>
                 </div>
               </>
             ) : (
