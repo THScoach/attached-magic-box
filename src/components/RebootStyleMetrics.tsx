@@ -7,14 +7,14 @@ interface RebootStyleMetricsProps {
 }
 
 export function RebootStyleMetrics({ analysis }: RebootStyleMetricsProps) {
-  // MLB/Reboot averages for comparison (based on actual Reboot Motion data)
+  // MLB averages based on proper kinematic cascade (1.5x between segments)
   const mlbAverages = {
-    pelvisVelocity: 340,  // Reboot data shows ~339 deg/s
-    torsoVelocity: 715,   // Reboot data shows ~715 deg/s
-    armVelocity: 750,     // Reboot data shows ~751 deg/s
+    pelvisVelocity: 600,     // ~600 deg/s baseline
+    torsoVelocity: 950,      // ~1.5x pelvis = 900-1000
+    armVelocity: 1800,       // ~2x torso = 1800-2000
     batSpeed: 72,
-    xFactor: 24,          // Reboot shows ~24° at max
-    pelvisRotation: 119,  // MLB avg from Reboot: -118.8°
+    xFactor: 27,
+    pelvisRotation: 119,
     comDistance: 45,
   };
 

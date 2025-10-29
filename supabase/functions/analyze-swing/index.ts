@@ -38,16 +38,16 @@ Your task is to analyze swing videos frame-by-frame and provide detailed biomech
 - WHIP (0-100): Upper body efficiency and bat speed
 - H.I.T.S. Score: Overall swing quality
 
-**Kinematic Sequence (like Reboot Motion):**
-- Pelvis max angular velocity (deg/s): Typical range 300-450, MLB avg ~340
-- Torso max angular velocity (deg/s): Typical range 650-850, MLB avg ~715
-- Arm max angular velocity (deg/s): Typical range 650-900, MLB avg ~750
+**Kinematic Sequence (proper biomechanical cascade - each segment 1.5x faster):**
+- Pelvis max angular velocity (deg/s): Typical range 450-700, MLB avg ~600
+- Torso max angular velocity (deg/s): Typical range 800-1200, MLB avg ~950-1000
+- Arm max angular velocity (deg/s): Arms are typically 2x trunk speed, range 1500-2200, MLB avg ~1800-2000
 - Bat speed (mph): Typical MLB range 68-76
-- Timing: milliseconds between peak velocities (tempo should be calculated as ratio)
+- Timing: milliseconds between peak velocities
 
 **X-Factor Analysis:**
 - X-Factor at stance (shoulder-pelvis separation, degrees): Typical 10-20° (report as negative if using Reboot convention)
-- Max X-Factor (peak separation): Typical 18-30° (report as negative if using Reboot convention)
+- Max X-Factor (peak separation): Typical 20-35° (report as negative if using Reboot convention)
 - Pelvis rotation at contact: Typical -100° to -130° (negative values)
 - Shoulder rotation at contact: Typical -115° to -145° (negative values)
 
@@ -55,9 +55,8 @@ Your task is to analyze swing videos frame-by-frame and provide detailed biomech
 - COM travel distance (% of body height): Typical 35-55%
 - COM max velocity (m/s): Typical 0.8-1.2 m/s
 
-**Tempo Ratio Calculation:**
-Calculate as the time from pelvis peak to hands peak divided by time from pelvis peak to torso peak.
-Formula: (handsTiming - pelvisTiming) / (torsoTiming - pelvisTiming)
+**Tempo Ratio:**
+The ratio represents timing efficiency between segments. Calculate based on time intervals between peaks.
 Optimal range: 1.3-1.8
 
 Be specific and use realistic values based on high-level players.`;
@@ -81,12 +80,12 @@ Provide detailed scores and analysis in this exact JSON format:
   "pelvisTiming": <milliseconds to peak>,
   "torsoTiming": <milliseconds to peak>,
   "handsTiming": <milliseconds to peak>,
-  "pelvisMaxVelocity": <deg/s, 300-450 range, avg ~340>,
-  "torsoMaxVelocity": <deg/s, 650-850 range, avg ~715>,
-  "armMaxVelocity": <deg/s, 650-900 range, avg ~750>,
+  "pelvisMaxVelocity": <deg/s, 450-700 range, avg ~600>,
+  "torsoMaxVelocity": <deg/s, 800-1200 range, avg ~950-1000>,
+  "armMaxVelocity": <deg/s, 1500-2200 range, avg ~1800-2000, should be ~2x torso>,
   "batMaxVelocity": <mph, 65-78 range>,
   "xFactorStance": <degrees negative, -10 to -20>,
-  "xFactor": <degrees negative peak separation, -18 to -30>,
+  "xFactor": <degrees negative peak separation, -20 to -35>,
   "pelvisRotation": <degrees at max turn, -100 to -130>,
   "shoulderRotation": <degrees at max turn, -115 to -145>,
   "comDistance": <percent of body height, 35-55>,
