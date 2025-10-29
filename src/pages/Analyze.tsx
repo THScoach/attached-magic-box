@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
@@ -16,11 +16,50 @@ export default function Analyze() {
   const [isRecording, setIsRecording] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [actualFps, setActualFps] = useState<number>(0);
+  const [cameraRequested, setCameraRequested] = useState(false);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
 
-  const handleStartCamera = async () => {
-    console.log('Starting camera...');
+  // Start camera when video element is mounted
+  useEffect(() => {
+    if (cameraRequested && showCamera && videoPreviewRef.current) {
+      const initCamera = async () => {
+        console.log('Initializing camera...');
+        
+        try {
+          const result = await recorderRef.current.startPreview(videoPreviewRef.current!, 120);
+          
+          if (result.success) {
+            setActualFps(result.actualFps || 30);
+            toast.success(`Camera ready at ${result.actualFps}fps`, {
+              description: result.actualFps && result.actualFps >= 120 
+                ? "High frame rate enabled!" 
+                : "Device may not support high frame rates"
+            });
+          } else {
+            console.error('Camera start failed:', result.error);
+            toast.error("Camera Error", {
+              description: result.error || "Failed to access camera"
+            });
+            setShowCamera(false);
+          }
+        } catch (error) {
+          console.error('Unexpected camera error:', error);
+          toast.error("Camera Error", {
+            description: "Failed to start camera"
+          });
+          setShowCamera(false);
+        }
+        
+        setCameraRequested(false);
+      };
+      
+      initCamera();
+    }
+  }, [cameraRequested, showCamera]);
+
+  const handleStartCamera = () => {
+    console.log('Camera button clicked');
     
     // Check if browser supports camera
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -30,38 +69,9 @@ export default function Analyze() {
       return;
     }
 
-    if (!videoPreviewRef.current) {
-      console.error('Video preview ref not available');
-      return;
-    }
-
+    toast.info("Preparing camera...");
     setShowCamera(true);
-    toast.info("Requesting camera access...");
-    
-    try {
-      const result = await recorderRef.current.startPreview(videoPreviewRef.current, 120);
-      
-      if (result.success) {
-        setActualFps(result.actualFps || 30);
-        toast.success(`Camera ready at ${result.actualFps}fps`, {
-          description: result.actualFps && result.actualFps >= 120 
-            ? "High frame rate enabled!" 
-            : "Device may not support high frame rates"
-        });
-      } else {
-        console.error('Camera start failed:', result.error);
-        toast.error("Camera Error", {
-          description: result.error || "Failed to access camera. Please allow camera permissions."
-        });
-        setShowCamera(false);
-      }
-    } catch (error) {
-      console.error('Unexpected camera error:', error);
-      toast.error("Camera Error", {
-        description: "Failed to start camera. Please check permissions."
-      });
-      setShowCamera(false);
-    }
+    setCameraRequested(true);
   };
 
   const handleStartRecording = async () => {
