@@ -7,7 +7,7 @@ import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
-import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
@@ -113,6 +113,30 @@ export default function AnalysisResult() {
       videoRef.current.currentTime - frameTime,
       0
     );
+  };
+
+  const skipBackward = () => {
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = Math.max(
+      videoRef.current.currentTime - 1,
+      0
+    );
+  };
+
+  const skipForward = () => {
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = Math.min(
+      videoRef.current.currentTime + 1,
+      videoRef.current.duration
+    );
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!videoRef.current) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    videoRef.current.currentTime = percentage * videoRef.current.duration;
   };
 
   const handleTimeUpdate = () => {
@@ -291,31 +315,87 @@ export default function AnalysisResult() {
                   </Button>
                 </div>
 
-                {/* Bottom Controls - Frame Navigation */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent pt-8 pb-3 px-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                      onClick={stepBackward}
+                {/* Bottom Controls - Modern Video Player */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/90 to-transparent pt-12 pb-4 px-4">
+                  {/* Progress Bar */}
+                  <div 
+                    className="w-full h-1.5 bg-white/20 rounded-full mb-3 cursor-pointer group/progress hover:h-2 transition-all"
+                    onClick={handleSeek}
+                  >
+                    <div 
+                      className="h-full bg-primary rounded-full relative group-hover/progress:bg-primary/90 transition-colors"
+                      style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
                     >
-                      <ChevronLeft className="h-5 w-5" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                      onClick={stepForward}
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </Button>
-                    <div className="flex-1 text-white text-sm font-mono">
-                      <span>{formatTime(currentTime)}</span>
-                      <span className="text-white/60"> / {formatTime(duration)}</span>
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover/progress:opacity-100 transition-opacity" />
                     </div>
-                    <div className="text-white text-sm font-mono">
-                      Frame: <span className="font-bold">{currentFrame}</span>
+                  </div>
+
+                  {/* Controls Row */}
+                  <div className="flex items-center gap-2">
+                    {/* Frame Navigation */}
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                        onClick={skipBackward}
+                        title="Back 1 second"
+                      >
+                        <SkipBack className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                        onClick={stepBackward}
+                        title="Back 1 frame"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-9 w-9 p-0 text-white hover:bg-white/20"
+                        onClick={togglePlayPause}
+                      >
+                        {isPlaying ? (
+                          <Pause className="h-5 w-5" />
+                        ) : (
+                          <Play className="h-5 w-5" />
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                        onClick={stepForward}
+                        title="Forward 1 frame"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                        onClick={skipForward}
+                        title="Forward 1 second"
+                      >
+                        <SkipForward className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {/* Time Display */}
+                    <div className="flex-1 text-white text-xs font-mono ml-2">
+                      <span className="font-semibold">{formatTime(currentTime)}</span>
+                      <span className="text-white/50"> / </span>
+                      <span className="text-white/70">{formatTime(duration)}</span>
+                    </div>
+
+                    {/* Frame Counter */}
+                    <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10">
+                      <span className="text-white/70 text-xs">Frame</span>
+                      <span className="text-white font-mono font-bold text-sm">{currentFrame}</span>
+                      <span className="text-white/50 text-xs">/ {Math.floor(duration * FPS)}</span>
                     </div>
                   </div>
                 </div>
