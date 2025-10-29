@@ -1,0 +1,4 @@
+project_id = "goiwiofbmszghvyvhyll"
+
+[functions.coach-rick-chat]
+verify_jwt = false

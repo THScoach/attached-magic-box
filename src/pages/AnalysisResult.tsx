@@ -5,7 +5,8 @@ import { PillarCard } from "@/components/PillarCard";
 import { VelocityChart } from "@/components/VelocityChart";
 import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
-import { ChevronDown, ChevronUp, Target, Play } from "lucide-react";
+import { CoachRickChat } from "@/components/CoachRickChat";
+import { ChevronDown, ChevronUp, Target, Play, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
@@ -15,6 +16,7 @@ export default function AnalysisResult() {
   const navigate = useNavigate();
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [showDrills, setShowDrills] = useState(false);
+  const [showCoachChat, setShowCoachChat] = useState(false);
   const velocityData = generateVelocityData();
 
   useEffect(() => {
@@ -155,6 +157,15 @@ export default function AnalysisResult() {
           <Button 
             size="lg"
             className="w-full"
+            onClick={() => setShowCoachChat(true)}
+          >
+            <MessageCircle className="mr-2 h-5 w-5" />
+            Chat with Coach Rick
+          </Button>
+          <Button 
+            size="lg"
+            variant="outline"
+            className="w-full"
             onClick={() => navigate('/analyze')}
           >
             Analyze Another Swing
@@ -169,6 +180,18 @@ export default function AnalysisResult() {
           </Button>
         </div>
       </div>
+
+      {/* Coach Rick Chat Modal */}
+      {showCoachChat && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="w-full max-w-2xl">
+            <CoachRickChat 
+              analysis={analysis}
+              onClose={() => setShowCoachChat(false)}
+            />
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>
