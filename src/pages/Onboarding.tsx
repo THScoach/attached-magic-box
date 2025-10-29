@@ -20,16 +20,18 @@ export default function Onboarding() {
   });
   const [videos, setVideos] = useState<File[]>([]);
 
-  const progress = (step / 3) * 100;
+  const progress = (step / 4) * 100;
 
   const handleNext = () => {
     if (step === 1) {
+      setStep(2);
+    } else if (step === 2) {
       if (!athleteInfo.name) {
         toast.error("Please enter your name");
         return;
       }
-      setStep(2);
-    } else if (step === 2) {
+      setStep(3);
+    } else if (step === 3) {
       if (videos.length === 0) {
         toast.error("Please upload at least one swing video");
         return;
@@ -37,8 +39,8 @@ export default function Onboarding() {
       // Store athlete info
       localStorage.setItem('athleteInfo', JSON.stringify(athleteInfo));
       localStorage.setItem('onboardingComplete', 'true');
-      setStep(3);
-    } else if (step === 3) {
+      setStep(4);
+    } else if (step === 4) {
       // Redirect to analyze page with onboarding flag
       navigate('/analyze?from=onboarding');
     }
@@ -70,21 +72,74 @@ export default function Onboarding() {
           />
           <h1 className="text-3xl font-bold mb-2">Welcome to HITS</h1>
           <p className="text-muted-foreground">
-            Let's get you set up in 3 simple steps
+            Let's get you set up in 4 simple steps
           </p>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium">Step {step} of 3</span>
+            <span className="text-sm font-medium">Step {step} of 4</span>
             <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
         </div>
 
-        {/* Step 1: Athlete Info */}
+        {/* Step 1: Welcome Message */}
         {step === 1 && (
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center">
+                <div className="p-4 rounded-full bg-primary/10">
+                  <User className="h-12 w-12 text-primary" />
+                </div>
+              </div>
+              
+              <h2 className="text-2xl font-bold">Welcome to H.I.T.S. Analyzer!</h2>
+              
+              <div className="text-left space-y-4 max-w-xl mx-auto">
+                <p className="text-foreground leading-relaxed">
+                  I'm excited to have you here! The H.I.T.S. Analyzer is built on cutting-edge biomechanics 
+                  research to help you understand and improve your swing like never before.
+                </p>
+                
+                <Card className="p-4 bg-primary/5 border-primary/20">
+                  <h3 className="font-bold mb-3">What You'll Get:</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                      <span><strong>54+ Biomechanical Metrics</strong> - Deep analysis of every aspect of your swing</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                      <span><strong>The Three Pillars</strong> - ANCHOR (stability), ENGINE (tempo), and WHIP (release)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                      <span><strong>Personalized Drills</strong> - Targeted exercises to fix your #1 opportunity</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                      <span><strong>Coach Rick AI</strong> - Get instant answers to your swing questions</span>
+                    </li>
+                  </ul>
+                </Card>
+                
+                <p className="text-foreground leading-relaxed">
+                  This technology is based on Dr. Kwon's research and years of working with elite hitters. 
+                  Let's unlock your potential together!
+                </p>
+                
+                <p className="text-muted-foreground text-sm italic">
+                  - From The Hitting Skool Team
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Athlete Info */}
+        {step === 2 && (
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 rounded-lg bg-primary/10">
@@ -150,8 +205,8 @@ export default function Onboarding() {
           </div>
         )}
 
-        {/* Step 2: Upload Videos */}
-        {step === 2 && (
+        {/* Step 3: Upload Videos */}
+        {step === 3 && (
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 rounded-lg bg-primary/10">
@@ -220,8 +275,8 @@ export default function Onboarding() {
           </div>
         )}
 
-        {/* Step 3: Ready to Analyze */}
-        {step === 3 && (
+        {/* Step 4: Ready to Analyze */}
+        {step === 4 && (
           <div className="space-y-6 text-center">
             <div className="flex items-center justify-center">
               <div className="p-4 rounded-full bg-green-500/10">
@@ -266,17 +321,17 @@ export default function Onboarding() {
               Back
             </Button>
           )}
-          <Button
-            onClick={handleNext}
-            className="flex-1"
-          >
-            {step === 3 ? "Start Analyzing" : "Continue"}
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
+            <Button
+              onClick={handleNext}
+              className="flex-1"
+            >
+              {step === 4 ? "Start Analyzing" : step === 1 ? "Get Started" : "Continue"}
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
         </div>
 
         {/* Skip Option */}
-        {step < 3 && (
+        {step < 4 && step > 1 && (
           <div className="text-center mt-4">
             <button
               onClick={() => {
