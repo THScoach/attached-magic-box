@@ -48,8 +48,8 @@ export function MembershipCard() {
   const Icon = config.icon;
 
   const handleUpgrade = () => {
-    // Replace with your actual Whop checkout URL
-    window.open("https://whop.com/your-product", "_blank");
+    // Open 7-Day Challenge checkout for free users
+    window.open("https://whop.com/the-hitting-skool/297-b6/", "_blank");
   };
 
   return (
