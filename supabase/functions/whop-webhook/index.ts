@@ -149,10 +149,10 @@ function mapPlanToTier(planId: string): string {
   // Map your Whop plan IDs to your membership tiers
   // Update these IDs with your actual Whop plan IDs
   const planMapping: Record<string, string> = {
-    'challenge_plan_id': 'challenge',  // 7-Day Challenge ($97)
-    'diy_monthly_plan_id': 'diy',      // DIY Platform ($37/month)
-    'diy_yearly_plan_id': 'diy',       // DIY Platform ($297/year)
-    'elite_plan_id': 'elite',          // Elite 90-Day ($2,497)
+    'prod_WfvSV2wW8AwTc': 'challenge',  // 7-Day Challenge
+    'diy_monthly_plan_id': 'diy',      // DIY Platform (monthly)
+    'diy_yearly_plan_id': 'diy',       // DIY Platform (yearly)
+    'elite_plan_id': 'elite',          // Elite Transformation
   };
 
   return planMapping[planId] || 'free';
