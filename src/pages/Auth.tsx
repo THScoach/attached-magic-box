@@ -110,6 +110,7 @@ export default function Auth() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
+                autoComplete="email"
                 className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
               />
             </div>
@@ -124,6 +125,7 @@ export default function Auth() {
                 required
                 disabled={loading}
                 minLength={6}
+                autoComplete={isSignUp ? "new-password" : "current-password"}
                 className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
               />
             </div>
