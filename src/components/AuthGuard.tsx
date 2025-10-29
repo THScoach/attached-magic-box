@@ -14,11 +14,12 @@ export function AuthGuard({ children }: AuthGuardProps) {
   useEffect(() => {
     // Check current auth state
     supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      setLoading(false);
-      if (!user) {
+      if (user) {
+        setUser(user);
+      } else {
         navigate("/auth");
       }
+      setLoading(false);
     });
 
     // Listen for auth changes
