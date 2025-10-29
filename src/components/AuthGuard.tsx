@@ -113,14 +113,20 @@ export function AuthGuard({ children }: AuthGuardProps) {
             </Button>
           </form>
 
-          <div className="mt-4 text-center">
+          <div className="mt-4 text-center space-y-2">
             <button
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="text-sm text-muted-foreground hover:text-foreground block w-full"
             >
               {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
             </button>
+            <a
+              href="/admin"
+              className="text-sm text-primary hover:text-primary/80 block w-full underline"
+            >
+              Admin Dashboard Access
+            </a>
           </div>
         </Card>
       </div>
