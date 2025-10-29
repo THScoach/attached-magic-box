@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { frames, frames2, dualCamera, keypoints, videoUrl, sessionId } = await req.json();
+    const { frames, frames2, dualCamera, keypoints, videoUrl, sessionId, playerId } = await req.json();
     
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
@@ -361,6 +361,7 @@ Provide detailed scores and analysis in this exact JSON format:
         .insert({
           user_id: userId,
           session_id: sessionId,
+          player_id: playerId,
           video_url: videoUrl,
           overall_score: overallScore,
           anchor_score: analysis.anchorScore,

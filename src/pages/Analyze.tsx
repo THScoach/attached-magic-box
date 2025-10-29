@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
+import { PlayerSelector } from "@/components/PlayerSelector";
 import { Upload, Camera, Loader2, X, Circle, Square, SwitchCamera, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -23,6 +24,7 @@ export default function Analyze() {
   const [camera2Video, setCamera2Video] = useState<File | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
 
@@ -203,6 +205,12 @@ export default function Analyze() {
       return;
     }
 
+    // Require player selection
+    if (!selectedPlayerId) {
+      toast.error("Please select a player first");
+      return;
+    }
+
     setIsAnalyzing(true);
     setUploadProgress(10);
 
@@ -249,7 +257,8 @@ export default function Analyze() {
             frames: frames,
             keypoints: poseData,
             videoUrl: publicUrl,
-            sessionId: currentSessionId
+            sessionId: currentSessionId,
+            playerId: selectedPlayerId
           }
         }
       );
@@ -323,6 +332,11 @@ export default function Analyze() {
       return;
     }
 
+    if (!selectedPlayerId) {
+      toast.error("Please select a player first");
+      return;
+    }
+
     setIsAnalyzing(true);
     setUploadProgress(10);
 
@@ -366,7 +380,8 @@ export default function Analyze() {
             dualCamera: true,
             keypoints: null,
             videoUrl: url1,
-            sessionId: currentSessionId
+            sessionId: currentSessionId,
+            playerId: selectedPlayerId
           }
         }
       );
@@ -470,6 +485,12 @@ export default function Analyze() {
                 </div>
               </Card>
             )}
+
+            {/* Player Selection */}
+            <PlayerSelector 
+              selectedPlayerId={selectedPlayerId}
+              onSelectPlayer={setSelectedPlayerId}
+            />
 
             {/* Dual Camera Mode Toggle */}
             <Card className="p-4">

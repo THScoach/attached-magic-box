@@ -86,6 +86,60 @@ export type Database = {
         }
         Relationships: []
       }
+      players: {
+        Row: {
+          age: number | null
+          avatar_url: string | null
+          birth_date: string | null
+          created_at: string
+          handedness: string | null
+          id: string
+          is_active: boolean | null
+          jersey_number: string | null
+          name: string
+          notes: string | null
+          organization: string | null
+          position: string | null
+          team_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          avatar_url?: string | null
+          birth_date?: string | null
+          created_at?: string
+          handedness?: string | null
+          id?: string
+          is_active?: boolean | null
+          jersey_number?: string | null
+          name: string
+          notes?: string | null
+          organization?: string | null
+          position?: string | null
+          team_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          avatar_url?: string | null
+          birth_date?: string | null
+          created_at?: string
+          handedness?: string | null
+          id?: string
+          is_active?: boolean | null
+          jersey_number?: string | null
+          name?: string
+          notes?: string | null
+          organization?: string | null
+          position?: string | null
+          team_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       practice_sessions: {
         Row: {
           created_at: string
@@ -127,6 +181,7 @@ export type Database = {
           id: string
           metrics: Json
           overall_score: number
+          player_id: string | null
           session_id: string | null
           user_id: string | null
           video_url: string | null
@@ -139,6 +194,7 @@ export type Database = {
           id?: string
           metrics: Json
           overall_score: number
+          player_id?: string | null
           session_id?: string | null
           user_id?: string | null
           video_url?: string | null
@@ -151,12 +207,20 @@ export type Database = {
           id?: string
           metrics?: Json
           overall_score?: number
+          player_id?: string | null
           session_id?: string | null
           user_id?: string | null
           video_url?: string | null
           whip_score?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "swing_analyses_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "swing_analyses_session_id_fkey"
             columns: ["session_id"]
