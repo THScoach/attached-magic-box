@@ -68,23 +68,23 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-black p-4">
       <div className="w-full max-w-md">
-        <Button asChild variant="ghost" className="mb-4">
+        <Button asChild variant="ghost" className="mb-4 text-white hover:text-yellow-500 hover:bg-white/10">
           <Link to="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
         </Button>
-        <Card className="w-full">
+        <Card className="w-full border-white/10 bg-zinc-900 text-white">
         <CardHeader className="text-center">
           <img 
             src={hitsLogo} 
             alt="H.I.T.S. Logo" 
             className="h-20 mx-auto mb-4"
           />
-          <CardTitle>{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-black uppercase">{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
+          <CardDescription className="text-gray-400">
             {isSignUp 
               ? "Sign up to start your hitting journey" 
               : "Sign in to continue your training"}
@@ -117,7 +117,7 @@ export default function Auth() {
                 minLength={6}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full bg-yellow-500 text-black font-bold uppercase hover:bg-yellow-400" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSignUp ? "Sign Up" : "Sign In"}
             </Button>
@@ -127,6 +127,7 @@ export default function Auth() {
               variant="link"
               onClick={() => setIsSignUp(!isSignUp)}
               disabled={loading}
+              className="text-yellow-500 hover:text-yellow-400"
             >
               {isSignUp 
                 ? "Already have an account? Sign in" 
