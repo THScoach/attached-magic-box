@@ -14,12 +14,6 @@ export default function Dashboard() {
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
-    // Check if onboarding is needed
-    const onboardingComplete = localStorage.getItem('onboardingComplete');
-    if (!onboardingComplete) {
-      navigate('/onboarding');
-    }
-
     loadDashboardData();
   }, [navigate]);
 
