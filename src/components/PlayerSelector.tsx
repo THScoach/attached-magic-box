@@ -5,9 +5,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, User, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Player {
   id: string;
@@ -29,6 +31,7 @@ interface PlayerSelectorProps {
 export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelectorProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [showDialog, setShowDialog] = useState(false);
+  const { role, isCoach, isAthlete } = useUserRole();
   const [newPlayer, setNewPlayer] = useState({
     first_name: "",
     last_name: "",
@@ -39,7 +42,8 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
     organization: "",
     jersey_number: "",
     height: "",
-    weight: ""
+    weight: "",
+    is_model: false
   });
 
   useEffect(() => {
@@ -96,7 +100,9 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
         organization: newPlayer.organization.trim() || null,
         jersey_number: newPlayer.jersey_number.trim() || null,
         height: newPlayer.height ? parseFloat(newPlayer.height) : null,
-        weight: newPlayer.weight ? parseFloat(newPlayer.weight) : null
+        weight: newPlayer.weight ? parseFloat(newPlayer.weight) : null,
+        is_model: isCoach ? newPlayer.is_model : false,
+        height_weight_updated_at: new Date().toISOString()
       })
       .select()
       .single();
@@ -119,7 +125,8 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
       organization: "",
       jersey_number: "",
       height: "",
-      weight: ""
+      weight: "",
+      is_model: false
     });
     
     loadPlayers();
@@ -247,6 +254,23 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
                     />
                   </div>
                 </div>
+
+                {isCoach && (
+                  <div className="flex items-center justify-between p-3 rounded-lg border">
+                    <div>
+                      <Label>Model Player</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Mark as demo/reference player
+                      </p>
+                    </div>
+                    <Switch
+                      checked={newPlayer.is_model}
+                      onCheckedChange={(checked) => 
+                        setNewPlayer({ ...newPlayer, is_model: checked })
+                      }
+                    />
+                  </div>
+                )}
 
                 <Button onClick={handleCreatePlayer} className="w-full">
                   Create Player

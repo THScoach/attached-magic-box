@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KnowledgeBaseManager } from "@/components/admin/KnowledgeBaseManager";
 import { DrillsManager } from "@/components/admin/DrillsManager";
+import { SeedModelPlayers } from "@/components/SeedModelPlayers";
 import { BookOpen, Dumbbell, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -66,6 +67,10 @@ export default function Admin() {
       </div>
 
       <div className="px-6 py-6">
+        <div className="mb-6">
+          <SeedModelPlayers />
+        </div>
+        
         <Tabs defaultValue="knowledge" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="knowledge">
