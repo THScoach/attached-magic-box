@@ -86,6 +86,125 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          session_avg: number | null
+          started_at: string
+          total_swings: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          session_avg?: number | null
+          started_at?: string
+          total_swings?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          session_avg?: number | null
+          started_at?: string
+          total_swings?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      swing_analyses: {
+        Row: {
+          anchor_score: number
+          created_at: string
+          engine_score: number
+          id: string
+          metrics: Json
+          overall_score: number
+          session_id: string | null
+          user_id: string | null
+          video_url: string | null
+          whip_score: number
+        }
+        Insert: {
+          anchor_score: number
+          created_at?: string
+          engine_score: number
+          id?: string
+          metrics: Json
+          overall_score: number
+          session_id?: string | null
+          user_id?: string | null
+          video_url?: string | null
+          whip_score: number
+        }
+        Update: {
+          anchor_score?: number
+          created_at?: string
+          engine_score?: number
+          id?: string
+          metrics?: Json
+          overall_score?: number
+          session_id?: string | null
+          user_id?: string | null
+          video_url?: string | null
+          whip_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swing_analyses_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "practice_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sync_recording_sessions: {
+        Row: {
+          client_device_id: string | null
+          client_video_url: string | null
+          created_at: string | null
+          id: string
+          master_device_id: string
+          master_video_url: string | null
+          session_code: string
+          started_at: string | null
+          status: string
+          stopped_at: string | null
+        }
+        Insert: {
+          client_device_id?: string | null
+          client_video_url?: string | null
+          created_at?: string | null
+          id?: string
+          master_device_id: string
+          master_video_url?: string | null
+          session_code: string
+          started_at?: string | null
+          status?: string
+          stopped_at?: string | null
+        }
+        Update: {
+          client_device_id?: string | null
+          client_video_url?: string | null
+          created_at?: string | null
+          id?: string
+          master_device_id?: string
+          master_video_url?: string | null
+          session_code?: string
+          started_at?: string | null
+          status?: string
+          stopped_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
