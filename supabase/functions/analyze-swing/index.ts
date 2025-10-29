@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,7 +12,22 @@ serve(async (req) => {
   }
 
   try {
-    const { frames, frames2, dualCamera, keypoints } = await req.json();
+    const { frames, frames2, dualCamera, keypoints, videoUrl, sessionId } = await req.json();
+    
+    // Get user from auth header
+    const authHeader = req.headers.get('Authorization');
+    let userId = null;
+    
+    if (authHeader) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      userId = user?.id;
+    }
     
     if (!frames || !Array.isArray(frames) || frames.length === 0) {
       return new Response(
@@ -331,10 +347,81 @@ Provide detailed scores and analysis in this exact JSON format:
       throw new Error('Failed to parse analysis results');
     }
 
+    // Save to database if user is authenticated
+    let analysisId = null;
+    if (userId && videoUrl) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+      const overallScore = (analysis.anchorScore + analysis.engineScore + analysis.whipScore) / 3;
+
+      const { data: insertedAnalysis, error: insertError } = await supabaseAdmin
+        .from('swing_analyses')
+        .insert({
+          user_id: userId,
+          session_id: sessionId,
+          video_url: videoUrl,
+          overall_score: overallScore,
+          anchor_score: analysis.anchorScore,
+          engine_score: analysis.engineScore,
+          whip_score: analysis.whipScore,
+          metrics: {
+            hitsScore: analysis.hitsScore,
+            tempoRatio: analysis.tempoRatio,
+            pelvisTiming: analysis.pelvisTiming,
+            torsoTiming: analysis.torsoTiming,
+            handsTiming: analysis.handsTiming,
+            pelvisMaxVelocity: analysis.pelvisMaxVelocity,
+            torsoMaxVelocity: analysis.torsoMaxVelocity,
+            armMaxVelocity: analysis.armMaxVelocity,
+            batMaxVelocity: analysis.batMaxVelocity,
+            xFactorStance: analysis.xFactorStance,
+            xFactor: analysis.xFactor,
+            pelvisRotation: analysis.pelvisRotation,
+            shoulderRotation: analysis.shoulderRotation,
+            comDistance: analysis.comDistance,
+            comMaxVelocity: analysis.comMaxVelocity,
+            primaryOpportunity: analysis.primaryOpportunity,
+            impactStatement: analysis.impactStatement
+          }
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Error saving analysis:', insertError);
+      } else {
+        analysisId = insertedAnalysis.id;
+        console.log('Analysis saved with ID:', analysisId);
+
+        // Update session stats if session exists
+        if (sessionId) {
+          const { data: sessionAnalyses } = await supabaseAdmin
+            .from('swing_analyses')
+            .select('overall_score')
+            .eq('session_id', sessionId);
+
+          if (sessionAnalyses && sessionAnalyses.length > 0) {
+            const avgScore = sessionAnalyses.reduce((sum, a) => sum + Number(a.overall_score), 0) / sessionAnalyses.length;
+            
+            await supabaseAdmin
+              .from('practice_sessions')
+              .update({
+                total_swings: sessionAnalyses.length,
+                session_avg: avgScore
+              })
+              .eq('id', sessionId);
+          }
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true,
-        analysis: analysis
+        analysis: analysis,
+        analysisId: analysisId
       }),
       { 
         status: 200,

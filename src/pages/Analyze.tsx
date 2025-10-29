@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
-import { Upload, Camera, Loader2, X, Circle, Square, SwitchCamera } from "lucide-react";
+import { Upload, Camera, Loader2, X, Circle, Square, SwitchCamera, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,8 +21,55 @@ export default function Analyze() {
   const [dualCameraMode, setDualCameraMode] = useState(false);
   const [camera1Video, setCamera1Video] = useState<File | null>(null);
   const [camera2Video, setCamera2Video] = useState<File | null>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
+
+  // Load or create session on mount
+  useEffect(() => {
+    const initSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Check for active session in last hour
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { data: recentSession } = await supabase
+        .from('practice_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('started_at', oneHourAgo)
+        .is('ended_at', null)
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (recentSession) {
+        setCurrentSessionId(recentSession.id);
+        setSessionStats({
+          total: recentSession.total_swings || 0,
+          avg: recentSession.session_avg || 0
+        });
+      } else {
+        // Create new session
+        const { data: newSession } = await supabase
+          .from('practice_sessions')
+          .insert({
+            user_id: user.id,
+            started_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (newSession) {
+          setCurrentSessionId(newSession.id);
+          setSessionStats({ total: 0, avg: 0 });
+        }
+      }
+    };
+
+    initSession();
+  }, []);
 
   // Start camera when video element is mounted
   useEffect(() => {
@@ -200,7 +247,9 @@ export default function Analyze() {
         {
           body: {
             frames: frames,
-            keypoints: poseData
+            keypoints: poseData,
+            videoUrl: publicUrl,
+            sessionId: currentSessionId
           }
         }
       );
@@ -250,6 +299,14 @@ export default function Analyze() {
       };
 
       sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
+      sessionStorage.setItem('currentSessionId', currentSessionId || '');
+      
+      // Update session stats
+      if (sessionStats) {
+        const newTotal = sessionStats.total + 1;
+        const newAvg = ((sessionStats.avg * sessionStats.total) + analysis.hitsScore) / newTotal;
+        setSessionStats({ total: newTotal, avg: newAvg });
+      }
       
       toast.success("Analysis complete!");
       navigate('/result/latest');
@@ -307,7 +364,9 @@ export default function Analyze() {
             frames: frames1,
             frames2: frames2,
             dualCamera: true,
-            keypoints: null
+            keypoints: null,
+            videoUrl: url1,
+            sessionId: currentSessionId
           }
         }
       );
@@ -355,6 +414,14 @@ export default function Analyze() {
       };
 
       sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
+      sessionStorage.setItem('currentSessionId', currentSessionId || '');
+      
+      // Update session stats
+      if (sessionStats) {
+        const newTotal = sessionStats.total + 1;
+        const newAvg = ((sessionStats.avg * sessionStats.total) + analysis.hitsScore) / newTotal;
+        setSessionStats({ total: newTotal, avg: newAvg });
+      }
       
       toast.success("3D Analysis complete!");
       navigate('/result/latest');
@@ -384,6 +451,26 @@ export default function Analyze() {
       <div className="px-6 py-6 space-y-6">
         {!isAnalyzing && !showCamera ? (
           <>
+            {/* Current Session Stats */}
+            {sessionStats && sessionStats.total > 0 && (
+              <Card className="p-4 bg-primary/5 border-primary/20">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">Current Session</p>
+                    <div className="flex gap-4 mt-1">
+                      <span className="text-lg font-bold">{sessionStats.total} swings</span>
+                      <span className="text-lg font-bold text-primary">
+                        {sessionStats.avg.toFixed(1)} avg
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             {/* Dual Camera Mode Toggle */}
             <Card className="p-4">
               <div className="flex items-center justify-between">

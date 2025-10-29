@@ -7,12 +7,13 @@ import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
-import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
 import { toast } from "sonner";
 import { drawSkeletonOnCanvas, PoseData } from "@/lib/videoAnalysis";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
@@ -21,6 +22,8 @@ export default function AnalysisResult() {
   const [showCoachChat, setShowCoachChat] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
+  const [sessionSwings, setSessionSwings] = useState<any[]>([]);
+  const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const velocityData = generateVelocityData();
@@ -32,6 +35,29 @@ export default function AnalysisResult() {
       console.log('Analysis data:', analysisData);
       console.log('Video URL:', analysisData.videoUrl);
       setAnalysis(analysisData);
+      
+      // Load session data
+      const loadSessionData = async () => {
+        const sessionId = sessionStorage.getItem('currentSessionId');
+        if (!sessionId) return;
+        
+        const { data: swings } = await supabase
+          .from('swing_analyses')
+          .select('*')
+          .eq('session_id', sessionId)
+          .order('created_at', { ascending: false });
+        
+        if (swings && swings.length > 0) {
+          setSessionSwings(swings);
+          const avgScore = swings.reduce((sum, s) => sum + Number(s.overall_score), 0) / swings.length;
+          setSessionStats({
+            total: swings.length,
+            avg: avgScore
+          });
+        }
+      };
+      
+      loadSessionData();
     } else {
       navigate('/analyze');
     }
@@ -127,6 +153,33 @@ export default function AnalysisResult() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
+        {/* Session Progress Card */}
+        {sessionStats && sessionStats.total > 1 && (
+          <Card className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">Session Progress</p>
+                <div className="flex gap-4 mt-1">
+                  <span className="text-lg font-bold">Swing #{sessionStats.total}</span>
+                  <span className="text-lg font-bold text-primary">
+                    {sessionStats.avg.toFixed(1)} avg
+                  </span>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => toast.info("Viewing session history coming soon!")}
+              >
+                <History className="h-4 w-4" />
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* Video Player */}
         <Card className="overflow-hidden">
           <div className="aspect-video bg-black relative group">
