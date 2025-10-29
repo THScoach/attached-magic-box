@@ -54,11 +54,27 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data, error } = await supabase
+    // Check if user is admin - they can see all players
+    const { data: userRoleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    
+    const isAdmin = userRoleData?.role === 'admin';
+
+    // Build query - admins see all players, others see only their own
+    let query = supabase
       .from('players')
       .select('*')
-      .eq('user_id', user.id)
-      .eq('is_active', true)
+      .eq('is_active', true);
+    
+    // If not admin, filter by user_id
+    if (!isAdmin) {
+      query = query.eq('user_id', user.id);
+    }
+    
+    const { data, error } = await query
       .order('last_name')
       .order('first_name');
 
