@@ -30,64 +30,91 @@ export default function Landing() {
         <div className="container relative z-10 mx-auto px-4 py-20">
           <div className="mx-auto max-w-4xl">
             <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-yellow-500">
-              BIOHACK YOUR SWING MECHANICS
+              Tempo Never Lies
             </p>
             <h1 className="mb-6 text-5xl font-black uppercase leading-tight tracking-tight md:text-7xl lg:text-8xl">
-              The Hitting<br />
-              <span className="text-yellow-500">Intelligence</span><br />
-              Training System
+              Train Your Sequence.<br />
+              Fix Your Timing.<br />
+              <span className="text-yellow-500">Become the Hitter<br />Pitchers Hate Seeing.</span>
             </h1>
-            <p className="mb-8 max-w-2xl text-lg text-gray-400 md:text-xl">
-              AI-powered swing analysis. Personalized training programs. 
-              Track your progress from amateur to elite.
+            <p className="mb-4 max-w-2xl text-lg text-gray-300 md:text-xl">
+              Big-league biomechanics — simplified.<br />
+              Unlock more barrels, higher exit speed, and game-ready confidence through the <span className="font-bold text-yellow-500">Anchor → Engine → Whip</span> system.
             </p>
+            <div className="mb-8 flex flex-wrap gap-4 text-sm md:text-base">
+              <div className="flex items-center gap-2">
+                <span className="text-green-500">✓</span>
+                <span className="text-gray-300">Built by an MLB Hitting Coach</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-500">✓</span>
+                <span className="text-gray-300">Trusted by Top College & HS Recruits</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-green-500">✓</span>
+                <span className="text-gray-300">+3–7 MPH Exit Velo in 30–60 Days</span>
+              </div>
+            </div>
             <Button asChild size="lg" className="bg-yellow-500 px-8 py-6 text-lg font-bold uppercase text-black hover:bg-yellow-400">
               <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
-                Get Started <ChevronRight className="ml-2 h-5 w-5" />
+                Show Me My Tempo <ChevronRight className="ml-2 h-5 w-5" />
               </a>
             </Button>
+            <p className="mt-4 text-sm text-gray-400">
+              No sensors. Just your swing. Your phone. Your breakthrough.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Unique Mechanism Section */}
       <section className="bg-zinc-950 py-20">
         <div className="container mx-auto px-4">
-          <div className="mb-16 text-center">
+          <div className="mb-12 text-center">
             <h2 className="mb-4 text-4xl font-black uppercase md:text-5xl">
-              Your Personal Trainer For <span className="text-yellow-500">Hitting Excellence</span>
+              The <span className="text-yellow-500">Tempo-Based</span> Training System
             </h2>
           </div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div className="group rounded-lg border border-white/10 bg-zinc-900 p-8 transition-all hover:border-yellow-500/50">
-              <Video className="mb-4 h-12 w-12 text-yellow-500" />
-              <h3 className="mb-3 text-xl font-bold uppercase">AI Video Analysis</h3>
-              <p className="text-gray-400">
-                Upload your swing and receive instant biomechanical analysis across Anchor, Engine, and Whip metrics.
-              </p>
+          <div className="mx-auto max-w-3xl space-y-6 text-center">
+            <p className="text-xl text-gray-300 md:text-2xl font-semibold">
+              Most hitters chase mechanics and lose timing.<br />
+              Your swing isn't broken — it's <span className="text-yellow-500">mistimed</span>.
+            </p>
+            <p className="text-lg text-gray-400">
+              Our system measures what actually creates power:
+            </p>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 py-8">
+              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
+                <p className="text-lg font-bold text-yellow-500">Tempo</p>
+                <p className="text-sm text-gray-400">Load → Fire ratio</p>
+              </div>
+              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
+                <p className="text-lg font-bold text-yellow-500">Rear Anchor</p>
+                <p className="text-sm text-gray-400">Stability</p>
+              </div>
+              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
+                <p className="text-lg font-bold text-yellow-500">Engine</p>
+                <p className="text-sm text-gray-400">Coil & posture strength</p>
+              </div>
+              <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
+                <p className="text-lg font-bold text-yellow-500">Whip & Lag</p>
+                <p className="text-sm text-gray-400">Release</p>
+              </div>
             </div>
-
-            <div className="group rounded-lg border border-white/10 bg-zinc-900 p-8 transition-all hover:border-yellow-500/50">
-              <Target className="mb-4 h-12 w-12 text-yellow-500" />
-              <h3 className="mb-3 text-xl font-bold uppercase">Dynamic Training Programs</h3>
-              <p className="text-gray-400">
-                Customized programs that adapt to your progress. Powered by proven coaching methodologies.
-              </p>
-            </div>
-
-            <div className="group rounded-lg border border-white/10 bg-zinc-900 p-8 transition-all hover:border-yellow-500/50">
-              <TrendingUp className="mb-4 h-12 w-12 text-yellow-500" />
-              <h3 className="mb-3 text-xl font-bold uppercase">Track & Share Metrics</h3>
-              <p className="text-gray-400">
-                Monitor key performance indicators. Track progress over time. Share your gains.
-              </p>
-            </div>
+            <p className="text-lg text-gray-300">
+              If the sequence flows…<br />
+              the barrel flies.
+            </p>
+            <blockquote className="border-l-4 border-yellow-500 pl-6 text-xl italic text-yellow-500 md:text-2xl">
+              Sequence beats style.<br />
+              Every. Single. Time.
+            </blockquote>
           </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20">
+      <section className="py-20 bg-black">
         <div className="container mx-auto px-4">
           <h2 className="mb-16 text-center text-4xl font-black uppercase md:text-5xl">
             How It Works
@@ -99,7 +126,7 @@ export default function Landing() {
               </div>
               <h3 className="mb-3 text-xl font-bold uppercase">Record Your Swing</h3>
               <p className="text-gray-400">
-                Capture your swing from the proper angle using your mobile device
+                Any camera. Any cage. Any level.
               </p>
             </div>
 
@@ -107,9 +134,9 @@ export default function Landing() {
               <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full border-4 border-yellow-500 bg-black text-3xl font-black text-yellow-500">
                 2
               </div>
-              <h3 className="mb-3 text-xl font-bold uppercase">Get AI Analysis</h3>
+              <h3 className="mb-3 text-xl font-bold uppercase">Get Your Sequence Score</h3>
               <p className="text-gray-400">
-                Receive instant biomechanical breakdown of your Anchor, Engine, and Whip
+                Instant AI breakdown of your <span className="font-semibold text-yellow-500">Tempo</span> and <span className="font-semibold text-yellow-500">Anchor–Engine–Whip</span> mechanics.
               </p>
             </div>
 
@@ -119,7 +146,50 @@ export default function Landing() {
               </div>
               <h3 className="mb-3 text-xl font-bold uppercase">Train & Improve</h3>
               <p className="text-gray-400">
-                Follow your dynamic program and track measurable improvements
+                Follow your personalized drills. Track gains. Build confidence that shows up in games.
+              </p>
+            </div>
+          </div>
+          <div className="mt-12 text-center">
+            <Button asChild size="lg" className="bg-yellow-500 px-8 py-6 text-lg font-bold uppercase text-black hover:bg-yellow-400">
+              <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
+                Analyze My Swing <ChevronRight className="ml-2 h-5 w-5" />
+              </a>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof Section */}
+      <section className="py-20 bg-zinc-950">
+        <div className="container mx-auto px-4">
+          <h2 className="mb-12 text-center text-3xl font-black uppercase md:text-4xl">
+            Trusted by Players on the Path to the Big Leagues
+          </h2>
+          <div className="mb-12 flex flex-wrap items-center justify-center gap-8 text-gray-400">
+            <span className="text-lg font-semibold">MLB</span>
+            <span className="text-2xl">•</span>
+            <span className="text-lg font-semibold">D1 Baseball</span>
+            <span className="text-2xl">•</span>
+            <span className="text-lg font-semibold">Team USA</span>
+            <span className="text-2xl">•</span>
+            <span className="text-lg font-semibold">ABCA</span>
+          </div>
+          <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
+            <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
+              <p className="mb-4 text-lg italic text-gray-300">
+                "I didn't think my timing could improve that fast."
+              </p>
+              <p className="text-sm text-gray-400">
+                — HS Sophomore, +5 MPH EV in 3 weeks
+              </p>
+            </div>
+            <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6">
+              <p className="mb-4 text-lg italic text-gray-300">
+                "My son finally gets his swing."
+              </p>
+              <p className="text-sm text-gray-400">
+                — Parent of 13U standout
               </p>
             </div>
           </div>
@@ -131,23 +201,24 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-black uppercase md:text-5xl">
-              Choose Your <span className="text-yellow-500">Training Path</span>
+              Choose Your Path to <span className="text-yellow-500">Better Sequencing</span>
             </h2>
             <p className="text-xl text-gray-400">
-              Select the program that fits your goals
+              Whether you're just starting or chasing scholarships —<br />
+              we train your swing like a pro.
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
             {/* Free Tier */}
             <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
               <CardHeader>
-                <CardTitle className="text-2xl font-black uppercase">Free</CardTitle>
-                <CardDescription className="text-gray-400">Get started with basics</CardDescription>
+                <CardTitle className="text-2xl font-black uppercase">Tempo Score Starter</CardTitle>
+                <CardDescription className="text-gray-400">Get your Swing Identity Profile</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black">$0</span>
+                    <span className="text-4xl font-black text-green-500">$0</span>
                   </div>
                 </div>
                 <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
@@ -161,17 +232,20 @@ export default function Landing() {
             {/* 7-Day Challenge */}
             <Card className="border-yellow-500/50 bg-zinc-900 text-white hover:border-yellow-500 transition-all relative">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 rounded-full text-xs font-bold uppercase">
-                Popular
+                Most Popular
               </div>
               <CardHeader>
-                <CardTitle className="text-2xl font-black uppercase">7-Day Challenge</CardTitle>
-                <CardDescription className="text-gray-400">Quick start intensive</CardDescription>
+                <CardTitle className="text-2xl font-black uppercase">The 7-Day Timing Challenge</CardTitle>
+                <CardDescription className="text-gray-400">Beat your pitcher's timing</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-black text-yellow-500">$7</span>
                   </div>
+                  <p className="text-sm text-gray-400">
+                    +3–5 MPH contact improvement in one week
+                  </p>
                 </div>
                 <Button asChild className="w-full bg-yellow-500 text-black hover:bg-yellow-400 font-bold uppercase">
                   <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
@@ -184,8 +258,8 @@ export default function Landing() {
             {/* DIY Platform */}
             <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
               <CardHeader>
-                <CardTitle className="text-2xl font-black uppercase">DIY Platform</CardTitle>
-                <CardDescription className="text-gray-400">Self-guided training</CardDescription>
+                <CardTitle className="text-2xl font-black uppercase">DIY Player Platform</CardTitle>
+                <CardDescription className="text-gray-400">Self-guided training — pro-level tools</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
@@ -193,10 +267,24 @@ export default function Landing() {
                     <span className="text-4xl font-black">$97</span>
                     <span className="text-gray-400">/mo</span>
                   </div>
+                  <ul className="space-y-1 text-sm text-gray-400">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>2 Video Reviews / month</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Drill Library + AI feedback</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Tempo Tracker app access</span>
+                    </li>
+                  </ul>
                 </div>
                 <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
                   <a href="https://whop.com/the-hitting-skool/hits-diy-platform/" target="_blank" rel="noopener noreferrer">
-                    Go DIY
+                    Get Started
                   </a>
                 </Button>
               </CardContent>
@@ -205,14 +293,31 @@ export default function Landing() {
             {/* Elite 90-Day */}
             <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
               <CardHeader>
-                <CardTitle className="text-2xl font-black uppercase">Elite 90-Day</CardTitle>
-                <CardDescription className="text-gray-400">Complete transformation</CardDescription>
+                <CardTitle className="text-2xl font-black uppercase">Elite 90-Day Transformation</CardTitle>
+                <CardDescription className="text-gray-400">Become the #1 hitter on your team</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-black">$297</span>
                   </div>
+                  <ul className="space-y-1 text-sm text-gray-400">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Weekly breakdowns</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Custom plan</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-500 mt-0.5">✓</span>
+                      <span>Guaranteed performance upgrade</span>
+                    </li>
+                  </ul>
+                  <p className="text-xs italic text-yellow-500 pt-2">
+                    If we don't improve your timing and contact quality, you don't pay.
+                  </p>
                 </div>
                 <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
                   <a href="https://whop.com/the-hitting-skool/elite-90-day-transformation/" target="_blank" rel="noopener noreferrer">
@@ -230,17 +335,24 @@ export default function Landing() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.15)_0%,transparent_70%)]" />
         <div className="container relative z-10 mx-auto px-4 text-center">
           <h2 className="mb-6 text-4xl font-black uppercase leading-tight md:text-6xl">
-            Ready to Unlock<br />
-            <span className="text-yellow-500">Your Full Potential?</span>
+            Ready to Play with<br />
+            <span className="text-yellow-500">Game-Breaking Confidence?</span>
           </h2>
           <p className="mb-10 text-xl text-gray-400">
-            Join elite athletes who are already transforming their game
+            Join athletes who are unlocking their real power — and forcing coaches to take notice.
           </p>
-          <Button asChild size="lg" className="bg-yellow-500 px-10 py-6 text-xl font-bold uppercase text-black hover:bg-yellow-400">
-            <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
-              Start Training Now <ChevronRight className="ml-2 h-6 w-6" />
-            </a>
-          </Button>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Button asChild size="lg" className="bg-yellow-500 px-10 py-6 text-xl font-bold uppercase text-black hover:bg-yellow-400">
+              <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
+                Analyze My Swing <ChevronRight className="ml-2 h-6 w-6" />
+              </a>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="px-10 py-6 text-xl font-bold uppercase border-white/20 text-white hover:bg-white/10">
+              <a href="https://whop.com/the-hitting-skool/hits-free/" target="_blank" rel="noopener noreferrer">
+                Start Free
+              </a>
+            </Button>
+          </div>
         </div>
       </section>
 
