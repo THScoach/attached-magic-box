@@ -56,24 +56,24 @@ export function generateMockAnalysis(videoUrl: string): SwingAnalysis {
 export function generateVelocityData(): VelocityData[] {
   const data: VelocityData[] = [];
   
-  // Generate realistic velocity curves
+  // Generate realistic velocity curves with proper MLB ranges
   for (let time = -600; time <= 200; time += 10) {
     const normalizedTime = ((time + 600) / 800) * 100; // 0 to 100 (Reboot style)
     const norm = (time + 600) / 800; // 0 to 1 for calculations
     
-    // Pelvis peaks early
+    // Pelvis peaks early - MLB range 400-750 deg/s, avg ~600
     const pelvisVel = Math.max(0, 
-      2800 * Math.exp(-Math.pow((norm - 0.4) * 3, 2))
+      650 * Math.exp(-Math.pow((norm - 0.4) * 3, 2))
     );
     
-    // Torso peaks slightly later
+    // Torso peaks slightly later - MLB range 600-1300 deg/s, avg ~950
     const torsoVel = Math.max(0,
-      2600 * Math.exp(-Math.pow((norm - 0.5) * 3, 2))
+      1000 * Math.exp(-Math.pow((norm - 0.5) * 3, 2))
     );
     
-    // Hands peak latest and fastest
+    // Hands/Arms peak latest - MLB range 750-2200 deg/s, avg ~1800
     const handsVel = Math.max(0,
-      3000 * Math.exp(-Math.pow((norm - 0.65) * 3.5, 2))
+      1900 * Math.exp(-Math.pow((norm - 0.65) * 3.5, 2))
     );
     
     data.push({
