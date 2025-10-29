@@ -14,6 +14,7 @@ export interface SwingAnalysis {
   primaryOpportunity?: string;
   impactStatement?: string;
   recommendedDrills?: string[];
+  poseData?: any; // Array of pose keypoints with timestamps
 }
 
 export interface VelocityData {

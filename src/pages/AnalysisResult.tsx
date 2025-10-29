@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
 import { toast } from "sonner";
+import { drawSkeletonOnCanvas, PoseData } from "@/lib/videoAnalysis";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
@@ -18,7 +19,9 @@ export default function AnalysisResult() {
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const velocityData = generateVelocityData();
 
   useEffect(() => {
@@ -51,6 +54,54 @@ export default function AnalysisResult() {
       setIsPlaying(true);
     }
   };
+
+  const toggleSkeleton = () => {
+    setShowSkeleton(!showSkeleton);
+    if (!showSkeleton && analysis?.poseData) {
+      toast.success("Skeleton overlay enabled");
+    } else if (showSkeleton) {
+      toast.info("Skeleton overlay disabled");
+    } else {
+      toast.info("No pose data available for this analysis");
+    }
+  };
+
+  // Update skeleton drawing during video playback
+  useEffect(() => {
+    if (!showSkeleton || !analysis?.poseData || !videoRef.current || !canvasRef.current) {
+      return;
+    }
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const poseData = analysis.poseData as PoseData[];
+
+    const updateSkeleton = () => {
+      if (!video || !canvas) return;
+
+      const currentTime = video.currentTime * 1000; // Convert to milliseconds
+      
+      // Find the closest pose data to current video time
+      const closestPose = poseData.reduce((prev, curr) => {
+        return Math.abs(curr.timestamp - currentTime) < Math.abs(prev.timestamp - currentTime) 
+          ? curr 
+          : prev;
+      });
+
+      if (closestPose) {
+        drawSkeletonOnCanvas(
+          canvas,
+          closestPose.keypoints,
+          video.videoWidth,
+          video.videoHeight
+        );
+      }
+    };
+
+    const intervalId = setInterval(updateSkeleton, 33); // ~30fps
+
+    return () => clearInterval(intervalId);
+  }, [showSkeleton, analysis, isPlaying]);
 
   if (!analysis) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
@@ -92,6 +143,15 @@ export default function AnalysisResult() {
                   loop
                   playsInline
                 />
+
+                {/* Skeleton Overlay Canvas */}
+                {showSkeleton && analysis.poseData && (
+                  <canvas
+                    ref={canvasRef}
+                    className="absolute inset-0 w-full h-full pointer-events-none"
+                    style={{ mixBlendMode: 'screen' }}
+                  />
+                )}
                 
                 {/* Play/Pause Overlay */}
                 <div 
@@ -109,9 +169,10 @@ export default function AnalysisResult() {
                 <div className="absolute bottom-4 left-4 right-4 flex gap-2">
                   <Button 
                     size="sm" 
-                    variant="secondary" 
+                    variant={showSkeleton ? "default" : "secondary"}
                     className="text-xs"
-                    onClick={() => toast.info("Skeleton overlay coming soon!")}
+                    onClick={toggleSkeleton}
+                    disabled={!analysis.poseData}
                   >
                     Skeleton
                   </Button>

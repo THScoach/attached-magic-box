@@ -4,9 +4,9 @@ import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
 import { Upload, Camera, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { generateMockAnalysis } from "@/lib/mockAnalysis";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { extractVideoFrames, detectPoseInFrames } from "@/lib/videoAnalysis";
 
 export default function Analyze() {
   const navigate = useNavigate();
@@ -30,51 +30,105 @@ export default function Analyze() {
     }
 
     setIsAnalyzing(true);
-    setUploadProgress(0);
+    setUploadProgress(10);
 
-    // Simulate upload progress
-    const uploadInterval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(uploadInterval);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
-
-    // Upload video to storage
-    const fileName = `${Date.now()}-${file.name}`;
-    
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('swing-videos')
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (uploadError) {
-      console.error('Upload error:', uploadError);
-      toast.error("Failed to upload video");
-      setIsAnalyzing(false);
-      return;
-    }
-
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('swing-videos')
-      .getPublicUrl(fileName);
-
-    // Simulate analysis delay
-    setTimeout(() => {
-      const analysis = generateMockAnalysis(publicUrl);
+    try {
+      // Step 1: Upload video to storage
+      const fileName = `${Date.now()}-${file.name}`;
       
-      // Store in session storage (just the URL, not the video)
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('swing-videos')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast.error("Failed to upload video");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      setUploadProgress(30);
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('swing-videos')
+        .getPublicUrl(fileName);
+
+      // Step 2: Extract key frames for AI analysis
+      toast.info("Extracting frames from video...");
+      const frames = await extractVideoFrames(file, 8);
+      setUploadProgress(50);
+
+      // Step 3: Detect poses in video (optional, takes time)
+      toast.info("Detecting body movements...");
+      let poseData = null;
+      try {
+        poseData = await detectPoseInFrames(file, (progress) => {
+          setUploadProgress(50 + (progress * 0.3)); // 50-80%
+        });
+      } catch (poseError) {
+        console.warn('Pose detection failed, continuing without it:', poseError);
+      }
+      
+      setUploadProgress(80);
+
+      // Step 4: Analyze with AI
+      toast.info("Analyzing swing biomechanics...");
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
+        'analyze-swing',
+        {
+          body: {
+            frames: frames,
+            keypoints: poseData
+          }
+        }
+      );
+
+      if (analysisError) {
+        console.error('Analysis error:', analysisError);
+        toast.error("Analysis failed: " + analysisError.message);
+        setIsAnalyzing(false);
+        return;
+      }
+
+      if (!analysisData.success) {
+        toast.error(analysisData.error || "Analysis failed");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      setUploadProgress(100);
+
+      // Step 5: Store results
+      const analysis = {
+        id: Date.now().toString(),
+        videoUrl: publicUrl,
+        analyzedAt: new Date(),
+        hitsScore: analysisData.analysis.hitsScore,
+        anchorScore: analysisData.analysis.anchorScore,
+        engineScore: analysisData.analysis.engineScore,
+        whipScore: analysisData.analysis.whipScore,
+        tempoRatio: analysisData.analysis.tempoRatio,
+        pelvisTiming: analysisData.analysis.pelvisTiming,
+        torsoTiming: analysisData.analysis.torsoTiming,
+        handsTiming: analysisData.analysis.handsTiming,
+        primaryOpportunity: analysisData.analysis.primaryOpportunity,
+        impactStatement: analysisData.analysis.impactStatement,
+        poseData: poseData // Store pose data for skeleton overlay
+      };
+
       sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
       
       toast.success("Analysis complete!");
       navigate('/result/latest');
-    }, 2000);
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error("An unexpected error occurred");
+      setIsAnalyzing(false);
+    }
   };
 
   return (
