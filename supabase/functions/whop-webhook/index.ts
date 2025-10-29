@@ -149,7 +149,7 @@ function mapPlanToTier(planId: string): string {
   // Map your Whop plan IDs to your membership tiers
   // Update these IDs with your actual Whop plan IDs
   const planMapping: Record<string, string> = {
-    'prod_WfvSV2wW8AwTc': 'free',      // Free (2 swings)
+    'prod_Wkwv5hjyghOXC': 'free',      // Free (2 swings)
     'prod_7day_challenge': 'challenge',  // 7-Day Challenge
     'prod_kNyobCww4tc2p': 'diy',       // DIY Platform
     'elite_plan_id': 'elite',          // Elite Transformation
