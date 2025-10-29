@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/BottomNav";
+import { MembershipCard } from "@/components/MembershipCard";
 import { User, Settings, HelpCircle, LogOut, Trophy, Target } from "lucide-react";
 import { toast } from "sonner";
 
@@ -49,6 +50,9 @@ export default function Profile() {
             <p className="text-xs text-muted-foreground">Day Streak</p>
           </Card>
         </div>
+
+        {/* Membership */}
+        <MembershipCard />
 
         {/* Menu Options */}
         <section className="space-y-2">
