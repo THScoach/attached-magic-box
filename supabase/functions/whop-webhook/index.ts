@@ -151,8 +151,7 @@ function mapPlanToTier(planId: string): string {
   const planMapping: Record<string, string> = {
     'prod_WfvSV2wW8AwTc': 'free',      // Free (2 swings)
     'prod_7day_challenge': 'challenge',  // 7-Day Challenge
-    'diy_monthly_plan_id': 'diy',      // DIY Platform (monthly)
-    'diy_yearly_plan_id': 'diy',       // DIY Platform (yearly)
+    'prod_kNyobCww4tc2p': 'diy',       // DIY Platform
     'elite_plan_id': 'elite',          // Elite Transformation
   };
 
