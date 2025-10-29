@@ -56,29 +56,38 @@ Your task is to analyze swing videos frame-by-frame and provide detailed biomech
 - COM max velocity (m/s): Typical 0.8-1.2 m/s
 
 **Tempo Ratio (Load:Fire) - CRITICAL FORMULA:**
-Tempo measures the ratio of Load phase to Fire phase timing:
 
-Formula: Tempo = Load Duration / Fire Duration
+Formula: Tempo = (FireStart - LoadStart) / (Contact - FireStart)
 
-Where:
-- LoadStart: First frame of rearward movement (negative move/coil begins)
-- FireStart: First forward pelvis ACCELERATION onset (NOT max velocity - when hips begin opening)
-- Contact: Ball-bat impact
+**CRITICAL - FireStart Definition:**
+FireStart is the FIRST forward pelvis ACCELERATION onset - NOT the max pelvis velocity or max pelvis turn.
+- This is when the pelvis begins to accelerate forward (first sustained positive acceleration for ≥5 frames)
+- It occurs BEFORE the pelvis reaches peak velocity
+- Estimate: FireStart ≈ (Pelvis peak velocity time) - (120-180ms)
+- For Freeman: typically fires ~320-360ms before contact, pelvis peaks ~200-250ms before contact
 
-Load Duration = FireStart - LoadStart
-Fire Duration = Contact - FireStart
+**Marker Definitions (all times in milliseconds before contact):**
+- LoadStart: First rearward COM/hip movement (negative move/coil begins) - typically 1000-1300ms before contact
+- FireStart: First forward pelvis acceleration onset (NOT peak) - typically 250-500ms before contact  
+- Contact: Ball-bat impact (0ms reference point)
 
-Tempo = (FireStart - LoadStart) / (Contact - FireStart)
+**Duration Calculations:**
+- Load Duration = LoadStart - FireStart (e.g., 1050ms - 350ms = 700ms)
+- Fire Duration = FireStart - Contact (e.g., 350ms - 0ms = 350ms)
+- Tempo = Load Duration / Fire Duration (e.g., 700/350 = 2.0:1)
 
-Typical MLB ranges:
-- Elite power hitters: 2.0-2.3:1 (e.g., Freeman ~2.3:1, Judge ~2.1:1)
+**MLB Typical Ranges:**
+- Elite power hitters: 2.0-2.3:1 (e.g., Freeman ~2.2-2.3:1, Judge ~2.1:1)
 - Balanced hitters: 1.8-2.0:1
 - Quick swingers: 1.5-1.8:1
 
-Guardrails:
-- Fire duration: typically 250-400ms
-- Load duration: typically 600-1000ms
-- Result should be 1.5-2.5:1 range
+**MANDATORY GUARDRAILS (enforce these or flag for review):**
+- Ordering: LoadStart > FireStart > Contact (0)
+- Fire duration: 250-500ms (Contact to FireStart)
+- Load duration: 600-1000ms (FireStart to LoadStart)
+- Tempo range: 1.5-3.5:1 (anything outside = marker error)
+- FireStart must be EARLIER than pelvis peak by 120-180ms minimum
+- No markers in first/last 10% of video frames
 
 Be specific and use realistic values based on high-level players.`;
 
