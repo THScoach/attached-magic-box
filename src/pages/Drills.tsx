@@ -1,17 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
-import { mockDrills } from "@/lib/mockAnalysis";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+interface Drill {
+  id: string;
+  name: string;
+  pillar: "ANCHOR" | "ENGINE" | "WHIP";
+  difficulty: number;
+  duration: number;
+  description: string;
+  instructions: string | null;
+  video_url: string | null;
+  thumbnail_url: string | null;
+}
 
 export default function Drills() {
   const [filter, setFilter] = useState<"ALL" | "ANCHOR" | "ENGINE" | "WHIP">("ALL");
+  const [drills, setDrills] = useState<Drill[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    loadDrills();
+  }, []);
+
+  const loadDrills = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("drills")
+      .select("*")
+      .order("pillar", { ascending: true });
+
+    if (error) {
+      toast.error("Failed to load drills");
+      setLoading(false);
+      return;
+    }
+
+    setDrills((data as any[]) || []);
+    setLoading(false);
+  };
+  
   const filteredDrills = filter === "ALL" 
-    ? mockDrills 
-    : mockDrills.filter(drill => drill.pillar === filter);
+    ? drills 
+    : drills.filter(drill => drill.pillar === filter);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -63,24 +98,28 @@ export default function Drills() {
 
         {/* Drills Grid */}
         <div className="grid gap-4">
-          {filteredDrills.map(drill => (
-            <DrillCard 
-              key={drill.id} 
-              drill={drill}
-              onViewDrill={(id) => {
-                toast.info("Drill details coming soon!");
-              }}
-            />
-          ))}
+          {loading ? (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">Loading drills...</p>
+            </Card>
+          ) : filteredDrills.length === 0 ? (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground">
+                No drills found for this category
+              </p>
+            </Card>
+          ) : (
+            filteredDrills.map(drill => (
+              <DrillCard 
+                key={drill.id} 
+                drill={drill}
+                onViewDrill={(id) => {
+                  toast.info("Drill details coming soon!");
+                }}
+              />
+            ))
+          )}
         </div>
-
-        {filteredDrills.length === 0 && (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">
-              No drills found for this category
-            </p>
-          </Card>
-        )}
       </div>
 
       <BottomNav />

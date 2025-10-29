@@ -95,14 +95,21 @@ export default function Profile() {
         </Card>
 
         {/* Sign Out */}
-        <Button
-          variant="destructive"
-          className="w-full justify-start gap-3"
-          onClick={() => toast.info("Sign out functionality coming soon!")}
-        >
-          <LogOut className="h-5 w-5" />
-          Sign Out
-        </Button>
+        <Card className="p-4 space-y-2">
+          <Button variant="outline" className="w-full justify-start">
+            Privacy Policy
+          </Button>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => window.location.href = '/admin'}
+          >
+            Admin Dashboard
+          </Button>
+          <Button variant="outline" className="w-full justify-start text-destructive">
+            Log Out
+          </Button>
+        </Card>
       </div>
 
       <BottomNav />

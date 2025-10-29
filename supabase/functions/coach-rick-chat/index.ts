@@ -13,19 +13,44 @@ serve(async (req) => {
   try {
     const { messages, analysisData } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
     
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Build system prompt with analysis context if available
+    // Fetch knowledge base from Supabase
+    let knowledgeContext = "";
+    if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+      try {
+        const knowledgeResponse = await fetch(`${SUPABASE_URL}/rest/v1/knowledge_base?select=*`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+        });
+        
+        if (knowledgeResponse.ok) {
+          const knowledgeData = await knowledgeResponse.json();
+          knowledgeContext = "\n\nCoaching Knowledge Base:\n" + 
+            knowledgeData.map((item: any) => 
+              `[${item.category}] ${item.title}: ${item.content}`
+            ).join("\n");
+        }
+      } catch (e) {
+        console.error("Failed to fetch knowledge base:", e);
+      }
+    }
+
+    // Build system prompt with analysis context and knowledge base
     let systemPrompt = `You are Coach Rick, an experienced baseball hitting coach with 20+ years of experience. You analyze swing mechanics using the H.I.T.S. Score methodology which evaluates three pillars:
 
 1. ANCHOR - Stability & Ground Force: How well the athlete maintains balance and generates power from the ground
 2. ENGINE - Tempo & Sequence: The timing and sequencing of body movements during the swing
 3. WHIP - Release & Acceleration: The speed and efficiency of bat acceleration through the zone
 
-You are supportive, knowledgeable, and provide actionable feedback. Keep your responses conversational and encouraging while being technically accurate.`;
+You are supportive, knowledgeable, and provide actionable feedback. Keep your responses conversational and encouraging while being technically accurate.${knowledgeContext}`;
 
     if (analysisData) {
       systemPrompt += `\n\nThe athlete's current swing analysis shows:
