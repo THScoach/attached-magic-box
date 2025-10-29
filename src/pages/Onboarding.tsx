@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Upload, User, BarChart3, ChevronRight, Camera } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Upload, User, BarChart3, ChevronRight, Camera, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import hitsLogo from "@/assets/hits-logo-modern.png";
 
 export default function Onboarding() {
@@ -14,7 +18,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [athleteInfo, setAthleteInfo] = useState({
     name: "",
-    age: "",
+    birthDate: undefined as Date | undefined,
     position: "",
     handedness: "",
   });
@@ -162,14 +166,37 @@ export default function Onboarding() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="age">Age</Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    placeholder="Age"
-                    value={athleteInfo.age}
-                    onChange={(e) => setAthleteInfo({ ...athleteInfo, age: e.target.value })}
-                  />
+                  <Label htmlFor="birthDate">Birth Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !athleteInfo.birthDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {athleteInfo.birthDate ? (
+                          format(athleteInfo.birthDate, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={athleteInfo.birthDate}
+                        onSelect={(date) => setAthleteInfo({ ...athleteInfo, birthDate: date })}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div>
                   <Label htmlFor="position">Position</Label>
