@@ -37,7 +37,9 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
     position: "",
     team_name: "",
     organization: "",
-    jersey_number: ""
+    jersey_number: "",
+    height: "",
+    weight: ""
   });
 
   useEffect(() => {
@@ -92,7 +94,9 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
         position: newPlayer.position.trim() || null,
         team_name: newPlayer.team_name.trim() || null,
         organization: newPlayer.organization.trim() || null,
-        jersey_number: newPlayer.jersey_number.trim() || null
+        jersey_number: newPlayer.jersey_number.trim() || null,
+        height: newPlayer.height ? parseFloat(newPlayer.height) : null,
+        weight: newPlayer.weight ? parseFloat(newPlayer.weight) : null
       })
       .select()
       .single();
@@ -113,7 +117,9 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
       position: "",
       team_name: "",
       organization: "",
-      jersey_number: ""
+      jersey_number: "",
+      height: "",
+      weight: ""
     });
     
     loadPlayers();
@@ -219,6 +225,27 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
                     value={newPlayer.jersey_number}
                     onChange={(e) => setNewPlayer({ ...newPlayer, jersey_number: e.target.value })}
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Height (inches)</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g., 72"
+                      value={newPlayer.height}
+                      onChange={(e) => setNewPlayer({ ...newPlayer, height: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Weight (lbs)</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g., 180"
+                      value={newPlayer.weight}
+                      onChange={(e) => setNewPlayer({ ...newPlayer, weight: e.target.value })}
+                    />
+                  </div>
                 </div>
 
                 <Button onClick={handleCreatePlayer} className="w-full">

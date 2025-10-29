@@ -146,6 +146,7 @@ export type Database = {
           created_at: string
           first_name: string
           handedness: string | null
+          height: number | null
           id: string
           is_active: boolean | null
           jersey_number: string | null
@@ -156,6 +157,7 @@ export type Database = {
           team_name: string | null
           updated_at: string
           user_id: string
+          weight: number | null
         }
         Insert: {
           avatar_url?: string | null
@@ -163,6 +165,7 @@ export type Database = {
           created_at?: string
           first_name?: string
           handedness?: string | null
+          height?: number | null
           id?: string
           is_active?: boolean | null
           jersey_number?: string | null
@@ -173,6 +176,7 @@ export type Database = {
           team_name?: string | null
           updated_at?: string
           user_id: string
+          weight?: number | null
         }
         Update: {
           avatar_url?: string | null
@@ -180,6 +184,7 @@ export type Database = {
           created_at?: string
           first_name?: string
           handedness?: string | null
+          height?: number | null
           id?: string
           is_active?: boolean | null
           jersey_number?: string | null
@@ -190,6 +195,7 @@ export type Database = {
           team_name?: string | null
           updated_at?: string
           user_id?: string
+          weight?: number | null
         }
         Relationships: []
       }
