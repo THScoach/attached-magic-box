@@ -20,22 +20,45 @@ export default function Analyze() {
   const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
 
   const handleStartCamera = async () => {
-    if (!videoPreviewRef.current) return;
+    console.log('Starting camera...');
+    
+    // Check if browser supports camera
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast.error("Camera Not Supported", {
+        description: "Your browser doesn't support camera access"
+      });
+      return;
+    }
+
+    if (!videoPreviewRef.current) {
+      console.error('Video preview ref not available');
+      return;
+    }
 
     setShowCamera(true);
+    toast.info("Requesting camera access...");
     
-    const result = await recorderRef.current.startPreview(videoPreviewRef.current, 120);
-    
-    if (result.success) {
-      setActualFps(result.actualFps || 30);
-      toast.success(`Camera ready at ${result.actualFps}fps`, {
-        description: result.actualFps && result.actualFps >= 120 
-          ? "High frame rate enabled!" 
-          : "Device may not support high frame rates"
-      });
-    } else {
+    try {
+      const result = await recorderRef.current.startPreview(videoPreviewRef.current, 120);
+      
+      if (result.success) {
+        setActualFps(result.actualFps || 30);
+        toast.success(`Camera ready at ${result.actualFps}fps`, {
+          description: result.actualFps && result.actualFps >= 120 
+            ? "High frame rate enabled!" 
+            : "Device may not support high frame rates"
+        });
+      } else {
+        console.error('Camera start failed:', result.error);
+        toast.error("Camera Error", {
+          description: result.error || "Failed to access camera. Please allow camera permissions."
+        });
+        setShowCamera(false);
+      }
+    } catch (error) {
+      console.error('Unexpected camera error:', error);
       toast.error("Camera Error", {
-        description: result.error || "Failed to access camera"
+        description: "Failed to start camera. Please check permissions."
       });
       setShowCamera(false);
     }

@@ -19,22 +19,32 @@ export class CameraRecorder {
     targetFps: number = 120
   ): Promise<{ success: boolean; actualFps?: number; error?: string }> {
     try {
+      console.log('Requesting camera with target fps:', targetFps);
+      
       // Request high frame rate video
       const constraints: RecordingConstraints = {
         video: {
           width: { ideal: 1920 },
           height: { ideal: 1080 },
-          frameRate: { ideal: targetFps, max: 240 }, // Request up to 240fps if available
-          facingMode: 'user' // Can be changed to 'environment' for back camera
+          frameRate: { ideal: targetFps, max: 240 },
+          facingMode: 'user'
         },
         audio: false
       };
 
-      console.log('Requesting camera with constraints:', constraints);
+      console.log('Camera constraints:', constraints);
       this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      if (!this.stream) {
+        throw new Error('No media stream received');
+      }
       
       // Check what frame rate we actually got
       const videoTrack = this.stream.getVideoTracks()[0];
+      if (!videoTrack) {
+        throw new Error('No video track available');
+      }
+      
       const settings = videoTrack.getSettings();
       const actualFps = settings.frameRate || 30;
       
@@ -43,17 +53,34 @@ export class CameraRecorder {
 
       this.videoElement = videoElement;
       this.videoElement.srcObject = this.stream;
-      await this.videoElement.play();
+      
+      await this.videoElement.play().catch(e => {
+        console.error('Video play error:', e);
+        throw new Error('Failed to play video stream');
+      });
 
       return { 
         success: true, 
         actualFps: actualFps 
       };
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      console.error('Camera access error:', error);
+      
+      let errorMessage = 'Failed to access camera';
+      
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = 'Camera permission denied. Please allow camera access.';
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = 'No camera found on this device.';
+        } else if (error.name === 'NotReadableError') {
+          errorMessage = 'Camera is already in use by another application.';
+        }
+      }
+      
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Failed to access camera' 
+        error: errorMessage
       };
     }
   }
