@@ -13,21 +13,24 @@ export class CameraRecorder {
   private stream: MediaStream | null = null;
   private chunks: Blob[] = [];
   private videoElement: HTMLVideoElement | null = null;
+  private currentFacingMode: 'user' | 'environment' = 'environment';
 
   async startPreview(
     videoElement: HTMLVideoElement,
-    targetFps: number = 120
+    targetFps: number = 120,
+    facingMode: 'user' | 'environment' = 'environment'
   ): Promise<{ success: boolean; actualFps?: number; error?: string }> {
     try {
       console.log('Requesting camera with target fps:', targetFps);
       
       // Request high frame rate video
+      this.currentFacingMode = facingMode;
       const constraints: RecordingConstraints = {
         video: {
           width: { ideal: 1920 },
           height: { ideal: 1080 },
           frameRate: { ideal: targetFps, max: 240 },
-          facingMode: 'user'
+          facingMode: this.currentFacingMode
         },
         audio: false
       };
@@ -149,16 +152,19 @@ export class CameraRecorder {
     }
   }
 
-  switchCamera(): void {
+  async switchCamera(videoElement: HTMLVideoElement, targetFps: number = 120): Promise<{ success: boolean; actualFps?: number; error?: string }> {
     // Toggle between front and back camera
-    if (this.stream) {
-      const videoTrack = this.stream.getVideoTracks()[0];
-      const constraints = videoTrack.getConstraints();
-      const currentFacing = (constraints as any).facingMode;
-      
-      // This would require stopping and restarting with new constraints
-      console.log('Camera switching not yet implemented, current:', currentFacing);
-    }
+    const newFacingMode = this.currentFacingMode === 'user' ? 'environment' : 'user';
+    
+    // Stop current stream
+    this.stopPreview();
+    
+    // Start with new facing mode
+    return this.startPreview(videoElement, targetFps, newFacingMode);
+  }
+  
+  getCurrentFacingMode(): 'user' | 'environment' {
+    return this.currentFacingMode;
   }
 
   private getSupportedMimeType(): string {

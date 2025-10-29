@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
-import { Upload, Camera, Loader2, X, Circle, Square } from "lucide-react";
+import { Upload, Camera, Loader2, X, Circle, Square, SwitchCamera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,7 @@ export default function Analyze() {
   const [showCamera, setShowCamera] = useState(false);
   const [actualFps, setActualFps] = useState<number>(0);
   const [cameraRequested, setCameraRequested] = useState(false);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
 
@@ -27,7 +28,7 @@ export default function Analyze() {
         console.log('Initializing camera...');
         
         try {
-          const result = await recorderRef.current.startPreview(videoPreviewRef.current!, 120);
+          const result = await recorderRef.current.startPreview(videoPreviewRef.current!, 120, facingMode);
           
           if (result.success) {
             setActualFps(result.actualFps || 30);
@@ -57,6 +58,24 @@ export default function Analyze() {
       initCamera();
     }
   }, [cameraRequested, showCamera]);
+
+  const handleSwitchCamera = async () => {
+    if (!videoPreviewRef.current) return;
+    
+    toast.info("Switching camera...");
+    const result = await recorderRef.current.switchCamera(videoPreviewRef.current, 120);
+    
+    if (result.success) {
+      const newFacingMode = recorderRef.current.getCurrentFacingMode();
+      setFacingMode(newFacingMode);
+      setActualFps(result.actualFps || 30);
+      toast.success(`Switched to ${newFacingMode === 'user' ? 'front' : 'back'} camera`);
+    } else {
+      toast.error("Failed to switch camera", {
+        description: result.error
+      });
+    }
+  };
 
   const handleStartCamera = () => {
     console.log('Camera button clicked');
@@ -338,6 +357,17 @@ export default function Analyze() {
                 >
                   <X className="h-5 w-5 mr-2" />
                   Cancel
+                </Button>
+
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={handleSwitchCamera}
+                  disabled={isRecording}
+                  className="bg-black/50 border-white text-white hover:bg-black/70 disabled:opacity-50"
+                >
+                  <SwitchCamera className="h-5 w-5 mr-2" />
+                  Switch
                 </Button>
 
                 {!isRecording ? (
