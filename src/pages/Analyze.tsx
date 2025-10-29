@@ -15,16 +15,16 @@ export default function Analyze() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [recorder] = useState(() => new CameraRecorder());
   const [actualFps, setActualFps] = useState<number>(0);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
+  const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
 
   const handleStartCamera = async () => {
     if (!videoPreviewRef.current) return;
 
     setShowCamera(true);
     
-    const result = await recorder.startPreview(videoPreviewRef.current, 120);
+    const result = await recorderRef.current.startPreview(videoPreviewRef.current, 120);
     
     if (result.success) {
       setActualFps(result.actualFps || 30);
@@ -42,7 +42,7 @@ export default function Analyze() {
   };
 
   const handleStartRecording = async () => {
-    const result = await recorder.startRecording();
+    const result = await recorderRef.current.startRecording();
     
     if (result.success) {
       setIsRecording(true);
@@ -56,10 +56,10 @@ export default function Analyze() {
 
   const handleStopRecording = async () => {
     setIsRecording(false);
-    const result = await recorder.stopRecording();
+    const result = await recorderRef.current.stopRecording();
     
     if (result.success && result.blob) {
-      recorder.stopPreview();
+      recorderRef.current.stopPreview();
       setShowCamera(false);
       
       // Convert blob to file and process
@@ -71,7 +71,7 @@ export default function Analyze() {
   };
 
   const handleCancelCamera = () => {
-    recorder.stopPreview();
+    recorderRef.current.stopPreview();
     setShowCamera(false);
     setIsRecording(false);
   };
