@@ -334,6 +334,29 @@ export default function Analyze() {
                 muted
               />
               
+              {/* Calibration Box Guide */}
+              {!isRecording && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="relative w-4/5 h-4/5 max-w-md">
+                    {/* Frame corners */}
+                    <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-green-400"></div>
+                    <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-green-400"></div>
+                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-green-400"></div>
+                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-green-400"></div>
+                    
+                    {/* Center guideline */}
+                    <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-green-400/50 -translate-x-1/2"></div>
+                    
+                    {/* Instructions */}
+                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black/80 px-4 py-2 rounded-lg">
+                      <p className="text-green-400 text-sm font-medium text-center whitespace-nowrap">
+                        Position yourself inside the frame
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {/* Recording indicator */}
               {isRecording && (
                 <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 bg-red-500 rounded-full">
@@ -392,13 +415,26 @@ export default function Analyze() {
               </div>
             </div>
 
-            <div className="p-4 bg-muted">
-              <p className="text-sm text-center">
+            <div className="p-4 bg-muted space-y-3">
+              <p className="text-sm text-center font-medium">
                 {isRecording 
                   ? "Recording your swing... Press Stop when done" 
                   : "Position yourself in frame and press Start Recording"
                 }
               </p>
+              
+              {!isRecording && (
+                <div className="text-xs space-y-2 text-muted-foreground">
+                  <p className="font-semibold text-foreground">📍 Camera Placement Tips:</p>
+                  <ul className="space-y-1 pl-4">
+                    <li>• <strong>Side view (Down-the-line):</strong> Camera at hip height, 6-8 feet away, facing your side</li>
+                    <li>• <strong>Face-on view:</strong> Camera directly in front, capturing full body from feet to head</li>
+                    <li>• <strong>Stability:</strong> Use a tripod or stable surface - avoid handheld</li>
+                    <li>• <strong>Lighting:</strong> Good lighting behind the camera, avoid backlighting</li>
+                    <li>• <strong>Frame:</strong> Capture full swing including club at top and follow-through</li>
+                  </ul>
+                </div>
+              )}
             </div>
           </Card>
         ) : (
