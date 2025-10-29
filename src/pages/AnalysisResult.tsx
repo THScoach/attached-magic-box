@@ -40,7 +40,7 @@ export default function AnalysisResult() {
       console.log('Video URL:', analysisData.videoUrl);
       setAnalysis(analysisData);
       
-      // Load session data
+      // Load session data and create training program
       const loadSessionData = async () => {
         const sessionId = sessionStorage.getItem('currentSessionId');
         if (!sessionId) return;
@@ -58,6 +58,63 @@ export default function AnalysisResult() {
             total: swings.length,
             avg: avgScore
           });
+
+          // Create training program for the latest analysis
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user && swings[0]) {
+            // Determine focus pillar based on lowest score
+            const latestAnalysis = swings[0];
+            const scores = {
+              ANCHOR: Number(latestAnalysis.anchor_score),
+              ENGINE: Number(latestAnalysis.engine_score),
+              WHIP: Number(latestAnalysis.whip_score)
+            };
+            const focusPillar = Object.entries(scores).reduce((a, b) => 
+              a[1] < b[1] ? a : b
+            )[0];
+
+            // Check if program already exists for this analysis
+            const { data: existingProgram } = await supabase
+              .from('training_programs')
+              .select('id')
+              .eq('analysis_id', latestAnalysis.id)
+              .single();
+
+            if (!existingProgram) {
+              // Deactivate old programs
+              await supabase
+                .from('training_programs')
+                .update({ is_active: false })
+                .eq('user_id', user.id);
+
+              // Create new program
+              await supabase
+                .from('training_programs')
+                .insert({
+                  user_id: user.id,
+                  analysis_id: latestAnalysis.id,
+                  focus_pillar: focusPillar,
+                  is_active: true
+                });
+
+              // Initialize gamification if not exists
+              const { data: gamData } = await supabase
+                .from('user_gamification')
+                .select('id')
+                .eq('user_id', user.id)
+                .single();
+
+              if (!gamData) {
+                await supabase
+                  .from('user_gamification')
+                  .insert({
+                    user_id: user.id
+                  });
+              }
+
+              toast.success("New 4-week training program created!");
+            }
+          }
         }
       };
       

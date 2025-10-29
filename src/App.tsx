@@ -9,6 +9,7 @@ import Analyze from "./pages/Analyze";
 import AnalysisResult from "./pages/AnalysisResult";
 import Progress from "./pages/Progress";
 import Drills from "./pages/Drills";
+import Training from "./pages/Training";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Onboarding from "./pages/Onboarding";
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/result/:id" element={<AnalysisResult />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/drills" element={<Drills />} />
+          <Route path="/training" element={<Training />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />

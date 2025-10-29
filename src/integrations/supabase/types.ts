@@ -173,6 +173,44 @@ export type Database = {
         }
         Relationships: []
       }
+      program_checkins: {
+        Row: {
+          checkin_date: string
+          created_at: string
+          drills_completed: string[] | null
+          id: string
+          notes: string | null
+          program_id: string
+          user_id: string
+        }
+        Insert: {
+          checkin_date?: string
+          created_at?: string
+          drills_completed?: string[] | null
+          id?: string
+          notes?: string | null
+          program_id: string
+          user_id: string
+        }
+        Update: {
+          checkin_date?: string
+          created_at?: string
+          drills_completed?: string[] | null
+          id?: string
+          notes?: string | null
+          program_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_checkins_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "training_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       swing_analyses: {
         Row: {
           anchor_score: number
@@ -266,6 +304,86 @@ export type Database = {
           started_at?: string | null
           status?: string
           stopped_at?: string | null
+        }
+        Relationships: []
+      }
+      training_programs: {
+        Row: {
+          analysis_id: string
+          created_at: string
+          end_date: string
+          focus_pillar: string
+          id: string
+          is_active: boolean
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_id: string
+          created_at?: string
+          end_date?: string
+          focus_pillar: string
+          id?: string
+          is_active?: boolean
+          start_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string
+          created_at?: string
+          end_date?: string
+          focus_pillar?: string
+          id?: string
+          is_active?: boolean
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_programs_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_gamification: {
+        Row: {
+          badges: Json | null
+          created_at: string
+          current_streak: number
+          id: string
+          last_checkin_date: string | null
+          longest_streak: number
+          total_checkins: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          badges?: Json | null
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_checkin_date?: string | null
+          longest_streak?: number
+          total_checkins?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          badges?: Json | null
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_checkin_date?: string | null
+          longest_streak?: number
+          total_checkins?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

@@ -1,13 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PillarCard } from "@/components/PillarCard";
+import { TodaysProgramCard } from "@/components/TodaysProgramCard";
 import { BottomNav } from "@/components/BottomNav";
 import { Camera, TrendingUp, Target, Play, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [todaysProgram, setTodaysProgram] = useState<any>(null);
+  const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     // Check if onboarding is needed
@@ -15,7 +19,64 @@ export default function Dashboard() {
     if (!onboardingComplete) {
       navigate('/onboarding');
     }
+
+    loadDashboardData();
   }, [navigate]);
+
+  const loadDashboardData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Load active program
+    const { data: programs } = await supabase
+      .from('training_programs')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (programs && programs.length > 0) {
+      const program = programs[0];
+      const startDate = new Date(program.start_date);
+      const today = new Date();
+      const dayNumber = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+      // Check if checked in today
+      const todayStr = today.toISOString().split('T')[0];
+      const { data: checkin } = await supabase
+        .from('program_checkins')
+        .select('drills_completed')
+        .eq('program_id', program.id)
+        .eq('checkin_date', todayStr)
+        .single();
+
+      // Get drills count
+      const { data: drills } = await supabase
+        .from('drills')
+        .select('id')
+        .eq('pillar', program.focus_pillar);
+
+      setTodaysProgram({
+        id: program.id,
+        focus_pillar: program.focus_pillar,
+        day_number: dayNumber,
+        is_checked_in_today: !!checkin,
+        drills_count: drills?.length || 5
+      });
+    }
+
+    // Load gamification
+    const { data: gamData } = await supabase
+      .from('user_gamification')
+      .select('current_streak')
+      .eq('user_id', user.id)
+      .single();
+
+    if (gamData) {
+      setStreak(gamData.current_streak);
+    }
+  };
 
   // Mock user data
   const storedAthleteInfo = localStorage.getItem('athleteInfo');
@@ -23,7 +84,6 @@ export default function Dashboard() {
   const userName = athleteInfo?.name?.split(' ')[0] || "Athlete";
   const hitsScore = 75;
   const trend = 3;
-  const streak = 5;
   
   const latestSwing = {
     date: "Oct 28, 2025",
@@ -64,6 +124,9 @@ export default function Dashboard() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
+        {/* Today's Training Program */}
+        <TodaysProgramCard program={todaysProgram} />
+
         {/* Latest Swing */}
         <section>
           <h2 className="text-lg font-bold mb-3">Latest Swing</h2>
