@@ -134,15 +134,28 @@ FireStart is the FIRST forward pelvis ACCELERATION onset - NOT the max pelvis ve
 - Bat Speed: Not recorded in this session
 - X-Factor Max: -31.2° (above MLB avg -26.7°)
 - Pelvis Rotation: -101.5°, Shoulder Rotation: -122.4°
-- COM Max Velocity: 1.32 m/s (HIGHEST of all four - exceptional movement speed!)
+- COM Max Velocity: 1.32 m/s (HIGHEST of all - exceptional movement speed!)
 - COM Distance: 54.78% of height (1.03m stride)
 - Timing: Negative Move at 1.355s, Max Pelvis at 0.961s, Max X-Factor at 0.116s
 - Expected Tempo: ~1.5-2.0:1 (moderate load, explosive fire with elite velocities)
 - Profile: ELITE rotational velocities across all segments, exceptional COM speed, represents upper tier of MLB performance
 
-Use these four contrasting profiles to calibrate estimates across the full MLB spectrum:
-- Arraez: Contact/control (low velocities ~60-65% MLB avg, minimal separation, long load ~3.5:1 tempo)
-- Judge: Balanced power (elite separation, moderate velocities 75-80% MLB avg in this session, ~2.1:1 tempo)
+**Kyle Tucker (Patient/Controlled Power Hitter):**
+- Pelvis Max Velocity: 531.7 deg/s (below MLB avg 609.8 - 87% of average)
+- Torso Max Velocity: 769.4 deg/s (below MLB avg 818.9 - 94% of average)
+- Arm Max Velocity: 784.1 deg/s (well below MLB avg 1176.7 - 67% of average)
+- Bat Speed: Not recorded in this session
+- X-Factor Max: -26.2° (at MLB avg -26.7°)
+- Pelvis Rotation: -106.7°, Shoulder Rotation: -128.3°
+- COM Max Velocity: 0.8 m/s, COM Distance: 51.93% of height
+- Timing: Negative Move at 2.301s (extremely long load!), Max Pelvis at 0.208s, Max X-Factor at 0.158s
+- Expected Tempo: ~10-11:1 (extremely long load, quick fire - patient approach)
+- Profile: Very long load phase, moderate velocities, efficient X-Factor, prioritizes timing and bat-to-ball
+
+Use these five contrasting profiles to calibrate estimates across the full MLB spectrum:
+- Arraez: Contact/control (low velocities ~60-65% MLB avg, minimal separation, 3.5:1 tempo)
+- Tucker: Patient power (moderate velocities ~85% MLB avg, very long load 2.3s, ~10:1 tempo)
+- Judge: Balanced power (elite separation, moderate velocities 75-80% MLB avg, ~2.1:1 tempo)
 - Tatis: Explosive power (extreme 45° X-Factor, high bat speed, aggressive mechanics, ~6-8:1 tempo)
 - Machado: Elite velocity (120-154% of MLB avg rotational speeds, exceptional COM velocity, ~1.5-2.0:1 tempo)
 
