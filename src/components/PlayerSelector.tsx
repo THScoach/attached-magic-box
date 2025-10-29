@@ -11,8 +11,9 @@ import { toast } from "sonner";
 
 interface Player {
   id: string;
-  name: string;
-  age: number | null;
+  first_name: string;
+  last_name: string;
+  birth_date: string | null;
   handedness: string | null;
   position: string | null;
   team_name: string | null;
@@ -29,8 +30,9 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
   const [players, setPlayers] = useState<Player[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [newPlayer, setNewPlayer] = useState({
-    name: "",
-    age: "",
+    first_name: "",
+    last_name: "",
+    birth_date: "",
     handedness: "R",
     position: "",
     team_name: "",
@@ -51,7 +53,8 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
       .select('*')
       .eq('user_id', user.id)
       .eq('is_active', true)
-      .order('name');
+      .order('last_name')
+      .order('first_name');
 
     if (error) {
       console.error('Error loading players:', error);
@@ -67,8 +70,8 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
   };
 
   const handleCreatePlayer = async () => {
-    if (!newPlayer.name.trim()) {
-      toast.error("Please enter a player name");
+    if (!newPlayer.first_name.trim() || !newPlayer.last_name.trim()) {
+      toast.error("Please enter first and last name");
       return;
     }
 
@@ -82,8 +85,9 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
       .from('players')
       .insert({
         user_id: user.id,
-        name: newPlayer.name.trim(),
-        age: newPlayer.age ? parseInt(newPlayer.age) : null,
+        first_name: newPlayer.first_name.trim(),
+        last_name: newPlayer.last_name.trim(),
+        birth_date: newPlayer.birth_date || null,
         handedness: newPlayer.handedness || null,
         position: newPlayer.position.trim() || null,
         team_name: newPlayer.team_name.trim() || null,
@@ -99,11 +103,12 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
       return;
     }
 
-    toast.success(`Player "${newPlayer.name}" created!`);
+    toast.success(`Player "${newPlayer.first_name} ${newPlayer.last_name}" created!`);
     setShowDialog(false);
     setNewPlayer({
-      name: "",
-      age: "",
+      first_name: "",
+      last_name: "",
+      birth_date: "",
       handedness: "R",
       position: "",
       team_name: "",
@@ -134,23 +139,32 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
                 <DialogTitle>Add New Player</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div>
-                  <Label>Name *</Label>
-                  <Input
-                    placeholder="Player name"
-                    value={newPlayer.name}
-                    onChange={(e) => setNewPlayer({ ...newPlayer, name: e.target.value })}
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>First Name *</Label>
+                    <Input
+                      placeholder="First name"
+                      value={newPlayer.first_name}
+                      onChange={(e) => setNewPlayer({ ...newPlayer, first_name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Last Name *</Label>
+                    <Input
+                      placeholder="Last name"
+                      value={newPlayer.last_name}
+                      onChange={(e) => setNewPlayer({ ...newPlayer, last_name: e.target.value })}
+                    />
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label>Age</Label>
+                    <Label>Birthdate</Label>
                     <Input
-                      type="number"
-                      placeholder="Age"
-                      value={newPlayer.age}
-                      onChange={(e) => setNewPlayer({ ...newPlayer, age: e.target.value })}
+                      type="date"
+                      value={newPlayer.birth_date}
+                      onChange={(e) => setNewPlayer({ ...newPlayer, birth_date: e.target.value })}
                     />
                   </div>
                   <div>
@@ -234,10 +248,10 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
                 }`}
               >
                 <div className="text-left">
-                  <div className="font-semibold">{player.name}</div>
+                  <div className="font-semibold">{player.last_name}, {player.first_name}</div>
                   <div className="text-xs text-muted-foreground">
                     {[
-                      player.age && `${player.age}yo`,
+                      player.birth_date && `${new Date().getFullYear() - new Date(player.birth_date).getFullYear()}yo`,
                       player.handedness && `${player.handedness}HH`,
                       player.position,
                       player.jersey_number && `#${player.jersey_number}`

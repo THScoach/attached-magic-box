@@ -32,8 +32,13 @@ export function DrillsManager() {
     duration: 10,
     description: "",
     instructions: "",
+    video_type: "none",
     video_url: "",
+    instructions_video_url: "",
     thumbnail_url: "",
+    target_area: "",
+    equipment_needed: "",
+    skill_level: "beginner"
   });
 
   useEffect(() => {
@@ -63,7 +68,10 @@ export function DrillsManager() {
       duration: Number(formData.duration),
       instructions: formData.instructions || null,
       video_url: formData.video_url || null,
+      instructions_video_url: formData.instructions_video_url || null,
       thumbnail_url: formData.thumbnail_url || null,
+      target_area: formData.target_area || null,
+      equipment_needed: formData.equipment_needed ? formData.equipment_needed.split(',').map(e => e.trim()) : null,
     };
 
     if (editingId) {
@@ -94,15 +102,20 @@ export function DrillsManager() {
       duration: 10,
       description: "",
       instructions: "",
+      video_type: "none",
       video_url: "",
+      instructions_video_url: "",
       thumbnail_url: "",
+      target_area: "",
+      equipment_needed: "",
+      skill_level: "beginner"
     });
     setIsEditing(false);
     setEditingId(null);
     loadDrills();
   };
 
-  const handleEdit = (drill: Drill) => {
+  const handleEdit = (drill: any) => {
     setFormData({
       name: drill.name,
       pillar: drill.pillar,
@@ -110,8 +123,13 @@ export function DrillsManager() {
       duration: drill.duration,
       description: drill.description,
       instructions: drill.instructions || "",
+      video_type: drill.video_type || "none",
       video_url: drill.video_url || "",
+      instructions_video_url: drill.instructions_video_url || "",
       thumbnail_url: drill.thumbnail_url || "",
+      target_area: drill.target_area || "",
+      equipment_needed: drill.equipment_needed ? drill.equipment_needed.join(', ') : "",
+      skill_level: drill.skill_level || "beginner"
     });
     setEditingId(drill.id);
     setIsEditing(true);
@@ -226,6 +244,90 @@ export function DrillsManager() {
                 rows={4}
               />
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="target_area">Target Area</Label>
+                <Input
+                  id="target_area"
+                  placeholder="e.g., Hip rotation, Lower body stability"
+                  value={formData.target_area}
+                  onChange={(e) => setFormData({ ...formData, target_area: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="skill_level">Skill Level</Label>
+                <Select
+                  value={formData.skill_level}
+                  onValueChange={(value) => setFormData({ ...formData, skill_level: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="equipment">Equipment Needed (comma-separated)</Label>
+              <Input
+                id="equipment"
+                placeholder="e.g., Bat, Tee, Medicine ball"
+                value={formData.equipment_needed}
+                onChange={(e) => setFormData({ ...formData, equipment_needed: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="video_type">Video Type</Label>
+              <Select
+                value={formData.video_type}
+                onValueChange={(value) => setFormData({ ...formData, video_type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Video</SelectItem>
+                  <SelectItem value="link">YouTube/Vimeo Link</SelectItem>
+                  <SelectItem value="upload">Upload Video</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {formData.video_type === 'link' && (
+              <div>
+                <Label htmlFor="video_url">Video URL</Label>
+                <Input
+                  id="video_url"
+                  type="url"
+                  placeholder="https://youtube.com/..."
+                  value={formData.video_url}
+                  onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                />
+              </div>
+            )}
+
+            {formData.video_type === 'upload' && (
+              <div>
+                <Label>Upload Video</Label>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Upload drill videos to swing-videos bucket manually, then paste the URL here
+                </p>
+                <Input
+                  type="url"
+                  placeholder="https://..."
+                  value={formData.video_url}
+                  onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                />
+              </div>
+            )}
 
             <Button type="submit" className="w-full">
               {editingId ? "Update Drill" : "Create Drill"}
