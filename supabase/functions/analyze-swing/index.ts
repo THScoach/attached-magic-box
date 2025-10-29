@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { frames, frames2, dualCamera, keypoints, videoUrl, sessionId, playerId } = await req.json();
+    const { frames, frames2, dualCamera, keypoints, videoUrl, sessionId, playerId, videoType } = await req.json();
     
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
@@ -363,10 +363,12 @@ Provide detailed scores and analysis in this exact JSON format:
           session_id: sessionId,
           player_id: playerId,
           video_url: videoUrl,
+          video_type: videoType || 'analysis',
           overall_score: overallScore,
           anchor_score: analysis.anchorScore,
           engine_score: analysis.engineScore,
           whip_score: analysis.whipScore,
+          drill_effectiveness_score: videoType === 'drill' ? overallScore : null,
           metrics: {
             hitsScore: analysis.hitsScore,
             tempoRatio: analysis.tempoRatio,

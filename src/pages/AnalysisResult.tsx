@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { PillarCard } from "@/components/PillarCard";
 import { VelocityChart } from "@/components/VelocityChart";
 import { DrillCard } from "@/components/DrillCard";
+import { DrillFeedbackChat } from "@/components/DrillFeedbackChat";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
@@ -20,6 +21,8 @@ export default function AnalysisResult() {
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
+  const [showDrillFeedback, setShowDrillFeedback] = useState(false);
+  const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [sessionSwings, setSessionSwings] = useState<any[]>([]);
@@ -34,11 +37,18 @@ export default function AnalysisResult() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem('latestAnalysis');
+    const analysisType = sessionStorage.getItem('latestAnalysisType') || 'analysis';
     if (stored) {
       const analysisData = JSON.parse(stored);
       console.log('Analysis data:', analysisData);
       console.log('Video URL:', analysisData.videoUrl);
       setAnalysis(analysisData);
+      setVideoType(analysisType as 'analysis' | 'drill');
+      
+      // For drills, automatically show feedback chat
+      if (analysisType === 'drill') {
+        setShowDrillFeedback(true);
+      }
       
       // Load session data and create training program
       const loadSessionData = async () => {
@@ -501,6 +511,18 @@ export default function AnalysisResult() {
 
         {/* Velocity Chart */}
         <VelocityChart data={velocityData} />
+
+        {/* Drill Feedback for Training Drills */}
+        {videoType === 'drill' && showDrillFeedback && analysis.id && (
+          <DrillFeedbackChat 
+            analysisId={analysis.id}
+            drillName="Training Drill"
+            onComplete={() => {
+              setShowDrillFeedback(false);
+              toast.success("Drill feedback saved!");
+            }}
+          />
+        )}
 
         {/* AI Coach Feedback */}
         <Card className="p-6 bg-blue-500/10 border-blue-500/20">

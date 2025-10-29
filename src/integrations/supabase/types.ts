@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      drill_feedback_notes: {
+        Row: {
+          analysis_id: string
+          conversation: Json
+          created_at: string
+          id: string
+          summary: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_id: string
+          conversation?: Json
+          created_at?: string
+          id?: string
+          summary?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string
+          conversation?: Json
+          created_at?: string
+          id?: string
+          summary?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drill_feedback_notes_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drills: {
         Row: {
           created_at: string
@@ -215,6 +253,8 @@ export type Database = {
         Row: {
           anchor_score: number
           created_at: string
+          drill_effectiveness_score: number | null
+          drill_feedback: Json | null
           engine_score: number
           id: string
           metrics: Json
@@ -222,12 +262,15 @@ export type Database = {
           player_id: string | null
           session_id: string | null
           user_id: string | null
+          video_type: string
           video_url: string | null
           whip_score: number
         }
         Insert: {
           anchor_score: number
           created_at?: string
+          drill_effectiveness_score?: number | null
+          drill_feedback?: Json | null
           engine_score: number
           id?: string
           metrics: Json
@@ -235,12 +278,15 @@ export type Database = {
           player_id?: string | null
           session_id?: string | null
           user_id?: string | null
+          video_type?: string
           video_url?: string | null
           whip_score: number
         }
         Update: {
           anchor_score?: number
           created_at?: string
+          drill_effectiveness_score?: number | null
+          drill_feedback?: Json | null
           engine_score?: number
           id?: string
           metrics?: Json
@@ -248,6 +294,7 @@ export type Database = {
           player_id?: string | null
           session_id?: string | null
           user_id?: string | null
+          video_type?: string
           video_url?: string | null
           whip_score?: number
         }

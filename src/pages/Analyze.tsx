@@ -27,6 +27,7 @@ export default function Analyze() {
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [showSyncRecording, setShowSyncRecording] = useState(false);
+  const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
 
@@ -260,7 +261,8 @@ export default function Analyze() {
             keypoints: poseData,
             videoUrl: publicUrl,
             sessionId: currentSessionId,
-            playerId: selectedPlayerId
+            playerId: selectedPlayerId,
+            videoType: videoType
           }
         }
       );
@@ -311,6 +313,7 @@ export default function Analyze() {
 
       sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
       sessionStorage.setItem('currentSessionId', currentSessionId || '');
+      sessionStorage.setItem('latestAnalysisType', videoType);
       
       // Update session stats
       if (sessionStats) {
@@ -383,7 +386,8 @@ export default function Analyze() {
             keypoints: null,
             videoUrl: url1,
             sessionId: currentSessionId,
-            playerId: selectedPlayerId
+            playerId: selectedPlayerId,
+            videoType: videoType
           }
         }
       );
@@ -432,6 +436,7 @@ export default function Analyze() {
 
       sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
       sessionStorage.setItem('currentSessionId', currentSessionId || '');
+      sessionStorage.setItem('latestAnalysisType', videoType);
       
       // Update session stats
       if (sessionStats) {
@@ -493,6 +498,42 @@ export default function Analyze() {
               selectedPlayerId={selectedPlayerId}
               onSelectPlayer={setSelectedPlayerId}
             />
+
+            {/* Video Type Selection */}
+            <Card className="p-4">
+              <div className="space-y-3">
+                <h3 className="font-semibold">What are you uploading?</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant={videoType === 'analysis' ? "default" : "outline"}
+                    className="h-auto py-4 flex flex-col items-center gap-2"
+                    onClick={() => setVideoType('analysis')}
+                  >
+                    <span className="text-lg">📊</span>
+                    <div className="text-center">
+                      <div className="font-bold">Analysis</div>
+                      <div className="text-xs opacity-80">Measure your swing</div>
+                    </div>
+                  </Button>
+                  <Button
+                    variant={videoType === 'drill' ? "default" : "outline"}
+                    className="h-auto py-4 flex flex-col items-center gap-2"
+                    onClick={() => setVideoType('drill')}
+                  >
+                    <span className="text-lg">🎯</span>
+                    <div className="text-center">
+                      <div className="font-bold">Training Drill</div>
+                      <div className="text-xs opacity-80">Track effectiveness</div>
+                    </div>
+                  </Button>
+                </div>
+                {videoType === 'drill' && (
+                  <p className="text-sm text-muted-foreground">
+                    After the drill analysis, Coach Rick will ask you how it felt to log notes.
+                  </p>
+                )}
+              </div>
+            </Card>
 
             {/* Dual Camera Mode Toggle */}
             <Card className="p-4">
