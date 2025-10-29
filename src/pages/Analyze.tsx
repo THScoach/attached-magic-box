@@ -515,11 +515,21 @@ export default function Analyze() {
               </Card>
             )}
 
-            {/* Player Selection */}
-            <PlayerSelector 
-              selectedPlayerId={selectedPlayerId}
-              onSelectPlayer={setSelectedPlayerId}
-            />
+            {/* Player Selection - Required */}
+            <Card className={`p-4 ${!selectedPlayerId ? 'border-2 border-yellow-500/50 bg-yellow-500/5' : ''}`}>
+              <div className="space-y-2">
+                {!selectedPlayerId && (
+                  <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500 mb-2">
+                    <span className="text-lg">👤</span>
+                    <span className="text-sm font-semibold">Step 1: Select a player to continue</span>
+                  </div>
+                )}
+                <PlayerSelector 
+                  selectedPlayerId={selectedPlayerId}
+                  onSelectPlayer={setSelectedPlayerId}
+                />
+              </div>
+            </Card>
 
             {/* Video Type Selection */}
             <Card className="p-4">
@@ -694,8 +704,16 @@ export default function Analyze() {
             ) : (
               /* Single Camera Upload UI */
               <>
-            <Card className="p-8 border-2 border-dashed">
+            <Card className={`p-8 border-2 ${!selectedPlayerId ? 'border-yellow-500/50 border-dashed' : 'border-dashed'}`}>
               <div className="text-center space-y-4">
+                {!selectedPlayerId && (
+                  <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500">
+                      ⚠️ Please select a player above before uploading
+                    </p>
+                  </div>
+                )}
+                
                 <div className="flex justify-center">
                   <div className="p-4 rounded-full bg-primary/10">
                     <Camera className="h-12 w-12 text-primary" />
@@ -713,7 +731,14 @@ export default function Analyze() {
                   <Button 
                     size="lg" 
                     className="w-full"
-                    onClick={() => document.getElementById('video-upload')?.click()}
+                    disabled={!selectedPlayerId}
+                    onClick={() => {
+                      if (!selectedPlayerId) {
+                        toast.error("Please select a player first");
+                        return;
+                      }
+                      document.getElementById('video-upload')?.click();
+                    }}
                   >
                     <Upload className="h-5 w-5 mr-2" />
                     Choose Video File
@@ -731,7 +756,14 @@ export default function Analyze() {
                     size="lg" 
                     variant="outline"
                     className="w-full"
-                    onClick={handleStartCamera}
+                    disabled={!selectedPlayerId}
+                    onClick={() => {
+                      if (!selectedPlayerId) {
+                        toast.error("Please select a player first");
+                        return;
+                      }
+                      handleStartCamera();
+                    }}
                   >
                     <Camera className="h-5 w-5 mr-2" />
                     Record Now (120fps)
