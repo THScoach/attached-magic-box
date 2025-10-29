@@ -20,14 +20,14 @@ export default function Auth() {
     // Check if user is already logged in
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
-        navigate("/");
+        navigate("/dashboard");
       }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        navigate("/");
+        navigate("/dashboard");
       }
     });
 
@@ -44,7 +44,7 @@ export default function Auth() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}/dashboard`,
           },
         });
 
