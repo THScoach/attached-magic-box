@@ -48,22 +48,30 @@ export default function Auth() {
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          setLoading(false);
+          toast.error(error.message || "An error occurred");
+          return;
+        }
         toast.success("Account created! You can now sign in.");
         setIsSignUp(false);
+        setLoading(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          setLoading(false);
+          toast.error(error.message || "An error occurred");
+          return;
+        }
         toast.success("Signed in successfully!");
       }
     } catch (error: any) {
-      toast.error(error.message || "An error occurred");
-    } finally {
       setLoading(false);
+      toast.error(error.message || "An error occurred");
     }
   };
 
