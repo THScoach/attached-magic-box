@@ -126,6 +126,105 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section className="py-20 bg-black">
+        <div className="container mx-auto px-4">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-4xl font-black uppercase md:text-5xl">
+              Choose Your <span className="text-yellow-500">Training Path</span>
+            </h2>
+            <p className="text-xl text-gray-400">
+              Select the program that fits your goals
+            </p>
+          </div>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+            {/* Free Tier */}
+            <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
+              <CardHeader>
+                <CardTitle className="text-2xl font-black uppercase">Free</CardTitle>
+                <CardDescription className="text-gray-400">Get started with basics</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black">$0</span>
+                  </div>
+                </div>
+                <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
+                  <a href="https://whop.com/the-hitting-skool/hits-free/" target="_blank" rel="noopener noreferrer">
+                    Start Free
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* 7-Day Challenge */}
+            <Card className="border-yellow-500/50 bg-zinc-900 text-white hover:border-yellow-500 transition-all relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 rounded-full text-xs font-bold uppercase">
+                Popular
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl font-black uppercase">7-Day Challenge</CardTitle>
+                <CardDescription className="text-gray-400">Quick start intensive</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black text-yellow-500">$7</span>
+                  </div>
+                </div>
+                <Button asChild className="w-full bg-yellow-500 text-black hover:bg-yellow-400 font-bold uppercase">
+                  <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
+                    Start Challenge
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* DIY Platform */}
+            <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
+              <CardHeader>
+                <CardTitle className="text-2xl font-black uppercase">DIY Platform</CardTitle>
+                <CardDescription className="text-gray-400">Self-guided training</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black">$97</span>
+                    <span className="text-gray-400">/mo</span>
+                  </div>
+                </div>
+                <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
+                  <a href="https://whop.com/the-hitting-skool/hits-diy-platform/" target="_blank" rel="noopener noreferrer">
+                    Go DIY
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Elite 90-Day */}
+            <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
+              <CardHeader>
+                <CardTitle className="text-2xl font-black uppercase">Elite 90-Day</CardTitle>
+                <CardDescription className="text-gray-400">Complete transformation</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black">$297</span>
+                  </div>
+                </div>
+                <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
+                  <a href="https://whop.com/the-hitting-skool/elite-90-day-transformation/" target="_blank" rel="noopener noreferrer">
+                    Go Elite
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="relative overflow-hidden bg-zinc-950 py-32">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.15)_0%,transparent_70%)]" />
