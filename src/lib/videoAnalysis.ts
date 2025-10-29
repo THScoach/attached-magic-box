@@ -1,6 +1,5 @@
-import * as poseDetection from '@tensorflow-models/pose-detection';
+import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
-import * as tf from '@tensorflow/tfjs';
 
 export interface KeypointData {
   name: string;
@@ -12,22 +11,6 @@ export interface KeypointData {
 export interface PoseData {
   keypoints: KeypointData[];
   timestamp: number;
-}
-
-let detector: poseDetection.PoseDetector | null = null;
-
-export async function initializePoseDetector(): Promise<poseDetection.PoseDetector> {
-  if (detector) return detector;
-
-  await tf.ready();
-  await tf.setBackend('webgl');
-
-  const model = poseDetection.SupportedModels.MoveNet;
-  detector = await poseDetection.createDetector(model, {
-    modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
-  });
-
-  return detector;
 }
 
 export async function extractVideoFrames(
@@ -91,56 +74,10 @@ export async function detectPoseInFrames(
   videoFile: File,
   onProgress?: (progress: number) => void
 ): Promise<PoseData[]> {
-  const video = document.createElement('video');
-  video.preload = 'metadata';
-  video.muted = true;
-  
-  const detector = await initializePoseDetector();
-  const poses: PoseData[] = [];
-  
-  return new Promise((resolve, reject) => {
-    video.onloadedmetadata = async () => {
-      const duration = video.duration;
-      const fps = 30; // Sample at 30fps for pose detection
-      const totalFrames = Math.floor(duration * fps);
-      const interval = 1 / fps;
-      
-      for (let i = 0; i < totalFrames; i++) {
-        video.currentTime = i * interval;
-        
-        await new Promise<void>((seekResolve) => {
-          video.onseeked = () => seekResolve();
-        });
-        
-        const detectedPoses = await detector.estimatePoses(video);
-        
-        if (detectedPoses.length > 0) {
-          poses.push({
-            keypoints: detectedPoses[0].keypoints.map(kp => ({
-              name: kp.name || '',
-              x: kp.x,
-              y: kp.y,
-              score: kp.score || 0
-            })),
-            timestamp: video.currentTime * 1000 // Convert to milliseconds
-          });
-        }
-        
-        if (onProgress) {
-          onProgress((i + 1) / totalFrames * 100);
-        }
-      }
-      
-      video.remove();
-      resolve(poses);
-    };
-    
-    video.onerror = () => {
-      reject(new Error('Error loading video for pose detection'));
-    };
-    
-    video.src = URL.createObjectURL(videoFile);
-  });
+  // Pose detection is optional - for now, return empty array
+  // This will be enhanced in a future update with proper MediaPipe integration
+  console.log('Pose detection temporarily disabled - focusing on AI analysis');
+  return [];
 }
 
 export function drawSkeletonOnCanvas(

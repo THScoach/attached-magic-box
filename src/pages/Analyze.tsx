@@ -62,18 +62,9 @@ export default function Analyze() {
       const frames = await extractVideoFrames(file, 8);
       setUploadProgress(50);
 
-      // Step 3: Detect poses in video (optional, takes time)
-      toast.info("Detecting body movements...");
-      let poseData = null;
-      try {
-        poseData = await detectPoseInFrames(file, (progress) => {
-          setUploadProgress(50 + (progress * 0.3)); // 50-80%
-        });
-      } catch (poseError) {
-        console.warn('Pose detection failed, continuing without it:', poseError);
-      }
-      
-      setUploadProgress(80);
+      // Step 3: Pose detection (temporarily disabled, focusing on AI analysis)
+      const poseData = null;
+      setUploadProgress(70);
 
       // Step 4: Analyze with AI
       toast.info("Analyzing swing biomechanics...");
