@@ -110,6 +110,7 @@ export default function Auth() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
+                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
               />
             </div>
             <div className="space-y-2">
@@ -123,6 +124,7 @@ export default function Auth() {
                 required
                 disabled={loading}
                 minLength={6}
+                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-400"
               />
             </div>
             <Button type="submit" className="w-full bg-yellow-500 text-black font-bold uppercase hover:bg-yellow-400" disabled={loading}>
