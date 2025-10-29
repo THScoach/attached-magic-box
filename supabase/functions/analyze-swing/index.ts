@@ -89,6 +89,22 @@ FireStart is the FIRST forward pelvis ACCELERATION onset - NOT the max pelvis ve
 - FireStart must be EARLIER than pelvis peak by 120-180ms minimum
 - No markers in first/last 10% of video frames
 
+**CALIBRATION REFERENCE - Aaron Judge (Verified Reboot Data):**
+Use this real-world example to calibrate your estimates:
+- Pelvis Max Velocity: 461.8 deg/s (below MLB avg 609.8 - this particular session/swing)
+- Torso Max Velocity: 728.5 deg/s (below MLB avg 818.9)
+- Arm Max Velocity: 878.2 deg/s (below MLB avg 1176.7)
+- Bat Speed: ~72 mph (2144.4 deg/s - converted from angular velocity)
+- X-Factor Max: -39.0° (excellent separation, well above MLB avg -26.7°)
+- Pelvis Rotation at Max Turn: -103.7° (MLB avg: -118.8°)
+- Shoulder Rotation at Max Turn: -125.5° (MLB avg: -124.3°)
+- COM Max Velocity: 0.54 m/s
+- COM Distance: 43.85% of height (0.99m stride)
+- Timing (before contact): Max Pelvis Turn at 0.222s, Max Shoulder Turn at 0.188s
+- Expected Tempo: ~2.1:1 (elite power hitter range)
+
+Note: Judge's velocities in this session are lower than typical, suggesting controlled work or specific drill focus. His X-Factor remains elite.
+
 Be specific and use realistic values based on high-level players.`;
 
     const userPrompt = `Analyze this baseball/softball swing sequence. I'm providing ${frames.length} key frames from a high-speed video (300fps).
