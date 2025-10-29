@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { User } from "lucide-react";
+import hitsLogo from "@/assets/hits-logo.png";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -75,10 +75,12 @@ export function AuthGuard({ children }: AuthGuardProps) {
       <div className="min-h-screen bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 flex items-center justify-center p-6">
         <Card className="w-full max-w-md p-6">
           <div className="flex flex-col items-center mb-6">
-            <div className="p-3 rounded-full bg-primary/10 mb-3">
-              <User className="h-8 w-8 text-primary" />
-            </div>
-            <h1 className="text-2xl font-bold">Welcome to Swing Coach</h1>
+            <img 
+              src={hitsLogo} 
+              alt="HITS Logo" 
+              className="w-24 h-24 mb-4"
+            />
+            <h1 className="text-2xl font-bold">Welcome to HITS</h1>
             <p className="text-muted-foreground text-center mt-2">
               {isSignUp ? "Create an account to get started" : "Sign in to continue"}
             </p>
