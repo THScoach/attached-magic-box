@@ -150,7 +150,7 @@ function mapPlanToTier(planId: string): string {
   // Update these IDs with your actual Whop plan IDs
   const planMapping: Record<string, string> = {
     'prod_Wkwv5hjyghOXC': 'free',      // Free (2 swings)
-    'prod_7day_challenge': 'challenge',  // 7-Day Challenge
+    'prod_WfvSV2wW8AwTc': 'challenge',  // 7-Day Challenge
     'prod_kNyobCww4tc2p': 'diy',       // DIY Platform
     'prod_SqdIUcKJXwmuB': 'elite',     // Elite Transformation
   };
