@@ -31,6 +31,10 @@ export interface SwingAnalysis {
     torsoVelocity: { player: number; mlb: number };
     xFactor: { player: number; mlb: number };
   };
+  // Exit velocity and distance estimates
+  exitVelocity?: number; // mph
+  launchAngle?: number; // degrees
+  projectedDistance?: number; // feet
 }
 
 export interface VelocityData {

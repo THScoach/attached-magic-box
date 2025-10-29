@@ -1,6 +1,7 @@
-import { Card } from "@/components/ui/card";
 import { SwingAnalysis } from "@/types/swing";
-import { TrendingUp, Target, Gauge } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Zap, Target, TrendingUp, Gauge } from "lucide-react";
 
 interface RebootStyleMetricsProps {
   analysis: SwingAnalysis;
@@ -24,7 +25,53 @@ export function RebootStyleMetrics({ analysis }: RebootStyleMetricsProps) {
 
   return (
     <div className="space-y-4">
-      {/* Segment Angular Velocities */}
+      {/* Exit Velocity & Distance */}
+      {(analysis.exitVelocity || analysis.projectedDistance) && (
+        <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <CardHeader className="p-0 mb-4">
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary" />
+              Estimated Performance
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {analysis.exitVelocity && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Exit Velocity</span>
+                    <Target className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="text-3xl font-bold text-primary">
+                    {analysis.exitVelocity}
+                    <span className="text-lg ml-1">mph</span>
+                  </div>
+                </div>
+              )}
+              {analysis.launchAngle && (
+                <div className="space-y-2">
+                  <span className="text-sm text-muted-foreground">Launch Angle</span>
+                  <div className="text-3xl font-bold">
+                    {analysis.launchAngle.toFixed(1)}
+                    <span className="text-lg ml-1">°</span>
+                  </div>
+                </div>
+              )}
+              {analysis.projectedDistance && (
+                <div className="space-y-2">
+                  <span className="text-sm text-muted-foreground">Projected Distance</span>
+                  <div className="text-3xl font-bold text-primary">
+                    {analysis.projectedDistance}
+                    <span className="text-lg ml-1">ft</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Angular Velocities */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="h-5 w-5 text-primary" />

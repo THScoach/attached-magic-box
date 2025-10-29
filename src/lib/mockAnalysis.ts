@@ -1,5 +1,22 @@
 import { SwingAnalysis, VelocityData, Drill } from "@/types/swing";
 
+// Estimate exit velocity based on bat speed and other factors
+function estimateExitVelocity(batSpeed: number, bodyMass: number = 180): number {
+  // Simplified formula: EV ≈ (bat speed × efficiency factor) + mass adjustment
+  const efficiency = 0.75 + Math.random() * 0.15; // 75-90% energy transfer
+  const massBonus = (bodyMass - 150) * 0.1;
+  return Math.round(batSpeed * efficiency + massBonus);
+}
+
+// Estimate distance based on exit velocity and launch angle
+function estimateDistance(exitVelocity: number, launchAngle: number): number {
+  // Optimal launch angle is around 25-30 degrees
+  const optimalAngle = 27;
+  const anglePenalty = Math.abs(launchAngle - optimalAngle) * 2;
+  const baseDistance = (exitVelocity * 4.5) - anglePenalty;
+  return Math.round(Math.max(0, baseDistance));
+}
+
 export function generateMockAnalysis(videoUrl: string): SwingAnalysis {
   // Generate realistic random scores
   const anchorScore = Math.floor(Math.random() * 20) + 75; // 75-95
@@ -34,6 +51,24 @@ export function generateMockAnalysis(videoUrl: string): SwingAnalysis {
 
   const opportunity = opportunities[Math.floor(Math.random() * opportunities.length)];
 
+  // Enhanced Reboot-style metrics
+  const pelvisMaxVelocity = 550 + Math.random() * 200; // 550-750 deg/s
+  const torsoMaxVelocity = 900 + Math.random() * 400;  // 900-1300 deg/s
+  const armMaxVelocity = 1600 + Math.random() * 600;   // 1600-2200 deg/s
+  const batMaxVelocity = 65 + Math.random() * 15;      // 65-80 mph
+  const xFactorStance = 20 + Math.random() * 30;       // 20-50 degrees
+  const xFactor = 25 + Math.random() * 35;             // 25-60 degrees
+  const pelvisRotation = -(100 + Math.random() * 40);  // -100 to -140 degrees
+  const shoulderRotation = 85 + Math.random() * 40;
+  const comDistance = 6 + Math.random() * 4;
+  const comMaxVelocity = 8 + Math.random() * 6;
+
+  // Calculate exit velocity and distance estimates
+  const batSpeed = batMaxVelocity * 2.237; // Convert m/s to mph (for consistency)
+  const launchAngle = 15 + Math.random() * 20; // 15-35 degrees
+  const exitVelocity = estimateExitVelocity(batSpeed);
+  const distance = estimateDistance(exitVelocity, launchAngle);
+
   return {
     id: `swing_${Date.now()}`,
     videoUrl,
@@ -49,7 +84,25 @@ export function generateMockAnalysis(videoUrl: string): SwingAnalysis {
     handsTiming: parseFloat((Math.random() * 0.1 - 0.05).toFixed(3)),
     primaryOpportunity: opportunity.text,
     impactStatement: opportunity.impact,
-    recommendedDrills: ["drill_1", "drill_2", "drill_3"]
+    recommendedDrills: ["drill_1", "drill_2", "drill_3"],
+    pelvisMaxVelocity,
+    torsoMaxVelocity,
+    armMaxVelocity,
+    batMaxVelocity,
+    xFactor,
+    xFactorStance,
+    pelvisRotation,
+    shoulderRotation,
+    comDistance,
+    comMaxVelocity,
+    mlbComparison: {
+      pelvisVelocity: { player: pelvisMaxVelocity, mlb: 700 },
+      torsoVelocity: { player: torsoMaxVelocity, mlb: 1100 },
+      xFactor: { player: xFactor, mlb: 50 },
+    },
+    exitVelocity,
+    launchAngle,
+    projectedDistance: distance,
   };
 }
 
