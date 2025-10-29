@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PillarCard } from "@/components/PillarCard";
@@ -6,7 +6,7 @@ import { VelocityChart } from "@/components/VelocityChart";
 import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
-import { ChevronDown, ChevronUp, Target, Play, MessageCircle } from "lucide-react";
+import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
@@ -17,6 +17,8 @@ export default function AnalysisResult() {
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const velocityData = generateVelocityData();
 
   useEffect(() => {
@@ -27,6 +29,18 @@ export default function AnalysisResult() {
       navigate('/analyze');
     }
   }, [navigate]);
+
+  const togglePlayPause = () => {
+    if (!videoRef.current) return;
+    
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
 
   if (!analysis) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
@@ -53,16 +67,53 @@ export default function AnalysisResult() {
       <div className="px-6 py-6 space-y-6">
         {/* Video Player */}
         <Card className="overflow-hidden">
-          <div className="aspect-video bg-black flex items-center justify-center relative group">
-            <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform cursor-pointer" />
+          <div className="aspect-video bg-black relative group">
+            <video
+              ref={videoRef}
+              src={analysis.videoUrl}
+              className="w-full h-full object-contain"
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
+              loop
+            />
+            
+            {/* Play/Pause Overlay */}
+            <div 
+              className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={togglePlayPause}
+            >
+              {isPlaying ? (
+                <Pause className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+              ) : (
+                <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+              )}
+            </div>
+
+            {/* Overlay Controls */}
             <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-              <Button size="sm" variant="secondary" className="text-xs">
+              <Button 
+                size="sm" 
+                variant="secondary" 
+                className="text-xs"
+                onClick={() => toast.info("Skeleton overlay coming soon!")}
+              >
                 Skeleton
               </Button>
-              <Button size="sm" variant="secondary" className="text-xs">
+              <Button 
+                size="sm" 
+                variant="secondary" 
+                className="text-xs"
+                onClick={() => toast.info("Timing overlay coming soon!")}
+              >
                 Timing
               </Button>
-              <Button size="sm" variant="secondary" className="text-xs">
+              <Button 
+                size="sm" 
+                variant="secondary" 
+                className="text-xs"
+                onClick={() => toast.info("COM Path overlay coming soon!")}
+              >
                 COM Path
               </Button>
             </div>
