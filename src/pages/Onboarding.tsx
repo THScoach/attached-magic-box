@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,11 @@ import { Upload, User, BarChart3, ChevronRight, Camera, CalendarIcon } from "luc
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import hitsLogo from "@/assets/hits-logo-modern.png";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const { role, loading: roleLoading, isCoach, isAdmin } = useUserRole();
   const [step, setStep] = useState(1);
   const [athleteInfo, setAthleteInfo] = useState({
     name: "",
@@ -23,6 +25,18 @@ export default function Onboarding() {
     handedness: "",
   });
   const [videos, setVideos] = useState<File[]>([]);
+
+  // Redirect coaches/admins immediately
+  useEffect(() => {
+    if (!roleLoading && (isCoach || isAdmin)) {
+      localStorage.setItem('onboardingComplete', 'true');
+      if (isCoach) {
+        navigate('/coach-dashboard');
+      } else if (isAdmin) {
+        navigate('/admin');
+      }
+    }
+  }, [roleLoading, isCoach, isAdmin, navigate]);
 
   const progress = (step / 4) * 100;
 
@@ -63,6 +77,16 @@ export default function Onboarding() {
   const removeVideo = (index: number) => {
     setVideos(videos.filter((_, i) => i !== index));
   };
+
+  if (roleLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 flex items-center justify-center">
+        <Card className="p-8">
+          <p>Loading...</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 flex items-center justify-center p-6">
