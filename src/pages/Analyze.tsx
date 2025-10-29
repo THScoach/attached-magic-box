@@ -1,21 +1,82 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
-import { Upload, Camera, Loader2 } from "lucide-react";
+import { Upload, Camera, Loader2, X, Circle, Square } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { extractVideoFrames, detectPoseInFrames } from "@/lib/videoAnalysis";
+import { CameraRecorder } from "@/lib/cameraRecording";
 
 export default function Analyze() {
   const navigate = useNavigate();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [recorder] = useState(() => new CameraRecorder());
+  const [actualFps, setActualFps] = useState<number>(0);
+  const videoPreviewRef = useRef<HTMLVideoElement>(null);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleStartCamera = async () => {
+    if (!videoPreviewRef.current) return;
+
+    setShowCamera(true);
+    
+    const result = await recorder.startPreview(videoPreviewRef.current, 120);
+    
+    if (result.success) {
+      setActualFps(result.actualFps || 30);
+      toast.success(`Camera ready at ${result.actualFps}fps`, {
+        description: result.actualFps && result.actualFps >= 120 
+          ? "High frame rate enabled!" 
+          : "Device may not support high frame rates"
+      });
+    } else {
+      toast.error("Camera Error", {
+        description: result.error || "Failed to access camera"
+      });
+      setShowCamera(false);
+    }
+  };
+
+  const handleStartRecording = async () => {
+    const result = await recorder.startRecording();
+    
+    if (result.success) {
+      setIsRecording(true);
+      toast.success("Recording started");
+    } else {
+      toast.error("Recording Error", {
+        description: result.error || "Failed to start recording"
+      });
+    }
+  };
+
+  const handleStopRecording = async () => {
+    setIsRecording(false);
+    const result = await recorder.stopRecording();
+    
+    if (result.success && result.blob) {
+      recorder.stopPreview();
+      setShowCamera(false);
+      
+      // Convert blob to file and process
+      const file = new File([result.blob], `swing-${Date.now()}.webm`, { type: 'video/webm' });
+      await processVideoFile(file);
+    } else {
+      toast.error("Failed to save recording");
+    }
+  };
+
+  const handleCancelCamera = () => {
+    recorder.stopPreview();
+    setShowCamera(false);
+    setIsRecording(false);
+  };
+
+  const processVideoFile = async (file: File) => {
 
     // Validate file type
     if (!file.type.startsWith('video/')) {
@@ -133,6 +194,12 @@ export default function Analyze() {
     }
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await processVideoFile(file);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
@@ -144,7 +211,7 @@ export default function Analyze() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        {!isAnalyzing ? (
+        {!isAnalyzing && !showCamera ? (
           <>
             <Card className="p-8 border-2 border-dashed">
               <div className="text-center space-y-4">
@@ -157,7 +224,7 @@ export default function Analyze() {
                 <div>
                   <h3 className="font-bold text-lg mb-2">Upload Your Swing</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Support for MP4, MOV files up to 100MB
+                    Support for MP4, MOV files up to 100MB. Any frame rate supported (30-480fps).
                   </p>
                 </div>
 
@@ -183,12 +250,10 @@ export default function Analyze() {
                     size="lg" 
                     variant="outline"
                     className="w-full"
-                    onClick={() => {
-                      toast.info("Camera recording coming soon!");
-                    }}
+                    onClick={handleStartCamera}
                   >
                     <Camera className="h-5 w-5 mr-2" />
-                    Record Now
+                    Record Now (120fps)
                   </Button>
                 </div>
               </div>
@@ -203,9 +268,76 @@ export default function Analyze() {
                 <li>• Use good lighting for clear visibility</li>
                 <li>• Capture at least 2-3 seconds before and after contact</li>
                 <li>• Keep the camera stable (use a tripod if possible)</li>
+                <li>• For best results: 120fps or higher (300-480fps supported)</li>
               </ul>
             </Card>
           </>
+        ) : showCamera ? (
+          <Card className="overflow-hidden">
+            <div className="relative bg-black">
+              <video
+                ref={videoPreviewRef}
+                className="w-full aspect-video object-contain"
+                playsInline
+                muted
+              />
+              
+              {/* Recording indicator */}
+              {isRecording && (
+                <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-2 bg-red-500 rounded-full">
+                  <Circle className="h-3 w-3 fill-white animate-pulse" />
+                  <span className="text-white text-sm font-medium">Recording</span>
+                </div>
+              )}
+
+              {/* Frame rate indicator */}
+              <div className="absolute top-4 right-4 px-3 py-2 bg-black/70 rounded-lg">
+                <span className="text-white text-sm font-medium">{actualFps}fps</span>
+              </div>
+
+              {/* Camera controls */}
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-4">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={handleCancelCamera}
+                  className="bg-black/50 border-white text-white hover:bg-black/70"
+                >
+                  <X className="h-5 w-5 mr-2" />
+                  Cancel
+                </Button>
+
+                {!isRecording ? (
+                  <Button
+                    size="lg"
+                    onClick={handleStartRecording}
+                    className="bg-red-500 hover:bg-red-600 text-white px-8"
+                  >
+                    <Circle className="h-6 w-6 mr-2 fill-white" />
+                    Start Recording
+                  </Button>
+                ) : (
+                  <Button
+                    size="lg"
+                    onClick={handleStopRecording}
+                    className="bg-white hover:bg-gray-200 text-black px-8"
+                  >
+                    <Square className="h-6 w-6 mr-2" />
+                    Stop Recording
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 bg-muted">
+              <p className="text-sm text-center">
+                {isRecording 
+                  ? "Recording your swing... Press Stop when done" 
+                  : "Position yourself in frame and press Start Recording"
+                }
+              </p>
+            </div>
+          </Card>
         ) : (
           <Card className="p-8">
             <div className="text-center space-y-6">
