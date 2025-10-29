@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
 import { PlayerSelector } from "@/components/PlayerSelector";
+import { SyncRecording } from "@/components/SyncRecording";
 import { Upload, Camera, Loader2, X, Circle, Square, SwitchCamera, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ export default function Analyze() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [showSyncRecording, setShowSyncRecording] = useState(false);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
 
@@ -494,24 +496,37 @@ export default function Analyze() {
 
             {/* Dual Camera Mode Toggle */}
             <Card className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold">Dual Camera Mode (3D Analysis)</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Upload from two angles for enhanced accuracy
-                  </p>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold">Dual Camera Mode (3D Analysis)</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Record or upload from two angles for enhanced accuracy
+                    </p>
+                  </div>
+                  <Button
+                    variant={dualCameraMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setDualCameraMode(!dualCameraMode);
+                      setCamera1Video(null);
+                      setCamera2Video(null);
+                    }}
+                  >
+                    {dualCameraMode ? "Enabled" : "Disabled"}
+                  </Button>
                 </div>
-                <Button
-                  variant={dualCameraMode ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setDualCameraMode(!dualCameraMode);
-                    setCamera1Video(null);
-                    setCamera2Video(null);
-                  }}
-                >
-                  {dualCameraMode ? "Enabled" : "Disabled"}
-                </Button>
+
+                {dualCameraMode && (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setShowSyncRecording(true)}
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    Synchronized Live Recording (2 Devices)
+                  </Button>
+                )}
               </div>
             </Card>
 
@@ -831,6 +846,18 @@ export default function Analyze() {
       </div>
 
       <BottomNav />
+
+      {/* Sync Recording Modal */}
+      <SyncRecording
+        isOpen={showSyncRecording}
+        onClose={() => setShowSyncRecording(false)}
+        onComplete={(masterVideo, clientVideo) => {
+          setCamera1Video(masterVideo);
+          setCamera2Video(clientVideo);
+          setShowSyncRecording(false);
+          toast.success("Both videos ready! Click 'Analyze with Dual Cameras' to proceed.");
+        }}
+      />
     </div>
   );
 }
