@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit } from "lucide-react";
+import { Plus, Trash2, Edit, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 interface Drill {
@@ -40,6 +40,8 @@ export function DrillsManager() {
     equipment_needed: "",
     skill_level: "beginner"
   });
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string>("");
 
   useEffect(() => {
     loadDrills();
@@ -57,6 +59,42 @@ export function DrillsManager() {
     }
 
     setDrills(data || []);
+  };
+
+  const handleFileUpload = async (file: File, type: 'video' | 'instructions') => {
+    try {
+      setUploading(true);
+      setUploadProgress(`Uploading ${type} file...`);
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `${type}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('swing-videos')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('swing-videos')
+        .getPublicUrl(filePath);
+
+      setUploadProgress("");
+      setUploading(false);
+      
+      if (type === 'video') {
+        setFormData({ ...formData, video_url: publicUrl });
+      } else {
+        setFormData({ ...formData, instructions_video_url: publicUrl });
+      }
+      
+      toast.success(`${type} uploaded successfully`);
+    } catch (error: any) {
+      setUploading(false);
+      setUploadProgress("");
+      toast.error(`Failed to upload ${type}: ${error.message}`);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -315,22 +353,68 @@ export function DrillsManager() {
             )}
 
             {formData.video_type === 'upload' && (
-              <div>
-                <Label>Upload Video</Label>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Upload drill videos to swing-videos bucket manually, then paste the URL here
-                </p>
-                <Input
-                  type="url"
-                  placeholder="https://..."
-                  value={formData.video_url}
-                  onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                />
+              <div className="space-y-3">
+                <Label>Upload Drill Video</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file, 'video');
+                    }}
+                    disabled={uploading}
+                  />
+                  {formData.video_url && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setFormData({ ...formData, video_url: "" })}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                {uploadProgress && (
+                  <p className="text-sm text-muted-foreground">{uploadProgress}</p>
+                )}
+                {formData.video_url && (
+                  <p className="text-sm text-green-600">✓ Video uploaded</p>
+                )}
               </div>
             )}
 
-            <Button type="submit" className="w-full">
-              {editingId ? "Update Drill" : "Create Drill"}
+            <div className="space-y-3">
+              <Label>Instructions Video (Optional)</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileUpload(file, 'instructions');
+                  }}
+                  disabled={uploading}
+                />
+                {formData.instructions_video_url && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setFormData({ ...formData, instructions_video_url: "" })}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {formData.instructions_video_url && (
+                <p className="text-sm text-green-600">✓ Instructions video uploaded</p>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full" disabled={uploading}>
+              {uploading ? "Uploading..." : editingId ? "Update Drill" : "Create Drill"}
             </Button>
           </form>
         </Card>
