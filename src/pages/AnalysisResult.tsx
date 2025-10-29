@@ -24,11 +24,21 @@ export default function AnalysisResult() {
   useEffect(() => {
     const stored = sessionStorage.getItem('latestAnalysis');
     if (stored) {
-      setAnalysis(JSON.parse(stored));
+      const analysisData = JSON.parse(stored);
+      console.log('Analysis data:', analysisData);
+      console.log('Video URL:', analysisData.videoUrl);
+      setAnalysis(analysisData);
     } else {
       navigate('/analyze');
     }
   }, [navigate]);
+
+  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    console.error('Video error:', e);
+    console.error('Video element:', videoRef.current);
+    console.error('Video src:', videoRef.current?.src);
+    toast.error('Unable to load video. Please try analyzing again.');
+  };
 
   const togglePlayPause = () => {
     if (!videoRef.current) return;
@@ -68,55 +78,66 @@ export default function AnalysisResult() {
         {/* Video Player */}
         <Card className="overflow-hidden">
           <div className="aspect-video bg-black relative group">
-            <video
-              ref={videoRef}
-              src={analysis.videoUrl}
-              className="w-full h-full object-contain"
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onEnded={() => setIsPlaying(false)}
-              loop
-            />
-            
-            {/* Play/Pause Overlay */}
-            <div 
-              className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={togglePlayPause}
-            >
-              {isPlaying ? (
-                <Pause className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
-              ) : (
-                <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
-              )}
-            </div>
+            {analysis.videoUrl ? (
+              <>
+                <video
+                  ref={videoRef}
+                  src={analysis.videoUrl}
+                  className="w-full h-full object-contain"
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onEnded={() => setIsPlaying(false)}
+                  onError={handleVideoError}
+                  onLoadedMetadata={() => console.log('Video loaded successfully')}
+                  loop
+                  playsInline
+                />
+                
+                {/* Play/Pause Overlay */}
+                <div 
+                  className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={togglePlayPause}
+                >
+                  {isPlaying ? (
+                    <Pause className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+                  ) : (
+                    <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+                  )}
+                </div>
 
-            {/* Overlay Controls */}
-            <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-              <Button 
-                size="sm" 
-                variant="secondary" 
-                className="text-xs"
-                onClick={() => toast.info("Skeleton overlay coming soon!")}
-              >
-                Skeleton
-              </Button>
-              <Button 
-                size="sm" 
-                variant="secondary" 
-                className="text-xs"
-                onClick={() => toast.info("Timing overlay coming soon!")}
-              >
-                Timing
-              </Button>
-              <Button 
-                size="sm" 
-                variant="secondary" 
-                className="text-xs"
-                onClick={() => toast.info("COM Path overlay coming soon!")}
-              >
-                COM Path
-              </Button>
-            </div>
+                {/* Overlay Controls */}
+                <div className="absolute bottom-4 left-4 right-4 flex gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="secondary" 
+                    className="text-xs"
+                    onClick={() => toast.info("Skeleton overlay coming soon!")}
+                  >
+                    Skeleton
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="secondary" 
+                    className="text-xs"
+                    onClick={() => toast.info("Timing overlay coming soon!")}
+                  >
+                    Timing
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="secondary" 
+                    className="text-xs"
+                    onClick={() => toast.info("COM Path overlay coming soon!")}
+                  >
+                    COM Path
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-full text-white">
+                <p>No video available</p>
+              </div>
+            )}
           </div>
         </Card>
 
