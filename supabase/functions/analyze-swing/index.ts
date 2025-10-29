@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { frames, keypoints } = await req.json();
+    const { frames, frames2, dualCamera, keypoints } = await req.json();
     
     if (!frames || !Array.isArray(frames) || frames.length === 0) {
       return new Response(
@@ -25,7 +25,8 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log(`Analyzing ${frames.length} frames with keypoints data`);
+    const frameCount = dualCamera && frames2 ? `${frames.length} + ${frames2.length}` : frames.length;
+    console.log(`Analyzing ${frameCount} frames${dualCamera ? ' (DUAL CAMERA MODE)' : ''} with keypoints data`);
 
     // Prepare the prompt for biomechanical analysis
     const systemPrompt = `You are an expert biomechanics analyst specializing in baseball and softball swing analysis, trained in the methodology used by Reboot Motion and other 3D motion capture systems.
@@ -161,7 +162,47 @@ Use these five contrasting profiles to calibrate estimates across the full MLB s
 
 Be specific and use realistic values based on high-level players.`;
 
-    const userPrompt = `Analyze this baseball/softball swing sequence. I'm providing ${frames.length} key frames from a high-speed video (300fps).
+    const userPrompt = dualCamera && frames2 
+      ? `Analyze this baseball/softball swing sequence using DUAL CAMERA 3D RECONSTRUCTION. I'm providing ${frames.length} key frames from Camera 1 (open/catcher side at 45°) and ${frames2.length} frames from Camera 2 (closed/dugout side at 45°).
+
+**DUAL CAMERA ADVANTAGES:**
+You now have stereoscopic views that enable true 3D coordinate estimation. Use triangulation principles to:
+- Calculate accurate depth and Z-axis positions
+- Determine true 3D spine tilt (frontal, lateral, and transverse planes)
+- Estimate more precise rotational velocities by comparing rotation angles from both views
+- Better track center of mass movement in 3D space
+- Improve bat path trajectory accuracy
+
+Camera 1 frames show the lead shoulder clearly, Camera 2 frames show the back shoulder. Use both to cross-reference and validate measurements.
+
+${keypoints ? `Body keypoints detected. Focus on correlating keypoints across both camera angles for 3D position estimation.` : ''}
+
+Provide detailed scores and analysis in this exact JSON format:
+{
+  "anchorScore": <number 0-100>,
+  "engineScore": <number 0-100>,
+  "whipScore": <number 0-100>,
+  "hitsScore": <number 0-100>,
+  "tempoRatio": <number 1.5-2.5, Load:Fire ratio>,
+  "loadStartTiming": <ms before contact, when negative move begins>,
+  "fireStartTiming": <ms before contact, when pelvis acceleration begins>,
+  "pelvisTiming": <milliseconds to peak velocity>,
+  "torsoTiming": <milliseconds to peak velocity>,
+  "handsTiming": <milliseconds to peak velocity>,
+  "pelvisMaxVelocity": <deg/s, 450-700 range, avg ~600>,
+  "torsoMaxVelocity": <deg/s, 800-1200 range, avg ~950-1000>,
+  "armMaxVelocity": <deg/s, 1500-2200 range, avg ~1800-2000, should be ~2x torso>,
+  "batMaxVelocity": <mph, 65-78 range>,
+  "xFactorStance": <degrees negative, -10 to -20>,
+  "xFactor": <degrees negative peak separation, -20 to -35>,
+  "pelvisRotation": <degrees at max turn, -100 to -130>,
+  "shoulderRotation": <degrees at max turn, -115 to -145>,
+  "comDistance": <percent of body height, 35-55>,
+  "comMaxVelocity": <m/s, 0.8-1.2>,
+  "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
+  "impactStatement": "<specific actionable insight>"
+}`
+      : `Analyze this baseball/softball swing sequence. I'm providing ${frames.length} key frames from a high-speed video (300fps).
     
 ${keypoints ? `I've also detected body keypoints for tracking movement. Focus on the kinematic sequence - the timing and velocity of:
 1. Pelvis rotation
@@ -197,17 +238,36 @@ Provide detailed scores and analysis in this exact JSON format:
 }`;
 
     // Prepare messages with images
+    const userContent = [
+      { type: "text", text: userPrompt },
+      ...frames.map((frame: string, idx: number) => ({
+        type: "image_url",
+        image_url: { 
+          url: frame,
+          ...(dualCamera && { detail: `Camera 1 Frame ${idx + 1}` })
+        }
+      }))
+    ];
+
+    // Add second camera frames if dual camera mode
+    if (dualCamera && frames2 && Array.isArray(frames2)) {
+      userContent.push(
+        { type: "text", text: "\n\n**CAMERA 2 FRAMES (Closed/Dugout Side):**" },
+        ...frames2.map((frame: string, idx: number) => ({
+          type: "image_url",
+          image_url: { 
+            url: frame,
+            detail: `Camera 2 Frame ${idx + 1}`
+          }
+        }))
+      );
+    }
+
     const messages = [
       { role: "system", content: systemPrompt },
       { 
         role: "user", 
-        content: [
-          { type: "text", text: userPrompt },
-          ...frames.map((frame: string) => ({
-            type: "image_url",
-            image_url: { url: frame }
-          }))
-        ]
+        content: userContent
       }
     ];
 

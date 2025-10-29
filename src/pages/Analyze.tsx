@@ -18,6 +18,9 @@ export default function Analyze() {
   const [actualFps, setActualFps] = useState<number>(0);
   const [cameraRequested, setCameraRequested] = useState(false);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
+  const [dualCameraMode, setDualCameraMode] = useState(false);
+  const [camera1Video, setCamera1Video] = useState<File | null>(null);
+  const [camera2Video, setCamera2Video] = useState<File | null>(null);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
 
@@ -128,7 +131,18 @@ export default function Analyze() {
     setIsRecording(false);
   };
 
-  const processVideoFile = async (file: File) => {
+  const processVideoFile = async (file: File, camera?: 1 | 2) => {
+    // If dual camera mode and this is setting up one of the cameras
+    if (dualCameraMode && camera) {
+      if (camera === 1) {
+        setCamera1Video(file);
+        toast.success("Camera 1 video uploaded (Open side)");
+      } else {
+        setCamera2Video(file);
+        toast.success("Camera 2 video uploaded (Closed side)");
+      }
+      return;
+    }
 
     // Validate file type
     if (!file.type.startsWith('video/')) {
@@ -146,7 +160,7 @@ export default function Analyze() {
     setUploadProgress(10);
 
     try {
-      // Step 1: Upload video to storage
+      // Step 1: Upload video(s) to storage
       const fileName = `${Date.now()}-${file.name}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -246,10 +260,115 @@ export default function Analyze() {
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const processDualCameraVideos = async () => {
+    if (!camera1Video || !camera2Video) {
+      toast.error("Please upload both camera angles");
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setUploadProgress(10);
+
+    try {
+      // Upload both videos
+      const fileName1 = `${Date.now()}-camera1-${camera1Video.name}`;
+      const fileName2 = `${Date.now()}-camera2-${camera2Video.name}`;
+      
+      const [upload1, upload2] = await Promise.all([
+        supabase.storage.from('swing-videos').upload(fileName1, camera1Video, { cacheControl: '3600' }),
+        supabase.storage.from('swing-videos').upload(fileName2, camera2Video, { cacheControl: '3600' })
+      ]);
+
+      if (upload1.error || upload2.error) {
+        toast.error("Failed to upload videos");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      setUploadProgress(30);
+
+      const { data: { publicUrl: url1 } } = supabase.storage.from('swing-videos').getPublicUrl(fileName1);
+
+      // Extract frames from both angles
+      toast.info("Extracting frames from both cameras...");
+      const [frames1, frames2] = await Promise.all([
+        extractVideoFrames(camera1Video, 8),
+        extractVideoFrames(camera2Video, 8)
+      ]);
+      
+      setUploadProgress(50);
+
+      // Analyze with both camera views
+      toast.info("Analyzing with dual-camera 3D reconstruction...");
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
+        'analyze-swing',
+        {
+          body: {
+            frames: frames1,
+            frames2: frames2,
+            dualCamera: true,
+            keypoints: null
+          }
+        }
+      );
+
+      if (analysisError) {
+        console.error('Analysis error:', analysisError);
+        toast.error("Analysis failed: " + analysisError.message);
+        setIsAnalyzing(false);
+        return;
+      }
+
+      if (!analysisData.success) {
+        toast.error(analysisData.error || "Analysis failed");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      setUploadProgress(100);
+
+      const analysis = {
+        id: Date.now().toString(),
+        videoUrl: url1,
+        analyzedAt: new Date(),
+        hitsScore: analysisData.analysis.hitsScore,
+        anchorScore: analysisData.analysis.anchorScore,
+        engineScore: analysisData.analysis.engineScore,
+        whipScore: analysisData.analysis.whipScore,
+        tempoRatio: analysisData.analysis.tempoRatio,
+        pelvisTiming: analysisData.analysis.pelvisTiming,
+        torsoTiming: analysisData.analysis.torsoTiming,
+        handsTiming: analysisData.analysis.handsTiming,
+        primaryOpportunity: analysisData.analysis.primaryOpportunity,
+        impactStatement: analysisData.analysis.impactStatement,
+        pelvisMaxVelocity: analysisData.analysis.pelvisMaxVelocity,
+        torsoMaxVelocity: analysisData.analysis.torsoMaxVelocity,
+        armMaxVelocity: analysisData.analysis.armMaxVelocity,
+        batMaxVelocity: analysisData.analysis.batMaxVelocity,
+        xFactorStance: analysisData.analysis.xFactorStance,
+        xFactor: analysisData.analysis.xFactor,
+        pelvisRotation: analysisData.analysis.pelvisRotation,
+        shoulderRotation: analysisData.analysis.shoulderRotation,
+        comDistance: analysisData.analysis.comDistance,
+        comMaxVelocity: analysisData.analysis.comMaxVelocity,
+        poseData: null
+      };
+
+      sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
+      
+      toast.success("3D Analysis complete!");
+      navigate('/result/latest');
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error("An unexpected error occurred");
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, camera?: 1 | 2) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    await processVideoFile(file);
+    await processVideoFile(file, camera);
   };
 
   return (
@@ -265,6 +384,130 @@ export default function Analyze() {
       <div className="px-6 py-6 space-y-6">
         {!isAnalyzing && !showCamera ? (
           <>
+            {/* Dual Camera Mode Toggle */}
+            <Card className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold">Dual Camera Mode (3D Analysis)</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Upload from two angles for enhanced accuracy
+                  </p>
+                </div>
+                <Button
+                  variant={dualCameraMode ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setDualCameraMode(!dualCameraMode);
+                    setCamera1Video(null);
+                    setCamera2Video(null);
+                  }}
+                >
+                  {dualCameraMode ? "Enabled" : "Disabled"}
+                </Button>
+              </div>
+            </Card>
+
+            {dualCameraMode ? (
+              /* Dual Camera Upload UI */
+              <div className="space-y-4">
+                <Card className="p-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-bold mb-2">Camera 1: Open Side (Catcher Side)</h3>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        45° angle from open side, showing lead shoulder
+                      </p>
+                      {camera1Video ? (
+                        <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500 rounded-lg">
+                          <span className="text-sm font-medium">✓ {camera1Video.name}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setCamera1Video(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => document.getElementById('video-upload-1')?.click()}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Choose Camera 1 Video
+                        </Button>
+                      )}
+                      <input
+                        id="video-upload-1"
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => handleFileUpload(e, 1)}
+                        className="hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <h3 className="font-bold mb-2">Camera 2: Closed Side (Dugout Side)</h3>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        45° angle from closed side, showing back shoulder
+                      </p>
+                      {camera2Video ? (
+                        <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500 rounded-lg">
+                          <span className="text-sm font-medium">✓ {camera2Video.name}</span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setCamera2Video(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => document.getElementById('video-upload-2')?.click()}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Choose Camera 2 Video
+                        </Button>
+                      )}
+                      <input
+                        id="video-upload-2"
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => handleFileUpload(e, 2)}
+                        className="hidden"
+                      />
+                    </div>
+
+                    <Button
+                      size="lg"
+                      className="w-full"
+                      disabled={!camera1Video || !camera2Video}
+                      onClick={processDualCameraVideos}
+                    >
+                      <Camera className="h-5 w-5 mr-2" />
+                      Analyze with Dual Cameras
+                    </Button>
+                  </div>
+                </Card>
+
+                <Card className="p-6 bg-muted/50">
+                  <h3 className="font-bold mb-3">3D Analysis Benefits</h3>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>• True 3D body position tracking</li>
+                    <li>• More accurate spine tilt in all planes</li>
+                    <li>• Better rotational velocity estimates</li>
+                    <li>• Improved COM tracking</li>
+                    <li>• Professional-level biomechanical data</li>
+                  </ul>
+                </Card>
+              </div>
+            ) : (
+              /* Single Camera Upload UI */
+              <>
             <Card className="p-8 border-2 border-dashed">
               <div className="text-center space-y-4">
                 <div className="flex justify-center">
@@ -323,6 +566,8 @@ export default function Analyze() {
                 <li>• For best results: 120fps or higher (300-480fps supported)</li>
               </ul>
             </Card>
+            </>
+            )}
           </>
         ) : showCamera ? (
           <Card className="overflow-hidden">
