@@ -42,9 +42,9 @@ export default function Landing() {
               Track your progress from amateur to elite.
             </p>
             <Button asChild size="lg" className="bg-yellow-500 px-8 py-6 text-lg font-bold uppercase text-black hover:bg-yellow-400">
-              <Link to="/auth">
+              <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
                 Get Started <ChevronRight className="ml-2 h-5 w-5" />
-              </Link>
+              </a>
             </Button>
           </div>
         </div>
@@ -138,9 +138,9 @@ export default function Landing() {
             Join elite athletes who are already transforming their game
           </p>
           <Button asChild size="lg" className="bg-yellow-500 px-10 py-6 text-xl font-bold uppercase text-black hover:bg-yellow-400">
-            <Link to="/auth">
+            <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
               Start Training Now <ChevronRight className="ml-2 h-6 w-6" />
-            </Link>
+            </a>
           </Button>
         </div>
       </section>
