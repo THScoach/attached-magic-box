@@ -6,6 +6,7 @@ import { Upload, Camera, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { generateMockAnalysis } from "@/lib/mockAnalysis";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Analyze() {
   const navigate = useNavigate();
@@ -42,27 +43,38 @@ export default function Analyze() {
       });
     }, 200);
 
-    // Convert video to base64 for storage
-    const reader = new FileReader();
-    reader.onload = () => {
-      setTimeout(() => {
-        const videoDataUrl = reader.result as string;
-        const analysis = generateMockAnalysis(videoDataUrl);
-        
-        // Store in session storage for demo
-        sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
-        
-        toast.success("Analysis complete!");
-        navigate('/result/latest');
-      }, 3000);
-    };
+    // Upload video to storage
+    const fileName = `${Date.now()}-${file.name}`;
     
-    reader.onerror = () => {
-      toast.error("Failed to process video file");
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('swing-videos')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      toast.error("Failed to upload video");
       setIsAnalyzing(false);
-    };
-    
-    reader.readAsDataURL(file);
+      return;
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('swing-videos')
+      .getPublicUrl(fileName);
+
+    // Simulate analysis delay
+    setTimeout(() => {
+      const analysis = generateMockAnalysis(publicUrl);
+      
+      // Store in session storage (just the URL, not the video)
+      sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
+      
+      toast.success("Analysis complete!");
+      navigate('/result/latest');
+    }, 2000);
   };
 
   return (
