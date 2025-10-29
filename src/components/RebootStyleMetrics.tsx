@@ -205,11 +205,11 @@ export function RebootStyleMetrics({ analysis }: RebootStyleMetricsProps) {
           </div>
           <div className="mt-4 pt-4 border-t">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Tempo Ratio</span>
+              <span className="text-sm font-medium">Tempo (Load:Fire)</span>
               <span className="text-xl font-bold text-primary">{analysis.tempoRatio}:1</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Optimal: 1.3-1.5 (timing between segments)
+              Elite range: 2.0-2.3 | Balanced: 1.8-2.0
             </p>
           </div>
         </div>

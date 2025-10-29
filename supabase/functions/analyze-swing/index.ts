@@ -55,9 +55,30 @@ Your task is to analyze swing videos frame-by-frame and provide detailed biomech
 - COM travel distance (% of body height): Typical 35-55%
 - COM max velocity (m/s): Typical 0.8-1.2 m/s
 
-**Tempo Ratio:**
-The ratio represents timing efficiency between segments. Calculate based on time intervals between peaks.
-Optimal range: 1.3-1.8
+**Tempo Ratio (Load:Fire) - CRITICAL FORMULA:**
+Tempo measures the ratio of Load phase to Fire phase timing:
+
+Formula: Tempo = Load Duration / Fire Duration
+
+Where:
+- LoadStart: First frame of rearward movement (negative move/coil begins)
+- FireStart: First forward pelvis ACCELERATION onset (NOT max velocity - when hips begin opening)
+- Contact: Ball-bat impact
+
+Load Duration = FireStart - LoadStart
+Fire Duration = Contact - FireStart
+
+Tempo = (FireStart - LoadStart) / (Contact - FireStart)
+
+Typical MLB ranges:
+- Elite power hitters: 2.0-2.3:1 (e.g., Freeman ~2.3:1, Judge ~2.1:1)
+- Balanced hitters: 1.8-2.0:1
+- Quick swingers: 1.5-1.8:1
+
+Guardrails:
+- Fire duration: typically 250-400ms
+- Load duration: typically 600-1000ms
+- Result should be 1.5-2.5:1 range
 
 Be specific and use realistic values based on high-level players.`;
 
@@ -76,10 +97,12 @@ Provide detailed scores and analysis in this exact JSON format:
   "engineScore": <number 0-100>,
   "whipScore": <number 0-100>,
   "hitsScore": <number 0-100>,
-  "tempoRatio": <number 1.2-1.6>,
-  "pelvisTiming": <milliseconds to peak>,
-  "torsoTiming": <milliseconds to peak>,
-  "handsTiming": <milliseconds to peak>,
+  "tempoRatio": <number 1.5-2.5, Load:Fire ratio>,
+  "loadStartTiming": <ms before contact, when negative move begins>,
+  "fireStartTiming": <ms before contact, when pelvis acceleration begins>,
+  "pelvisTiming": <milliseconds to peak velocity>,
+  "torsoTiming": <milliseconds to peak velocity>,
+  "handsTiming": <milliseconds to peak velocity>,
   "pelvisMaxVelocity": <deg/s, 450-700 range, avg ~600>,
   "torsoMaxVelocity": <deg/s, 800-1200 range, avg ~950-1000>,
   "armMaxVelocity": <deg/s, 1500-2200 range, avg ~1800-2000, should be ~2x torso>,
