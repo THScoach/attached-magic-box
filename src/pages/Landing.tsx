@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Target, TrendingUp, Video, Zap, ChevronRight } from "lucide-react";
+import hitsLogo from "@/assets/hits-logo-minimal.png";
 
 export default function Landing() {
   return (
@@ -10,7 +11,7 @@ export default function Landing() {
       <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-lg">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <img 
-            src="/hits-logo-modern.png" 
+            src={hitsLogo} 
             alt="H.I.T.S." 
             className="h-10 w-auto"
           />
@@ -149,7 +150,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <img 
-              src="/hits-logo-modern.png" 
+              src={hitsLogo} 
               alt="H.I.T.S." 
               className="h-8 w-auto"
             />

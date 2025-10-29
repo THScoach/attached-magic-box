@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft } from "lucide-react";
+import hitsLogo from "@/assets/hits-logo-minimal.png";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -78,9 +79,9 @@ export default function Auth() {
         <Card className="w-full">
         <CardHeader className="text-center">
           <img 
-            src="/hits-favicon.png" 
-            alt="HITS Logo" 
-            className="w-20 h-20 mx-auto mb-4"
+            src={hitsLogo} 
+            alt="H.I.T.S. Logo" 
+            className="h-20 mx-auto mb-4"
           />
           <CardTitle>{isSignUp ? "Create Account" : "Welcome Back"}</CardTitle>
           <CardDescription>
