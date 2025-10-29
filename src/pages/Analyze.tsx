@@ -10,9 +10,11 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { extractVideoFrames, detectPoseInFrames } from "@/lib/videoAnalysis";
 import { CameraRecorder } from "@/lib/cameraRecording";
+import { useUserMembership } from "@/hooks/useUserMembership";
 
 export default function Analyze() {
   const navigate = useNavigate();
+  const { membership, loading: membershipLoading } = useUserMembership();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
@@ -184,6 +186,18 @@ export default function Analyze() {
   };
 
   const processVideoFile = async (file: File, camera?: 1 | 2) => {
+    // Check swing limit for free tier users
+    if (membership?.tier === 'free' && (membership.swingCount || 0) >= 2) {
+      toast.error("Swing limit reached", {
+        description: "Upgrade to unlock unlimited swing analyses",
+        action: {
+          label: "Upgrade",
+          onClick: () => window.open("https://whop.com/your-product", "_blank")
+        }
+      });
+      return;
+    }
+
     // If dual camera mode and this is setting up one of the cameras
     if (dualCameraMode && camera) {
       if (camera === 1) {
@@ -281,6 +295,14 @@ export default function Analyze() {
       }
 
       setUploadProgress(100);
+
+      // Increment swing count for free tier
+      if (membership?.tier === 'free') {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.rpc('increment_swing_count', { _user_id: user.id });
+        }
+      }
 
       // Step 5: Store results
       const analysis = {

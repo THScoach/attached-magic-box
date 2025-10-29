@@ -15,9 +15,11 @@ import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
 import { toast } from "sonner";
 import { drawSkeletonOnCanvas, PoseData } from "@/lib/videoAnalysis";
 import { supabase } from "@/integrations/supabase/client";
+import { useCoachRickAccess } from "@/hooks/useCoachRickAccess";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
+  const { hasAccess: hasCoachRickAccess } = useCoachRickAccess();
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
@@ -578,10 +580,22 @@ export default function AnalysisResult() {
           <Button 
             size="lg"
             className="w-full"
-            onClick={() => setShowCoachChat(true)}
+            onClick={() => {
+              if (hasCoachRickAccess) {
+                setShowCoachChat(true);
+              } else {
+                toast.error("Upgrade Required", {
+                  description: "Chat with Coach Rick is available in Challenge, DIY, and Elite tiers",
+                  action: {
+                    label: "Upgrade",
+                    onClick: () => window.open("https://whop.com/your-product", "_blank")
+                  }
+                });
+              }
+            }}
           >
             <MessageCircle className="mr-2 h-5 w-5" />
-            Chat with Coach Rick
+            Chat with Coach Rick {!hasCoachRickAccess && "🔒"}
           </Button>
           <Button 
             size="lg"

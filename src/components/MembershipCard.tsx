@@ -20,21 +20,27 @@ export function MembershipCard() {
   const tierConfig = {
     free: {
       icon: Star,
-      label: "Free",
+      label: "Free Lead Magnet",
       color: "secondary",
-      features: ["Basic analysis", "Limited drills"],
+      features: ["2 swing analyses", "Basic metrics"],
     },
-    basic: {
+    challenge: {
       icon: Zap,
-      label: "Basic",
+      label: "7-Day Challenge",
       color: "default",
-      features: ["Full analysis", "All drills", "Training programs"],
+      features: ["Full access for 7 days", "All drills", "Training programs", "AI Coach Rick"],
     },
-    pro: {
+    diy: {
       icon: Crown,
-      label: "Pro",
+      label: "DIY Platform",
       color: "default",
-      features: ["Everything in Basic", "AI Coach Rick", "Priority support", "Advanced analytics"],
+      features: ["AI Coach Rick chat", "Live streams access", "Unlimited swing analyses", "All training programs"],
+    },
+    elite: {
+      icon: Crown,
+      label: "Elite Transformation",
+      color: "default",
+      features: ["Everything in DIY", "In-person coaching", "Priority support", "90-day program"],
     },
   };
 
@@ -58,8 +64,10 @@ export function MembershipCard() {
         </div>
         <CardDescription>
           {membership?.tier === "free" 
-            ? "Upgrade to unlock premium features"
-            : "You have full access to premium features"}
+            ? `${membership.swingCount || 0}/2 swings used - Upgrade to unlock more`
+            : membership?.tier === "challenge"
+            ? "Full access for 7 days"
+            : "You have unlimited access"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

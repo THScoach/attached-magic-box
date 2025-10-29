@@ -74,15 +74,24 @@ Deno.serve(async (req) => {
 
 async function handleMembershipActivated(supabase: any, payload: any) {
   const { user_id, membership_id, plan_id } = payload.data;
+  const tier = mapPlanToTier(plan_id);
 
-  // Map Whop user to your system (you may need to adjust this logic)
+  // Calculate expiration for challenge tier (7 days)
+  const expiresAt = tier === 'challenge' 
+    ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    : null;
+
   const { error } = await supabase
     .from('user_memberships')
     .upsert({
       user_id: user_id, // You'll need to map this to your auth.users.id
-      tier: mapPlanToTier(plan_id),
+      tier,
       status: 'active',
-      external_id: membership_id,
+      whop_membership_id: membership_id,
+      whop_user_id: user_id,
+      expires_at: expiresAt,
+      started_at: new Date().toISOString(),
+      swing_count: 0, // Reset swing count on activation
     });
 
   if (error) {
@@ -91,15 +100,43 @@ async function handleMembershipActivated(supabase: any, payload: any) {
 }
 
 async function handleMembershipDeactivated(supabase: any, payload: any) {
-  const { membership_id } = payload.data;
+  const { membership_id, user_id } = payload.data;
 
-  const { error } = await supabase
+  // Get the current membership to check if it's challenge tier
+  const { data: membership } = await supabase
     .from('user_memberships')
-    .update({ status: 'cancelled' })
-    .eq('external_id', membership_id);
+    .select('tier')
+    .eq('whop_membership_id', membership_id)
+    .single();
 
-  if (error) {
-    console.error('Error deactivating membership:', error);
+  if (membership?.tier === 'challenge') {
+    // Challenge expired - revert to free tier
+    const { error } = await supabase
+      .from('user_memberships')
+      .update({ 
+        tier: 'free',
+        status: 'active',
+        cancelled_at: new Date().toISOString(),
+        swing_count: 0 // Reset to 0 swings for free tier
+      })
+      .eq('whop_membership_id', membership_id);
+
+    if (error) {
+      console.error('Error reverting challenge to free:', error);
+    }
+  } else {
+    // Other tiers just cancel
+    const { error } = await supabase
+      .from('user_memberships')
+      .update({ 
+        status: 'cancelled',
+        cancelled_at: new Date().toISOString()
+      })
+      .eq('whop_membership_id', membership_id);
+
+    if (error) {
+      console.error('Error deactivating membership:', error);
+    }
   }
 }
 
@@ -110,11 +147,12 @@ async function handlePaymentSucceeded(supabase: any, payload: any) {
 
 function mapPlanToTier(planId: string): string {
   // Map your Whop plan IDs to your membership tiers
-  // You'll need to update this based on your actual plan IDs
+  // Update these IDs with your actual Whop plan IDs
   const planMapping: Record<string, string> = {
-    'basic_plan_id': 'free',
-    'standard_plan_id': 'basic',
-    'pro_plan_id': 'pro',
+    'challenge_plan_id': 'challenge',  // 7-Day Challenge ($97)
+    'diy_monthly_plan_id': 'diy',      // DIY Platform ($37/month)
+    'diy_yearly_plan_id': 'diy',       // DIY Platform ($297/year)
+    'elite_plan_id': 'elite',          // Elite 90-Day ($2,497)
   };
 
   return planMapping[planId] || 'free';

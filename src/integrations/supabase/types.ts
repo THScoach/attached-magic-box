@@ -537,6 +537,7 @@ export type Database = {
           id: string
           started_at: string
           status: string
+          swing_count: number | null
           tier: Database["public"]["Enums"]["membership_tier"]
           updated_at: string
           user_id: string
@@ -550,6 +551,7 @@ export type Database = {
           id?: string
           started_at?: string
           status?: string
+          swing_count?: number | null
           tier?: Database["public"]["Enums"]["membership_tier"]
           updated_at?: string
           user_id: string
@@ -563,6 +565,7 @@ export type Database = {
           id?: string
           started_at?: string
           status?: string
+          swing_count?: number | null
           tier?: Database["public"]["Enums"]["membership_tier"]
           updated_at?: string
           user_id?: string
@@ -630,6 +633,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_analyze_swing: { Args: { _user_id: string }; Returns: boolean }
       get_user_membership_tier: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["membership_tier"]
@@ -648,6 +652,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_swing_count: { Args: { _user_id: string }; Returns: number }
     }
     Enums: {
       app_role: "coach" | "athlete"
