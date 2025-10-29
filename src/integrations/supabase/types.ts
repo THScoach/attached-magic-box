@@ -58,12 +58,17 @@ export type Database = {
           description: string
           difficulty: number
           duration: number
+          equipment_needed: string[] | null
           id: string
           instructions: string | null
+          instructions_video_url: string | null
           name: string
           pillar: string
+          skill_level: string | null
+          target_area: string | null
           thumbnail_url: string | null
           updated_at: string
+          video_type: string | null
           video_url: string | null
         }
         Insert: {
@@ -71,12 +76,17 @@ export type Database = {
           description: string
           difficulty: number
           duration: number
+          equipment_needed?: string[] | null
           id?: string
           instructions?: string | null
+          instructions_video_url?: string | null
           name: string
           pillar: string
+          skill_level?: string | null
+          target_area?: string | null
           thumbnail_url?: string | null
           updated_at?: string
+          video_type?: string | null
           video_url?: string | null
         }
         Update: {
@@ -84,12 +94,17 @@ export type Database = {
           description?: string
           difficulty?: number
           duration?: number
+          equipment_needed?: string[] | null
           id?: string
           instructions?: string | null
+          instructions_video_url?: string | null
           name?: string
           pillar?: string
+          skill_level?: string | null
+          target_area?: string | null
           thumbnail_url?: string | null
           updated_at?: string
+          video_type?: string | null
           video_url?: string | null
         }
         Relationships: []
@@ -126,15 +141,15 @@ export type Database = {
       }
       players: {
         Row: {
-          age: number | null
           avatar_url: string | null
           birth_date: string | null
           created_at: string
+          first_name: string
           handedness: string | null
           id: string
           is_active: boolean | null
           jersey_number: string | null
-          name: string
+          last_name: string
           notes: string | null
           organization: string | null
           position: string | null
@@ -143,15 +158,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          age?: number | null
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
+          first_name?: string
           handedness?: string | null
           id?: string
           is_active?: boolean | null
           jersey_number?: string | null
-          name: string
+          last_name?: string
           notes?: string | null
           organization?: string | null
           position?: string | null
@@ -160,15 +175,15 @@ export type Database = {
           user_id: string
         }
         Update: {
-          age?: number | null
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
+          first_name?: string
           handedness?: string | null
           id?: string
           is_active?: boolean | null
           jersey_number?: string | null
-          name?: string
+          last_name?: string
           notes?: string | null
           organization?: string | null
           position?: string | null
