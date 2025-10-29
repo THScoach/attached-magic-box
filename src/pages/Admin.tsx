@@ -1,53 +1,40 @@
-import { useState } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KnowledgeBaseManager } from "@/components/admin/KnowledgeBaseManager";
 import { DrillsManager } from "@/components/admin/DrillsManager";
 import { SeedModelPlayers } from "@/components/SeedModelPlayers";
-import { BookOpen, Dumbbell, Lock } from "lucide-react";
+import { BookOpen, Dumbbell, ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Admin() {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
+  const { isAdmin, loading } = useUserRole();
 
-  const handleAuth = () => {
-    // Simple password check - in production, use proper authentication
-    if (password === "admin123") {
-      setIsAuthenticated(true);
-    } else {
-      alert("Invalid password");
-    }
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
-  if (!isAuthenticated) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <Card className="w-full max-w-md p-8">
-          <div className="flex flex-col items-center gap-6">
-            <Lock className="h-16 w-16 text-muted-foreground" />
-            <div className="text-center">
-              <h1 className="text-2xl font-bold mb-2">Admin Access</h1>
-              <p className="text-muted-foreground">
-                Enter password to access admin dashboard
-              </p>
-            </div>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleAuth()}
-              placeholder="Password"
-              className="w-full px-4 py-2 rounded-md border bg-background"
-            />
-            <Button onClick={handleAuth} className="w-full">
-              Access Admin
-            </Button>
+        <div className="w-full max-w-md text-center space-y-6">
+          <ShieldAlert className="h-16 w-16 text-destructive mx-auto" />
+          <div>
+            <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+            <p className="text-muted-foreground">
+              You don't have permission to access the admin dashboard.
+            </p>
           </div>
-        </Card>
+          <Button onClick={() => navigate("/")}>
+            Back to Home
+          </Button>
+        </div>
       </div>
     );
   }

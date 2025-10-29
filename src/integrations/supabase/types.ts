@@ -109,6 +109,50 @@ export type Database = {
         }
         Relationships: []
       }
+      external_session_data: {
+        Row: {
+          created_at: string | null
+          data_source: string
+          extracted_metrics: Json
+          id: string
+          notes: string | null
+          player_id: string
+          screenshot_url: string | null
+          session_date: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data_source: string
+          extracted_metrics: Json
+          id?: string
+          notes?: string | null
+          player_id: string
+          screenshot_url?: string | null
+          session_date?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data_source?: string
+          extracted_metrics?: Json
+          id?: string
+          notes?: string | null
+          player_id?: string
+          screenshot_url?: string | null
+          session_date?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_session_data_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_base: {
         Row: {
           category: string
@@ -655,7 +699,7 @@ export type Database = {
       increment_swing_count: { Args: { _user_id: string }; Returns: number }
     }
     Enums: {
-      app_role: "coach" | "athlete"
+      app_role: "coach" | "athlete" | "admin"
       membership_tier: "free" | "challenge" | "diy" | "elite"
     }
     CompositeTypes: {
@@ -784,7 +828,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["coach", "athlete"],
+      app_role: ["coach", "athlete", "admin"],
       membership_tier: ["free", "challenge", "diy", "elite"],
     },
   },

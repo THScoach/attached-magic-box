@@ -4,8 +4,11 @@ import { BottomNav } from "@/components/BottomNav";
 import { MembershipCard } from "@/components/MembershipCard";
 import { User, Settings, HelpCircle, LogOut, Trophy, Target } from "lucide-react";
 import { toast } from "sonner";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Profile() {
+  const { isAdmin } = useUserRole();
+  
   const user = {
     name: "Alex Rodriguez",
     email: "alex@email.com",
@@ -103,13 +106,15 @@ export default function Profile() {
           <Button variant="outline" className="w-full justify-start">
             Privacy Policy
           </Button>
-          <Button 
-            variant="outline" 
-            className="w-full justify-start"
-            onClick={() => window.location.href = '/admin'}
-          >
-            Admin Dashboard
-          </Button>
+          {isAdmin && (
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => window.location.href = '/admin'}
+            >
+              Admin Dashboard
+            </Button>
+          )}
           <Button variant="outline" className="w-full justify-start text-destructive">
             Log Out
           </Button>
