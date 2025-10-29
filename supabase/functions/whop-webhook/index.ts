@@ -152,7 +152,7 @@ function mapPlanToTier(planId: string): string {
     'prod_Wkwv5hjyghOXC': 'free',      // Free (2 swings)
     'prod_7day_challenge': 'challenge',  // 7-Day Challenge
     'prod_kNyobCww4tc2p': 'diy',       // DIY Platform
-    'elite_plan_id': 'elite',          // Elite Transformation
+    'prod_SqdIUcKJXwmuB': 'elite',     // Elite Transformation
   };
 
   return planMapping[planId] || 'free';
