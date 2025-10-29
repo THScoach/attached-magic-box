@@ -139,6 +139,30 @@ export type Database = {
         }
         Relationships: []
       }
+      membership_features: {
+        Row: {
+          created_at: string
+          feature_key: string
+          feature_value: Json
+          id: string
+          tier: Database["public"]["Enums"]["membership_tier"]
+        }
+        Insert: {
+          created_at?: string
+          feature_key: string
+          feature_value: Json
+          id?: string
+          tier: Database["public"]["Enums"]["membership_tier"]
+        }
+        Update: {
+          created_at?: string
+          feature_key?: string
+          feature_value?: Json
+          id?: string
+          tier?: Database["public"]["Enums"]["membership_tier"]
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -505,6 +529,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_memberships: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          started_at: string
+          status: string
+          tier: Database["public"]["Enums"]["membership_tier"]
+          updated_at: string
+          user_id: string
+          whop_membership_id: string | null
+          whop_user_id: string | null
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          tier?: Database["public"]["Enums"]["membership_tier"]
+          updated_at?: string
+          user_id: string
+          whop_membership_id?: string | null
+          whop_user_id?: string | null
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          tier?: Database["public"]["Enums"]["membership_tier"]
+          updated_at?: string
+          user_id?: string
+          whop_membership_id?: string | null
+          whop_user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -526,11 +592,55 @@ export type Database = {
         }
         Relationships: []
       }
+      whop_webhook_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          processed: boolean
+          processed_at: string | null
+          whop_membership_id: string | null
+          whop_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload: Json
+          processed?: boolean
+          processed_at?: string | null
+          whop_membership_id?: string | null
+          whop_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed?: boolean
+          processed_at?: string | null
+          whop_membership_id?: string | null
+          whop_user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_user_membership_tier: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["membership_tier"]
+      }
+      has_membership_tier: {
+        Args: {
+          _tier: Database["public"]["Enums"]["membership_tier"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -541,6 +651,7 @@ export type Database = {
     }
     Enums: {
       app_role: "coach" | "athlete"
+      membership_tier: "free" | "challenge" | "diy" | "elite"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -669,6 +780,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["coach", "athlete"],
+      membership_tier: ["free", "challenge", "diy", "elite"],
     },
   },
 } as const
