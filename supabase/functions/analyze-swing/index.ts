@@ -119,18 +119,32 @@ FireStart is the FIRST forward pelvis ACCELERATION onset - NOT the max pelvis ve
 - Pelvis Max Velocity: 446.9 deg/s (below MLB avg 609.8)
 - Torso Max Velocity: 724.6 deg/s (below MLB avg 818.9)
 - Arm Max Velocity: 888.9 deg/s (below MLB avg 1176.7)
-- Bat Speed: ~80 mph (2397.0 deg/s - HIGHEST of the three)
+- Bat Speed: ~80 mph (2397.0 deg/s - highest bat speed)
 - X-Factor Max: -45.4° (EXTREME separation! Nearly 2x MLB avg -26.7°)
 - Pelvis Rotation: -115.5° (at MLB avg), Shoulder Rotation: -136.1° (deep turn)
-- COM Max Velocity: 0.86 m/s (HIGHEST - explosive movement), COM Distance: 52.2% of height
+- COM Max Velocity: 0.86 m/s, COM Distance: 52.2% of height
 - Timing: Negative Move at 2.974s (!), Max Pelvis at 0.329s, Max X-Factor at 0.207s
 - Expected Tempo: ~6-8:1 (extreme load window, violent fire)
-- Profile: Aggressive swing with exceptional separation mechanics, highest bat speed and COM velocity, deep shoulder turn
+- Profile: Aggressive swing with exceptional separation mechanics, highest bat speed, deep shoulder turn
 
-Use these three contrasting profiles to calibrate estimates across the hitting spectrum:
-- Arraez: Contact/control (low velocities, minimal separation, long load)
-- Judge: Balanced power (elite separation, moderate velocities in this session)
-- Tatis: Explosive power (extreme X-Factor, highest bat speed, aggressive mechanics)
+**Manny Machado (Elite Rotational Velocity - Above MLB Averages):**
+- Pelvis Max Velocity: 734.5 deg/s (WELL ABOVE MLB avg 609.8 - 120% of average!)
+- Torso Max Velocity: 1263.3 deg/s (EXCEPTIONAL - 154% of MLB avg 818.9!)
+- Arm Max Velocity: 1640.3 deg/s (WELL ABOVE MLB avg 1176.7 - 139% of average!)
+- Bat Speed: Not recorded in this session
+- X-Factor Max: -31.2° (above MLB avg -26.7°)
+- Pelvis Rotation: -101.5°, Shoulder Rotation: -122.4°
+- COM Max Velocity: 1.32 m/s (HIGHEST of all four - exceptional movement speed!)
+- COM Distance: 54.78% of height (1.03m stride)
+- Timing: Negative Move at 1.355s, Max Pelvis at 0.961s, Max X-Factor at 0.116s
+- Expected Tempo: ~1.5-2.0:1 (moderate load, explosive fire with elite velocities)
+- Profile: ELITE rotational velocities across all segments, exceptional COM speed, represents upper tier of MLB performance
+
+Use these four contrasting profiles to calibrate estimates across the full MLB spectrum:
+- Arraez: Contact/control (low velocities ~60-65% MLB avg, minimal separation, long load ~3.5:1 tempo)
+- Judge: Balanced power (elite separation, moderate velocities 75-80% MLB avg in this session, ~2.1:1 tempo)
+- Tatis: Explosive power (extreme 45° X-Factor, high bat speed, aggressive mechanics, ~6-8:1 tempo)
+- Machado: Elite velocity (120-154% of MLB avg rotational speeds, exceptional COM velocity, ~1.5-2.0:1 tempo)
 
 Be specific and use realistic values based on high-level players.`;
 
