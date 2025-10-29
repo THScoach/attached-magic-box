@@ -7,13 +7,14 @@ interface RebootStyleMetricsProps {
 }
 
 export function RebootStyleMetrics({ analysis }: RebootStyleMetricsProps) {
-  // MLB averages for comparison
+  // MLB/Reboot averages for comparison (based on actual Reboot Motion data)
   const mlbAverages = {
-    pelvisVelocity: 520,
-    torsoVelocity: 950,
-    armVelocity: 1150,
+    pelvisVelocity: 340,  // Reboot data shows ~339 deg/s
+    torsoVelocity: 715,   // Reboot data shows ~715 deg/s
+    armVelocity: 750,     // Reboot data shows ~751 deg/s
     batSpeed: 72,
-    xFactor: 27,
+    xFactor: 24,          // Reboot shows ~24° at max
+    pelvisRotation: 119,  // MLB avg from Reboot: -118.8°
     comDistance: 45,
   };
 
@@ -118,10 +119,10 @@ export function RebootStyleMetrics({ analysis }: RebootStyleMetricsProps) {
             </div>
             <div className="p-3 rounded-lg bg-muted">
               <p className="text-xs text-muted-foreground">Max X-Factor</p>
-              <p className="text-xl font-bold">{analysis.xFactor || 0}°</p>
+              <p className="text-xl font-bold">{Math.abs(analysis.xFactor || 0)}°</p>
               <p className="text-xs mt-1">
                 <span className={
-                  (analysis.xFactor || 0) >= mlbAverages.xFactor 
+                  Math.abs(analysis.xFactor || 0) >= mlbAverages.xFactor 
                     ? "text-green-500" 
                     : "text-yellow-500"
                 }>
@@ -135,6 +136,15 @@ export function RebootStyleMetrics({ analysis }: RebootStyleMetricsProps) {
             <div className="p-3 rounded-lg bg-muted">
               <p className="text-xs text-muted-foreground">Pelvis Rotation</p>
               <p className="text-xl font-bold">{analysis.pelvisRotation || 0}°</p>
+              <p className="text-xs mt-1">
+                <span className={
+                  Math.abs(analysis.pelvisRotation || 0) >= mlbAverages.pelvisRotation 
+                    ? "text-green-500" 
+                    : "text-yellow-500"
+                }>
+                  MLB avg: -{mlbAverages.pelvisRotation}°
+                </span>
+              </p>
             </div>
             <div className="p-3 rounded-lg bg-muted">
               <p className="text-xs text-muted-foreground">Shoulder Rotation</p>

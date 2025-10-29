@@ -39,21 +39,26 @@ Your task is to analyze swing videos frame-by-frame and provide detailed biomech
 - H.I.T.S. Score: Overall swing quality
 
 **Kinematic Sequence (like Reboot Motion):**
-- Pelvis max angular velocity (deg/s): Typical MLB range 400-650
-- Torso max angular velocity (deg/s): Typical MLB range 700-1100
-- Arm max angular velocity (deg/s): Typical MLB range 900-1400
+- Pelvis max angular velocity (deg/s): Typical range 300-450, MLB avg ~340
+- Torso max angular velocity (deg/s): Typical range 650-850, MLB avg ~715
+- Arm max angular velocity (deg/s): Typical range 650-900, MLB avg ~750
 - Bat speed (mph): Typical MLB range 68-76
-- Timing: milliseconds between peak velocities
+- Timing: milliseconds between peak velocities (tempo should be calculated as ratio)
 
 **X-Factor Analysis:**
-- X-Factor at stance (shoulder-pelvis separation, degrees): Typical 10-20°
-- Max X-Factor (peak separation): Typical MLB 20-35°
-- Pelvis rotation at contact: Typical -100° to -130°
-- Shoulder rotation at contact: Typical -115° to -145°
+- X-Factor at stance (shoulder-pelvis separation, degrees): Typical 10-20° (report as negative if using Reboot convention)
+- Max X-Factor (peak separation): Typical 18-30° (report as negative if using Reboot convention)
+- Pelvis rotation at contact: Typical -100° to -130° (negative values)
+- Shoulder rotation at contact: Typical -115° to -145° (negative values)
 
 **Center of Mass:**
 - COM travel distance (% of body height): Typical 35-55%
 - COM max velocity (m/s): Typical 0.8-1.2 m/s
+
+**Tempo Ratio Calculation:**
+Calculate as the time from pelvis peak to hands peak divided by time from pelvis peak to torso peak.
+Formula: (handsTiming - pelvisTiming) / (torsoTiming - pelvisTiming)
+Optimal range: 1.3-1.8
 
 Be specific and use realistic values based on high-level players.`;
 
@@ -76,14 +81,14 @@ Provide detailed scores and analysis in this exact JSON format:
   "pelvisTiming": <milliseconds to peak>,
   "torsoTiming": <milliseconds to peak>,
   "handsTiming": <milliseconds to peak>,
-  "pelvisMaxVelocity": <deg/s, 400-650 range>,
-  "torsoMaxVelocity": <deg/s, 700-1100 range>,
-  "armMaxVelocity": <deg/s, 900-1400 range>,
+  "pelvisMaxVelocity": <deg/s, 300-450 range, avg ~340>,
+  "torsoMaxVelocity": <deg/s, 650-850 range, avg ~715>,
+  "armMaxVelocity": <deg/s, 650-900 range, avg ~750>,
   "batMaxVelocity": <mph, 65-78 range>,
-  "xFactorStance": <degrees, 10-20>,
-  "xFactor": <degrees peak separation, 20-35>,
-  "pelvisRotation": <degrees at contact, -100 to -130>,
-  "shoulderRotation": <degrees at contact, -115 to -145>,
+  "xFactorStance": <degrees negative, -10 to -20>,
+  "xFactor": <degrees negative peak separation, -18 to -30>,
+  "pelvisRotation": <degrees at max turn, -100 to -130>,
+  "shoulderRotation": <degrees at max turn, -115 to -145>,
   "comDistance": <percent of body height, 35-55>,
   "comMaxVelocity": <m/s, 0.8-1.2>,
   "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
