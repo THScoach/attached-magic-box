@@ -58,25 +58,27 @@ export function generateVelocityData(): VelocityData[] {
   
   // Generate realistic velocity curves
   for (let time = -600; time <= 200; time += 10) {
-    const normalizedTime = (time + 600) / 800; // 0 to 1
+    const normalizedTime = ((time + 600) / 800) * 100; // 0 to 100 (Reboot style)
+    const norm = (time + 600) / 800; // 0 to 1 for calculations
     
     // Pelvis peaks early
     const pelvisVel = Math.max(0, 
-      2800 * Math.exp(-Math.pow((normalizedTime - 0.4) * 3, 2))
+      2800 * Math.exp(-Math.pow((norm - 0.4) * 3, 2))
     );
     
     // Torso peaks slightly later
     const torsoVel = Math.max(0,
-      2600 * Math.exp(-Math.pow((normalizedTime - 0.5) * 3, 2))
+      2600 * Math.exp(-Math.pow((norm - 0.5) * 3, 2))
     );
     
     // Hands peak latest and fastest
     const handsVel = Math.max(0,
-      3000 * Math.exp(-Math.pow((normalizedTime - 0.65) * 3.5, 2))
+      3000 * Math.exp(-Math.pow((norm - 0.65) * 3.5, 2))
     );
     
     data.push({
       time,
+      normalizedTime: Math.round(normalizedTime * 10) / 10, // Round to 1 decimal
       pelvis: Math.round(pelvisVel),
       torso: Math.round(torsoVel),
       hands: Math.round(handsVel)

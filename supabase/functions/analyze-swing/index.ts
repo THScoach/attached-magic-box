@@ -28,21 +28,34 @@ serve(async (req) => {
     console.log(`Analyzing ${frames.length} frames with keypoints data`);
 
     // Prepare the prompt for biomechanical analysis
-    const systemPrompt = `You are an expert biomechanics analyst specializing in baseball and softball swing analysis. 
+    const systemPrompt = `You are an expert biomechanics analyst specializing in baseball and softball swing analysis, trained in the methodology used by Reboot Motion and other 3D motion capture systems.
     
-Your task is to analyze swing videos and provide detailed biomechanical assessment using the H.I.T.S. framework:
-- ANCHOR (0-100): Lower body stability and ground connection during the swing
-- ENGINE (0-100): Core rotation and power generation from the torso
-- WHIP (0-100): Upper body efficiency and bat speed generation
-- H.I.T.S. Score: Overall swing quality (average of the three pillars)
+Your task is to analyze swing videos frame-by-frame and provide detailed biomechanical assessment including:
 
-Also provide:
-- Tempo Ratio: The timing relationship between body segments (ideal ~1.3-1.5)
-- Kinematic Sequence: Timing of pelvis peak velocity → torso peak velocity → hands peak velocity (in milliseconds)
-- Primary Opportunity: The main area for improvement
-- Impact Statement: A brief, actionable insight
+**H.I.T.S. Framework:**
+- ANCHOR (0-100): Lower body stability and ground connection
+- ENGINE (0-100): Core rotation and power generation  
+- WHIP (0-100): Upper body efficiency and bat speed
+- H.I.T.S. Score: Overall swing quality
 
-Be specific, analytical, and provide realistic scores based on what you observe.`;
+**Kinematic Sequence (like Reboot Motion):**
+- Pelvis max angular velocity (deg/s): Typical MLB range 400-650
+- Torso max angular velocity (deg/s): Typical MLB range 700-1100
+- Arm max angular velocity (deg/s): Typical MLB range 900-1400
+- Bat speed (mph): Typical MLB range 68-76
+- Timing: milliseconds between peak velocities
+
+**X-Factor Analysis:**
+- X-Factor at stance (shoulder-pelvis separation, degrees): Typical 10-20°
+- Max X-Factor (peak separation): Typical MLB 20-35°
+- Pelvis rotation at contact: Typical -100° to -130°
+- Shoulder rotation at contact: Typical -115° to -145°
+
+**Center of Mass:**
+- COM travel distance (% of body height): Typical 35-55%
+- COM max velocity (m/s): Typical 0.8-1.2 m/s
+
+Be specific and use realistic values based on high-level players.`;
 
     const userPrompt = `Analyze this baseball/softball swing sequence. I'm providing ${frames.length} key frames from a high-speed video (300fps).
     
@@ -59,12 +72,22 @@ Provide detailed scores and analysis in this exact JSON format:
   "engineScore": <number 0-100>,
   "whipScore": <number 0-100>,
   "hitsScore": <number 0-100>,
-  "tempoRatio": <number>,
-  "pelvisTiming": <milliseconds to peak velocity>,
-  "torsoTiming": <milliseconds to peak velocity>,
-  "handsTiming": <milliseconds to peak velocity>,
-  "primaryOpportunity": "<which pillar needs most work: ANCHOR, ENGINE, or WHIP>",
-  "impactStatement": "<concise, actionable insight about the swing>"
+  "tempoRatio": <number 1.2-1.6>,
+  "pelvisTiming": <milliseconds to peak>,
+  "torsoTiming": <milliseconds to peak>,
+  "handsTiming": <milliseconds to peak>,
+  "pelvisMaxVelocity": <deg/s, 400-650 range>,
+  "torsoMaxVelocity": <deg/s, 700-1100 range>,
+  "armMaxVelocity": <deg/s, 900-1400 range>,
+  "batMaxVelocity": <mph, 65-78 range>,
+  "xFactorStance": <degrees, 10-20>,
+  "xFactor": <degrees peak separation, 20-35>,
+  "pelvisRotation": <degrees at contact, -100 to -130>,
+  "shoulderRotation": <degrees at contact, -115 to -145>,
+  "comDistance": <percent of body height, 35-55>,
+  "comMaxVelocity": <m/s, 0.8-1.2>,
+  "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
+  "impactStatement": "<specific actionable insight>"
 }`;
 
     // Prepare messages with images

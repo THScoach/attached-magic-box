@@ -6,6 +6,7 @@ import { VelocityChart } from "@/components/VelocityChart";
 import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
+import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
@@ -232,6 +233,9 @@ export default function AnalysisResult() {
             />
           </div>
         </section>
+
+        {/* Reboot-Style Metrics */}
+        <RebootStyleMetrics analysis={analysis} />
 
         {/* Velocity Chart */}
         <VelocityChart data={velocityData} />

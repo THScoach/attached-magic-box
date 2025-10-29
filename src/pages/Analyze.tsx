@@ -108,7 +108,18 @@ export default function Analyze() {
         handsTiming: analysisData.analysis.handsTiming,
         primaryOpportunity: analysisData.analysis.primaryOpportunity,
         impactStatement: analysisData.analysis.impactStatement,
-        poseData: poseData // Store pose data for skeleton overlay
+        // Enhanced Reboot-style metrics
+        pelvisMaxVelocity: analysisData.analysis.pelvisMaxVelocity,
+        torsoMaxVelocity: analysisData.analysis.torsoMaxVelocity,
+        armMaxVelocity: analysisData.analysis.armMaxVelocity,
+        batMaxVelocity: analysisData.analysis.batMaxVelocity,
+        xFactorStance: analysisData.analysis.xFactorStance,
+        xFactor: analysisData.analysis.xFactor,
+        pelvisRotation: analysisData.analysis.pelvisRotation,
+        shoulderRotation: analysisData.analysis.shoulderRotation,
+        comDistance: analysisData.analysis.comDistance,
+        comMaxVelocity: analysisData.analysis.comMaxVelocity,
+        poseData: poseData
       };
 
       sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
