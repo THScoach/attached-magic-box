@@ -125,11 +125,6 @@ export default function Onboarding() {
                   </ul>
                 </Card>
                 
-                <p className="text-foreground leading-relaxed">
-                  This technology is based on Dr. Kwon's research and years of working with elite hitters. 
-                  Let's unlock your potential together!
-                </p>
-                
                 <p className="text-muted-foreground text-sm italic">
                   - From The Hitting Skool Team
                 </p>
