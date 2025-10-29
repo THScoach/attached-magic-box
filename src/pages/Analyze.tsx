@@ -42,17 +42,27 @@ export default function Analyze() {
       });
     }, 200);
 
-    // Simulate analysis delay
-    setTimeout(() => {
-      const videoUrl = URL.createObjectURL(file);
-      const analysis = generateMockAnalysis(videoUrl);
-      
-      // Store in session storage for demo
-      sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
-      
-      toast.success("Analysis complete!");
-      navigate('/result/latest');
-    }, 3000);
+    // Convert video to base64 for storage
+    const reader = new FileReader();
+    reader.onload = () => {
+      setTimeout(() => {
+        const videoDataUrl = reader.result as string;
+        const analysis = generateMockAnalysis(videoDataUrl);
+        
+        // Store in session storage for demo
+        sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
+        
+        toast.success("Analysis complete!");
+        navigate('/result/latest');
+      }, 3000);
+    };
+    
+    reader.onerror = () => {
+      toast.error("Failed to process video file");
+      setIsAnalyzing(false);
+    };
+    
+    reader.readAsDataURL(file);
   };
 
   return (
