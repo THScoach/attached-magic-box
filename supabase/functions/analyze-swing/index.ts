@@ -91,7 +91,7 @@ FireStart is the FIRST forward pelvis ACCELERATION onset - NOT the max pelvis ve
 
 **CALIBRATION REFERENCES - Real MLB Players (Verified Reboot Data):**
 
-**Aaron Judge (Power Hitter Profile):**
+**Aaron Judge (Power Hitter - Controlled Session):**
 - Pelvis Max Velocity: 461.8 deg/s (below MLB avg 609.8 - controlled session)
 - Torso Max Velocity: 728.5 deg/s (below MLB avg 818.9)
 - Arm Max Velocity: 878.2 deg/s (below MLB avg 1176.7)
@@ -103,7 +103,7 @@ FireStart is the FIRST forward pelvis ACCELERATION onset - NOT the max pelvis ve
 - Expected Tempo: ~2.1:1 (elite power range)
 - Profile: Lower velocities in this session but maintains elite separation mechanics
 
-**Luis Arraez (Elite Contact Hitter Profile):**
+**Luis Arraez (Elite Contact Hitter):**
 - Pelvis Max Velocity: 385.2 deg/s (well below MLB avg - contact approach)
 - Torso Max Velocity: 636.0 deg/s (below MLB avg 818.9)
 - Arm Max Velocity: 759.4 deg/s (well below MLB avg 1176.7)
@@ -115,7 +115,22 @@ FireStart is the FIRST forward pelvis ACCELERATION onset - NOT the max pelvis ve
 - Expected Tempo: ~3.5-4.0:1 (extreme load, quick fire - contact hitter profile)
 - Profile: Lower velocities, longer load phase, less aggressive rotation, prioritizes contact/coverage
 
-These represent opposite ends of the hitting spectrum - use them to calibrate velocity and tempo estimates based on swing type.
+**Fernando Tatis Jr. (Explosive Power with Extreme Separation):**
+- Pelvis Max Velocity: 446.9 deg/s (below MLB avg 609.8)
+- Torso Max Velocity: 724.6 deg/s (below MLB avg 818.9)
+- Arm Max Velocity: 888.9 deg/s (below MLB avg 1176.7)
+- Bat Speed: ~80 mph (2397.0 deg/s - HIGHEST of the three)
+- X-Factor Max: -45.4° (EXTREME separation! Nearly 2x MLB avg -26.7°)
+- Pelvis Rotation: -115.5° (at MLB avg), Shoulder Rotation: -136.1° (deep turn)
+- COM Max Velocity: 0.86 m/s (HIGHEST - explosive movement), COM Distance: 52.2% of height
+- Timing: Negative Move at 2.974s (!), Max Pelvis at 0.329s, Max X-Factor at 0.207s
+- Expected Tempo: ~6-8:1 (extreme load window, violent fire)
+- Profile: Aggressive swing with exceptional separation mechanics, highest bat speed and COM velocity, deep shoulder turn
+
+Use these three contrasting profiles to calibrate estimates across the hitting spectrum:
+- Arraez: Contact/control (low velocities, minimal separation, long load)
+- Judge: Balanced power (elite separation, moderate velocities in this session)
+- Tatis: Explosive power (extreme X-Factor, highest bat speed, aggressive mechanics)
 
 Be specific and use realistic values based on high-level players.`;
 
