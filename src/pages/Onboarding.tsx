@@ -101,6 +101,17 @@ export default function Onboarding() {
               
               <h2 className="text-2xl font-bold">Welcome to H.I.T.S. Analyzer!</h2>
               
+              {/* Video Placeholder */}
+              <Card className="p-8 bg-zinc-900 border-zinc-700">
+                <div className="aspect-video bg-zinc-800 rounded-lg flex items-center justify-center">
+                  <div className="text-center space-y-2">
+                    <div className="text-4xl">🎥</div>
+                    <p className="text-sm text-muted-foreground">Welcome Video</p>
+                    <p className="text-xs text-muted-foreground">(Video will be placed here)</p>
+                  </div>
+                </div>
+              </Card>
+              
               <div className="text-left space-y-4 max-w-xl mx-auto">
                 <p className="text-foreground leading-relaxed">
                   I'm excited to have you here! The H.I.T.S. Analyzer is built on cutting-edge biomechanics 

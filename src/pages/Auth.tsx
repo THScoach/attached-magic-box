@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, User } from "lucide-react";
 import hitsLogo from "@/assets/hits-logo-minimal.png";
 
 export default function Auth() {
@@ -77,13 +77,38 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md space-y-4">
         <Button asChild variant="ghost" className="mb-4 text-white hover:text-yellow-500 hover:bg-white/10">
           <Link to="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
         </Button>
+        
+        {/* Role Selection Links */}
+        <Card className="w-full border-white/10 bg-zinc-900 text-white p-6">
+          <h3 className="text-lg font-bold text-center mb-4">I am a...</h3>
+          <div className="grid grid-cols-3 gap-3">
+            <Button asChild variant="outline" className="flex-col h-auto py-4 border-zinc-700 hover:border-yellow-500 hover:bg-zinc-800">
+              <Link to="/auth?role=player">
+                <User className="h-6 w-6 mb-2" />
+                <span className="text-sm">Player</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="flex-col h-auto py-4 border-zinc-700 hover:border-yellow-500 hover:bg-zinc-800">
+              <Link to="/coach-auth">
+                <User className="h-6 w-6 mb-2" />
+                <span className="text-sm">Coach</span>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="flex-col h-auto py-4 border-zinc-700 hover:border-yellow-500 hover:bg-zinc-800">
+              <Link to="/admin">
+                <User className="h-6 w-6 mb-2" />
+                <span className="text-sm">Admin</span>
+              </Link>
+            </Button>
+          </div>
+        </Card>
         <Card className="w-full border-white/10 bg-zinc-900 text-white">
         <CardHeader className="text-center">
           <img 
