@@ -1,125 +1,124 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Target, TrendingUp, Video, Zap } from "lucide-react";
+import { Target, TrendingUp, Video, Zap, ChevronRight } from "lucide-react";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white">
+      {/* Navigation */}
+      <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-lg">
+        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+          <img 
+            src="/hits-logo-modern.png" 
+            alt="H.I.T.S." 
+            className="h-10 w-auto"
+          />
+          <div className="flex items-center gap-4">
+            <Button asChild variant="ghost" className="text-white hover:text-yellow-500">
+              <Link to="/auth">Login</Link>
+            </Button>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-background" />
-        <div className="container relative mx-auto px-4 py-20 md:py-32">
-          <div className="mx-auto max-w-4xl text-center">
-            <img 
-              src="/hits-logo-modern.png" 
-              alt="H.I.T.S. Logo" 
-              className="mx-auto mb-8 h-24 w-auto"
-            />
-            <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">
-              Transform Your Swing with
-              <span className="block text-primary">AI-Powered Analysis</span>
-            </h1>
-            <p className="mb-8 text-lg text-muted-foreground md:text-xl">
-              Professional swing analysis, personalized training programs, and expert coaching 
-              to take your hitting to the next level.
+      <section className="relative flex min-h-screen items-center overflow-hidden pt-16">
+        <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-black" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.1)_0%,transparent_65%)]" />
+        <div className="container relative z-10 mx-auto px-4 py-20">
+          <div className="mx-auto max-w-4xl">
+            <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-yellow-500">
+              BIOHACK YOUR SWING MECHANICS
             </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button asChild size="lg" className="text-lg">
-                <Link to="/auth">Get Started</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="text-lg">
-                <Link to="/auth">Sign In</Link>
-              </Button>
-            </div>
+            <h1 className="mb-6 text-5xl font-black uppercase leading-tight tracking-tight md:text-7xl lg:text-8xl">
+              The Hitting<br />
+              <span className="text-yellow-500">Intelligence</span><br />
+              Training System
+            </h1>
+            <p className="mb-8 max-w-2xl text-lg text-gray-400 md:text-xl">
+              AI-powered swing analysis. Personalized training programs. 
+              Track your progress from amateur to elite.
+            </p>
+            <Button asChild size="lg" className="bg-yellow-500 px-8 py-6 text-lg font-bold uppercase text-black hover:bg-yellow-400">
+              <Link to="/auth">
+                Get Started <ChevronRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20">
+      <section className="bg-zinc-950 py-20">
         <div className="container mx-auto px-4">
-          <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">
-            Why Choose H.I.T.S.?
-          </h2>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader>
-                <Video className="mb-2 h-10 w-10 text-primary" />
-                <CardTitle>Video Analysis</CardTitle>
-                <CardDescription>
-                  Upload your swing videos and get instant AI-powered feedback on your mechanics
-                </CardDescription>
-              </CardHeader>
-            </Card>
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-4xl font-black uppercase md:text-5xl">
+              Your Personal Trainer For <span className="text-yellow-500">Hitting Excellence</span>
+            </h2>
+          </div>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="group rounded-lg border border-white/10 bg-zinc-900 p-8 transition-all hover:border-yellow-500/50">
+              <Video className="mb-4 h-12 w-12 text-yellow-500" />
+              <h3 className="mb-3 text-xl font-bold uppercase">AI Video Analysis</h3>
+              <p className="text-gray-400">
+                Upload your swing and receive instant biomechanical analysis across Anchor, Engine, and Whip metrics.
+              </p>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <Target className="mb-2 h-10 w-10 text-primary" />
-                <CardTitle>Personalized Programs</CardTitle>
-                <CardDescription>
-                  Custom training programs tailored to your weaknesses and goals
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <div className="group rounded-lg border border-white/10 bg-zinc-900 p-8 transition-all hover:border-yellow-500/50">
+              <Target className="mb-4 h-12 w-12 text-yellow-500" />
+              <h3 className="mb-3 text-xl font-bold uppercase">Dynamic Training Programs</h3>
+              <p className="text-gray-400">
+                Customized programs that adapt to your progress. Powered by proven coaching methodologies.
+              </p>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <TrendingUp className="mb-2 h-10 w-10 text-primary" />
-                <CardTitle>Track Progress</CardTitle>
-                <CardDescription>
-                  Monitor your improvement over time with detailed metrics and insights
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Zap className="mb-2 h-10 w-10 text-primary" />
-                <CardTitle>Expert Coaching</CardTitle>
-                <CardDescription>
-                  Access professional drills and coaching from Rick Strickland
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <div className="group rounded-lg border border-white/10 bg-zinc-900 p-8 transition-all hover:border-yellow-500/50">
+              <TrendingUp className="mb-4 h-12 w-12 text-yellow-500" />
+              <h3 className="mb-3 text-xl font-bold uppercase">Track & Share Metrics</h3>
+              <p className="text-gray-400">
+                Monitor key performance indicators. Track progress over time. Share your gains.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section className="bg-muted/50 py-20">
+      <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="mb-12 text-center text-3xl font-bold md:text-4xl">
+          <h2 className="mb-16 text-center text-4xl font-black uppercase md:text-5xl">
             How It Works
           </h2>
-          <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-3">
+          <div className="mx-auto grid max-w-5xl gap-12 md:grid-cols-3">
             <div className="text-center">
-              <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
+              <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full border-4 border-yellow-500 bg-black text-3xl font-black text-yellow-500">
                 1
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Record Your Swing</h3>
-              <p className="text-muted-foreground">
-                Use your phone to capture your swing from the right angle
+              <h3 className="mb-3 text-xl font-bold uppercase">Record Your Swing</h3>
+              <p className="text-gray-400">
+                Capture your swing from the proper angle using your mobile device
               </p>
             </div>
 
             <div className="text-center">
-              <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
+              <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full border-4 border-yellow-500 bg-black text-3xl font-black text-yellow-500">
                 2
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Get Analysis</h3>
-              <p className="text-muted-foreground">
-                Our AI analyzes your mechanics across Anchor, Engine, and Whip
+              <h3 className="mb-3 text-xl font-bold uppercase">Get AI Analysis</h3>
+              <p className="text-gray-400">
+                Receive instant biomechanical breakdown of your Anchor, Engine, and Whip
               </p>
             </div>
 
             <div className="text-center">
-              <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
+              <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full border-4 border-yellow-500 bg-black text-3xl font-black text-yellow-500">
                 3
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Train Smarter</h3>
-              <p className="text-muted-foreground">
-                Follow your personalized program and track your progress
+              <h3 className="mb-3 text-xl font-bold uppercase">Train & Improve</h3>
+              <p className="text-gray-400">
+                Follow your dynamic program and track measurable improvements
               </p>
             </div>
           </div>
@@ -127,30 +126,37 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <Card className="mx-auto max-w-3xl border-primary/20 bg-gradient-to-br from-primary/10 to-background">
-            <CardHeader className="text-center">
-              <CardTitle className="text-3xl md:text-4xl">
-                Ready to Transform Your Swing?
-              </CardTitle>
-              <CardDescription className="text-lg">
-                Join hundreds of athletes already improving their game
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-              <Button asChild size="lg" className="text-lg">
-                <Link to="/auth">Start Your Journey</Link>
-              </Button>
-            </CardContent>
-          </Card>
+      <section className="relative overflow-hidden bg-zinc-950 py-32">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.15)_0%,transparent_70%)]" />
+        <div className="container relative z-10 mx-auto px-4 text-center">
+          <h2 className="mb-6 text-4xl font-black uppercase leading-tight md:text-6xl">
+            Ready to Unlock<br />
+            <span className="text-yellow-500">Your Full Potential?</span>
+          </h2>
+          <p className="mb-10 text-xl text-gray-400">
+            Join elite athletes who are already transforming their game
+          </p>
+          <Button asChild size="lg" className="bg-yellow-500 px-10 py-6 text-xl font-bold uppercase text-black hover:bg-yellow-400">
+            <Link to="/auth">
+              Start Training Now <ChevronRight className="ml-2 h-6 w-6" />
+            </Link>
+          </Button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 H.I.T.S. All rights reserved.</p>
+      <footer className="border-t border-white/10 bg-black py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <img 
+              src="/hits-logo-modern.png" 
+              alt="H.I.T.S." 
+              className="h-8 w-auto"
+            />
+            <p className="text-sm text-gray-500">
+              &copy; 2025 H.I.T.S. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
