@@ -89,21 +89,33 @@ FireStart is the FIRST forward pelvis ACCELERATION onset - NOT the max pelvis ve
 - FireStart must be EARLIER than pelvis peak by 120-180ms minimum
 - No markers in first/last 10% of video frames
 
-**CALIBRATION REFERENCE - Aaron Judge (Verified Reboot Data):**
-Use this real-world example to calibrate your estimates:
-- Pelvis Max Velocity: 461.8 deg/s (below MLB avg 609.8 - this particular session/swing)
+**CALIBRATION REFERENCES - Real MLB Players (Verified Reboot Data):**
+
+**Aaron Judge (Power Hitter Profile):**
+- Pelvis Max Velocity: 461.8 deg/s (below MLB avg 609.8 - controlled session)
 - Torso Max Velocity: 728.5 deg/s (below MLB avg 818.9)
 - Arm Max Velocity: 878.2 deg/s (below MLB avg 1176.7)
-- Bat Speed: ~72 mph (2144.4 deg/s - converted from angular velocity)
-- X-Factor Max: -39.0° (excellent separation, well above MLB avg -26.7°)
-- Pelvis Rotation at Max Turn: -103.7° (MLB avg: -118.8°)
-- Shoulder Rotation at Max Turn: -125.5° (MLB avg: -124.3°)
-- COM Max Velocity: 0.54 m/s
-- COM Distance: 43.85% of height (0.99m stride)
-- Timing (before contact): Max Pelvis Turn at 0.222s, Max Shoulder Turn at 0.188s
-- Expected Tempo: ~2.1:1 (elite power hitter range)
+- Bat Speed: ~72 mph (2144.4 deg/s)
+- X-Factor Max: -39.0° (elite separation, well above MLB avg -26.7°)
+- Pelvis Rotation: -103.7°, Shoulder Rotation: -125.5°
+- COM Max Velocity: 0.54 m/s, COM Distance: 43.85% of height
+- Timing: Negative Move at 0.292s, Max Pelvis at 0.222s before contact
+- Expected Tempo: ~2.1:1 (elite power range)
+- Profile: Lower velocities in this session but maintains elite separation mechanics
 
-Note: Judge's velocities in this session are lower than typical, suggesting controlled work or specific drill focus. His X-Factor remains elite.
+**Luis Arraez (Elite Contact Hitter Profile):**
+- Pelvis Max Velocity: 385.2 deg/s (well below MLB avg - contact approach)
+- Torso Max Velocity: 636.0 deg/s (below MLB avg 818.9)
+- Arm Max Velocity: 759.4 deg/s (well below MLB avg 1176.7)
+- Bat Speed: ~74 mph (2219.1 deg/s)
+- X-Factor Max: -25.2° (at MLB avg -26.7° - less separation needed)
+- Pelvis Rotation: -94.8° (short turn), Shoulder Rotation: -115.4°
+- COM Max Velocity: 0.68 m/s, COM Distance: 55.06% of height (longer stride)
+- Timing: Negative Move at 1.222s (very long load!), Max Pelvis at 0.191s before contact
+- Expected Tempo: ~3.5-4.0:1 (extreme load, quick fire - contact hitter profile)
+- Profile: Lower velocities, longer load phase, less aggressive rotation, prioritizes contact/coverage
+
+These represent opposite ends of the hitting spectrum - use them to calibrate velocity and tempo estimates based on swing type.
 
 Be specific and use realistic values based on high-level players.`;
 
