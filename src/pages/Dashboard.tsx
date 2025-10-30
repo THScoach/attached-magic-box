@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { GritScoreCard } from "@/components/GritScoreCard";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { LiveCoachingBanner } from "@/components/LiveCoachingBanner";
+import { RedeemPromoCode } from "@/components/RedeemPromoCode";
 import { Camera, TrendingUp, Target, Play, Flame, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const tierAccess = useTierAccess();
   const [todaysProgram, setTodaysProgram] = useState<any>(null);
   const [streak, setStreak] = useState(0);
+  const [showPromoRedeem, setShowPromoRedeem] = useState(false);
   const [gritData, setGritData] = useState({
     currentScore: 0,
     currentStreak: 0,
@@ -159,6 +161,28 @@ export default function Dashboard() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
+        {/* Promo Code Redemption */}
+        {!tierAccess.isTeamMember && tierAccess.tier === "free" && (
+          <Card className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Have a team code?</p>
+                <p className="text-sm text-muted-foreground">
+                  Join your coach's roster with a promo code
+                </p>
+              </div>
+              <Button size="sm" onClick={() => setShowPromoRedeem(!showPromoRedeem)}>
+                {showPromoRedeem ? "Cancel" : "Redeem"}
+              </Button>
+            </div>
+            {showPromoRedeem && (
+              <div className="mt-4">
+                <RedeemPromoCode />
+              </div>
+            )}
+          </Card>
+        )}
+
         {/* Live Coaching Banner */}
         {tierAccess.canViewReplay && <LiveCoachingBanner />}
 

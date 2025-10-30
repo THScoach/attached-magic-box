@@ -492,6 +492,71 @@ export type Database = {
           },
         ]
       }
+      promo_codes: {
+        Row: {
+          coach_id: string
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean
+          seats_allocated: number
+          seats_used: number
+          updated_at: string
+        }
+        Insert: {
+          coach_id: string
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          seats_allocated?: number
+          seats_used?: number
+          updated_at?: string
+        }
+        Update: {
+          coach_id?: string
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          seats_allocated?: number
+          seats_used?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      promo_redemptions: {
+        Row: {
+          athlete_id: string
+          id: string
+          promo_code_id: string
+          redeemed_at: string
+        }
+        Insert: {
+          athlete_id: string
+          id?: string
+          promo_code_id: string
+          redeemed_at?: string
+        }
+        Update: {
+          athlete_id?: string
+          id?: string
+          promo_code_id?: string
+          redeemed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_redemptions_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scheduled_tasks: {
         Row: {
           created_at: string | null

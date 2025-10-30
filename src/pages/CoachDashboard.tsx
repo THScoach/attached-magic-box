@@ -8,6 +8,7 @@ import { LogOut, Users, Ticket, TrendingUp, UserPlus } from "lucide-react";
 import { useCoachRoster } from "@/hooks/useCoachRoster";
 import { AddAthleteModal } from "@/components/AddAthleteModal";
 import { useTierAccess } from "@/hooks/useTierAccess";
+import { PromoCodeManager } from "@/components/PromoCodeManager";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -192,21 +193,7 @@ export default function CoachDashboard() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Promo Codes</CardTitle>
-              <CardDescription>Distribute access to your athletes</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <Ticket className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No promo codes generated</p>
-                <Button className="mt-4" disabled>
-                  Coming Soon: Generate Codes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <PromoCodeManager availableSeats={stats.availableSeats} />
         </div>
 
         {/* Purchase Section */}
