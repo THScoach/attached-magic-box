@@ -164,13 +164,7 @@ export default function Dashboard() {
         <WeeklySchedule />
 
         {/* GRIT Score */}
-        <GritScoreCard
-          currentScore={gritData.currentScore}
-          currentStreak={gritData.currentStreak}
-          longestStreak={gritData.longestStreak}
-          totalCompleted={gritData.totalCompleted}
-          totalAssigned={gritData.totalAssigned}
-        />
+        <GritScoreCard />
 
         {/* Today's Training Program */}
         <TodaysProgramCard program={todaysProgram} />
