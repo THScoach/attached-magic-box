@@ -9,6 +9,7 @@ import { useCoachRoster } from "@/hooks/useCoachRoster";
 import { AddAthleteModal } from "@/components/AddAthleteModal";
 import { useTierAccess } from "@/hooks/useTierAccess";
 import { PromoCodeManager } from "@/components/PromoCodeManager";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -107,10 +108,13 @@ export default function CoachDashboard() {
             <h1 className="text-3xl font-bold">Coach Dashboard</h1>
             <p className="text-muted-foreground">{organizationName}</p>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationCenter />
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         {/* Stats Grid */}
