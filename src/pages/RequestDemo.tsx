@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
 import { Check, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import hitsLogo from "@/assets/hits-logo-minimal.png";
+import { HitsLogo, HitsMonogram } from "@/components/HitsLogo";
 
 export default function RequestDemo() {
   const [formData, setFormData] = useState({
@@ -51,12 +51,8 @@ export default function RequestDemo() {
       {/* Navigation */}
       <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/95 backdrop-blur-lg">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <Link to="/">
-            <img 
-              src={hitsLogo} 
-              alt="H.I.T.S." 
-              className="h-10 w-auto"
-            />
+          <Link to="/" className="hover:opacity-80 transition-opacity">
+            <HitsLogo />
           </Link>
           <div className="flex items-center gap-4">
             <Button asChild variant="ghost" className="text-white hover:text-primary">
@@ -66,7 +62,10 @@ export default function RequestDemo() {
               </Link>
             </Button>
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
-              <Link to="/auth">App Login</Link>
+              <Link to="/auth">
+                <HitsMonogram className="h-6 w-6 mr-2" />
+                App Login
+              </Link>
             </Button>
           </div>
         </div>
@@ -311,11 +310,7 @@ export default function RequestDemo() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <img 
-                src={hitsLogo} 
-                alt="H.I.T.S." 
-                className="h-8 w-auto"
-              />
+              <HitsMonogram className="h-8 w-8" />
               <p className="text-sm text-gray-400">
                 © 2025 The Hitting Skool. All rights reserved.
               </p>

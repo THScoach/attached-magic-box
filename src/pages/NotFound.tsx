@@ -2,7 +2,7 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft } from "lucide-react";
-import hitsLogo from "@/assets/hits-logo-minimal.png";
+import { HitsMonogram } from "@/components/HitsLogo";
 
 const NotFound = () => {
   const location = useLocation();
@@ -15,11 +15,9 @@ const NotFound = () => {
     <div className="flex min-h-screen items-center justify-center bg-black">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(192,192,192,0.05)_0%,transparent_70%)]" />
       <div className="relative z-10 text-center px-4">
-        <img 
-          src={hitsLogo} 
-          alt="H.I.T.S." 
-          className="h-16 w-auto mx-auto mb-8 opacity-50"
-        />
+        <div className="mx-auto mb-8 opacity-50">
+          <HitsMonogram className="h-16 w-16 mx-auto" />
+        </div>
         <h1 className="mb-4 text-8xl font-black text-primary">404</h1>
         <h2 className="mb-4 text-3xl font-bold text-white">Page Not Found</h2>
         <p className="mb-8 text-xl text-gray-400 max-w-md mx-auto">
