@@ -27,9 +27,10 @@ interface Player {
 interface PlayerSelectorProps {
   selectedPlayerId: string | null;
   onSelectPlayer: (playerId: string | null) => void;
+  limit?: number;
 }
 
-export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelectorProps) {
+export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: PlayerSelectorProps) {
   const navigate = useNavigate();
   const [players, setPlayers] = useState<Player[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -160,12 +161,19 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
     return fullName.includes(searchQuery.toLowerCase());
   });
 
+  // Apply limit only when not searching
+  const displayedPlayers = searchQuery.trim() 
+    ? filteredPlayers 
+    : limit 
+      ? filteredPlayers.slice(0, limit) 
+      : filteredPlayers;
+
   return (
     <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label className="text-sm font-semibold">
-            Select Player {players.length > 0 && `(${filteredPlayers.length} of ${players.length})`}
+            Select Player {players.length > 0 && `(${searchQuery ? filteredPlayers.length : displayedPlayers.length} of ${players.length})`}
           </Label>
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
@@ -330,7 +338,7 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredPlayers.map((player) => (
+            {displayedPlayers.map((player) => (
               <div
                 key={player.id}
                 className={`w-full p-3 rounded-lg border transition-all ${

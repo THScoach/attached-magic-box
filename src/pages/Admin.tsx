@@ -160,13 +160,14 @@ export default function Admin() {
 
           <TabsContent value="players">
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">All Players</h3>
+              <h3 className="text-lg font-semibold mb-4">Recent Players</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                View and manage all players in the system. Select a player below to view their profile.
+                Showing the 5 most recent active players. Use the search bar to find others.
               </p>
               <PlayerSelector 
                 selectedPlayerId={selectedPlayerId}
                 onSelectPlayer={setSelectedPlayerId}
+                limit={5}
               />
             </Card>
           </TabsContent>
@@ -175,11 +176,12 @@ export default function Admin() {
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Analyze Player</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Select a player below, then click "Go to Analysis Page" to film or upload their swing video.
+                Showing the 5 most recent players. Use search to find others, then click "Go to Analysis Page" to analyze their swing.
               </p>
               <PlayerSelector 
                 selectedPlayerId={selectedPlayerId}
                 onSelectPlayer={setSelectedPlayerId}
+                limit={5}
               />
               <div className="mt-6 space-y-3">
                 <Button 
