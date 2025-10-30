@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthGuard } from "./components/AuthGuard";
+import { RoleGuard } from "./components/RoleGuard";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
 import Landing from "./pages/Landing";
 import Programs from "./pages/Programs";
@@ -43,20 +45,54 @@ const App = () => {
             <Route path="/programs" element={<Programs />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/coach-auth" element={<CoachAuth />} />
-            <Route path="/coach-dashboard" element={<AuthGuard><CoachDashboard /></AuthGuard>} />
-            <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
-            <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
-            <Route path="/analyze" element={<AuthGuard><Analyze /></AuthGuard>} />
-            <Route path="/result/:id" element={<AuthGuard><AnalysisResult /></AuthGuard>} />
-            <Route path="/player/:playerId" element={<AuthGuard><PlayerProfile /></AuthGuard>} />
-            <Route path="/player/:playerId/analysis/:analysisId" element={<AuthGuard><AnalysisResult /></AuthGuard>} />
-            <Route path="/progress" element={<AuthGuard><Progress /></AuthGuard>} />
-            <Route path="/drills" element={<AuthGuard><Drills /></AuthGuard>} />
-            <Route path="/training" element={<AuthGuard><Training /></AuthGuard>} />
-            <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
-            <Route path="/admin" element={<AuthGuard><Admin /></AuthGuard>} />
-            <Route path="/live-coaching" element={<AuthGuard><LiveCoaching /></AuthGuard>} />
-            <Route path="/coach-roster" element={<AuthGuard><CoachRoster /></AuthGuard>} />
+            
+            {/* Admin Routes */}
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute>
+                  <RoleGuard allowedRoles={["admin"]}>
+                    <Admin />
+                  </RoleGuard>
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Coach Routes */}
+            <Route 
+              path="/coach-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <RoleGuard allowedRoles={["coach"]}>
+                    <CoachDashboard />
+                  </RoleGuard>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/coach-roster" 
+              element={
+                <ProtectedRoute>
+                  <RoleGuard allowedRoles={["coach"]}>
+                    <CoachRoster />
+                  </RoleGuard>
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Athlete/General Protected Routes */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+            <Route path="/analyze" element={<ProtectedRoute><Analyze /></ProtectedRoute>} />
+            <Route path="/result/:id" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
+            <Route path="/player/:playerId" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
+            <Route path="/player/:playerId/analysis/:analysisId" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
+            <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+            <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />
+            <Route path="/training" element={<ProtectedRoute><Training /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/live-coaching" element={<ProtectedRoute><LiveCoaching /></ProtectedRoute>} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

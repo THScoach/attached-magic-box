@@ -18,48 +18,38 @@ export default function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (user) {
-        // Check user role and redirect accordingly
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        
-        if (roleData?.role === "admin") {
-          navigate("/admin");
-        } else if (roleData?.role === "coach") {
-          navigate("/coach-dashboard");
-        } else {
-          navigate("/dashboard");
-        }
-      }
-    });
+    // Check if user is already logged in and redirect based on role
+    checkAuthAndRedirect();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        // Check user role and redirect accordingly
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-        
-        if (roleData?.role === "admin") {
-          navigate("/admin");
-        } else if (roleData?.role === "coach") {
-          navigate("/coach-dashboard");
-        } else {
-          navigate("/dashboard");
-        }
+        checkAuthAndRedirect();
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const checkAuthAndRedirect = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Check user role and redirect accordingly
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    
+    if (roleData?.role === "admin") {
+      navigate("/admin", { replace: true });
+    } else if (roleData?.role === "coach") {
+      navigate("/coach-dashboard", { replace: true });
+    } else {
+      navigate("/dashboard", { replace: true });
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();

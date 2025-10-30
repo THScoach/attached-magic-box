@@ -20,29 +20,12 @@ export default function CoachDashboard() {
   const { athletes, loading: rosterLoading, stats, reload } = useCoachRoster();
 
   useEffect(() => {
-    if (!tierAccess.loading && !tierAccess.canViewCoachDashboard) {
-      navigate("/dashboard");
-      return;
-    }
-
     loadCoachData();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-        
-        if (roleData?.role === "coach") {
-          setUser(session.user);
-        } else if (roleData?.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/dashboard");
-        }
+        setUser(session.user);
       } else {
         setUser(null);
         navigate("/coach-auth");
@@ -50,28 +33,12 @@ export default function CoachDashboard() {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, tierAccess.loading, tierAccess.canViewCoachDashboard]);
+  }, [navigate]);
 
   const loadCoachData = async () => {
-    // Check current auth state
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      // Check if user is actually a coach
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      
-      if (roleData?.role === "coach") {
-        setUser(user);
-      } else if (roleData?.role === "admin") {
-        navigate("/admin");
-        return;
-      } else {
-        navigate("/dashboard");
-        return;
-      }
+      setUser(user);
     } else {
       navigate("/coach-auth");
       return;

@@ -25,11 +25,8 @@ export default function CoachRoster() {
     : athletes;
 
   useEffect(() => {
-    if (!roleLoading && !isCoach) {
-      navigate("/dashboard");
-      return;
-    }
-  }, [isCoach, roleLoading, navigate]);
+    // Removed redundant role checking - handled by RoleGuard
+  }, []);
 
   const getGrindColor = (score: number | null) => {
     if (!score) return "text-muted-foreground";
