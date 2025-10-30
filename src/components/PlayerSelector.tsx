@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, User, ChevronRight } from "lucide-react";
+import { Plus, User, ChevronRight, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useNavigate } from "react-router-dom";
 
 interface Player {
   id: string;
@@ -29,7 +30,9 @@ interface PlayerSelectorProps {
 }
 
 export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelectorProps) {
+  const navigate = useNavigate();
   const [players, setPlayers] = useState<Player[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [showDialog, setShowDialog] = useState(false);
   const { role, isCoach, isAthlete } = useUserRole();
   const [newPlayer, setNewPlayer] = useState({
@@ -151,11 +154,19 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
 
   const selectedPlayer = players.find(p => p.id === selectedPlayerId);
 
+  // Filter players based on search query
+  const filteredPlayers = players.filter(player => {
+    const fullName = `${player.first_name} ${player.last_name}`.toLowerCase();
+    return fullName.includes(searchQuery.toLowerCase());
+  });
+
   return (
     <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold">Select Player</Label>
+          <Label className="text-sm font-semibold">
+            Select Player {players.length > 0 && `(${filteredPlayers.length} of ${players.length})`}
+          </Label>
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
               <Button size="sm" variant="outline">
@@ -296,45 +307,76 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer }: PlayerSelec
           </Dialog>
         </div>
 
+        {/* Search Input */}
+        {players.length > 0 && (
+          <Input
+            placeholder="Search players..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full"
+          />
+        )}
+
         {players.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
             <User className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No players yet</p>
             <p className="text-xs">Add a player to start tracking swings</p>
           </div>
+        ) : filteredPlayers.length === 0 ? (
+          <div className="text-center py-6 text-muted-foreground">
+            <User className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No players match "{searchQuery}"</p>
+          </div>
         ) : (
           <div className="space-y-2">
-            {players.map((player) => (
-              <button
+            {filteredPlayers.map((player) => (
+              <div
                 key={player.id}
-                onClick={() => onSelectPlayer(player.id)}
-                className={`w-full p-3 rounded-lg border transition-all flex items-center justify-between ${
+                className={`w-full p-3 rounded-lg border transition-all ${
                   selectedPlayerId === player.id
                     ? 'bg-primary/20 border-primary'
                     : 'bg-background/50 border-border hover:bg-background'
                 }`}
               >
-                <div className="text-left">
-                  <div className="font-semibold">{player.last_name}, {player.first_name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {[
-                      player.birth_date && `${new Date().getFullYear() - new Date(player.birth_date).getFullYear()}yo`,
-                      player.handedness && `${player.handedness}HH`,
-                      player.position,
-                      player.jersey_number && `#${player.jersey_number}`
-                    ].filter(Boolean).join(' • ')}
-                  </div>
-                  {player.team_name && (
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {player.team_name}
-                      {player.organization && ` - ${player.organization}`}
+                <button
+                  onClick={() => onSelectPlayer(player.id)}
+                  className="w-full flex items-center justify-between text-left"
+                >
+                  <div>
+                    <div className="font-semibold">{player.last_name}, {player.first_name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {[
+                        player.birth_date && `${new Date().getFullYear() - new Date(player.birth_date).getFullYear()}yo`,
+                        player.handedness && `${player.handedness}HH`,
+                        player.position,
+                        player.jersey_number && `#${player.jersey_number}`
+                      ].filter(Boolean).join(' • ')}
                     </div>
+                    {player.team_name && (
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {player.team_name}
+                        {player.organization && ` - ${player.organization}`}
+                      </div>
+                    )}
+                  </div>
+                  {selectedPlayerId === player.id && (
+                    <ChevronRight className="h-5 w-5 text-primary" />
                   )}
-                </div>
-                {selectedPlayerId === player.id && (
-                  <ChevronRight className="h-5 w-5 text-primary" />
-                )}
-              </button>
+                </button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="w-full mt-2 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/player/${player.id}`);
+                  }}
+                >
+                  <ExternalLink className="h-3 w-3 mr-1" />
+                  View Profile
+                </Button>
+              </div>
             ))}
           </div>
         )}

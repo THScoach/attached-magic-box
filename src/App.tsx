@@ -21,6 +21,7 @@ import CoachAuth from "./pages/CoachAuth";
 import CoachDashboard from "./pages/CoachDashboard";
 import LiveCoaching from "./pages/LiveCoaching";
 import CoachRoster from "./pages/CoachRoster";
+import PlayerProfile from "./pages/PlayerProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,8 @@ const App = () => {
             <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
             <Route path="/analyze" element={<AuthGuard><Analyze /></AuthGuard>} />
             <Route path="/result/:id" element={<AuthGuard><AnalysisResult /></AuthGuard>} />
+            <Route path="/player/:playerId" element={<AuthGuard><PlayerProfile /></AuthGuard>} />
+            <Route path="/player/:playerId/analysis/:analysisId" element={<AuthGuard><AnalysisResult /></AuthGuard>} />
             <Route path="/progress" element={<AuthGuard><Progress /></AuthGuard>} />
             <Route path="/drills" element={<AuthGuard><Drills /></AuthGuard>} />
             <Route path="/training" element={<AuthGuard><Training /></AuthGuard>} />

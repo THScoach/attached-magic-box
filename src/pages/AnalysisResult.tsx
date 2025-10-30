@@ -9,7 +9,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ import { useCoachRickAccess } from "@/hooks/useCoachRickAccess";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
+  const { analysisId } = useParams<{ analysisId?: string }>();
   const { hasAccess: hasCoachRickAccess } = useCoachRickAccess();
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [showDrills, setShowDrills] = useState(false);
@@ -38,6 +39,68 @@ export default function AnalysisResult() {
   const FPS = 30; // Frames per second
 
   useEffect(() => {
+    // If accessing via player profile route with analysisId, load from database
+    if (analysisId) {
+      loadAnalysisFromDatabase(analysisId);
+    } else {
+      // Otherwise load from sessionStorage (legacy behavior)
+      loadAnalysisFromSession();
+    }
+  }, [analysisId]);
+
+  const loadAnalysisFromDatabase = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('swing_analyses')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+
+      // Convert database format to SwingAnalysis format
+      const metrics = (data.metrics as any) || {};
+      const analysisData: SwingAnalysis = {
+        id: data.id,
+        videoUrl: data.video_url || '',
+        analyzedAt: new Date(data.created_at),
+        hitsScore: Number(data.overall_score),
+        anchorScore: Number(data.anchor_score),
+        engineScore: Number(data.engine_score),
+        whipScore: Number(data.whip_score),
+        tempoRatio: metrics.tempoRatio || 0,
+        primaryOpportunity: metrics.primaryOpportunity,
+        impactStatement: metrics.impactStatement,
+        recommendedDrills: metrics.recommendedDrills || [],
+        poseData: metrics.poseData,
+        pelvisTiming: metrics.pelvisTiming,
+        torsoTiming: metrics.torsoTiming,
+        handsTiming: metrics.handsTiming,
+        pelvisMaxVelocity: metrics.pelvisMaxVelocity,
+        torsoMaxVelocity: metrics.torsoMaxVelocity,
+        armMaxVelocity: metrics.armMaxVelocity,
+        batMaxVelocity: metrics.batMaxVelocity,
+        xFactor: metrics.xFactor,
+        xFactorStance: metrics.xFactorStance,
+        pelvisRotation: metrics.pelvisRotation,
+        shoulderRotation: metrics.shoulderRotation,
+        comDistance: metrics.comDistance,
+        comMaxVelocity: metrics.comMaxVelocity,
+        mlbComparison: metrics.mlbComparison,
+        exitVelocity: metrics.exitVelocity,
+        launchAngle: metrics.launchAngle,
+        projectedDistance: metrics.projectedDistance
+      };
+
+      setAnalysis(analysisData);
+      setVideoType(data.video_type as 'analysis' | 'drill');
+    } catch (error) {
+      console.error('Error loading analysis:', error);
+      toast.error('Failed to load analysis');
+    }
+  };
+
+  const loadAnalysisFromSession = () => {
     const stored = sessionStorage.getItem('latestAnalysis');
     const analysisType = sessionStorage.getItem('latestAnalysisType') || 'analysis';
     if (stored) {
@@ -53,88 +116,89 @@ export default function AnalysisResult() {
       }
       
       // Load session data and create training program
-      const loadSessionData = async () => {
-        const sessionId = sessionStorage.getItem('currentSessionId');
-        if (!sessionId) return;
-        
-        const { data: swings } = await supabase
-          .from('swing_analyses')
-          .select('*')
-          .eq('session_id', sessionId)
-          .order('created_at', { ascending: false });
-        
-        if (swings && swings.length > 0) {
-          setSessionSwings(swings);
-          const avgScore = swings.reduce((sum, s) => sum + Number(s.overall_score), 0) / swings.length;
-          setSessionStats({
-            total: swings.length,
-            avg: avgScore
-          });
-
-          // Create training program for the latest analysis
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user && swings[0]) {
-            // Determine focus pillar based on lowest score
-            const latestAnalysis = swings[0];
-            const scores = {
-              ANCHOR: Number(latestAnalysis.anchor_score),
-              ENGINE: Number(latestAnalysis.engine_score),
-              WHIP: Number(latestAnalysis.whip_score)
-            };
-            const focusPillar = Object.entries(scores).reduce((a, b) => 
-              a[1] < b[1] ? a : b
-            )[0];
-
-            // Check if program already exists for this analysis
-            const { data: existingProgram } = await supabase
-              .from('training_programs')
-              .select('id')
-              .eq('analysis_id', latestAnalysis.id)
-              .single();
-
-            if (!existingProgram) {
-              // Deactivate old programs
-              await supabase
-                .from('training_programs')
-                .update({ is_active: false })
-                .eq('user_id', user.id);
-
-              // Create new program
-              await supabase
-                .from('training_programs')
-                .insert({
-                  user_id: user.id,
-                  analysis_id: latestAnalysis.id,
-                  focus_pillar: focusPillar,
-                  is_active: true
-                });
-
-              // Initialize gamification if not exists
-              const { data: gamData } = await supabase
-                .from('user_gamification')
-                .select('id')
-                .eq('user_id', user.id)
-                .single();
-
-              if (!gamData) {
-                await supabase
-                  .from('user_gamification')
-                  .insert({
-                    user_id: user.id
-                  });
-              }
-
-              toast.success("New 4-week training program created!");
-            }
-          }
-        }
-      };
-      
       loadSessionData();
     } else {
+      toast.error('No analysis data found');
       navigate('/analyze');
     }
-  }, [navigate]);
+  };
+
+  const loadSessionData = async () => {
+    const sessionId = sessionStorage.getItem('currentSessionId');
+    if (!sessionId) return;
+    
+    const { data: swings } = await supabase
+      .from('swing_analyses')
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: false });
+    
+    if (swings && swings.length > 0) {
+      setSessionSwings(swings);
+      const avgScore = swings.reduce((sum, s) => sum + Number(s.overall_score), 0) / swings.length;
+      setSessionStats({
+        total: swings.length,
+        avg: avgScore
+      });
+
+      // Create training program for the latest analysis
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && swings[0]) {
+        // Determine focus pillar based on lowest score
+        const latestAnalysis = swings[0];
+        const scores = {
+          ANCHOR: Number(latestAnalysis.anchor_score),
+          ENGINE: Number(latestAnalysis.engine_score),
+          WHIP: Number(latestAnalysis.whip_score)
+        };
+        const focusPillar = Object.entries(scores).reduce((a, b) => 
+          a[1] < b[1] ? a : b
+        )[0];
+
+        // Check if program already exists for this analysis
+        const { data: existingProgram } = await supabase
+          .from('training_programs')
+          .select('id')
+          .eq('analysis_id', latestAnalysis.id)
+          .single();
+
+        if (!existingProgram) {
+          // Deactivate old programs
+          await supabase
+            .from('training_programs')
+            .update({ is_active: false })
+            .eq('user_id', user.id);
+
+          // Create new program
+          await supabase
+            .from('training_programs')
+            .insert({
+              user_id: user.id,
+              analysis_id: latestAnalysis.id,
+              focus_pillar: focusPillar,
+              is_active: true
+            });
+
+          // Initialize gamification if not exists
+          const { data: gamData } = await supabase
+            .from('user_gamification')
+            .select('id')
+            .eq('user_id', user.id)
+            .single();
+
+          if (!gamData) {
+            await supabase
+              .from('user_gamification')
+              .insert({
+                user_id: user.id
+              });
+          }
+
+          toast.success("New 4-week training program created!");
+        }
+      }
+    }
+  };
 
   const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     console.error('Video error:', e);
