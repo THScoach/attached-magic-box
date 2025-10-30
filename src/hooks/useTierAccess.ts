@@ -3,54 +3,54 @@ import { useUserRole } from "./useUserRole";
 
 interface TierAccess {
   canUseScheduler: boolean;
-  canViewGrit: boolean;
+  canViewGrind: boolean;
   canJoinLive: boolean;
   canViewReplay: boolean;
   canViewCoachDashboard: boolean;
   schedulerLevel: "none" | "weekly" | "full" | "full_plus";
-  gritLevel: "none" | "basic" | "full";
+  grindLevel: "none" | "basic" | "full";
   liveAccess: "none" | "replay_only" | "full" | "full_plus_feedback";
 }
 
 const TIER_ACCESS_MAP: Record<MembershipTier, TierAccess> = {
   free: {
     canUseScheduler: false,
-    canViewGrit: false,
+    canViewGrind: false,
     canJoinLive: false,
     canViewReplay: true,
     canViewCoachDashboard: false,
     schedulerLevel: "none",
-    gritLevel: "none",
+    grindLevel: "none",
     liveAccess: "replay_only",
   },
   challenge: {
     canUseScheduler: true,
-    canViewGrit: true,
+    canViewGrind: true,
     canJoinLive: false,
     canViewReplay: true,
     canViewCoachDashboard: false,
     schedulerLevel: "weekly",
-    gritLevel: "basic",
+    grindLevel: "basic",
     liveAccess: "replay_only",
   },
   diy: {
     canUseScheduler: true,
-    canViewGrit: true,
+    canViewGrind: true,
     canJoinLive: true,
     canViewReplay: true,
     canViewCoachDashboard: false,
     schedulerLevel: "full",
-    gritLevel: "full",
+    grindLevel: "full",
     liveAccess: "full",
   },
   elite: {
     canUseScheduler: true,
-    canViewGrit: true,
+    canViewGrind: true,
     canJoinLive: true,
     canViewReplay: true,
     canViewCoachDashboard: true,
     schedulerLevel: "full_plus",
-    gritLevel: "full",
+    grindLevel: "full",
     liveAccess: "full_plus_feedback",
   },
 };

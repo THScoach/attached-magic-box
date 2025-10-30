@@ -31,7 +31,7 @@ export default function CoachRoster() {
     }
   }, [isCoach, roleLoading, navigate]);
 
-  const getGritColor = (score: number | null) => {
+  const getGrindColor = (score: number | null) => {
     if (!score) return "text-muted-foreground";
     if (score >= 80) return "text-green-500";
     if (score >= 60) return "text-yellow-500";
@@ -49,7 +49,7 @@ export default function CoachRoster() {
     return { text: `${daysSince}d ago`, color: "text-red-500" };
   };
 
-  const avgGrit = athletes.length > 0
+  const avgGrind = athletes.length > 0
     ? Math.round(athletes.reduce((sum, a) => sum + a.grit_score, 0) / athletes.length)
     : 0;
 
@@ -106,9 +106,9 @@ export default function CoachRoster() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Team Avg GRIT</p>
-                <p className={`text-2xl font-bold ${getGritColor(avgGrit)}`}>
-                  {avgGrit}
+                <p className="text-sm text-muted-foreground">Team Avg GRIND</p>
+                <p className={`text-2xl font-bold ${getGrindColor(avgGrind)}`}>
+                  {avgGrind}
                 </p>
               </div>
               <TrendingUp className="h-8 w-8 text-primary" />
@@ -163,7 +163,7 @@ export default function CoachRoster() {
                       Team
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      GRIT Score
+                      GRIND Score
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Streak
@@ -199,7 +199,7 @@ export default function CoachRoster() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className={`text-lg font-bold ${getGritColor(athlete.grit_score)}`}>
+                          <div className={`text-lg font-bold ${getGrindColor(athlete.grit_score)}`}>
                             {athlete.grit_score || 0}
                           </div>
                         </td>

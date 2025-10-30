@@ -97,7 +97,7 @@ export function useCoachRoster() {
         return;
       }
 
-      // Get athlete details and GRIT scores
+      // Get athlete details and GRIND scores
       const athleteIds = rosterData.map(r => r.athlete_id);
       
       const [usersResponse, gritResponse, tasksResponse] = await Promise.all([

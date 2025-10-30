@@ -1,14 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, TrendingUp, CheckCircle2, Clock, Loader2 } from "lucide-react";
-import { useGritScore } from "@/hooks/useGritScore";
+import { useGrindScore } from "@/hooks/useGrindScore";
 
-interface GritScoreCardProps {
+interface GrindScoreCardProps {
   userId?: string;
 }
 
-export function GritScoreCard({ userId }: GritScoreCardProps) {
-  const { gritScore, loading, streakBadge, completionRate, onTimeRate } = useGritScore(userId);
+export function GrindScoreCard({ userId }: GrindScoreCardProps) {
+  const { grindScore, loading, streakBadge, completionRate, onTimeRate } = useGrindScore(userId);
 
   if (loading) {
     return (
@@ -20,28 +20,28 @@ export function GritScoreCard({ userId }: GritScoreCardProps) {
     );
   }
 
-  if (!gritScore) {
+  if (!grindScore) {
     return (
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">GRIT Score</h3>
+          <h3 className="font-semibold">GRIND Score</h3>
         </div>
         <p className="text-sm text-muted-foreground">
-          Complete your first task to start building your GRIT score
+          Complete your first task to start building your GRIND score
         </p>
       </Card>
     );
   }
 
-  const score = Math.round(Number(gritScore.current_score));
+  const score = Math.round(Number(grindScore.current_score));
 
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">GRIT Score</h3>
+          <h3 className="font-semibold">GRIND Score</h3>
         </div>
         <div className="text-4xl font-bold text-primary">{score}</div>
       </div>
@@ -51,7 +51,7 @@ export function GritScoreCard({ userId }: GritScoreCardProps) {
           <span className="text-muted-foreground">Current Streak</span>
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-green-500" />
-            <span className="font-semibold">{gritScore.current_streak} days</span>
+            <span className="font-semibold">{grindScore.current_streak} days</span>
             {streakBadge && (
               <Badge variant="secondary" className="ml-1">
                 {streakBadge.emoji} {streakBadge.days}+ Day
@@ -62,7 +62,7 @@ export function GritScoreCard({ userId }: GritScoreCardProps) {
 
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Longest Streak</span>
-          <span className="font-semibold">{gritScore.longest_streak} days</span>
+          <span className="font-semibold">{grindScore.longest_streak} days</span>
         </div>
         
         <div className="pt-3 border-t space-y-2">
@@ -85,7 +85,7 @@ export function GritScoreCard({ userId }: GritScoreCardProps) {
 
         <div className="pt-2 border-t">
           <p className="text-xs text-muted-foreground">
-            GRIT = Completion % × On-Time % • Late reduces score • Miss resets streak
+            GRIND = Completion % × On-Time % • Late reduces score • Miss resets streak
           </p>
         </div>
       </div>

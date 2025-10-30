@@ -92,7 +92,7 @@ export default function CoachDashboard() {
     );
   }
 
-  const avgGrit = athletes.length > 0
+  const avgGrind = athletes.length > 0
     ? Math.round(athletes.reduce((sum, a) => sum + a.grit_score, 0) / athletes.length)
     : 0;
 
@@ -147,11 +147,11 @@ export default function CoachDashboard() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Team Avg GRIT
+                Team Avg GRIND
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">{avgGrit}</div>
+              <div className="text-3xl font-bold text-primary">{avgGrind}</div>
               <p className="text-sm text-muted-foreground">Commitment score</p>
             </CardContent>
           </Card>

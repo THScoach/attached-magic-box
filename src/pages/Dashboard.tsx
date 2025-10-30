@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { PillarCard } from "@/components/PillarCard";
 import { TodaysProgramCard } from "@/components/TodaysProgramCard";
 import { BottomNav } from "@/components/BottomNav";
-import { GritScoreCard } from "@/components/GritScoreCard";
+import { GrindScoreCard } from "@/components/GrindScoreCard";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { LiveCoachingBanner } from "@/components/LiveCoachingBanner";
 import { RedeemPromoCode } from "@/components/RedeemPromoCode";
@@ -96,22 +96,22 @@ export default function Dashboard() {
       });
     }
 
-    // Load GRIT score
-    const { data: grit } = await supabase
+    // Load GRIND score
+    const { data: grind } = await supabase
       .from('grit_scores')
       .select('*')
       .eq('user_id', user.id)
       .maybeSingle();
 
-    if (grit) {
+    if (grind) {
       setGritData({
-        currentScore: grit.current_score || 0,
-        currentStreak: grit.current_streak || 0,
-        longestStreak: grit.longest_streak || 0,
-        totalCompleted: grit.total_tasks_completed || 0,
-        totalAssigned: grit.total_tasks_assigned || 0
+        currentScore: grind.current_score || 0,
+        currentStreak: grind.current_streak || 0,
+        longestStreak: grind.longest_streak || 0,
+        totalCompleted: grind.total_tasks_completed || 0,
+        totalAssigned: grind.total_tasks_assigned || 0
       });
-      setStreak(grit.current_streak || 0);
+      setStreak(grind.current_streak || 0);
     }
   };
 
@@ -201,15 +201,15 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* GRIT Score */}
-        {tierAccess.canViewGrit ? (
-          <GritScoreCard />
+        {/* GRIND Score */}
+        {tierAccess.canViewGrind ? (
+          <GrindScoreCard />
         ) : (
           <Card className="p-6 bg-muted/50">
             <div className="flex items-center gap-3 text-muted-foreground">
               <Lock className="h-5 w-5" />
               <div>
-                <p className="font-medium">GRIT Score Locked</p>
+                <p className="font-medium">GRIND Score Locked</p>
                 <p className="text-sm">Upgrade to track your consistency and streaks</p>
               </div>
             </div>

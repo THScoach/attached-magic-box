@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export interface GritScore {
+export interface GrindScore {
   id: string;
   user_id: string;
   player_id: string | null;
@@ -16,16 +16,16 @@ export interface GritScore {
   updated_at: string;
 }
 
-export function useGritScore(userId?: string) {
-  const [gritScore, setGritScore] = useState<GritScore | null>(null);
+export function useGrindScore(userId?: string) {
+  const [grindScore, setGrindScore] = useState<GrindScore | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadGritScore();
+    loadGrindScore();
     
     // Set up realtime subscription
     const channel = supabase
-      .channel('grit-scores-changes')
+      .channel('grind-scores-changes')
       .on(
         'postgres_changes',
         {
@@ -34,7 +34,7 @@ export function useGritScore(userId?: string) {
           table: 'grit_scores'
         },
         () => {
-          loadGritScore();
+          loadGrindScore();
         }
       )
       .subscribe();
@@ -44,7 +44,7 @@ export function useGritScore(userId?: string) {
     };
   }, [userId]);
 
-  const loadGritScore = async () => {
+  const loadGrindScore = async () => {
     try {
       const targetUserId = userId || (await supabase.auth.getUser()).data.user?.id;
       
@@ -61,24 +61,24 @@ export function useGritScore(userId?: string) {
         .maybeSingle();
 
       if (error) {
-        console.error('Error loading GRIT score:', error);
-        toast.error('Failed to load GRIT score');
+        console.error('Error loading GRIND score:', error);
+        toast.error('Failed to load GRIND score');
         return;
       }
 
-      setGritScore(data);
+      setGrindScore(data);
     } catch (error) {
-      console.error('Error in loadGritScore:', error);
-      toast.error('Failed to load GRIT score');
+      console.error('Error in loadGrindScore:', error);
+      toast.error('Failed to load GRIND score');
     } finally {
       setLoading(false);
     }
   };
 
   const getStreakBadge = () => {
-    if (!gritScore) return null;
+    if (!grindScore) return null;
     
-    const streak = gritScore.current_streak;
+    const streak = grindScore.current_streak;
     if (streak >= 30) return { level: 'platinum', days: 30, emoji: '💎' };
     if (streak >= 14) return { level: 'gold', days: 14, emoji: '🥇' };
     if (streak >= 7) return { level: 'silver', days: 7, emoji: '🥈' };
@@ -86,18 +86,18 @@ export function useGritScore(userId?: string) {
   };
 
   return {
-    gritScore,
+    grindScore,
     loading,
-    reload: loadGritScore,
+    reload: loadGrindScore,
     streakBadge: getStreakBadge(),
-    completionRate: gritScore 
-      ? gritScore.total_tasks_assigned > 0
-        ? Math.round((gritScore.total_tasks_completed / gritScore.total_tasks_assigned) * 100)
+    completionRate: grindScore 
+      ? grindScore.total_tasks_assigned > 0
+        ? Math.round((grindScore.total_tasks_completed / grindScore.total_tasks_assigned) * 100)
         : 0
       : 0,
-    onTimeRate: gritScore
-      ? gritScore.total_tasks_assigned > 0
-        ? Math.round((gritScore.total_tasks_on_time / gritScore.total_tasks_assigned) * 100)
+    onTimeRate: grindScore
+      ? grindScore.total_tasks_assigned > 0
+        ? Math.round((grindScore.total_tasks_on_time / grindScore.total_tasks_assigned) * 100)
         : 0
       : 0,
   };
