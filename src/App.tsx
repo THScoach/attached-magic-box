@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthGuard } from "./components/AuthGuard";
 import { useEffect } from "react";
 import Landing from "./pages/Landing";
+import Programs from "./pages/Programs";
 import Dashboard from "./pages/Dashboard";
 import Analyze from "./pages/Analyze";
 import AnalysisResult from "./pages/AnalysisResult";
@@ -36,6 +37,7 @@ const App = () => {
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/programs" element={<Programs />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/coach-auth" element={<CoachAuth />} />
             <Route path="/coach-dashboard" element={<AuthGuard><CoachDashboard /></AuthGuard>} />
