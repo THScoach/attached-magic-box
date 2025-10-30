@@ -1,124 +1,35 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Users, Search, TrendingUp, Flame, AlertCircle } from "lucide-react";
-import { toast } from "sonner";
+import { Users, Search, TrendingUp, Flame, UserPlus, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
-
-interface AthleteData {
-  athlete_id: string;
-  athlete_email: string;
-  team_name: string | null;
-  is_active: boolean;
-  grit_score: number | null;
-  current_streak: number | null;
-  last_completion_date: string | null;
-  total_completed: number | null;
-  total_assigned: number | null;
-}
+import { useCoachRoster } from "@/hooks/useCoachRoster";
+import { AddAthleteModal } from "@/components/AddAthleteModal";
+import { format } from "date-fns";
 
 export default function CoachRoster() {
-  const [athletes, setAthletes] = useState<AthleteData[]>([]);
-  const [filteredAthletes, setFilteredAthletes] = useState<AthleteData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ totalSeats: 0, usedSeats: 0, avgGrit: 0 });
+  const [showAddModal, setShowAddModal] = useState(false);
   const navigate = useNavigate();
   const { isCoach, loading: roleLoading } = useUserRole();
+  const { athletes, loading: rosterLoading, stats, reload } = useCoachRoster();
+
+  const filteredAthletes = searchTerm
+    ? athletes.filter((a) =>
+        a.athlete_email.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : athletes;
 
   useEffect(() => {
     if (!roleLoading && !isCoach) {
       navigate("/dashboard");
       return;
     }
-    if (!roleLoading && isCoach) {
-      loadRoster();
-    }
   }, [isCoach, roleLoading, navigate]);
-
-  useEffect(() => {
-    if (searchTerm) {
-      setFilteredAthletes(
-        athletes.filter((a) =>
-          a.athlete_email.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-    } else {
-      setFilteredAthletes(athletes);
-    }
-  }, [searchTerm, athletes]);
-
-  const loadRoster = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Get roster data with GRIT scores
-      const { data: roster, error } = await supabase
-        .from("team_rosters")
-        .select(`
-          athlete_id,
-          team_name,
-          is_active,
-          seats_purchased
-        `)
-        .eq("coach_id", user.id);
-
-      if (error) throw error;
-
-      if (!roster || roster.length === 0) {
-        setAthletes([]);
-        setFilteredAthletes([]);
-        setLoading(false);
-        return;
-      }
-
-      // Get GRIT data for athletes
-      const athleteIds = roster.map(r => r.athlete_id);
-
-      const { data: gritData } = await supabase
-        .from("grit_scores")
-        .select("*")
-        .in("user_id", athleteIds);
-
-      const gritMap = new Map(gritData?.map(g => [g.user_id, g]) || []);
-
-      const athleteData: AthleteData[] = roster.map(r => {
-        const grit = gritMap.get(r.athlete_id);
-        return {
-          athlete_id: r.athlete_id,
-          athlete_email: r.athlete_id.substring(0, 8) + "...", // Show partial ID for now
-          team_name: r.team_name,
-          is_active: r.is_active,
-          grit_score: grit?.current_score || 0,
-          current_streak: grit?.current_streak || 0,
-          last_completion_date: grit?.last_completion_date || null,
-          total_completed: grit?.total_tasks_completed || 0,
-          total_assigned: grit?.total_tasks_assigned || 0,
-        };
-      });
-
-      setAthletes(athleteData);
-      setFilteredAthletes(athleteData);
-
-      // Calculate stats
-      const totalSeats = roster.reduce((sum, r) => sum + (r.seats_purchased || 0), 0);
-      const usedSeats = roster.filter(r => r.is_active).length;
-      const avgGrit = athleteData.reduce((sum, a) => sum + (a.grit_score || 0), 0) / athleteData.length;
-
-      setStats({ totalSeats, usedSeats, avgGrit: Math.round(avgGrit) });
-    } catch (error) {
-      console.error("Error loading roster:", error);
-      toast.error("Failed to load roster");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getGritColor = (score: number | null) => {
     if (!score) return "text-muted-foreground";
@@ -128,16 +39,21 @@ export default function CoachRoster() {
   };
 
   const getActivityStatus = (lastDate: string | null) => {
-    if (!lastDate) return { text: "Inactive", color: "text-red-500" };
+    if (!lastDate) return { text: "Never", color: "text-muted-foreground" };
     
     const daysSince = Math.floor((Date.now() - new Date(lastDate).getTime()) / (1000 * 60 * 60 * 24));
     
-    if (daysSince === 0) return { text: "Active Today", color: "text-green-500" };
+    if (daysSince === 0) return { text: "Today", color: "text-green-500" };
     if (daysSince <= 2) return { text: `${daysSince}d ago`, color: "text-yellow-500" };
-    return { text: `${daysSince}d inactive`, color: "text-red-500" };
+    if (daysSince <= 7) return { text: `${daysSince}d ago`, color: "text-orange-500" };
+    return { text: `${daysSince}d ago`, color: "text-red-500" };
   };
 
-  if (roleLoading || loading) {
+  const avgGrit = athletes.length > 0
+    ? Math.round(athletes.reduce((sum, a) => sum + a.grit_score, 0) / athletes.length)
+    : 0;
+
+  if (roleLoading || rosterLoading) {
     return (
       <div className="min-h-screen bg-background p-8">
         <div className="container mx-auto max-w-6xl">
@@ -155,10 +71,21 @@ export default function CoachRoster() {
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Team Roster</h1>
-          <p className="text-muted-foreground">
-            Monitor your athletes' commitment and progress
-          </p>
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/coach-dashboard")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-foreground mb-2">Team Roster</h1>
+              <p className="text-muted-foreground">
+                Monitor your athletes' commitment and progress
+              </p>
+            </div>
+            <Button onClick={() => setShowAddModal(true)} disabled={stats.availableSeats <= 0}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add Athlete
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -180,8 +107,8 @@ export default function CoachRoster() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Team Avg GRIT</p>
-                <p className={`text-2xl font-bold ${getGritColor(stats.avgGrit)}`}>
-                  {stats.avgGrit}
+                <p className={`text-2xl font-bold ${getGritColor(avgGrit)}`}>
+                  {avgGrit}
                 </p>
               </div>
               <TrendingUp className="h-8 w-8 text-primary" />
@@ -254,10 +181,10 @@ export default function CoachRoster() {
                 </thead>
                 <tbody className="bg-card divide-y divide-border">
                   {filteredAthletes.map((athlete) => {
-                    const completionRate = athlete.total_assigned
-                      ? Math.round((athlete.total_completed! / athlete.total_assigned) * 100)
+                    const completionRate = athlete.total_tasks_assigned
+                      ? Math.round((athlete.total_tasks_completed / athlete.total_tasks_assigned) * 100)
                       : 0;
-                    const activity = getActivityStatus(athlete.last_completion_date);
+                    const activity = getActivityStatus(athlete.last_active);
 
                     return (
                       <tr key={athlete.athlete_id} className="hover:bg-accent/5">
@@ -286,7 +213,7 @@ export default function CoachRoster() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-muted-foreground">
-                            {athlete.total_completed || 0} / {athlete.total_assigned || 0}
+                            {athlete.total_tasks_completed} / {athlete.total_tasks_assigned}
                             <span className="ml-2">({completionRate}%)</span>
                           </div>
                         </td>
@@ -310,6 +237,13 @@ export default function CoachRoster() {
             </div>
           )}
         </Card>
+
+        <AddAthleteModal
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+          onSuccess={reload}
+          availableSeats={stats.availableSeats}
+        />
       </div>
     </div>
   );

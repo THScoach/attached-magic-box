@@ -4,13 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { LogOut, Users, Ticket } from "lucide-react";
+import { LogOut, Users, Ticket, TrendingUp, UserPlus } from "lucide-react";
+import { useCoachRoster } from "@/hooks/useCoachRoster";
+import { AddAthleteModal } from "@/components/AddAthleteModal";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ totalSeats: 0, usedSeats: 0, totalAthletes: 0 });
+  const [showAddModal, setShowAddModal] = useState(false);
   const navigate = useNavigate();
+  const { athletes, loading: rosterLoading, stats, reload } = useCoachRoster();
 
   useEffect(() => {
     loadCoachData();
@@ -26,7 +29,6 @@ export default function CoachDashboard() {
         
         if (roleData?.role === "coach") {
           setUser(session.user);
-          await loadRosterStats(session.user.id);
         } else if (roleData?.role === "admin") {
           navigate("/admin");
         } else {
@@ -54,7 +56,6 @@ export default function CoachDashboard() {
       
       if (roleData?.role === "coach") {
         setUser(user);
-        await loadRosterStats(user.id);
       } else if (roleData?.role === "admin") {
         navigate("/admin");
         return;
@@ -69,37 +70,23 @@ export default function CoachDashboard() {
     setLoading(false);
   };
 
-  const loadRosterStats = async (coachId: string) => {
-    try {
-      const { data: roster } = await supabase
-        .from("team_rosters")
-        .select("seats_purchased, is_active")
-        .eq("coach_id", coachId);
-
-      if (roster) {
-        const totalSeats = roster.reduce((sum, r) => sum + (r.seats_purchased || 0), 0);
-        const usedSeats = roster.filter(r => r.is_active).length;
-        const totalAthletes = roster.length;
-        setStats({ totalSeats, usedSeats, totalAthletes });
-      }
-    } catch (error) {
-      console.error("Error loading roster stats:", error);
-    }
-  };
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     toast.success("Signed out successfully");
     navigate("/coach-auth");
   };
 
-  if (loading) {
+  if (loading || rosterLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p>Loading...</p>
       </div>
     );
   }
+
+  const avgGrit = athletes.length > 0
+    ? Math.round(athletes.reduce((sum, a) => sum + a.grit_score, 0) / athletes.length)
+    : 0;
 
   const organizationName = user?.user_metadata?.organization_name || "Your Organization";
 
@@ -123,39 +110,41 @@ export default function CoachDashboard() {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
+                <Ticket className="h-5 w-5" />
+                Seats
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{stats.usedSeats} / {stats.totalSeats}</div>
+              <p className="text-sm text-muted-foreground">
+                {stats.availableSeats} available
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
                 <Users className="h-5 w-5" />
                 Athletes
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.totalAthletes}</div>
-              <p className="text-sm text-muted-foreground">Active athletes</p>
+              <div className="text-3xl font-bold">{athletes.length}</div>
+              <p className="text-sm text-muted-foreground">On roster</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <Ticket className="h-5 w-5" />
-                Available Seats
+                <TrendingUp className="h-5 w-5" />
+                Team Avg GRIT
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.usedSeats} / {stats.totalSeats}</div>
-              <p className="text-sm text-muted-foreground">Seats used</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Ticket className="h-5 w-5" />
-                Promo Codes
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">0</div>
-              <p className="text-sm text-muted-foreground">Active codes</p>
+              <div className="text-3xl font-bold text-primary">{avgGrit}</div>
+              <p className="text-sm text-muted-foreground">Commitment score</p>
             </CardContent>
           </Card>
         </div>
@@ -168,19 +157,30 @@ export default function CoachDashboard() {
               <CardDescription>Manage your team members</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                {stats.totalAthletes === 0 ? (
-                  <p>No athletes yet</p>
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
+                {athletes.length === 0 ? (
+                  <p className="text-muted-foreground mb-4">No athletes yet</p>
                 ) : (
-                  <p>{stats.totalAthletes} athletes on your roster</p>
+                  <p className="text-muted-foreground mb-4">{athletes.length} athletes on your roster</p>
                 )}
-                <Button 
-                  className="mt-4" 
-                  onClick={() => navigate("/coach-roster")}
-                >
-                  View Full Roster
-                </Button>
+                <div className="flex gap-2 justify-center">
+                  <Button 
+                    onClick={() => setShowAddModal(true)}
+                    disabled={stats.availableSeats <= 0}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add Athlete
+                  </Button>
+                  {athletes.length > 0 && (
+                    <Button 
+                      variant="outline"
+                      onClick={() => navigate("/coach-roster")}
+                    >
+                      View Full Roster
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -222,6 +222,13 @@ export default function CoachDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <AddAthleteModal
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+          onSuccess={reload}
+          availableSeats={stats.availableSeats}
+        />
       </div>
     </div>
   );

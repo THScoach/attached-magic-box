@@ -12,6 +12,8 @@ export interface RosterAthlete {
   last_active: string | null;
   total_tasks_assigned: number;
   total_tasks_completed: number;
+  is_active: boolean;
+  team_name: string | null;
 }
 
 export function useCoachRoster() {
@@ -69,7 +71,7 @@ export function useCoachRoster() {
       // Get roster entries
       const { data: rosterData, error: rosterError } = await supabase
         .from('team_rosters')
-        .select('id, athlete_id, assigned_at, seats_purchased, is_active')
+        .select('id, athlete_id, assigned_at, seats_purchased, is_active, team_name')
         .eq('coach_id', user.id)
         .eq('is_active', true);
 
@@ -166,6 +168,8 @@ export function useCoachRoster() {
           last_active: lastActive || null,
           total_tasks_assigned: tasksAssignedMap.get(roster.athlete_id) || 0,
           total_tasks_completed: tasksCompletedMap.get(roster.athlete_id) || 0,
+          is_active: roster.is_active,
+          team_name: roster.team_name,
         };
       });
 
