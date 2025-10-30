@@ -216,61 +216,52 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Trusted By Professional Hitters */}
       <section className="py-24 bg-zinc-950">
         <div className="container mx-auto px-4">
-          <h2 className="mb-16 text-center text-4xl font-black uppercase md:text-5xl">
-            Trusted by Elite Hitters
-          </h2>
-          
-          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
-            <Card className="border-primary/30 bg-zinc-900">
-              <CardContent className="pt-6">
-                <div className="mb-4">
-                  <p className="text-4xl font-black text-primary mb-1">+7 MPH</p>
-                  <p className="text-sm text-gray-400">Exit Velocity Gain</p>
+          <div className="mx-auto max-w-4xl text-center">
+            <h2 className="mb-8 text-4xl font-black uppercase md:text-5xl">
+              Trusted by Professional Hitters
+            </h2>
+            <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+              Rick Strickland has coached MLB All-Stars and first-round draft picks, including:
+            </p>
+            
+            <div className="grid gap-8 md:grid-cols-3 max-w-3xl mx-auto mb-12">
+              <div className="text-center">
+                <div className="mb-3 h-24 w-24 mx-auto rounded-full bg-zinc-800 border-2 border-primary/30 flex items-center justify-center">
+                  <span className="text-3xl font-black text-primary">PCA</span>
                 </div>
-                <p className="text-lg italic text-gray-300 mb-4">
-                  "The tempo breakdown showed me exactly what I was doing wrong. Fixed it in 3 weeks."
+                <p className="text-lg font-bold text-white">
+                  Pete Crow-Armstrong
                 </p>
-                <p className="text-sm font-semibold text-white">
-                  — Pete Crow-Armstrong
-                </p>
-                <p className="text-xs text-gray-500">Chicago Cubs</p>
-              </CardContent>
-            </Card>
+                <p className="text-sm text-gray-400">Chicago Cubs</p>
+              </div>
 
-            <Card className="border-primary/30 bg-zinc-900">
-              <CardContent className="pt-6">
-                <div className="mb-4">
-                  <p className="text-4xl font-black text-primary mb-1">+5 MPH</p>
-                  <p className="text-sm text-gray-400">Exit Velocity Gain</p>
+              <div className="text-center">
+                <div className="mb-3 h-24 w-24 mx-auto rounded-full bg-zinc-800 border-2 border-primary/30 flex items-center justify-center">
+                  <span className="text-3xl font-black text-primary">CM</span>
                 </div>
-                <p className="text-lg italic text-gray-300 mb-4">
-                  "Finally understood why my power wasn't showing up in games. The sequencing was off."
+                <p className="text-lg font-bold text-white">
+                  Cedric Mullins
                 </p>
-                <p className="text-sm font-semibold text-white">
-                  — Cedric Mullins
-                </p>
-                <p className="text-xs text-gray-500">Baltimore Orioles</p>
-              </CardContent>
-            </Card>
+                <p className="text-sm text-gray-400">Baltimore Orioles</p>
+              </div>
 
-            <Card className="border-primary/30 bg-zinc-900">
-              <CardContent className="pt-6">
-                <div className="mb-4">
-                  <p className="text-4xl font-black text-primary mb-1">Career</p>
-                  <p className="text-sm text-gray-400">Changing Impact</p>
+              <div className="text-center">
+                <div className="mb-3 h-24 w-24 mx-auto rounded-full bg-zinc-800 border-2 border-primary/30 flex items-center justify-center">
+                  <span className="text-3xl font-black text-primary">MA</span>
                 </div>
-                <p className="text-lg italic text-gray-300 mb-4">
-                  "This is the swing coaching that helped me reach the big leagues and stay there."
+                <p className="text-lg font-bold text-white">
+                  Matt Adams
                 </p>
-                <p className="text-sm font-semibold text-white">
-                  — Matt Adams
-                </p>
-                <p className="text-xs text-gray-500">MLB Veteran</p>
-              </CardContent>
-            </Card>
+                <p className="text-sm text-gray-400">MLB Veteran</p>
+              </div>
+            </div>
+
+            <p className="text-gray-400 text-base">
+              + Multiple MLB organizations and professional development programs
+            </p>
           </div>
         </div>
       </section>
