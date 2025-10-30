@@ -33,13 +33,13 @@ export default function Landing() {
               For Serious Hitters Only
             </p>
             <h1 className="mb-6 text-5xl font-black uppercase leading-tight tracking-tight md:text-7xl lg:text-8xl">
-              Add 5-7 MPH Exit Velo<br />
-              in 45 Days<br />
+              Add 5–7 MPH Exit Velo<br />
+              in 45 Days —<br />
               <span className="text-yellow-500">Or You Don't Pay</span>
             </h1>
             <p className="mb-4 max-w-2xl text-xl text-gray-300 md:text-2xl font-bold">
-              The same tempo-based system MLB organizations use to develop All-Stars —<br />
-              now available to any hitter with a phone camera.
+              The tempo-based system MLB organizations use to develop All-Stars —<br />
+              now available to any hitter with just a phone camera.
             </p>
             <p className="mb-6 text-lg text-gray-400">
               No expensive sensors. No guessing. Just upload your swing, get your exact timing breakdown, 
@@ -55,12 +55,12 @@ export default function Landing() {
                 <div className="text-xs text-gray-400 uppercase">Swings Analyzed</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl md:text-3xl font-black text-yellow-500">38 Days</div>
-                <div className="text-xs text-gray-400 uppercase">Avg to Results</div>
+                <div className="text-2xl md:text-3xl font-black text-yellow-500">38-Day</div>
+                <div className="text-xs text-gray-400 uppercase">Average to Results</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl md:text-3xl font-black text-yellow-500">94%</div>
-                <div className="text-xs text-gray-400 uppercase">See Improvement</div>
+                <div className="text-xs text-gray-400 uppercase">of Hitters Improve</div>
               </div>
             </div>
             <Button asChild size="lg" className="bg-yellow-500 px-8 py-6 text-lg font-bold uppercase text-black hover:bg-yellow-400">
@@ -69,7 +69,7 @@ export default function Landing() {
               </a>
             </Button>
             <p className="mt-3 text-sm text-gray-400">
-              First analysis free • See results in 60 seconds • No credit card required
+              Your first analysis is free • See results in 60 seconds • No credit card required
             </p>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function Landing() {
                 <div className="mb-3 text-4xl">❌</div>
                 <h3 className="mb-2 text-xl font-bold text-red-500">No Real Diagnosis</h3>
                 <p className="text-gray-400">
-                  You record your swing but have no idea if you're early, late, or out of sequence
+                  You record your swing but have no idea whether you're early, late, or out of sequence
                 </p>
               </div>
             </div>
@@ -141,21 +141,21 @@ export default function Landing() {
             <div className="grid gap-6 md:grid-cols-3 mb-12">
               <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6 text-center">
                 <div className="mb-4 text-5xl font-black text-yellow-500">1</div>
-                <h3 className="mb-2 text-lg font-bold">Anchor</h3>
+                <h3 className="mb-2 text-lg font-bold">Anchor:</h3>
                 <p className="text-sm text-gray-400">
                   Rear leg stability and connection point timing
                 </p>
               </div>
               <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6 text-center">
                 <div className="mb-4 text-5xl font-black text-yellow-500">2</div>
-                <h3 className="mb-2 text-lg font-bold">Engine</h3>
+                <h3 className="mb-2 text-lg font-bold">Engine:</h3>
                 <p className="text-sm text-gray-400">
                   Pelvis-to-torso coil and rotation timing
                 </p>
               </div>
               <div className="rounded-lg border border-yellow-500/30 bg-zinc-900 p-6 text-center">
                 <div className="mb-4 text-5xl font-black text-yellow-500">3</div>
-                <h3 className="mb-2 text-lg font-bold">Whip</h3>
+                <h3 className="mb-2 text-lg font-bold">Whip:</h3>
                 <p className="text-sm text-gray-400">
                   Hand path release and lag acceleration
                 </p>
@@ -509,7 +509,7 @@ export default function Landing() {
                   </div>
                   <div className="pt-3 border-t border-yellow-500/30 bg-yellow-500/5 -mx-6 px-6 py-3">
                     <p className="text-sm font-black text-yellow-500">
-                      GUARANTEE: +5 MPH or full refund
+                      +5 MPH Guarantee or Full Refund
                     </p>
                   </div>
                 </div>
