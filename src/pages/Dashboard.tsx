@@ -24,8 +24,27 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    loadDashboardData();
+    checkRoleAndLoadData();
   }, [navigate]);
+
+  const checkRoleAndLoadData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Check if user is a coach (should go to coach dashboard instead)
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    
+    if (roleData?.role === "coach") {
+      navigate("/coach-dashboard");
+      return;
+    }
+
+    loadDashboardData();
+  };
 
   const loadDashboardData = async () => {
     const { data: { user } } = await supabase.auth.getUser();

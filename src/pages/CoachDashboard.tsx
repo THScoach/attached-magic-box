@@ -13,9 +13,21 @@ export default function CoachDashboard() {
 
   useEffect(() => {
     // Check current auth state
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (user) {
-        setUser(user);
+        // Check if user is actually a coach
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        
+        if (roleData?.role === "coach") {
+          setUser(user);
+        } else {
+          // Not a coach, redirect to athlete dashboard
+          navigate("/dashboard");
+        }
       } else {
         navigate("/coach-auth");
       }
@@ -23,9 +35,23 @@ export default function CoachDashboard() {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (!session?.user) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        // Check if user is actually a coach
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        
+        if (roleData?.role === "coach") {
+          setUser(session.user);
+        } else {
+          // Not a coach, redirect to athlete dashboard
+          navigate("/dashboard");
+        }
+      } else {
+        setUser(null);
         navigate("/coach-auth");
       }
     });
