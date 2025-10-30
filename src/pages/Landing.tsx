@@ -396,11 +396,12 @@ export default function Landing() {
             {/* 7-Day Challenge */}
             <Card className="border-yellow-500 bg-zinc-900 text-white hover:border-yellow-400 transition-all relative scale-105 shadow-2xl shadow-yellow-500/20">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-1.5 rounded-full text-xs font-black uppercase">
-                🔥 Best Value
+                🔥 50% OFF
               </div>
               <CardHeader>
-                <div className="mb-2">
-                  <span className="text-4xl font-black text-yellow-500">$7</span>
+                <div className="mb-2 flex items-baseline gap-2">
+                  <span className="text-4xl font-black text-yellow-500">$47</span>
+                  <span className="text-lg text-gray-400 line-through">$97</span>
                 </div>
                 <CardTitle className="text-xl font-black uppercase">7-Day Challenge</CardTitle>
                 <CardDescription className="text-gray-400">Prove it works in one week</CardDescription>
@@ -425,8 +426,8 @@ export default function Landing() {
                   </div>
                   <div className="pt-3 border-t border-yellow-500/30">
                     <p className="text-xs text-gray-500 line-through">Regular: $97</p>
-                    <p className="text-xl font-black text-yellow-500">Trial Price: $7</p>
-                    <p className="text-xs text-gray-400 mt-1">That's $1/day to add MPH</p>
+                    <p className="text-xl font-black text-yellow-500">Limited Time: $47</p>
+                    <p className="text-xs text-gray-400 mt-1">Save $50 • Ends soon</p>
                   </div>
                 </div>
                 <Button asChild className="w-full bg-yellow-500 text-black hover:bg-yellow-400 font-black uppercase">
@@ -444,8 +445,8 @@ export default function Landing() {
             <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
               <CardHeader>
                 <div className="mb-2">
-                  <span className="text-4xl font-black">$97</span>
-                  <span className="text-lg text-gray-400">/mo</span>
+                  <span className="text-4xl font-black">$297</span>
+                  <span className="text-lg text-gray-400">/year</span>
                 </div>
                 <CardTitle className="text-xl font-black uppercase">DIY Platform</CardTitle>
                 <CardDescription className="text-gray-400">Independent training toolkit</CardDescription>
@@ -454,7 +455,7 @@ export default function Landing() {
                 <div className="space-y-3 text-sm">
                   <div className="flex items-start gap-2">
                     <span className="text-green-500 mt-0.5">✓</span>
-                    <span className="text-gray-300">2 AI video reviews per month</span>
+                    <span className="text-gray-300">Unlimited AI video reviews</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-green-500 mt-0.5">✓</span>
@@ -469,7 +470,7 @@ export default function Landing() {
                     <span className="text-gray-300">Progress tracking dashboard</span>
                   </div>
                   <div className="pt-3 border-t border-gray-700">
-                    <p className="text-xs text-gray-500">Perfect for self-motivated athletes</p>
+                    <p className="text-xs text-gray-500">$24.75/month when paid annually</p>
                   </div>
                 </div>
                 <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
@@ -484,7 +485,7 @@ export default function Landing() {
             <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
               <CardHeader>
                 <div className="mb-2">
-                  <span className="text-4xl font-black">$297</span>
+                  <span className="text-4xl font-black">$2,497</span>
                 </div>
                 <CardTitle className="text-xl font-black uppercase">Elite 90-Day</CardTitle>
                 <CardDescription className="text-gray-400">Done-with-you transformation</CardDescription>
@@ -523,6 +524,45 @@ export default function Landing() {
                 </p>
               </CardContent>
             </Card>
+          </div>
+          
+          {/* Additional Offerings */}
+          <div className="mt-12 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-black uppercase">Winter Workshops</CardTitle>
+                  <CardDescription className="text-gray-400">Intensive training camps & clinics</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-gray-300">
+                    Multi-day immersive training experiences with hands-on coaching and small-group instruction.
+                  </p>
+                  <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
+                    <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
+                      Contact Us
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="border-white/10 bg-zinc-900 text-white hover:border-yellow-500/50 transition-all">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-black uppercase">Teams & Academies</CardTitle>
+                  <CardDescription className="text-gray-400">Custom programs for organizations</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-gray-300">
+                    Bulk licensing, custom training programs, and dedicated support for teams and training facilities.
+                  </p>
+                  <Button asChild className="w-full bg-white/10 text-white hover:bg-white/20 font-bold uppercase">
+                    <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
+                      Contact Us
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           
           {/* Value Comparison */}
