@@ -9,36 +9,15 @@ import { LogOut, Users, Ticket } from "lucide-react";
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ totalSeats: 0, usedSeats: 0, totalAthletes: 0 });
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check current auth state
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (user) {
-        // Check if user is actually a coach
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        
-        if (roleData?.role === "coach") {
-          setUser(user);
-        } else if (roleData?.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/dashboard");
-        }
-      } else {
-        navigate("/coach-auth");
-      }
-      setLoading(false);
-    });
+    loadCoachData();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        // Check if user is actually a coach
         const { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
@@ -47,6 +26,7 @@ export default function CoachDashboard() {
         
         if (roleData?.role === "coach") {
           setUser(session.user);
+          await loadRosterStats(session.user.id);
         } else if (roleData?.role === "admin") {
           navigate("/admin");
         } else {
@@ -60,6 +40,52 @@ export default function CoachDashboard() {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const loadCoachData = async () => {
+    // Check current auth state
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // Check if user is actually a coach
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      
+      if (roleData?.role === "coach") {
+        setUser(user);
+        await loadRosterStats(user.id);
+      } else if (roleData?.role === "admin") {
+        navigate("/admin");
+        return;
+      } else {
+        navigate("/dashboard");
+        return;
+      }
+    } else {
+      navigate("/coach-auth");
+      return;
+    }
+    setLoading(false);
+  };
+
+  const loadRosterStats = async (coachId: string) => {
+    try {
+      const { data: roster } = await supabase
+        .from("team_rosters")
+        .select("seats_purchased, is_active")
+        .eq("coach_id", coachId);
+
+      if (roster) {
+        const totalSeats = roster.reduce((sum, r) => sum + (r.seats_purchased || 0), 0);
+        const usedSeats = roster.filter(r => r.is_active).length;
+        const totalAthletes = roster.length;
+        setStats({ totalSeats, usedSeats, totalAthletes });
+      }
+    } catch (error) {
+      console.error("Error loading roster stats:", error);
+    }
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -102,7 +128,7 @@ export default function CoachDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">0</div>
+              <div className="text-3xl font-bold">{stats.totalAthletes}</div>
               <p className="text-sm text-muted-foreground">Active athletes</p>
             </CardContent>
           </Card>
@@ -115,8 +141,8 @@ export default function CoachDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">0</div>
-              <p className="text-sm text-muted-foreground">Unused seats</p>
+              <div className="text-3xl font-bold">{stats.usedSeats} / {stats.totalSeats}</div>
+              <p className="text-sm text-muted-foreground">Seats used</p>
             </CardContent>
           </Card>
 
@@ -144,9 +170,16 @@ export default function CoachDashboard() {
             <CardContent>
               <div className="text-center py-8 text-muted-foreground">
                 <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No athletes yet</p>
-                <Button className="mt-4" disabled>
-                  Coming Soon: Invite Athletes
+                {stats.totalAthletes === 0 ? (
+                  <p>No athletes yet</p>
+                ) : (
+                  <p>{stats.totalAthletes} athletes on your roster</p>
+                )}
+                <Button 
+                  className="mt-4" 
+                  onClick={() => navigate("/coach-roster")}
+                >
+                  View Full Roster
                 </Button>
               </div>
             </CardContent>

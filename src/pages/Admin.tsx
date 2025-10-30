@@ -5,7 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KnowledgeBaseManager } from "@/components/admin/KnowledgeBaseManager";
 import { DrillsManager } from "@/components/admin/DrillsManager";
 import { SeedModelPlayers } from "@/components/SeedModelPlayers";
-import { BookOpen, Dumbbell, ShieldAlert, Users, UserCheck, TrendingUp, Settings } from "lucide-react";
+import { PlayerSelector } from "@/components/PlayerSelector";
+import { BookOpen, Dumbbell, ShieldAlert, Users, UserCheck, TrendingUp, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ import { useEffect, useState } from "react";
 export default function Admin() {
   const navigate = useNavigate();
   const { isAdmin, loading } = useUserRole();
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalAthletes: 0,
     totalCoaches: 0,
@@ -136,17 +138,64 @@ export default function Admin() {
           <SeedModelPlayers />
         </div>
         
-        <Tabs defaultValue="knowledge" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+        <Tabs defaultValue="players" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="players">
+              <Users className="h-4 w-4 mr-2" />
+              Players
+            </TabsTrigger>
+            <TabsTrigger value="analyze">
+              <Activity className="h-4 w-4 mr-2" />
+              Analyze
+            </TabsTrigger>
             <TabsTrigger value="knowledge">
               <BookOpen className="h-4 w-4 mr-2" />
-              Knowledge Base
+              Knowledge
             </TabsTrigger>
             <TabsTrigger value="drills">
               <Dumbbell className="h-4 w-4 mr-2" />
               Drills
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="players">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">All Players</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                View and manage all players in the system. Select a player below to view their profile.
+              </p>
+              <PlayerSelector 
+                selectedPlayerId={selectedPlayerId}
+                onSelectPlayer={setSelectedPlayerId}
+              />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analyze">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Analyze Player</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Select a player below, then click "Go to Analysis Page" to film or upload their swing video.
+              </p>
+              <PlayerSelector 
+                selectedPlayerId={selectedPlayerId}
+                onSelectPlayer={setSelectedPlayerId}
+              />
+              <div className="mt-6 space-y-3">
+                <Button 
+                  onClick={() => navigate(selectedPlayerId ? `/analyze?playerId=${selectedPlayerId}` : "/analyze")} 
+                  className="w-full"
+                  disabled={!selectedPlayerId}
+                >
+                  <Activity className="h-4 w-4 mr-2" />
+                  Go to Analysis Page
+                </Button>
+                <p className="text-xs text-center text-muted-foreground">
+                  {selectedPlayerId ? "Player selected - ready to analyze" : "Select a player above first"}
+                </p>
+              </div>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="knowledge">
             <KnowledgeBaseManager />
