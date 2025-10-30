@@ -38,6 +38,12 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
+    /* Chrome/Grind Brand Colors */
+    --chrome: 0 0% 75%;
+    --chrome-light: 0 0% 85%;
+    --chrome-dark: 0 0% 50%;
+    --grind: 47 96% 53%;
+
     /* H.I.T.S. Score Pillar Colors */
     --anchor: 199 89% 48%;
     --anchor-foreground: 0 0% 100%;
@@ -55,15 +61,18 @@ All colors MUST be HSL.
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(47 96% 53%), hsl(47 96% 63%));
+    --gradient-chrome: linear-gradient(135deg, hsl(0 0% 75%), hsl(0 0% 85%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 0%), hsl(0 0% 8%));
+    --gradient-section: linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 0%));
     --gradient-anchor: linear-gradient(135deg, hsl(199 89% 48%), hsl(199 89% 58%));
     --gradient-engine: linear-gradient(135deg, hsl(0 84% 60%), hsl(10 79% 54%));
     --gradient-whip: linear-gradient(135deg, hsl(10 79% 54%), hsl(20 79% 64%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 9%), hsl(0 0% 0%));
 
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(240 5.9% 10% / 0.05);
     --shadow-md: 0 4px 6px -1px hsl(240 5.9% 10% / 0.1);
     --shadow-lg: 0 10px 15px -3px hsl(240 5.9% 10% / 0.1);
+    --shadow-chrome: 0 4px 20px hsl(0 0% 75% / 0.2);
     --shadow-glow-primary: 0 0 30px hsl(47 96% 53% / 0.4);
     --shadow-glow-anchor: 0 0 20px hsl(199 89% 48% / 0.3);
     --shadow-glow-engine: 0 0 20px hsl(0 84% 60% / 0.4);

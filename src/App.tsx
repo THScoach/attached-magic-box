@@ -9,6 +9,8 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
 import Landing from "./pages/Landing";
 import Programs from "./pages/Programs";
+import RequestDemo from "./pages/RequestDemo";
+import BookCall from "./pages/BookCall";
 import Dashboard from "./pages/Dashboard";
 import Analyze from "./pages/Analyze";
 import AnalysisResult from "./pages/AnalysisResult";
@@ -43,6 +45,8 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/programs" element={<Programs />} />
+            <Route path="/request-demo" element={<RequestDemo />} />
+            <Route path="/book-call" element={<BookCall />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/coach-auth" element={<CoachAuth />} />
             
