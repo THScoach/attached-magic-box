@@ -4,10 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Video, Clock, Calendar, Play, ExternalLink } from "lucide-react";
+import { Video, Clock, Calendar, Play } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { BottomNav } from "@/components/BottomNav";
-import { useNavigate } from "react-router-dom";
+import { SubmitForLiveModal } from "@/components/SubmitForLiveModal";
 
 interface CoachingSession {
   id: string;
@@ -19,13 +19,14 @@ interface CoachingSession {
   live_link: string | null;
   replay_url: string | null;
   replay_notes: string | null;
+  submission_deadline: string | null;
 }
 
 export default function LiveCoaching() {
   const [upcomingSessions, setUpcomingSessions] = useState<CoachingSession[]>([]);
   const [replays, setReplays] = useState<CoachingSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [submitModalSession, setSubmitModalSession] = useState<CoachingSession | null>(null);
 
   useEffect(() => {
     loadSessions();
@@ -131,7 +132,7 @@ export default function LiveCoaching() {
               {!isReplay && (
                 <Button
                   variant="outline"
-                  onClick={() => navigate("/analyze")}
+                  onClick={() => setSubmitModalSession(session)}
                 >
                   Submit Swing for Review
                 </Button>
@@ -203,6 +204,16 @@ export default function LiveCoaching() {
           )}
         </section>
       </div>
+
+      {submitModalSession && (
+        <SubmitForLiveModal
+          sessionId={submitModalSession.id}
+          sessionTitle={submitModalSession.title}
+          submissionDeadline={submitModalSession.submission_deadline}
+          open={!!submitModalSession}
+          onOpenChange={(open) => !open && setSubmitModalSession(null)}
+        />
+      )}
       
       <BottomNav />
     </div>

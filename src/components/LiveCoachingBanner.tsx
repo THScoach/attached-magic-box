@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Video, Clock, Users } from "lucide-react";
+import { Video, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, parseISO, differenceInMinutes, isBefore } from "date-fns";
+import { format, parseISO, differenceInMinutes } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { useNavigate } from "react-router-dom";
+import { SubmitForLiveModal } from "@/components/SubmitForLiveModal";
 
 interface LiveSession {
   id: string;
@@ -22,6 +24,7 @@ export function LiveCoachingBanner() {
   const [nextSession, setNextSession] = useState<LiveSession | null>(null);
   const [countdown, setCountdown] = useState("");
   const [canJoin, setCanJoin] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,11 +37,15 @@ export function LiveCoachingBanner() {
     if (!nextSession) return;
 
     const updateCountdown = () => {
-      const sessionDateTime = parseISO(`${nextSession.session_date}T${nextSession.session_time}`);
-      const now = new Date();
+      // Convert to Central Time
+      const sessionDateTime = toZonedTime(
+        parseISO(`${nextSession.session_date}T${nextSession.session_time}`),
+        'America/Chicago'
+      );
+      const now = toZonedTime(new Date(), 'America/Chicago');
       const minutesUntil = differenceInMinutes(sessionDateTime, now);
 
-      // Can join 30 minutes before
+      // Can join 30 minutes before, up to 2 hours after
       setCanJoin(minutesUntil <= 30 && minutesUntil >= -120);
 
       if (minutesUntil < 0) {
@@ -135,7 +142,7 @@ export function LiveCoachingBanner() {
           ) : (
             <Button
               variant="outline"
-              onClick={() => navigate("/analyze")}
+              onClick={() => setShowSubmitModal(true)}
             >
               Submit Swing
             </Button>
@@ -150,6 +157,14 @@ export function LiveCoachingBanner() {
           </Button>
         </div>
       </div>
+
+      <SubmitForLiveModal
+        sessionId={nextSession.id}
+        sessionTitle={nextSession.title}
+        submissionDeadline={nextSession.submission_deadline}
+        open={showSubmitModal}
+        onOpenChange={setShowSubmitModal}
+      />
     </Card>
   );
 }
