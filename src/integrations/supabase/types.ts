@@ -153,6 +153,62 @@ export type Database = {
           },
         ]
       }
+      grit_scores: {
+        Row: {
+          created_at: string | null
+          current_score: number | null
+          current_streak: number | null
+          id: string
+          last_completion_date: string | null
+          longest_streak: number | null
+          player_id: string | null
+          streak_updated_at: string | null
+          total_tasks_assigned: number | null
+          total_tasks_completed: number | null
+          total_tasks_on_time: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_score?: number | null
+          current_streak?: number | null
+          id?: string
+          last_completion_date?: string | null
+          longest_streak?: number | null
+          player_id?: string | null
+          streak_updated_at?: string | null
+          total_tasks_assigned?: number | null
+          total_tasks_completed?: number | null
+          total_tasks_on_time?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_score?: number | null
+          current_streak?: number | null
+          id?: string
+          last_completion_date?: string | null
+          longest_streak?: number | null
+          player_id?: string | null
+          streak_updated_at?: string | null
+          total_tasks_assigned?: number | null
+          total_tasks_completed?: number | null
+          total_tasks_on_time?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grit_scores_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_base: {
         Row: {
           category: string
@@ -180,6 +236,54 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      live_coaching_sessions: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          live_link: string | null
+          replay_notes: string | null
+          replay_url: string | null
+          session_date: string
+          session_time: string
+          status: string
+          submission_deadline: string | null
+          timezone: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          live_link?: string | null
+          replay_notes?: string | null
+          replay_url?: string | null
+          session_date: string
+          session_time?: string
+          status?: string
+          submission_deadline?: string | null
+          timezone?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          live_link?: string | null
+          replay_notes?: string | null
+          replay_url?: string | null
+          session_date?: string
+          session_time?: string
+          status?: string
+          submission_deadline?: string | null
+          timezone?: string | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -388,6 +492,103 @@ export type Database = {
           },
         ]
       }
+      scheduled_tasks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          due_day_of_week: number | null
+          due_time: string | null
+          id: string
+          is_active: boolean | null
+          program_tier: Database["public"]["Enums"]["membership_tier"]
+          recurrence: string
+          task_type: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          due_day_of_week?: number | null
+          due_time?: string | null
+          id?: string
+          is_active?: boolean | null
+          program_tier: Database["public"]["Enums"]["membership_tier"]
+          recurrence: string
+          task_type: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          due_day_of_week?: number | null
+          due_time?: string | null
+          id?: string
+          is_active?: boolean | null
+          program_tier?: Database["public"]["Enums"]["membership_tier"]
+          recurrence?: string
+          task_type?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      session_submissions: {
+        Row: {
+          analysis_id: string | null
+          feel_notes: string | null
+          id: string
+          is_on_time: boolean | null
+          player_id: string | null
+          session_id: string
+          submitted_at: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          feel_notes?: string | null
+          id?: string
+          is_on_time?: boolean | null
+          player_id?: string | null
+          session_id: string
+          submitted_at?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string | null
+          feel_notes?: string | null
+          id?: string
+          is_on_time?: boolean | null
+          player_id?: string | null
+          session_id?: string
+          submitted_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_submissions_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_submissions_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_submissions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_coaching_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       swing_analyses: {
         Row: {
           anchor_score: number
@@ -490,6 +691,99 @@ export type Database = {
           started_at?: string | null
           status?: string
           stopped_at?: string | null
+        }
+        Relationships: []
+      }
+      task_completions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          player_id: string | null
+          scheduled_date: string
+          status: string
+          submission_data: Json | null
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          player_id?: string | null
+          scheduled_date: string
+          status?: string
+          submission_data?: Json | null
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          player_id?: string | null
+          scheduled_date?: string
+          status?: string
+          submission_data?: Json | null
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_completions_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_completions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_rosters: {
+        Row: {
+          assigned_at: string | null
+          athlete_id: string
+          coach_id: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          seats_purchased: number | null
+          team_name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          athlete_id: string
+          coach_id: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          seats_purchased?: number | null
+          team_name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          athlete_id?: string
+          coach_id?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          seats_purchased?: number | null
+          team_name?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -697,6 +991,18 @@ export type Database = {
         Returns: boolean
       }
       increment_swing_count: { Args: { _user_id: string }; Returns: number }
+      update_grit_score: {
+        Args: { _player_id?: string; _user_id: string }
+        Returns: undefined
+      }
+      update_streak: {
+        Args: {
+          _completed_on_time?: boolean
+          _player_id?: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "coach" | "athlete" | "admin"

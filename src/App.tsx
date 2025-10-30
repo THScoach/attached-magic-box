@@ -19,6 +19,8 @@ import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
 import CoachAuth from "./pages/CoachAuth";
 import CoachDashboard from "./pages/CoachDashboard";
+import LiveCoaching from "./pages/LiveCoaching";
+import CoachRoster from "./pages/CoachRoster";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +52,8 @@ const App = () => {
             <Route path="/training" element={<AuthGuard><Training /></AuthGuard>} />
             <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
             <Route path="/admin" element={<AuthGuard><Admin /></AuthGuard>} />
+            <Route path="/live-coaching" element={<AuthGuard><LiveCoaching /></AuthGuard>} />
+            <Route path="/coach-roster" element={<AuthGuard><CoachRoster /></AuthGuard>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

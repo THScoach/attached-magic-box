@@ -3,6 +3,9 @@ import { Card } from "@/components/ui/card";
 import { PillarCard } from "@/components/PillarCard";
 import { TodaysProgramCard } from "@/components/TodaysProgramCard";
 import { BottomNav } from "@/components/BottomNav";
+import { GritScoreCard } from "@/components/GritScoreCard";
+import { WeeklySchedule } from "@/components/WeeklySchedule";
+import { LiveCoachingBanner } from "@/components/LiveCoachingBanner";
 import { Camera, TrendingUp, Target, Play, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -12,6 +15,13 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [todaysProgram, setTodaysProgram] = useState<any>(null);
   const [streak, setStreak] = useState(0);
+  const [gritData, setGritData] = useState({
+    currentScore: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    totalCompleted: 0,
+    totalAssigned: 0
+  });
 
   useEffect(() => {
     loadDashboardData();
@@ -60,15 +70,22 @@ export default function Dashboard() {
       });
     }
 
-    // Load gamification
-    const { data: gamData } = await supabase
-      .from('user_gamification')
-      .select('current_streak')
+    // Load GRIT score
+    const { data: grit } = await supabase
+      .from('grit_scores')
+      .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (gamData) {
-      setStreak(gamData.current_streak);
+    if (grit) {
+      setGritData({
+        currentScore: grit.current_score || 0,
+        currentStreak: grit.current_streak || 0,
+        longestStreak: grit.longest_streak || 0,
+        totalCompleted: grit.total_tasks_completed || 0,
+        totalAssigned: grit.total_tasks_assigned || 0
+      });
+      setStreak(grit.current_streak || 0);
     }
   };
 
@@ -96,7 +113,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
-        <h1 className="text-2xl font-bold mb-2">Welcome back, {userName}!</h1>
+        <h1 className="text-2xl font-bold mb-2 text-foreground">Welcome back, {userName}!</h1>
         
         <div className="flex items-center gap-4">
           <Card className="flex items-center gap-2 px-4 py-2 bg-card/80 backdrop-blur">
@@ -118,6 +135,21 @@ export default function Dashboard() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
+        {/* Live Coaching Banner */}
+        <LiveCoachingBanner />
+
+        {/* Weekly Schedule */}
+        <WeeklySchedule />
+
+        {/* GRIT Score */}
+        <GritScoreCard
+          currentScore={gritData.currentScore}
+          currentStreak={gritData.currentStreak}
+          longestStreak={gritData.longestStreak}
+          totalCompleted={gritData.totalCompleted}
+          totalAssigned={gritData.totalAssigned}
+        />
+
         {/* Today's Training Program */}
         <TodaysProgramCard program={todaysProgram} />
 
