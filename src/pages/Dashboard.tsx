@@ -6,13 +6,15 @@ import { BottomNav } from "@/components/BottomNav";
 import { GritScoreCard } from "@/components/GritScoreCard";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { LiveCoachingBanner } from "@/components/LiveCoachingBanner";
-import { Camera, TrendingUp, Target, Play, Flame } from "lucide-react";
+import { Camera, TrendingUp, Target, Play, Flame, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTierAccess } from "@/hooks/useTierAccess";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const tierAccess = useTierAccess();
   const [todaysProgram, setTodaysProgram] = useState<any>(null);
   const [streak, setStreak] = useState(0);
   const [gritData, setGritData] = useState({
@@ -158,13 +160,37 @@ export default function Dashboard() {
 
       <div className="px-6 py-6 space-y-6">
         {/* Live Coaching Banner */}
-        <LiveCoachingBanner />
+        {tierAccess.canViewReplay && <LiveCoachingBanner />}
 
         {/* Weekly Schedule */}
-        <WeeklySchedule />
+        {tierAccess.canUseScheduler ? (
+          <WeeklySchedule />
+        ) : (
+          <Card className="p-6 bg-muted/50">
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Lock className="h-5 w-5" />
+              <div>
+                <p className="font-medium">Weekly Schedule Locked</p>
+                <p className="text-sm">Upgrade to access your personalized training schedule</p>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* GRIT Score */}
-        <GritScoreCard />
+        {tierAccess.canViewGrit ? (
+          <GritScoreCard />
+        ) : (
+          <Card className="p-6 bg-muted/50">
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Lock className="h-5 w-5" />
+              <div>
+                <p className="font-medium">GRIT Score Locked</p>
+                <p className="text-sm">Upgrade to track your consistency and streaks</p>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Today's Training Program */}
         <TodaysProgramCard program={todaysProgram} />

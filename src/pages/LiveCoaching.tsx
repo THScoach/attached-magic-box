@@ -4,10 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Video, Clock, Calendar, Play } from "lucide-react";
+import { Video, Clock, Calendar, Play, Lock } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { BottomNav } from "@/components/BottomNav";
 import { SubmitForLiveModal } from "@/components/SubmitForLiveModal";
+import { useTierAccess } from "@/hooks/useTierAccess";
 
 interface CoachingSession {
   id: string;
@@ -23,6 +24,7 @@ interface CoachingSession {
 }
 
 export default function LiveCoaching() {
+  const tierAccess = useTierAccess();
   const [upcomingSessions, setUpcomingSessions] = useState<CoachingSession[]>([]);
   const [replays, setReplays] = useState<CoachingSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,21 +117,28 @@ export default function LiveCoaching() {
                   <Play className="h-4 w-4" />
                   Watch Replay
                 </Button>
-              ) : session.live_link ? (
-                <Button
-                  onClick={() => window.open(session.live_link!, '_blank')}
-                  className="gap-2"
-                >
-                  <Video className="h-4 w-4" />
-                  Join Session
-                </Button>
+              ) : tierAccess.canJoinLive ? (
+                session.live_link ? (
+                  <Button
+                    onClick={() => window.open(session.live_link!, '_blank')}
+                    className="gap-2"
+                  >
+                    <Video className="h-4 w-4" />
+                    Join Session
+                  </Button>
+                ) : (
+                  <Button variant="outline" disabled>
+                    Link Coming Soon
+                  </Button>
+                )
               ) : (
-                <Button variant="outline" disabled>
-                  Link Coming Soon
+                <Button disabled>
+                  <Lock className="h-4 w-4 mr-2" />
+                  Upgrade to Join Live
                 </Button>
               )}
 
-              {!isReplay && (
+              {!isReplay && tierAccess.canJoinLive && (
                 <Button
                   variant="outline"
                   onClick={() => setSubmitModalSession(session)}

@@ -7,15 +7,22 @@ import { toast } from "sonner";
 import { LogOut, Users, Ticket, TrendingUp, UserPlus } from "lucide-react";
 import { useCoachRoster } from "@/hooks/useCoachRoster";
 import { AddAthleteModal } from "@/components/AddAthleteModal";
+import { useTierAccess } from "@/hooks/useTierAccess";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const navigate = useNavigate();
+  const tierAccess = useTierAccess();
   const { athletes, loading: rosterLoading, stats, reload } = useCoachRoster();
 
   useEffect(() => {
+    if (!tierAccess.loading && !tierAccess.canViewCoachDashboard) {
+      navigate("/dashboard");
+      return;
+    }
+
     loadCoachData();
 
     // Listen for auth changes
@@ -41,7 +48,7 @@ export default function CoachDashboard() {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, tierAccess.loading, tierAccess.canViewCoachDashboard]);
 
   const loadCoachData = async () => {
     // Check current auth state
