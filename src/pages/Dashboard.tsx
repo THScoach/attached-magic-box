@@ -31,14 +31,17 @@ export default function Dashboard() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Check if user is a coach (should go to coach dashboard instead)
+    // Check if user should go to a different dashboard
     const { data: roleData } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .maybeSingle();
     
-    if (roleData?.role === "coach") {
+    if (roleData?.role === "admin") {
+      navigate("/admin");
+      return;
+    } else if (roleData?.role === "coach") {
       navigate("/coach-dashboard");
       return;
     }

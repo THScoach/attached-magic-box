@@ -28,7 +28,9 @@ export default function Auth() {
           .eq("user_id", user.id)
           .maybeSingle();
         
-        if (roleData?.role === "coach") {
+        if (roleData?.role === "admin") {
+          navigate("/admin");
+        } else if (roleData?.role === "coach") {
           navigate("/coach-dashboard");
         } else {
           navigate("/dashboard");
@@ -46,7 +48,9 @@ export default function Auth() {
           .eq("user_id", session.user.id)
           .maybeSingle();
         
-        if (roleData?.role === "coach") {
+        if (roleData?.role === "admin") {
+          navigate("/admin");
+        } else if (roleData?.role === "coach") {
           navigate("/coach-dashboard");
         } else {
           navigate("/dashboard");

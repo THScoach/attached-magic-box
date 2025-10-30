@@ -24,8 +24,9 @@ export default function CoachDashboard() {
         
         if (roleData?.role === "coach") {
           setUser(user);
+        } else if (roleData?.role === "admin") {
+          navigate("/admin");
         } else {
-          // Not a coach, redirect to athlete dashboard
           navigate("/dashboard");
         }
       } else {
@@ -46,8 +47,9 @@ export default function CoachDashboard() {
         
         if (roleData?.role === "coach") {
           setUser(session.user);
+        } else if (roleData?.role === "admin") {
+          navigate("/admin");
         } else {
-          // Not a coach, redirect to athlete dashboard
           navigate("/dashboard");
         }
       } else {
