@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      content_library: {
+        Row: {
+          category: string | null
+          content_type: string
+          created_at: string
+          created_by: string
+          description: string | null
+          document_url: string | null
+          id: string
+          is_active: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          category?: string | null
+          content_type: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          document_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          category?: string | null
+          content_type?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          document_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       drill_feedback_notes: {
         Row: {
           analysis_id: string

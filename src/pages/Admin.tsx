@@ -8,9 +8,10 @@ import { AthleteListManager } from "@/components/admin/AthleteListManager";
 import { SwingUploadQueue } from "@/components/admin/SwingUploadQueue";
 import { PerformanceAlerts } from "@/components/admin/PerformanceAlerts";
 import { AutomationsPanel } from "@/components/admin/AutomationsPanel";
+import { ContentLibraryManager } from "@/components/admin/ContentLibraryManager";
 import { SeedModelPlayers } from "@/components/SeedModelPlayers";
 import { PlayerSelector } from "@/components/PlayerSelector";
-import { BookOpen, Dumbbell, ShieldAlert, Users, UserCheck, TrendingUp, Activity, Bell, Zap, Upload, Target } from "lucide-react";
+import { BookOpen, Dumbbell, ShieldAlert, Users, UserCheck, TrendingUp, Activity, Bell, Zap, Upload, Target, Library } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -172,7 +173,7 @@ export default function Admin() {
         </div>
         
         <Tabs defaultValue="athletes" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-6">
+          <TabsList className="grid w-full grid-cols-7 mb-6">
             <TabsTrigger value="athletes">
               <Users className="h-4 w-4 mr-2" />
               Athletes
@@ -188,6 +189,10 @@ export default function Admin() {
             <TabsTrigger value="automations">
               <Zap className="h-4 w-4 mr-2" />
               Auto
+            </TabsTrigger>
+            <TabsTrigger value="library">
+              <Library className="h-4 w-4 mr-2" />
+              Library
             </TabsTrigger>
             <TabsTrigger value="knowledge">
               <BookOpen className="h-4 w-4 mr-2" />
@@ -213,6 +218,10 @@ export default function Admin() {
 
           <TabsContent value="automations">
             <AutomationsPanel />
+          </TabsContent>
+
+          <TabsContent value="library">
+            <ContentLibraryManager />
           </TabsContent>
 
           <TabsContent value="knowledge">
