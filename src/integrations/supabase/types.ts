@@ -14,6 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      coach_message_preferences: {
+        Row: {
+          created_at: string | null
+          muted_until: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          muted_until?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          muted_until?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      coach_messages: {
+        Row: {
+          created_at: string | null
+          cta_action: string | null
+          cta_text: string | null
+          id: string
+          is_read: boolean | null
+          message_content: string
+          message_type: string
+          player_id: string | null
+          read_at: string | null
+          trigger_reason: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          cta_action?: string | null
+          cta_text?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_content: string
+          message_type: string
+          player_id?: string | null
+          read_at?: string | null
+          trigger_reason?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          cta_action?: string | null
+          cta_text?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_content?: string
+          message_type?: string
+          player_id?: string | null
+          read_at?: string | null
+          trigger_reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_messages_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_library: {
         Row: {
           category: string | null
@@ -940,6 +1011,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_activity_tracking: {
+        Row: {
+          created_at: string | null
+          last_login: string | null
+          last_swing_upload: string | null
+          last_task_completion: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          last_login?: string | null
+          last_swing_upload?: string | null
+          last_task_completion?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          last_login?: string | null
+          last_swing_upload?: string | null
+          last_task_completion?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_gamification: {
         Row: {

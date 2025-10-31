@@ -1,99 +1,104 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
-import { Send, MessageSquare } from "lucide-react";
-import { useState } from "react";
-
-interface Message {
-  id: string;
-  sender: "coach" | "athlete";
-  content: string;
-  timestamp: string;
-}
-
-const mockMessages: Message[] = [
-  {
-    id: "1",
-    sender: "coach",
-    content: "Great work on your tempo this week! Let's focus on maintaining that rhythm in live AB situations.",
-    timestamp: "Today 2:45 PM"
-  },
-  {
-    id: "2",
-    sender: "athlete",
-    content: "Thanks Coach! Should I keep doing the same drills or switch it up?",
-    timestamp: "Today 3:10 PM"
-  },
-  {
-    id: "3",
-    sender: "coach",
-    content: "Keep the foundation drills for another week, but add some game-speed reps. Upload those swings when you can.",
-    timestamp: "Today 3:15 PM"
-  }
-];
+import { MessageSquare, CheckCircle } from "lucide-react";
+import { useCoachMessages } from "@/hooks/useCoachMessages";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow } from "date-fns";
 
 export function MessageCenter() {
-  const [newMessage, setNewMessage] = useState("");
+  const { messages, loading, unreadCount, markAsRead, markAllAsRead } = useCoachMessages();
+  const navigate = useNavigate();
 
-  const handleSend = () => {
-    if (newMessage.trim()) {
-      // TODO: Implement message sending
-      console.log("Sending message:", newMessage);
-      setNewMessage("");
+  const handleCTA = (messageId: string, action?: string) => {
+    markAsRead(messageId);
+    if (action) {
+      navigate(action);
     }
   };
 
   return (
     <Card className="p-6 flex flex-col h-[500px]">
-      <div className="flex items-center gap-3 mb-4">
-        <MessageSquare className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-bold">Coach Messages</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <MessageSquare className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-bold">Coach Rick Messages</h3>
+          {unreadCount > 0 && (
+            <Badge variant="default" className="ml-2">
+              {unreadCount} new
+            </Badge>
+          )}
+        </div>
+        {messages.length > 0 && unreadCount > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={markAllAsRead}
+            className="text-xs"
+          >
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Mark all read
+          </Button>
+        )}
       </div>
 
-      <ScrollArea className="flex-1 pr-4 mb-4">
-        <div className="space-y-4">
-          {mockMessages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${message.sender === "athlete" ? "flex-row-reverse" : ""}`}
-            >
-              {message.sender === "coach" && (
+      <ScrollArea className="flex-1 pr-4">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-sm text-muted-foreground">Loading messages...</p>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <CoachRickAvatar size="sm" className="mb-3" />
+            <p className="text-sm text-muted-foreground">
+              No messages yet. Coach Rick will reach out when it's time to level up.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex gap-3 ${message.is_read ? 'opacity-60' : ''}`}
+              >
                 <CoachRickAvatar size="xs" className="flex-shrink-0" />
-              )}
-              <div className={`flex-1 ${message.sender === "athlete" ? "flex justify-end" : ""}`}>
-                <div
-                  className={`inline-block max-w-[80%] p-3 rounded-lg ${
-                    message.sender === "coach"
-                      ? "bg-muted border border-border"
-                      : "bg-primary text-primary-foreground"
-                  }`}
-                >
-                  <p className="text-sm">{message.content}</p>
-                  <p className={`text-xs mt-1 ${
-                    message.sender === "coach" ? "text-muted-foreground" : "opacity-80"
-                  }`}>
-                    {message.timestamp}
-                  </p>
+                <div className="flex-1">
+                  <div className="bg-muted border border-border p-3 rounded-lg">
+                    <div className="flex items-start justify-between mb-1">
+                      <Badge
+                        variant="outline"
+                        className="text-xs"
+                      >
+                        {message.message_type === 'motivation' && '💪 Motivation'}
+                        {message.message_type === 'accountability' && '⚡ Accountability'}
+                        {message.message_type === 'micro_tip' && '💡 Tip'}
+                      </Badge>
+                      {!message.is_read && (
+                        <div className="h-2 w-2 rounded-full bg-primary" />
+                      )}
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{message.message_content}</p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                    </p>
+                    {message.cta_text && (
+                      <Button
+                        size="sm"
+                        className="mt-3 w-full"
+                        onClick={() => handleCTA(message.id, message.cta_action)}
+                      >
+                        {message.cta_text}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </ScrollArea>
-
-      <div className="flex gap-2">
-        <Input
-          placeholder="Type your message..."
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSend()}
-        />
-        <Button onClick={handleSend} size="icon">
-          <Send className="h-4 w-4" />
-        </Button>
-      </div>
     </Card>
   );
 }
