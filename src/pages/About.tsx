@@ -283,33 +283,39 @@ export default function About() {
       {/* Player Development Credibility */}
       <section className="py-20 bg-muted/20">
         <div className="container">
-          <div className="max-w-6xl mx-auto space-y-12">
+          <div className="max-w-6xl mx-auto space-y-8">
             <h2 className="text-4xl font-black uppercase tracking-tight text-center">
               Players Trained & Developed
             </h2>
-            <div className="flex flex-wrap items-center justify-center gap-8">
+            <p className="text-lg text-muted-foreground text-center">
+              Organizations I have worked for or consulted with
+            </p>
+            
+            {/* Chrome MLB Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-6 py-8">
               {[
-                { name: "Chicago Cubs", abbr: "CHC" },
-                { name: "Texas Rangers", abbr: "TEX" },
-                { name: "New York Mets", abbr: "NYM" },
-                { name: "Tampa Bay Rays", abbr: "TB" },
-                { name: "St. Louis Cardinals", abbr: "STL" }
+                "Chicago Cubs",
+                "Texas Rangers",
+                "New York Mets",
+                "Tampa Bay Rays",
+                "St. Louis Cardinals"
               ].map((team) => (
                 <div 
-                  key={team.abbr}
-                  className="group flex flex-col items-center gap-3 transition-all"
+                  key={team}
+                  className="flex items-center justify-center h-24 px-6 rounded-t-lg rounded-b-full bg-gradient-to-br from-gray-300 via-gray-100 to-gray-400 shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),inset_0_-2px_4px_rgba(0,0,0,0.3),0_4px_12px_rgba(0,0,0,0.2)] border border-gray-400/50"
+                  role="img"
+                  aria-label={`${team} — MLB Experience`}
                 >
-                  <div className="flex h-28 w-28 items-center justify-center rounded-xl border border-border bg-gradient-to-br from-card/40 to-card/20 backdrop-blur-sm transition-all group-hover:border-primary/50 group-hover:from-card/60 group-hover:to-card/40">
-                    <span className="text-3xl font-black text-muted-foreground group-hover:text-foreground transition-colors">
-                      {team.abbr}
-                    </span>
-                  </div>
-                  <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                    {team.name}
+                  <span className="text-sm font-bold text-gray-800 uppercase text-center tracking-tight leading-tight" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.5)' }}>
+                    {team}
                   </span>
                 </div>
               ))}
             </div>
+
+            <p className="text-xs text-muted-foreground/60 max-w-3xl mx-auto text-center px-4">
+              MLB® team names are trademarks of Major League Baseball. Displayed here solely to reference Rick Strickland's professional experience working with these organizations.
+            </p>
           </div>
         </div>
       </section>
