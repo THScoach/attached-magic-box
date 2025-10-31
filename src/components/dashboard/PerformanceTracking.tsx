@@ -56,7 +56,13 @@ export function PerformanceTracking() {
               <XAxis dataKey="date" className="text-xs" />
               <YAxis className="text-xs" />
               <Tooltip />
-              <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2} />
+              <Line 
+                type="monotone" 
+                dataKey="score" 
+                stroke="hsl(var(--engine))" 
+                strokeWidth={3}
+                dot={{ fill: 'hsl(var(--engine))', r: 5 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </TabsContent>
@@ -78,7 +84,13 @@ export function PerformanceTracking() {
               <XAxis dataKey="date" className="text-xs" />
               <YAxis className="text-xs" />
               <Tooltip />
-              <Line type="monotone" dataKey="mph" stroke="hsl(var(--primary))" strokeWidth={2} />
+              <Line 
+                type="monotone" 
+                dataKey="mph" 
+                stroke="hsl(var(--whip))" 
+                strokeWidth={3}
+                dot={{ fill: 'hsl(var(--whip))', r: 5 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </TabsContent>

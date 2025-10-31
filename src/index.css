@@ -38,20 +38,18 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    /* Chrome/Grind Brand Colors */
-    --chrome: 0 0% 75%;
-    --chrome-light: 0 0% 85%;
-    --chrome-dark: 0 0% 50%;
-    --grind: 47 96% 53%;
-
+    /* HITS Brand Colors */
+    --graphite: 0 0% 10%;
+    --electric-yellow: 47 100% 60%;
+    
     /* H.I.T.S. Score Pillar Colors */
-    --anchor: 199 89% 48%;
+    --anchor: 199 100% 14%;
     --anchor-foreground: 0 0% 100%;
     
-    --engine: 0 84% 60%;
+    --engine: 0 78% 27%;
     --engine-foreground: 0 0% 100%;
     
-    --whip: 10 79% 54%;
+    --whip: 21 86% 43%;
     --whip-foreground: 0 0% 100%;
 
     /* Score Status Colors */
@@ -60,13 +58,12 @@ All colors MUST be HSL.
     --score-needs-work: 0 84.2% 60.2%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(47 96% 53%), hsl(47 96% 63%));
-    --gradient-chrome: linear-gradient(135deg, hsl(0 0% 75%), hsl(0 0% 85%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 0%), hsl(0 0% 8%));
-    --gradient-section: linear-gradient(180deg, hsl(0 0% 5%), hsl(0 0% 0%));
-    --gradient-anchor: linear-gradient(135deg, hsl(199 89% 48%), hsl(199 89% 58%));
-    --gradient-engine: linear-gradient(135deg, hsl(0 84% 60%), hsl(10 79% 54%));
-    --gradient-whip: linear-gradient(135deg, hsl(10 79% 54%), hsl(20 79% 64%));
+    --gradient-primary: linear-gradient(135deg, hsl(47 100% 60%), hsl(47 100% 70%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 0%), hsl(0 0% 10%));
+    --gradient-section: linear-gradient(180deg, hsl(0 0% 10%), hsl(0 0% 0%));
+    --gradient-anchor: linear-gradient(135deg, hsl(199 100% 14%), hsl(199 100% 20%));
+    --gradient-engine: linear-gradient(135deg, hsl(0 78% 27%), hsl(0 78% 35%));
+    --gradient-whip: linear-gradient(135deg, hsl(21 86% 43%), hsl(21 86% 53%));
 
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(240 5.9% 10% / 0.05);
@@ -109,13 +106,13 @@ All colors MUST be HSL.
     --ring: 47 96% 53%;
 
     /* Dark mode pillar colors */
-    --anchor: 199 89% 48%;
+    --anchor: 199 100% 14%;
     --anchor-foreground: 0 0% 100%;
     
-    --engine: 0 84% 60%;
+    --engine: 0 78% 27%;
     --engine-foreground: 0 0% 100%;
     
-    --whip: 10 79% 54%;
+    --whip: 21 86% 43%;
     --whip-foreground: 0 0% 100%;
 
     --score-excellent: 142 76% 36%;
