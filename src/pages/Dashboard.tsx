@@ -3,15 +3,16 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PillarCard } from "@/components/PillarCard";
 import { BottomNav } from "@/components/BottomNav";
-import { SequenceScoreCard } from "@/components/SequenceScoreCard";
-import { TempoScoreCard } from "@/components/TempoScoreCard";
-import { ConsistencyScoreCard } from "@/components/ConsistencyScoreCard";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { LiveCoachingBanner } from "@/components/LiveCoachingBanner";
 import { RedeemPromoCode } from "@/components/RedeemPromoCode";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
-import { User, Bell, Upload, CheckCircle2, AlertCircle } from "lucide-react";
+import { FocusTodayCard } from "@/components/dashboard/FocusTodayCard";
+import { GrindScoreCard } from "@/components/GrindScoreCard";
+import { CoachRickChatBubble } from "@/components/CoachRickChatBubble";
+import { EquipmentOnboardingModal } from "@/components/EquipmentOnboardingModal";
+import { User, TrendingUp, Target, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,8 +22,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const tierAccess = useTierAccess();
   const [todaysProgram, setTodaysProgram] = useState<any>(null);
-  const [streak, setStreak] = useState(0);
   const [showPromoRedeem, setShowPromoRedeem] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [lastSwingDate, setLastSwingDate] = useState<string | null>(null);
   const [gritData, setGritData] = useState({
     currentScore: 0,
     currentStreak: 0,
@@ -32,8 +34,22 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
+    checkOnboarding();
+  }, []);
+
+  useEffect(() => {
     loadDashboardData();
   }, [navigate]);
+
+  const checkOnboarding = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const hasOnboarded = user.user_metadata?.equipment_onboarded;
+    if (!hasOnboarded) {
+      setShowOnboarding(true);
+    }
+  };
 
   const loadDashboardData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -93,7 +109,19 @@ export default function Dashboard() {
         totalCompleted: grind.total_tasks_completed || 0,
         totalAssigned: grind.total_tasks_assigned || 0
       });
-      setStreak(grind.current_streak || 0);
+    }
+
+    // Load last swing date
+    const { data: lastAnalysis } = await supabase
+      .from('swing_analyses')
+      .select('created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (lastAnalysis) {
+      setLastSwingDate(lastAnalysis.created_at);
     }
   };
 
@@ -101,23 +129,6 @@ export default function Dashboard() {
   const storedAthleteInfo = localStorage.getItem('athleteInfo');
   const athleteInfo = storedAthleteInfo ? JSON.parse(storedAthleteInfo) : null;
   const userName = athleteInfo?.name?.split(' ')[0] || "Athlete";
-  const hitsScore = 75;
-  const trend = 3;
-  
-  const latestSwing = {
-    date: "Oct 28, 2025",
-    hitsScore: 75,
-    tempoRatio: 2.4,
-    videoUrl: "#"
-  };
-
-  const pillarScores = {
-    anchor: 85,
-    engine: 72,
-    whip: 68
-  };
-
-  const programStatus = todaysProgram?.is_checked_in_today ? "active" : "needs_attention";
   
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -125,25 +136,10 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-1">Welcome Back, {userName}!</h1>
-            <p className="text-muted-foreground">
-              Upload today's swings to unlock your next power level
-            </p>
+            <h1 className="text-3xl font-bold mb-1">Welcome back, {userName}</h1>
+            <p className="text-muted-foreground">Let's build on yesterday's work</p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={programStatus === "active" ? "default" : "secondary"} className="flex items-center gap-2">
-              {programStatus === "active" ? (
-                <>
-                  <CheckCircle2 className="h-3 w-3" />
-                  Active
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="h-3 w-3" />
-                  Ready to Train
-                </>
-              )}
-            </Badge>
             <NotificationCenter />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
               <User className="h-5 w-5" />
@@ -151,61 +147,73 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Key Metrics Row */}
+        <div className="grid gap-4 md:grid-cols-4">
+          <GrindScoreCard userId={undefined} />
+          
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Target className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Weekly Tasks</p>
+            </div>
+            <p className="text-3xl font-bold">
+              {gritData.totalCompleted} / {gritData.totalAssigned}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Completed</p>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Zap className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Current Streak</p>
+            </div>
+            <p className="text-3xl font-bold">{gritData.currentStreak}</p>
+            <p className="text-xs text-muted-foreground mt-1">Days in a row</p>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Last Swing</p>
+            </div>
+            <p className="text-2xl font-bold">
+              {lastSwingDate
+                ? new Date(lastSwingDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                : "None"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">Upload date</p>
+          </Card>
+        </div>
+
         {/* Promo Code Redemption */}
         {!tierAccess.isTeamMember && tierAccess.tier === "free" && showPromoRedeem && (
           <RedeemPromoCode />
         )}
 
+        {/* Focus Today Card */}
+        <FocusTodayCard
+          lastSwingDate={lastSwingDate || undefined}
+          tasksCompleted={gritData.totalCompleted}
+          tasksTotal={gritData.totalAssigned}
+          hasActiveDrills={!!todaysProgram}
+        />
+
         {/* Live Coaching Banner */}
         {tierAccess.canViewReplay && <LiveCoachingBanner />}
 
-        {/* Score Overview Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <SequenceScoreCard />
-          <TempoScoreCard />
-          <ConsistencyScoreCard />
-        </div>
-
-        {/* Main CTA */}
-        <Button 
-          size="lg"
-          className="w-full h-16 text-lg font-semibold"
-          onClick={() => navigate("/analyze")}
-        >
-          <Upload className="mr-2 h-6 w-6" />
-          Analyze My Swing
-        </Button>
-
-        {/* 3-Tab Carousel */}
+        {/* Progress Feed */}
         <DashboardTabs />
-
-        {/* Pillar Scores */}
-        <div>
-          <h2 className="text-xl font-bold mb-4">Pillar Performance</h2>
-          <div className="grid gap-4 md:grid-cols-3">
-            <PillarCard 
-              pillar="ANCHOR"
-              score={pillarScores.anchor}
-              subtitle="Stability & Ground Force"
-            />
-            <PillarCard 
-              pillar="ENGINE"
-              score={pillarScores.engine}
-              subtitle="Tempo & Sequence"
-            />
-            <PillarCard 
-              pillar="WHIP"
-              score={pillarScores.whip}
-              subtitle="Release & Acceleration"
-            />
-          </div>
-        </div>
 
         {/* Weekly Schedule */}
         {tierAccess.canUseScheduler && <WeeklySchedule />}
       </div>
 
       <BottomNav />
+      <CoachRickChatBubble />
+      <EquipmentOnboardingModal
+        open={showOnboarding}
+        onComplete={() => setShowOnboarding(false)}
+      />
     </div>
   );
 }

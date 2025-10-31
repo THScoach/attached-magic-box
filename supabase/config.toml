@@ -3,6 +3,15 @@ project_id = "goiwiofbmszghvyvhyll"
 [functions.coach-rick-chat]
 verify_jwt = false
 
+[functions.send-coach-message]
+verify_jwt = false
+
+[functions.weekly-motivation]
+verify_jwt = false
+
+[functions.accountability-check]
+verify_jwt = false
+
 [functions.analyze-swing]
 verify_jwt = false
 

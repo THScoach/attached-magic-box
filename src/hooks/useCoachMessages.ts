@@ -4,14 +4,16 @@ import { toast } from '@/hooks/use-toast';
 
 export interface CoachMessage {
   id: string;
-  message_type: 'motivation' | 'accountability' | 'micro_tip';
-  trigger_reason?: string;
+  message_type: string;
+  trigger_reason?: string | null;
   message_content: string;
-  cta_text?: string;
-  cta_action?: string;
+  cta_text?: string | null;
+  cta_action?: string | null;
   is_read: boolean;
   created_at: string;
-  read_at?: string;
+  read_at?: string | null;
+  user_id: string;
+  player_id?: string | null;
 }
 
 export function useCoachMessages() {

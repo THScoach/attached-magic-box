@@ -10,6 +10,10 @@ import { AddAthleteModal } from "@/components/AddAthleteModal";
 import { useTierAccess } from "@/hooks/useTierAccess";
 import { PromoCodeManager } from "@/components/PromoCodeManager";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { CoachAITrainingInput } from "@/components/admin/CoachAITrainingInput";
+import { CoachRickChatBubble } from "@/components/CoachRickChatBubble";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -66,6 +70,9 @@ export default function CoachDashboard() {
 
   const organizationName = user?.user_metadata?.organization_name || "Your Organization";
 
+  // Calculate alerts (simplified for now)
+  const lowGrindAthletes = athletes.filter((a) => a.grit_score < 50);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 p-6">
       <div className="max-w-7xl mx-auto">
@@ -83,6 +90,16 @@ export default function CoachDashboard() {
             </Button>
           </div>
         </div>
+
+        {/* Alerts */}
+        {lowGrindAthletes.length > 0 && (
+          <Alert className="mb-6">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              {lowGrindAthletes.length} athlete(s) with GRIND score below 50 — time to push harder
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Stats Grid */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -128,8 +145,11 @@ export default function CoachDashboard() {
           </Card>
         </div>
 
+        {/* AI Training Input */}
+        <CoachAITrainingInput />
+
         {/* Main Content */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 mt-6">
           <Card>
             <CardHeader>
               <CardTitle>Athletes</CardTitle>
@@ -194,6 +214,7 @@ export default function CoachDashboard() {
           onSuccess={reload}
           availableSeats={stats.availableSeats}
         />
+        <CoachRickChatBubble />
       </div>
     </div>
   );
