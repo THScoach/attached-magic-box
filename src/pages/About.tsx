@@ -13,7 +13,7 @@ export default function About() {
       <nav className="fixed top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <Link to="/">
-            <HitsLogo variant="compact" />
+            <HitsLogo variant="icon" className="h-12 w-12" />
           </Link>
           <div className="flex items-center gap-6">
             <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
@@ -283,7 +283,7 @@ export default function About() {
         <div className="container">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex flex-col items-center md:items-start gap-2">
-              <HitsLogo variant="compact" />
+              <HitsLogo variant="wordmark" className="h-16" />
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} HITS™. All rights reserved.
               </p>
