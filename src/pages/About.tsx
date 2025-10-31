@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { HitsLogo } from "@/components/HitsLogo";
 import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
+import heroImage from "@/assets/coach-rick-hero.jpeg";
 
 export default function About() {
   return (
@@ -52,12 +53,14 @@ export default function About() {
             </div>
           </div>
         </div>
-        {/* Hero Image Placeholder */}
+        {/* Hero Image */}
         <div className="container mt-12">
-          <div className="relative aspect-[21/9] max-w-6xl mx-auto rounded-2xl overflow-hidden bg-muted/20 border border-border">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-muted-foreground text-sm">Full-width hero image placeholder</p>
-            </div>
+          <div className="relative aspect-[21/9] max-w-6xl mx-auto rounded-2xl overflow-hidden border border-border shadow-2xl">
+            <img 
+              src={heroImage} 
+              alt="Coach Rick Strickland coaching players" 
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </section>
