@@ -199,10 +199,10 @@ export default function About() {
 
             {/* Technology Partner Logos */}
             <div className="pt-12 space-y-6">
-              <h3 className="text-2xl font-bold text-center text-muted-foreground">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-center text-muted-foreground">
                 Technology Partners
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 opacity-60">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
                 {[
                   "Reboot Motion",
                   "Zenolink",
@@ -213,8 +213,13 @@ export default function About() {
                   "Uplift Labs",
                   "Sports Science Lab"
                 ].map((tech) => (
-                  <div key={tech} className="aspect-video rounded-lg bg-muted/20 border border-border flex items-center justify-center p-4">
-                    <p className="text-muted-foreground text-sm text-center">{tech}</p>
+                  <div 
+                    key={tech} 
+                    className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50"
+                  >
+                    <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+                      {tech}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -230,16 +235,26 @@ export default function About() {
             <h2 className="text-4xl font-black uppercase tracking-tight text-center">
               Players Trained & Developed
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 opacity-50">
+            <div className="flex flex-wrap items-center justify-center gap-8">
               {[
-                "Chicago Cubs",
-                "Texas Rangers",
-                "New York Mets",
-                "Tampa Bay Rays",
-                "St. Louis Cardinals"
+                { name: "Chicago Cubs", abbr: "CHC" },
+                { name: "Texas Rangers", abbr: "TEX" },
+                { name: "New York Mets", abbr: "NYM" },
+                { name: "Tampa Bay Rays", abbr: "TB" },
+                { name: "St. Louis Cardinals", abbr: "STL" }
               ].map((team) => (
-                <div key={team} className="aspect-square rounded-lg bg-muted/20 border border-border flex items-center justify-center p-6">
-                  <p className="text-muted-foreground text-xs text-center font-semibold">{team}</p>
+                <div 
+                  key={team.abbr}
+                  className="group flex flex-col items-center gap-3 transition-all"
+                >
+                  <div className="flex h-28 w-28 items-center justify-center rounded-xl border border-border bg-gradient-to-br from-card/40 to-card/20 backdrop-blur-sm transition-all group-hover:border-primary/50 group-hover:from-card/60 group-hover:to-card/40">
+                    <span className="text-3xl font-black text-muted-foreground group-hover:text-foreground transition-colors">
+                      {team.abbr}
+                    </span>
+                  </div>
+                  <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+                    {team.name}
+                  </span>
                 </div>
               ))}
             </div>
