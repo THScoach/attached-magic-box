@@ -186,13 +186,76 @@ export default function Programs() {
               </CardContent>
             </Card>
 
-            {/* Elite - 90-Day Transformation */}
-            <Card className="border-2 border-primary/30 bg-gradient-to-br from-zinc-900 to-zinc-950 hover:border-primary/50 transition-all">
+            {/* HITS Ultimate - Premium Equipment Package */}
+            <Card className="relative border-2 border-primary bg-gradient-to-br from-primary/5 via-zinc-900 to-zinc-950 hover:border-primary transition-all shadow-xl shadow-primary/20">
+              <div className="absolute -top-4 left-8 bg-gradient-to-r from-primary to-amber-400 text-black px-6 py-1.5 rounded-full text-xs font-black uppercase">
+                ⭐ Ultimate Package
+              </div>
               <CardHeader>
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
                     <div className="mb-2">
-                      <span className="text-3xl font-black text-primary">$2,497</span>
+                      <span className="text-3xl font-black text-primary">Call for Details</span>
+                    </div>
+                    <CardTitle className="text-2xl font-black uppercase mb-2">
+                      HITS Ultimate
+                    </CardTitle>
+                    <CardDescription className="text-gray-400 text-base">
+                      Complete equipment package + elite coaching — we send you everything
+                    </CardDescription>
+                  </div>
+                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
+                    <Link to="/book-call">
+                      Schedule Call <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4 text-sm mb-6">
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                    <span className="text-gray-300 font-semibold">Blast Motion sensor (included)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                    <span className="text-gray-300 font-semibold">Stack Bat training system (included)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                    <span className="text-gray-300 font-semibold">Premium training equipment</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                    <span className="text-gray-300">Everything from 90-Day program</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                    <span className="text-gray-300">White-glove setup + support</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                    <span className="text-gray-300">Equipment shipped to your door</span>
+                  </div>
+                </div>
+                <div className="p-4 rounded-lg bg-primary/10 border border-primary/30">
+                  <p className="text-base font-black text-primary text-center">
+                    All Equipment + Elite Coaching — Complete Training Arsenal
+                  </p>
+                  <p className="text-xs text-center text-gray-400 mt-2">
+                    Limited availability • Requires consultation • Equipment value $800+
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Elite - 90-Day Transformation */}
+            <Card className="border-2 border-white/20 bg-zinc-900 hover:border-white/40 transition-all">
+              <CardHeader>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <div className="mb-2">
+                      <span className="text-3xl font-black text-white">$2,497</span>
                     </div>
                     <CardTitle className="text-2xl font-black uppercase mb-2">
                       HITS 90-Day Transformation

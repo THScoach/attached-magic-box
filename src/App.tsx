@@ -10,6 +10,8 @@ import { useEffect } from "react";
 import Landing from "./pages/Landing";
 import Programs from "./pages/Programs";
 import About from "./pages/About";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import RequestDemo from "./pages/RequestDemo";
 import BookCall from "./pages/BookCall";
 import Dashboard from "./pages/Dashboard";
@@ -47,6 +49,8 @@ const App = () => {
             <Route path="/" element={<Landing />} />
             <Route path="/programs" element={<Programs />} />
             <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/request-demo" element={<RequestDemo />} />
             <Route path="/book-call" element={<BookCall />} />
             <Route path="/auth" element={<Auth />} />
