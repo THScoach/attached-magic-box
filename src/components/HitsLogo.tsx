@@ -1,22 +1,22 @@
 import { cn } from "@/lib/utils";
-import primaryMark from "@/assets/hits-logo-primary-mark.png";
-import wordmarkHorizontal from "@/assets/hits-wordmark-horizontal.png";
-import appIcon from "@/assets/hits-app-icon.png";
-import withTagline from "@/assets/hits-logo-with-tagline.png";
-import lightVersion from "@/assets/hits-logo-light.png";
+import monogramMark from "@/assets/hits-monogram-v2.png";
+import wordmarkHorizontal from "@/assets/hits-wordmark-v2.png";
+import appIcon from "@/assets/hits-icon-v2.png";
+import lockupWithTagline from "@/assets/hits-lockup-v2.png";
+import embroideryVersion from "@/assets/hits-embroidery-v2.png";
 
 interface HitsLogoProps {
   className?: string;
-  variant?: "primary" | "wordmark" | "tagline" | "icon" | "light";
+  variant?: "monogram" | "wordmark" | "lockup" | "icon" | "embroidery";
 }
 
 export function HitsLogo({ className, variant = "wordmark" }: HitsLogoProps) {
   const logos = {
-    primary: primaryMark,
+    monogram: monogramMark,
     wordmark: wordmarkHorizontal,
-    tagline: withTagline,
+    lockup: lockupWithTagline,
     icon: appIcon,
-    light: lightVersion,
+    embroidery: embroideryVersion,
   };
 
   return (
@@ -31,9 +31,9 @@ export function HitsLogo({ className, variant = "wordmark" }: HitsLogoProps) {
 export function HitsMonogram({ className }: { className?: string }) {
   return (
     <img 
-      src={appIcon} 
+      src={monogramMark} 
       alt="HITS" 
-      className={cn("h-10 w-10 object-contain", className)}
+      className={cn("h-12 w-12 object-contain", className)}
     />
   );
 }
