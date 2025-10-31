@@ -10,6 +10,9 @@ import drKwonImage from "@/assets/dr-kwon.jpeg";
 import gavinMcMillanImage from "@/assets/gavin-mcmillan.jpeg";
 import rebootMotionLogo from "@/assets/logos/reboot-motion.png";
 import zenolinkLogo from "@/assets/logos/zenolink.png";
+import blastMotionLogo from "@/assets/logos/blast-motion.png";
+import diamondKineticsLogo from "@/assets/logos/diamond-kinetics.jpeg";
+import rapsodoLogo from "@/assets/logos/rapsodo.png";
 
 export default function About() {
   return (
@@ -226,10 +229,28 @@ export default function About() {
                     className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
                   />
                 </div>
+                <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
+                  <img 
+                    src={blastMotionLogo} 
+                    alt="Blast Motion" 
+                    className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                  />
+                </div>
+                <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
+                  <img 
+                    src={diamondKineticsLogo} 
+                    alt="Diamond Kinetics" 
+                    className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                  />
+                </div>
+                <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
+                  <img 
+                    src={rapsodoLogo} 
+                    alt="Rapsodo" 
+                    className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                  />
+                </div>
                 {[
-                  "Blast Motion",
-                  "Diamond Kinetics",
-                  "Rapsodo",
                   "HitTrax",
                   "Uplift Labs",
                   "Sports Science Lab"
