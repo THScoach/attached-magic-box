@@ -15,6 +15,7 @@ import diamondKineticsLogo from "@/assets/logos/diamond-kinetics.jpeg";
 import rapsodoLogo from "@/assets/logos/rapsodo.png";
 import hittraxLogo from "@/assets/logos/hittrax.png";
 import upliftLabsLogo from "@/assets/logos/uplift-labs.png";
+import fourDMotionLogo from "@/assets/logos/4d-motion.jpeg";
 
 export default function About() {
   return (
@@ -266,18 +267,13 @@ export default function About() {
                     className="h-12 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
                   />
                 </div>
-                {[
-                  "Sports Science Lab"
-                ].map((tech) => (
-                  <div 
-                    key={tech} 
-                    className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50"
-                  >
-                    <span className="text-center text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                      {tech}
-                    </span>
-                  </div>
-                ))}
+                <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
+                  <img 
+                    src={fourDMotionLogo} 
+                    alt="4D Motion" 
+                    className="h-12 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                  />
+                </div>
               </div>
             </div>
           </div>
