@@ -315,14 +315,16 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
           </Dialog>
         </div>
 
-        {/* Search Input */}
+        {/* Search Input - Always visible when players exist */}
         {players.length > 0 && (
-          <Input
-            placeholder="Search players..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full"
-          />
+          <div className="relative">
+            <Input
+              placeholder="🔍 Search by name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full text-base"
+            />
+          </div>
         )}
 
         {players.length === 0 ? (

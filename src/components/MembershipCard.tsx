@@ -3,9 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Crown, Zap, Star } from "lucide-react";
 import { useUserMembership } from "@/hooks/useUserMembership";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export function MembershipCard() {
   const { membership, loading } = useUserMembership();
+  const { isCoach, isAdmin } = useUserRole();
 
   if (loading) {
     return (
@@ -80,7 +82,7 @@ export function MembershipCard() {
           </ul>
         </div>
         
-        {membership?.tier === "free" && (
+        {membership?.tier === "free" && !isCoach && !isAdmin && (
           <Button onClick={handleUpgrade} className="w-full">
             Upgrade Now
           </Button>

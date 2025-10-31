@@ -11,10 +11,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { extractVideoFrames, detectPoseInFrames } from "@/lib/videoAnalysis";
 import { CameraRecorder } from "@/lib/cameraRecording";
 import { useUserMembership } from "@/hooks/useUserMembership";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Analyze() {
   const navigate = useNavigate();
   const { membership, loading: membershipLoading } = useUserMembership();
+  const { isCoach, isAdmin } = useUserRole();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
@@ -186,8 +188,8 @@ export default function Analyze() {
   };
 
   const processVideoFile = async (file: File, camera?: 1 | 2) => {
-    // Check swing limit for free tier users
-    if (membership?.tier === 'free' && (membership.swingCount || 0) >= 2) {
+    // Check swing limit for free tier users (but not for coaches/admins)
+    if (!isCoach && !isAdmin && membership?.tier === 'free' && (membership.swingCount || 0) >= 2) {
       toast.error("Swing limit reached", {
         description: "Upgrade to unlock unlimited swing analyses",
         action: {
