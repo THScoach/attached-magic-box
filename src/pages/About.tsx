@@ -14,6 +14,7 @@ import blastMotionLogo from "@/assets/logos/blast-motion.png";
 import diamondKineticsLogo from "@/assets/logos/diamond-kinetics.jpeg";
 import rapsodoLogo from "@/assets/logos/rapsodo.png";
 import hittraxLogo from "@/assets/logos/hittrax.png";
+import upliftLabsLogo from "@/assets/logos/uplift-labs.png";
 
 export default function About() {
   return (
@@ -255,11 +256,17 @@ export default function About() {
                   <img 
                     src={hittraxLogo} 
                     alt="HitTrax" 
+                    className="h-14 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                  />
+                </div>
+                <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
+                  <img 
+                    src={upliftLabsLogo} 
+                    alt="Uplift Labs" 
                     className="h-12 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
                   />
                 </div>
                 {[
-                  "Uplift Labs",
                   "Sports Science Lab"
                 ].map((tech) => (
                   <div 
