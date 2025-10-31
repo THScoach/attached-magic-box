@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEffect } from "react";
 import Landing from "./pages/Landing";
 import Programs from "./pages/Programs";
+import About from "./pages/About";
 import RequestDemo from "./pages/RequestDemo";
 import BookCall from "./pages/BookCall";
 import Dashboard from "./pages/Dashboard";
@@ -45,6 +46,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/programs" element={<Programs />} />
+            <Route path="/about" element={<About />} />
             <Route path="/request-demo" element={<RequestDemo />} />
             <Route path="/book-call" element={<BookCall />} />
             <Route path="/auth" element={<Auth />} />

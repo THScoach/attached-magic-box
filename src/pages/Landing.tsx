@@ -17,6 +17,9 @@ export default function Landing() {
             <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/programs">Programs</Link>
             </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/about">About</Link>
+            </Button>
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
               <Link to="/auth">
                 <HitsMonogram className="h-6 w-6 mr-2" />
@@ -62,7 +65,7 @@ export default function Landing() {
           <p className="text-center text-sm font-semibold uppercase tracking-widest text-gray-400 mb-6">
             Trusted By Professional Athletes
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 text-gray-300">
+          <div className="flex flex-wrap items-center justify-center gap-8 text-gray-300 mb-12">
             <span className="text-lg font-bold">Pete Crow-Armstrong</span>
             <span className="text-2xl text-gray-600">•</span>
             <span className="text-lg font-bold">Cedric Mullins</span>
@@ -70,6 +73,29 @@ export default function Landing() {
             <span className="text-lg font-bold">Matt Adams</span>
             <span className="text-2xl text-gray-600">•</span>
             <span className="text-lg font-bold">MLB Organizations</span>
+          </div>
+
+          {/* Technology Partners */}
+          <div className="max-w-6xl mx-auto pt-8 border-t border-white/10">
+            <p className="text-center text-sm font-semibold uppercase tracking-widest text-gray-400 mb-8">
+              Trusted by Leaders in Biomechanics and Player Performance
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 opacity-40 hover:opacity-60 transition-opacity">
+              {[
+                "Reboot Motion",
+                "Zenolink",
+                "Blast Motion",
+                "Diamond Kinetics",
+                "Rapsodo",
+                "HitTrax",
+                "Uplift Labs",
+                "Sports Science Lab"
+              ].map((tech) => (
+                <div key={tech} className="aspect-video rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-4 hover:bg-white/10 hover:border-white/20 transition-all">
+                  <p className="text-gray-300 text-xs text-center font-semibold">{tech}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
