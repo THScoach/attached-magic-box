@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import heroImage from "@/assets/coach-rick-hero.jpeg";
 import chrisWelchImage from "@/assets/chris-welch.webp";
+import drKwonImage from "@/assets/dr-kwon.jpeg";
 
 export default function About() {
   return (
@@ -160,8 +161,12 @@ export default function About() {
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               <Card className="p-8 space-y-4 bg-card/50 border-border hover:border-primary/50 transition-all">
-                <div className="aspect-video rounded-lg bg-muted/20 border border-border flex items-center justify-center">
-                  <p className="text-muted-foreground text-sm">Dr. Kwon image/logo</p>
+                <div className="aspect-video rounded-lg overflow-hidden border border-border">
+                  <img 
+                    src={drKwonImage} 
+                    alt="Dr. Young-Hoo Kwon teaching biomechanics" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <h3 className="text-2xl font-bold">Dr. Young-Hoo Kwon</h3>
                 <p className="text-muted-foreground">
