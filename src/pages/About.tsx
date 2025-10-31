@@ -185,7 +185,7 @@ export default function About() {
                 </div>
                 <h3 className="text-2xl font-bold">Gavin McMillan</h3>
                 <p className="text-muted-foreground">
-                  Sports Science Lab — Applied biomechanics and sports performance research that bridges lab testing with field application.
+                  Sports Science Lab — Met back in 2016, Gavin fundamentally changed how Rick approached training athletes. His applied biomechanics and sports performance research bridges lab testing with real-world field application, transforming how elite athletes are developed.
                 </p>
               </Card>
 
