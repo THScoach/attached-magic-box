@@ -4,7 +4,7 @@ import { HitsLogo } from "@/components/HitsLogo";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
-import heroImage from "@/assets/coach-rick-hero.jpeg";
+import heroImage from "@/assets/coach-rick-hero-new.png";
 import chrisWelchImage from "@/assets/chris-welch.webp";
 import drKwonImage from "@/assets/dr-kwon.jpeg";
 import gavinMcMillanImage from "@/assets/gavin-mcmillan.jpeg";
