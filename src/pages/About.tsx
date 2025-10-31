@@ -8,6 +8,7 @@ import heroImage from "@/assets/coach-rick-hero.jpeg";
 import chrisWelchImage from "@/assets/chris-welch.webp";
 import drKwonImage from "@/assets/dr-kwon.jpeg";
 import gavinMcMillanImage from "@/assets/gavin-mcmillan.jpeg";
+import rebootMotionLogo from "@/assets/logos/reboot-motion.png";
 
 export default function About() {
   return (
@@ -210,8 +211,14 @@ export default function About() {
                 Technology Partners
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
+                  <img 
+                    src={rebootMotionLogo} 
+                    alt="Reboot Motion" 
+                    className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                  />
+                </div>
                 {[
-                  "Reboot Motion",
                   "Zenolink",
                   "Blast Motion",
                   "Diamond Kinetics",
