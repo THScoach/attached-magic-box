@@ -8,6 +8,7 @@ import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { LiveCoachingBanner } from "@/components/LiveCoachingBanner";
 import { RedeemPromoCode } from "@/components/RedeemPromoCode";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { Camera, TrendingUp, Target, Play, Flame, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -119,7 +120,10 @@ export default function Dashboard() {
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold text-foreground">Welcome back, {userName}!</h1>
+          <div className="flex items-center gap-3">
+            <CoachRickAvatar size="xs" />
+            <h1 className="text-2xl font-bold text-foreground">Welcome back, {userName}!</h1>
+          </div>
           <NotificationCenter />
         </div>
         

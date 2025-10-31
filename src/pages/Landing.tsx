@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Anchor, Zap, Settings, ChevronRight } from "lucide-react";
 import { HitsLogo, HitsMonogram } from "@/components/HitsLogo";
+import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 
 export default function Landing() {
   return (
@@ -317,6 +318,28 @@ export default function Landing() {
       {/* Footer */}
       <footer className="border-t border-white/10 bg-black py-12">
         <div className="container mx-auto px-4">
+          {/* Need Help Section */}
+          <div className="mb-12 max-w-2xl mx-auto">
+            <Card className="bg-zinc-900 border-white/10 overflow-hidden">
+              <CardContent className="p-8">
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  <CoachRickAvatar size="lg" />
+                  <div className="flex-1 text-center md:text-left">
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      Need Help Getting Started?
+                    </h3>
+                    <p className="text-gray-400 mb-4">
+                      Coach Rick is here to guide you through your hitting journey
+                    </p>
+                    <Button asChild className="bg-primary hover:bg-primary/90">
+                      <Link to="/book-call">Talk to Coach Rick</Link>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <HitsMonogram className="h-8 w-8" />

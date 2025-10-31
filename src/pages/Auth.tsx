@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, User } from "lucide-react";
 import hitsLogo from "@/assets/hits-logo-minimal.png";
+import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -117,6 +118,15 @@ export default function Auth() {
             Back to Home
           </Link>
         </Button>
+
+        {/* Coach Rick Welcome */}
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <CoachRickAvatar size="sm" />
+          <div className="text-center">
+            <p className="text-white font-semibold">Welcome to HITS</p>
+            <p className="text-gray-400 text-sm">Coach Rick is ready to help</p>
+          </div>
+        </div>
         
         {/* Role Selection Links */}
         <Card className="w-full border-white/10 bg-zinc-900 text-white p-6">

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { HitsLogo } from "@/components/HitsLogo";
+import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import heroImage from "@/assets/coach-rick-hero.jpeg";
@@ -107,10 +108,8 @@ export default function About() {
                   </p>
                 </div>
               </div>
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted/20 border border-border">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-muted-foreground text-sm">Headshot or coaching photo placeholder</p>
-                </div>
+              <div className="relative flex items-center justify-center">
+                <CoachRickAvatar size="xl" className="h-80 w-80" />
               </div>
             </div>
           </div>

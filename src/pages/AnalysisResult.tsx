@@ -8,6 +8,7 @@ import { DrillFeedbackChat } from "@/components/DrillFeedbackChat";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
+import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
@@ -592,26 +593,29 @@ export default function AnalysisResult() {
 
         {/* AI Coach Feedback */}
         <Card className="p-6 bg-blue-500/10 border-blue-500/20">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="p-2 rounded-lg bg-blue-500/20">
-              <Target className="h-6 w-6 text-blue-500" />
-            </div>
-            <div>
-              <h3 className="font-bold text-lg">Your #1 Opportunity</h3>
+          <div className="flex items-start gap-4 mb-4">
+            <CoachRickAvatar size="md" className="shrink-0" />
+            <div className="flex-1">
+              <h3 className="font-bold text-lg mb-1">Coach Rick Says:</h3>
+              <p className="text-sm text-muted-foreground">Your #1 Opportunity</p>
             </div>
           </div>
           
-          <p className="mb-3 text-foreground">
-            {analysis.primaryOpportunity}
-          </p>
-          
-          <p className="text-sm text-muted-foreground mb-4">
-            💪 {analysis.impactStatement}
-          </p>
-          
-          <Button className="w-full" onClick={() => setShowDrills(true)}>
-            Show Me The Fix
-          </Button>
+          <div className="relative ml-0 md:ml-36">
+            <div className="bg-background/50 backdrop-blur-sm rounded-lg p-4 border border-border/50">
+              <p className="mb-3 text-foreground font-medium">
+                {analysis.primaryOpportunity}
+              </p>
+              
+              <p className="text-sm text-muted-foreground mb-4">
+                💪 {analysis.impactStatement}
+              </p>
+              
+              <Button className="w-full" onClick={() => setShowDrills(true)}>
+                Show Me The Fix
+              </Button>
+            </div>
+          </div>
         </Card>
 
         {/* Recommended Drills */}
