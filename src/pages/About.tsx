@@ -9,6 +9,7 @@ import chrisWelchImage from "@/assets/chris-welch.webp";
 import drKwonImage from "@/assets/dr-kwon.jpeg";
 import gavinMcMillanImage from "@/assets/gavin-mcmillan.jpeg";
 import rebootMotionLogo from "@/assets/logos/reboot-motion.png";
+import zenolinkLogo from "@/assets/logos/zenolink.png";
 
 export default function About() {
   return (
@@ -218,8 +219,14 @@ export default function About() {
                     className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
                   />
                 </div>
+                <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
+                  <img 
+                    src={zenolinkLogo} 
+                    alt="Zenolink" 
+                    className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                  />
+                </div>
                 {[
-                  "Zenolink",
                   "Blast Motion",
                   "Diamond Kinetics",
                   "Rapsodo",
