@@ -160,7 +160,7 @@ export default function About() {
             <h2 className="text-4xl font-black uppercase tracking-tight text-center">
               Movement Science & Innovation
             </h2>
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-3 gap-8">
               <Card className="p-8 space-y-4 bg-card/50 border-border hover:border-primary/50 transition-all">
                 <div className="aspect-video rounded-lg overflow-hidden border border-border bg-muted/10">
                   <img 
@@ -194,22 +194,12 @@ export default function About() {
                   <img 
                     src={chrisWelchImage} 
                     alt="Chris Welch of Zenolink" 
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-top"
                   />
                 </div>
                 <h3 className="text-2xl font-bold">Chris Welch — Zenolink</h3>
                 <p className="text-muted-foreground">
                   Skill-based biomechanics methodology that changed how Rick understood motor learning and movement efficiency in baseball.
-                </p>
-              </Card>
-
-              <Card className="p-8 space-y-4 bg-card/50 border-border hover:border-primary/50 transition-all">
-                <div className="aspect-video rounded-lg bg-muted/20 border border-border flex items-center justify-center">
-                  <p className="text-muted-foreground text-sm">Performance Tech logos</p>
-                </div>
-                <h3 className="text-2xl font-bold">Performance Technology</h3>
-                <p className="text-muted-foreground">
-                  Reboot Motion, Uplift Labs, and cutting-edge motion capture systems that enable objective movement analysis at scale.
                 </p>
               </Card>
             </div>
