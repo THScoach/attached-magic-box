@@ -17,30 +17,32 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 47 96% 53%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 0 100% 43%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 15%;
+    --secondary: 0 0% 7%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 71%;
 
-    --accent: 47 96% 53%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 0 100% 43%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 47 96% 53%;
+    --ring: 0 100% 43%;
 
     --radius: 0.5rem;
 
     /* HITS Brand Colors */
-    --graphite: 0 0% 10%;
-    --electric-yellow: 47 100% 60%;
+    --power-red: 0 100% 43%;
+    --pitch-black: 0 0% 7%;
+    --silver-tech: 0 0% 71%;
+    --chrome-light: 0 0% 85%;
     
     /* H.I.T.S. Score Pillar Colors */
     --anchor: 199 100% 14%;
@@ -58,19 +60,19 @@ All colors MUST be HSL.
     --score-needs-work: 0 84.2% 60.2%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(47 100% 60%), hsl(47 100% 70%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 0%), hsl(0 0% 10%));
-    --gradient-section: linear-gradient(180deg, hsl(0 0% 10%), hsl(0 0% 0%));
+    --gradient-primary: linear-gradient(135deg, hsl(0 100% 43%), hsl(0 100% 50%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 7%), hsl(0 0% 0%));
+    --gradient-section: linear-gradient(180deg, hsl(0 0% 7%), hsl(0 0% 0%));
     --gradient-anchor: linear-gradient(135deg, hsl(199 100% 14%), hsl(199 100% 20%));
     --gradient-engine: linear-gradient(135deg, hsl(0 78% 27%), hsl(0 78% 35%));
     --gradient-whip: linear-gradient(135deg, hsl(21 86% 43%), hsl(21 86% 53%));
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(240 5.9% 10% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(240 5.9% 10% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(240 5.9% 10% / 0.1);
-    --shadow-chrome: 0 4px 20px hsl(0 0% 75% / 0.2);
-    --shadow-glow-primary: 0 0 30px hsl(47 96% 53% / 0.4);
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.15);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.2);
+    --shadow-chrome: 0 4px 20px hsl(0 0% 71% / 0.2);
+    --shadow-glow-primary: 0 0 30px hsl(0 100% 43% / 0.5);
     --shadow-glow-anchor: 0 0 20px hsl(199 89% 48% / 0.3);
     --shadow-glow-engine: 0 0 20px hsl(0 84% 60% / 0.4);
     --shadow-glow-whip: 0 0 20px hsl(10 79% 54% / 0.3);
@@ -86,24 +88,24 @@ All colors MUST be HSL.
     --popover: 240 4% 9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 47 96% 53%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 0 100% 43%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 4% 15%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 71%;
 
-    --accent: 47 96% 53%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 0 100% 43%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 240 4% 15%;
     --input: 240 4% 15%;
-    --ring: 47 96% 53%;
+    --ring: 0 100% 43%;
 
     /* Dark mode pillar colors */
     --anchor: 199 100% 14%;

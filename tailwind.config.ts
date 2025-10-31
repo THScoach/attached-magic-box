@@ -59,6 +59,10 @@ export default {
           DEFAULT: "hsl(var(--whip))",
           foreground: "hsl(var(--whip-foreground))",
         },
+        "power-red": "hsl(var(--power-red))",
+        "pitch-black": "hsl(var(--pitch-black))",
+        "silver-tech": "hsl(var(--silver-tech))",
+        "chrome-light": "hsl(var(--chrome-light))",
       },
       borderRadius: {
         lg: "var(--radius)",
