@@ -13,6 +13,7 @@ import zenolinkLogo from "@/assets/logos/zenolink.png";
 import blastMotionLogo from "@/assets/logos/blast-motion.png";
 import diamondKineticsLogo from "@/assets/logos/diamond-kinetics.jpeg";
 import rapsodoLogo from "@/assets/logos/rapsodo.png";
+import hittraxLogo from "@/assets/logos/hittrax.png";
 
 export default function About() {
   return (
@@ -233,25 +234,31 @@ export default function About() {
                   <img 
                     src={blastMotionLogo} 
                     alt="Blast Motion" 
-                    className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                    className="h-8 w-auto object-contain invert brightness-90 group-hover:brightness-100 transition-all"
                   />
                 </div>
                 <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
                   <img 
                     src={diamondKineticsLogo} 
                     alt="Diamond Kinetics" 
-                    className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                    className="h-8 w-auto object-contain invert brightness-90 group-hover:brightness-100 transition-all"
                   />
                 </div>
                 <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
                   <img 
                     src={rapsodoLogo} 
                     alt="Rapsodo" 
+                    className="h-10 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
+                  />
+                </div>
+                <div className="group relative flex items-center justify-center rounded-lg border border-border bg-card/30 p-6 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/50">
+                  <img 
+                    src={hittraxLogo} 
+                    alt="HitTrax" 
                     className="h-8 w-auto object-contain brightness-90 group-hover:brightness-100 transition-all"
                   />
                 </div>
                 {[
-                  "HitTrax",
                   "Uplift Labs",
                   "Sports Science Lab"
                 ].map((tech) => (
