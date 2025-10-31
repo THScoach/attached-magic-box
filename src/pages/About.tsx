@@ -5,6 +5,7 @@ import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import heroImage from "@/assets/coach-rick-hero.jpeg";
+import chrisWelchImage from "@/assets/chris-welch.webp";
 
 export default function About() {
   return (
@@ -179,8 +180,12 @@ export default function About() {
               </Card>
 
               <Card className="p-8 space-y-4 bg-card/50 border-border hover:border-primary/50 transition-all">
-                <div className="aspect-video rounded-lg bg-muted/20 border border-border flex items-center justify-center">
-                  <p className="text-muted-foreground text-sm">Zenolink image/logo</p>
+                <div className="aspect-video rounded-lg overflow-hidden border border-border">
+                  <img 
+                    src={chrisWelchImage} 
+                    alt="Chris Welch of Zenolink" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <h3 className="text-2xl font-bold">Chris Welch — Zenolink</h3>
                 <p className="text-muted-foreground">
