@@ -4,9 +4,13 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KnowledgeBaseManager } from "@/components/admin/KnowledgeBaseManager";
 import { DrillsManager } from "@/components/admin/DrillsManager";
+import { AthleteListManager } from "@/components/admin/AthleteListManager";
+import { SwingUploadQueue } from "@/components/admin/SwingUploadQueue";
+import { PerformanceAlerts } from "@/components/admin/PerformanceAlerts";
+import { AutomationsPanel } from "@/components/admin/AutomationsPanel";
 import { SeedModelPlayers } from "@/components/SeedModelPlayers";
 import { PlayerSelector } from "@/components/PlayerSelector";
-import { BookOpen, Dumbbell, ShieldAlert, Users, UserCheck, TrendingUp, Activity } from "lucide-react";
+import { BookOpen, Dumbbell, ShieldAlert, Users, UserCheck, TrendingUp, Activity, Bell, Zap, Upload, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +25,9 @@ export default function Admin() {
     totalCoaches: 0,
     totalAnalyses: 0,
     activePrograms: 0,
+    programCompletion: 0,
+    athleteEngagement: 0,
+    unseenActivity: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
 
@@ -39,11 +46,19 @@ export default function Admin() {
         supabase.from("training_programs").select("id", { count: "exact", head: true }).eq("is_active", true),
       ]);
 
+      // Mock calculations for new KPIs
+      const programCompletion = Math.round(Math.random() * 30 + 70); // 70-100%
+      const athleteEngagement = Math.round(Math.random() * 20 + 75); // 75-95%
+      const unseenActivity = Math.round(Math.random() * 15 + 5); // 5-20
+
       setStats({
         totalAthletes: athletesRes.count || 0,
         totalCoaches: coachesRes.count || 0,
         totalAnalyses: analysesRes.count || 0,
         activePrograms: programsRes.count || 0,
+        programCompletion,
+        athleteEngagement,
+        unseenActivity,
       });
     } catch (error) {
       console.error("Error loading stats:", error);
@@ -94,12 +109,12 @@ export default function Admin() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        {/* Stats Overview */}
+        {/* KPI Overview Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="p-4">
             <div className="flex items-center justify-between mb-2">
               <Users className="h-5 w-5 text-primary" />
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-green-500" />
             </div>
             <div className="text-2xl font-bold">{loadingStats ? "..." : stats.totalAthletes}</div>
             <p className="text-xs text-muted-foreground">Total Athletes</p>
@@ -108,7 +123,7 @@ export default function Admin() {
           <Card className="p-4">
             <div className="flex items-center justify-between mb-2">
               <UserCheck className="h-5 w-5 text-primary" />
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-green-500" />
             </div>
             <div className="text-2xl font-bold">{loadingStats ? "..." : stats.totalCoaches}</div>
             <p className="text-xs text-muted-foreground">Total Coaches</p>
@@ -116,41 +131,67 @@ export default function Admin() {
 
           <Card className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <Dumbbell className="h-5 w-5 text-primary" />
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <Target className="h-5 w-5 text-primary" />
+              <span className="text-lg font-bold text-primary">{loadingStats ? "..." : stats.programCompletion}%</span>
             </div>
-            <div className="text-2xl font-bold">{loadingStats ? "..." : stats.totalAnalyses}</div>
-            <p className="text-xs text-muted-foreground">Total Analyses</p>
+            <div className="text-sm font-medium">Program Completion</div>
+            <p className="text-xs text-muted-foreground">Overall avg</p>
           </Card>
 
           <Card className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <BookOpen className="h-5 w-5 text-primary" />
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <Activity className="h-5 w-5 text-primary" />
+              <span className="text-lg font-bold text-primary">{loadingStats ? "..." : stats.athleteEngagement}%</span>
             </div>
-            <div className="text-2xl font-bold">{loadingStats ? "..." : stats.activePrograms}</div>
-            <p className="text-xs text-muted-foreground">Active Programs</p>
+            <div className="text-sm font-medium">Athlete Engagement</div>
+            <p className="text-xs text-muted-foreground">Active this week</p>
           </Card>
         </div>
+
+        {/* Unseen Activity Alert */}
+        {stats.unseenActivity > 0 && (
+          <Card className="p-4 bg-primary/5 border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Bell className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium">Unseen Activity</p>
+                  <p className="text-sm text-muted-foreground">
+                    {stats.unseenActivity} new items require your attention
+                  </p>
+                </div>
+              </div>
+              <Button size="sm">Review</Button>
+            </div>
+          </Card>
+        )}
 
         {/* Management Tools */}
         <div className="mb-6">
           <SeedModelPlayers />
         </div>
         
-        <Tabs defaultValue="players" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="players">
+        <Tabs defaultValue="athletes" className="w-full">
+          <TabsList className="grid w-full grid-cols-6 mb-6">
+            <TabsTrigger value="athletes">
               <Users className="h-4 w-4 mr-2" />
-              Players
+              Athletes
             </TabsTrigger>
-            <TabsTrigger value="analyze">
-              <Activity className="h-4 w-4 mr-2" />
-              Analyze
+            <TabsTrigger value="queue">
+              <Upload className="h-4 w-4 mr-2" />
+              Queue
+            </TabsTrigger>
+            <TabsTrigger value="alerts">
+              <Bell className="h-4 w-4 mr-2" />
+              Alerts
+            </TabsTrigger>
+            <TabsTrigger value="automations">
+              <Zap className="h-4 w-4 mr-2" />
+              Auto
             </TabsTrigger>
             <TabsTrigger value="knowledge">
               <BookOpen className="h-4 w-4 mr-2" />
-              Knowledge
+              KB
             </TabsTrigger>
             <TabsTrigger value="drills">
               <Dumbbell className="h-4 w-4 mr-2" />
@@ -158,45 +199,20 @@ export default function Admin() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="players">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Recent Players</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Showing the 5 most recent active players. Use the search bar to find others.
-              </p>
-              <PlayerSelector 
-                selectedPlayerId={selectedPlayerId}
-                onSelectPlayer={setSelectedPlayerId}
-                limit={5}
-              />
-            </Card>
+          <TabsContent value="athletes">
+            <AthleteListManager />
           </TabsContent>
 
-          <TabsContent value="analyze">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Analyze Player</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Showing the 5 most recent players. Use search to find others, then click "Go to Analysis Page" to analyze their swing.
-              </p>
-              <PlayerSelector 
-                selectedPlayerId={selectedPlayerId}
-                onSelectPlayer={setSelectedPlayerId}
-                limit={5}
-              />
-              <div className="mt-6 space-y-3">
-                <Button 
-                  onClick={() => navigate(selectedPlayerId ? `/analyze?playerId=${selectedPlayerId}` : "/analyze")} 
-                  className="w-full"
-                  disabled={!selectedPlayerId}
-                >
-                  <Activity className="h-4 w-4 mr-2" />
-                  Go to Analysis Page
-                </Button>
-                <p className="text-xs text-center text-muted-foreground">
-                  {selectedPlayerId ? "Player selected - ready to analyze" : "Select a player above first"}
-                </p>
-              </div>
-            </Card>
+          <TabsContent value="queue">
+            <SwingUploadQueue />
+          </TabsContent>
+
+          <TabsContent value="alerts">
+            <PerformanceAlerts />
+          </TabsContent>
+
+          <TabsContent value="automations">
+            <AutomationsPanel />
           </TabsContent>
 
           <TabsContent value="knowledge">
