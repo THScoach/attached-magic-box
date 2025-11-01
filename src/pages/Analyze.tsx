@@ -35,6 +35,15 @@ export default function Analyze() {
   const [recordedVideoFile, setRecordedVideoFile] = useState<File | null>(null);
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
   
+  // Load player ID from sessionStorage on mount
+  useEffect(() => {
+    const storedPlayerId = sessionStorage.getItem('selectedPlayerId');
+    if (storedPlayerId) {
+      console.log('Loading stored player ID:', storedPlayerId);
+      setSelectedPlayerId(storedPlayerId);
+    }
+  }, []);
+
   // Debug player selection
   useEffect(() => {
     console.log('Selected Player ID changed:', selectedPlayerId);
