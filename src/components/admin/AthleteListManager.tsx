@@ -242,7 +242,10 @@ export function AthleteListManager() {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => navigate(`/player/${athlete.id}`)}
+                  onClick={() => {
+                    console.log('[AthleteListManager] Navigating to player profile:', athlete.id);
+                    navigate(`/player/${athlete.id}`);
+                  }}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>

@@ -18,12 +18,15 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // Only navigate on actual sign out events, not on initial auth check
-      if (event === 'SIGNED_OUT') {
-        setIsAuthenticated(false);
+      console.log('[ProtectedRoute] Auth event:', event, 'Has session:', !!session);
+      
+      // Update authentication state for all events
+      setIsAuthenticated(!!session);
+      
+      // Only navigate to auth page on explicit sign out, not on token refresh or other events
+      if (event === 'SIGNED_OUT' && !session) {
+        console.log('[ProtectedRoute] User signed out, redirecting to /auth');
         navigate("/auth", { replace: true });
-      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        setIsAuthenticated(!!session);
       }
     });
 

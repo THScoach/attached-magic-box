@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { ExternalSessionDataView } from "@/components/ExternalSessionDataView";
 import { ExternalSessionUpload } from "@/components/ExternalSessionUpload";
 import { ArrowLeft, User, TrendingUp, Upload, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface Player {
   id: string;
@@ -28,17 +29,34 @@ interface Player {
 export default function PlayerProfile() {
   const { playerId } = useParams<{ playerId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAdmin } = useUserRole();
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
+    console.log('[PlayerProfile] Component mounted/updated for playerId:', playerId);
     loadPlayer();
   }, [playerId]);
 
-  const loadPlayer = async () => {
-    if (!playerId) return;
+  const handleBackClick = () => {
+    console.log('[PlayerProfile] Back button clicked, isAdmin:', isAdmin);
+    // If admin came from admin page, go back to admin
+    if (isAdmin) {
+      navigate('/admin');
+    } else {
+      navigate(-1);
+    }
+  };
 
+  const loadPlayer = async () => {
+    if (!playerId) {
+      console.log('[PlayerProfile] No playerId provided');
+      return;
+    }
+
+    console.log('[PlayerProfile] Loading player data for:', playerId);
     try {
       const { data, error } = await supabase
         .from('players')
@@ -47,9 +65,10 @@ export default function PlayerProfile() {
         .single();
 
       if (error) throw error;
+      console.log('[PlayerProfile] Player loaded successfully:', data?.first_name, data?.last_name);
       setPlayer(data);
     } catch (error) {
-      console.error('Error loading player:', error);
+      console.error('[PlayerProfile] Error loading player:', error);
     } finally {
       setLoading(false);
     }
@@ -86,7 +105,7 @@ export default function PlayerProfile() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate(-1)}
+          onClick={handleBackClick}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
