@@ -34,14 +34,14 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    checkOnboarding();
+    checkForOnboarding();
   }, []);
 
   useEffect(() => {
     loadDashboardData();
   }, [navigate]);
 
-  const checkOnboarding = async () => {
+  const checkForOnboarding = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
