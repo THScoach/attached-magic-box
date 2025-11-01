@@ -30,6 +30,11 @@ export default function Analyze() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  
+  // Debug player selection
+  useEffect(() => {
+    console.log('Selected Player ID changed:', selectedPlayerId);
+  }, [selectedPlayerId]);
   const [showSyncRecording, setShowSyncRecording] = useState(false);
   const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
@@ -740,6 +745,7 @@ export default function Analyze() {
                     className="w-full"
                     disabled={!selectedPlayerId}
                     onClick={() => {
+                      console.log('Upload button clicked. Selected player:', selectedPlayerId);
                       if (!selectedPlayerId) {
                         toast.error("Please select a player first");
                         return;
@@ -748,7 +754,7 @@ export default function Analyze() {
                     }}
                   >
                     <Upload className="h-5 w-5 mr-2" />
-                    Choose Video File
+                    Choose Video File {selectedPlayerId && '✓'}
                   </Button>
                   
                   <input
@@ -765,6 +771,7 @@ export default function Analyze() {
                     className="w-full"
                     disabled={!selectedPlayerId}
                     onClick={() => {
+                      console.log('Record button clicked. Selected player:', selectedPlayerId);
                       if (!selectedPlayerId) {
                         toast.error("Please select a player first");
                         return;
@@ -773,7 +780,7 @@ export default function Analyze() {
                     }}
                   >
                     <Camera className="h-5 w-5 mr-2" />
-                    Record Now (120fps)
+                    Record Now (120fps) {selectedPlayerId && '✓'}
                   </Button>
                 </div>
               </div>

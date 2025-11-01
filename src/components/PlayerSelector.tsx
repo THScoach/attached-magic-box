@@ -350,7 +350,10 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
                 }`}
               >
                 <button
-                  onClick={() => onSelectPlayer(player.id)}
+                  onClick={() => {
+                    console.log('Selecting player:', player.first_name, player.last_name, player.id);
+                    onSelectPlayer(player.id);
+                  }}
                   className="w-full flex items-center justify-between text-left"
                 >
                   <div>
