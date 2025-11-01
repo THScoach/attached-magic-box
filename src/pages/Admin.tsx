@@ -2,16 +2,10 @@ import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { KnowledgeBaseManager } from "@/components/admin/KnowledgeBaseManager";
-import { DrillsManager } from "@/components/admin/DrillsManager";
 import { AthleteListManager } from "@/components/admin/AthleteListManager";
-import { SwingUploadQueue } from "@/components/admin/SwingUploadQueue";
-import { PerformanceAlerts } from "@/components/admin/PerformanceAlerts";
-import { AutomationsPanel } from "@/components/admin/AutomationsPanel";
-import { ContentLibraryManager } from "@/components/admin/ContentLibraryManager";
-import { SeedModelPlayers } from "@/components/SeedModelPlayers";
-import { PlayerSelector } from "@/components/PlayerSelector";
-import { BookOpen, Dumbbell, ShieldAlert, Users, UserCheck, TrendingUp, Activity, Bell, Zap, Upload, Target, Library } from "lucide-react";
+import { TeamsManager } from "@/components/admin/TeamsManager";
+import { AnalyzePlayerModal } from "@/components/AnalyzePlayerModal";
+import { ShieldAlert, Users, UserCheck, TrendingUp, Activity, Target, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,8 +14,8 @@ import { useEffect, useState } from "react";
 export default function Admin() {
   const navigate = useNavigate();
   const { isAdmin, loading } = useUserRole();
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("athletes");
+  const [activeTab, setActiveTab] = useState("players");
+  const [analyzeModalOpen, setAnalyzeModalOpen] = useState(false);
   const [stats, setStats] = useState({
     totalAthletes: 0,
     totalCoaches: 0,
@@ -115,7 +109,7 @@ export default function Admin() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <Card 
             className="p-4 cursor-pointer hover:bg-accent transition-colors"
-            onClick={() => setActiveTab("athletes")}
+            onClick={() => setActiveTab("players")}
           >
             <div className="flex items-center justify-between mb-2">
               <Users className="h-5 w-5 text-primary" />
@@ -153,90 +147,44 @@ export default function Admin() {
           </Card>
         </div>
 
-        {/* Unseen Activity Alert */}
-        {stats.unseenActivity > 0 && (
-          <Card className="p-4 bg-primary/5 border-primary/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Bell className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-medium">Unseen Activity</p>
-                  <p className="text-sm text-muted-foreground">
-                    {stats.unseenActivity} new items require your attention
-                  </p>
-                </div>
-              </div>
-              <Button size="sm">Review</Button>
-            </div>
-          </Card>
-        )}
+        {/* Analyze Player Button */}
+        <Button 
+          size="lg" 
+          className="w-full"
+          onClick={() => setAnalyzeModalOpen(true)}
+        >
+          <Camera className="mr-2 h-5 w-5" />
+          Analyze Player
+        </Button>
 
-        {/* Management Tools */}
-        <div className="mb-6">
-          <SeedModelPlayers />
-        </div>
-        
+        {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-7 mb-6">
-            <TabsTrigger value="athletes">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="players">
               <Users className="h-4 w-4 mr-2" />
-              Athletes
+              Players
             </TabsTrigger>
-            <TabsTrigger value="queue">
-              <Upload className="h-4 w-4 mr-2" />
-              Queue
-            </TabsTrigger>
-            <TabsTrigger value="alerts">
-              <Bell className="h-4 w-4 mr-2" />
-              Alerts
-            </TabsTrigger>
-            <TabsTrigger value="automations">
-              <Zap className="h-4 w-4 mr-2" />
-              Auto
-            </TabsTrigger>
-            <TabsTrigger value="library">
-              <Library className="h-4 w-4 mr-2" />
-              Library
-            </TabsTrigger>
-            <TabsTrigger value="knowledge">
-              <BookOpen className="h-4 w-4 mr-2" />
-              KB
-            </TabsTrigger>
-            <TabsTrigger value="drills">
-              <Dumbbell className="h-4 w-4 mr-2" />
-              Drills
+            <TabsTrigger value="teams">
+              <UserCheck className="h-4 w-4 mr-2" />
+              Teams
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="athletes">
+          <TabsContent value="players">
             <AthleteListManager />
           </TabsContent>
 
-          <TabsContent value="queue">
-            <SwingUploadQueue />
-          </TabsContent>
-
-          <TabsContent value="alerts">
-            <PerformanceAlerts />
-          </TabsContent>
-
-          <TabsContent value="automations">
-            <AutomationsPanel />
-          </TabsContent>
-
-          <TabsContent value="library">
-            <ContentLibraryManager />
-          </TabsContent>
-
-          <TabsContent value="knowledge">
-            <KnowledgeBaseManager />
-          </TabsContent>
-
-          <TabsContent value="drills">
-            <DrillsManager />
+          <TabsContent value="teams">
+            <TeamsManager />
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Analyze Player Modal */}
+      <AnalyzePlayerModal 
+        open={analyzeModalOpen} 
+        onOpenChange={setAnalyzeModalOpen}
+      />
 
       <BottomNav />
     </div>
