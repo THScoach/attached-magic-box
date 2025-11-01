@@ -21,6 +21,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const { isAdmin, loading } = useUserRole();
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("athletes");
   const [stats, setStats] = useState({
     totalAthletes: 0,
     totalCoaches: 0,
@@ -112,7 +113,10 @@ export default function Admin() {
       <div className="px-6 py-6 space-y-6">
         {/* KPI Overview Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-4">
+          <Card 
+            className="p-4 cursor-pointer hover:bg-accent transition-colors"
+            onClick={() => setActiveTab("athletes")}
+          >
             <div className="flex items-center justify-between mb-2">
               <Users className="h-5 w-5 text-primary" />
               <TrendingUp className="h-4 w-4 text-green-500" />
@@ -172,7 +176,7 @@ export default function Admin() {
           <SeedModelPlayers />
         </div>
         
-        <Tabs defaultValue="athletes" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-7 mb-6">
             <TabsTrigger value="athletes">
               <Users className="h-4 w-4 mr-2" />
