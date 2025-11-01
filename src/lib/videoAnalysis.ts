@@ -19,11 +19,13 @@ export async function extractVideoFrames(
 ): Promise<string[]> {
   return new Promise((resolve, reject) => {
     const video = document.createElement('video');
-    video.preload = 'metadata';
+    video.preload = 'auto';
     video.muted = true;
+    video.playsInline = true;
+    video.crossOrigin = 'anonymous';
     
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     
     if (!ctx) {
       reject(new Error('Could not get canvas context'));
@@ -32,8 +34,37 @@ export async function extractVideoFrames(
 
     const frames: string[] = [];
     let currentFrame = 0;
+    let loadTimeout: number;
+    
+    // Set a timeout for loading
+    loadTimeout = window.setTimeout(() => {
+      URL.revokeObjectURL(video.src);
+      video.remove();
+      canvas.remove();
+      reject(new Error('Video loading timeout - file may be corrupted or incompatible'));
+    }, 10000);
+    
+    const cleanup = () => {
+      clearTimeout(loadTimeout);
+      URL.revokeObjectURL(video.src);
+      video.remove();
+      canvas.remove();
+    };
     
     video.onloadedmetadata = () => {
+      console.log('Video metadata loaded:', {
+        duration: video.duration,
+        width: video.videoWidth,
+        height: video.videoHeight
+      });
+      
+      // Check if video has valid dimensions
+      if (!video.videoWidth || !video.videoHeight || !video.duration || video.duration === Infinity) {
+        cleanup();
+        reject(new Error('Invalid video metadata - file may be corrupted'));
+        return;
+      }
+      
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
@@ -42,8 +73,7 @@ export async function extractVideoFrames(
       
       const captureFrame = () => {
         if (currentFrame >= numFrames) {
-          video.remove();
-          canvas.remove();
+          cleanup();
           resolve(frames);
           return;
         }
@@ -53,20 +83,38 @@ export async function extractVideoFrames(
       };
       
       video.onseeked = () => {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        frames.push(canvas.toDataURL('image/jpeg', 0.8));
-        currentFrame++;
-        captureFrame();
+        try {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          frames.push(canvas.toDataURL('image/jpeg', 0.85));
+          currentFrame++;
+          captureFrame();
+        } catch (err) {
+          console.error('Error capturing frame:', err);
+          cleanup();
+          reject(new Error('Error capturing video frame'));
+        }
       };
       
+      // Start capturing frames
       captureFrame();
     };
     
-    video.onerror = () => {
-      reject(new Error('Error loading video'));
+    video.onerror = (e) => {
+      console.error('Video element error:', e);
+      cleanup();
+      reject(new Error('Error loading video - format may not be supported by your browser'));
     };
     
-    video.src = URL.createObjectURL(videoFile);
+    // Create blob URL and load video
+    try {
+      const blobUrl = URL.createObjectURL(videoFile);
+      console.log('Loading video from blob URL, file size:', videoFile.size, 'type:', videoFile.type);
+      video.src = blobUrl;
+      video.load();
+    } catch (err) {
+      cleanup();
+      reject(new Error('Failed to create video URL'));
+    }
   });
 }
 
