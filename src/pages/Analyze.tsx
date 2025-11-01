@@ -188,13 +188,13 @@ export default function Analyze() {
   };
 
   const processVideoFile = async (file: File, camera?: 1 | 2) => {
-    // Check swing limit for free tier users (but not for coaches/admins)
-    if (!isCoach && !isAdmin && membership?.tier === 'free' && (membership.swingCount || 0) >= 2) {
-      toast.error("Swing limit reached", {
-        description: "Upgrade to unlock unlimited swing analyses",
+    // Check swing limit for free tier users (10 free swings) - but not for coaches/admins
+    if (!isCoach && !isAdmin && membership?.tier === 'free' && (membership.swingCount || 0) >= 10) {
+      toast.error("Free swing limit reached", {
+        description: "You've used all 10 free analyses. Upgrade for unlimited access!",
         action: {
           label: "Upgrade",
-          onClick: () => window.open("https://whop.com/your-product", "_blank")
+          onClick: () => navigate('/profile')
         }
       });
       return;

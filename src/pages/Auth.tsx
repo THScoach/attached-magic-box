@@ -87,8 +87,10 @@ export default function Auth() {
           toast.error(error.message || "An error occurred");
           return;
         }
-        toast.success("Account created! You can now sign in.");
-        setIsSignUp(false);
+        
+        toast.success("Account created! Completing your profile...");
+        // Redirect to free onboarding to collect additional info
+        navigate('/free-onboarding');
         setLoading(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
