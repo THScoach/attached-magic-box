@@ -30,13 +30,16 @@ export default function Analyze() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [showSyncRecording, setShowSyncRecording] = useState(false);
+  const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
+  const [recordedVideoFile, setRecordedVideoFile] = useState<File | null>(null);
+  const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
   
   // Debug player selection
   useEffect(() => {
     console.log('Selected Player ID changed:', selectedPlayerId);
   }, [selectedPlayerId]);
-  const [showSyncRecording, setShowSyncRecording] = useState(false);
-  const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
+  
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<CameraRecorder>(new CameraRecorder());
 
@@ -174,25 +177,59 @@ export default function Analyze() {
   };
 
   const handleStopRecording = async () => {
-    setIsRecording(false);
+    console.log('Stopping recording...');
     const result = await recorderRef.current.stopRecording();
     
-    if (result.success && result.blob) {
-      recorderRef.current.stopPreview();
-      setShowCamera(false);
-      
-      // Convert blob to file and process
-      const file = new File([result.blob], `swing-${Date.now()}.webm`, { type: 'video/webm' });
-      await processVideoFile(file);
-    } else {
+    if (!result.success || !result.blob) {
       toast.error("Failed to save recording");
+      setIsRecording(false);
+      return;
     }
+
+    // Convert blob to file
+    const videoFile = new File([result.blob], `recording-${Date.now()}.webm`, {
+      type: 'video/webm'
+    });
+
+    // Create URL for preview
+    const videoUrl = URL.createObjectURL(result.blob);
+
+    toast.success("Recording saved! Review it below.");
+    setShowCamera(false);
+    setCameraRequested(false);
+    setRecordedVideoFile(videoFile);
+    setRecordedVideoUrl(videoUrl);
+    setIsRecording(false);
   };
 
   const handleCancelCamera = () => {
     recorderRef.current.stopPreview();
     setShowCamera(false);
+    setCameraRequested(false);
     setIsRecording(false);
+  };
+
+  const handleDiscardRecording = () => {
+    if (recordedVideoUrl) {
+      URL.revokeObjectURL(recordedVideoUrl);
+    }
+    setRecordedVideoFile(null);
+    setRecordedVideoUrl(null);
+    toast.info("Recording discarded");
+  };
+
+  const handleAnalyzeRecording = async () => {
+    if (!recordedVideoFile) {
+      toast.error("No recording to analyze");
+      return;
+    }
+    await processVideoFile(recordedVideoFile);
+    // Clean up
+    if (recordedVideoUrl) {
+      URL.revokeObjectURL(recordedVideoUrl);
+    }
+    setRecordedVideoFile(null);
+    setRecordedVideoUrl(null);
   };
 
   const processVideoFile = async (file: File, camera?: 1 | 2) => {
@@ -505,7 +542,7 @@ export default function Analyze() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        {!isAnalyzing && !showCamera ? (
+        {!isAnalyzing && !showCamera && !recordedVideoFile ? (
           <>
             {/* Current Session Stats */}
             {sessionStats && sessionStats.total > 0 && (
@@ -801,6 +838,68 @@ export default function Analyze() {
             </>
             )}
           </>
+        ) : recordedVideoFile && recordedVideoUrl ? (
+          /* Recorded Video Review UI */
+          <Card className="overflow-hidden">
+            <div className="bg-black">
+              <video
+                src={recordedVideoUrl}
+                className="w-full aspect-video object-contain"
+                controls
+                playsInline
+                loop
+              />
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="text-center">
+                <h3 className="font-bold text-lg mb-2">Review Your Recording</h3>
+                <p className="text-sm text-muted-foreground">
+                  Play the video above to review your swing. When ready, click "Analyze This Video" below.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={handleDiscardRecording}
+                  className="w-full"
+                >
+                  <X className="h-5 w-5 mr-2" />
+                  Discard & Re-record
+                </Button>
+                
+                <Button
+                  size="lg"
+                  onClick={handleAnalyzeRecording}
+                  disabled={!selectedPlayerId}
+                  className="w-full"
+                >
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  Analyze This Video
+                </Button>
+              </div>
+
+              {!selectedPlayerId && (
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500 text-center">
+                    ⚠️ Please select a player above before analyzing
+                  </p>
+                </div>
+              )}
+
+              <div className="text-xs text-muted-foreground space-y-1 p-3 bg-muted/50 rounded-lg">
+                <p className="font-semibold">💡 Review Checklist:</p>
+                <ul className="space-y-1 pl-4">
+                  <li>✓ Full body visible throughout swing</li>
+                  <li>✓ Camera angle captures side view clearly</li>
+                  <li>✓ Lighting is adequate</li>
+                  <li>✓ Swing motion is smooth and complete</li>
+                </ul>
+              </div>
+            </div>
+          </Card>
         ) : showCamera ? (
           <Card className="overflow-hidden">
             <div className="relative bg-black">
