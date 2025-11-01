@@ -143,7 +143,10 @@ export default function PlayerProfile() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 mt-4">
-          <Button onClick={() => navigate('/analyze')} className="w-full">
+          <Button onClick={() => {
+            sessionStorage.setItem('selectedPlayerId', playerId!);
+            navigate('/analyze');
+          }} className="w-full">
             <Video className="mr-2 h-4 w-4" />
             Record Swing
           </Button>
