@@ -17,10 +17,13 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
     checkAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-      if (requireAuth && !session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Only navigate on actual sign out events, not on initial auth check
+      if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
         navigate("/auth", { replace: true });
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setIsAuthenticated(!!session);
       }
     });
 
