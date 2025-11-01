@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, UserCheck, AlertCircle, Clock, TrendingUp, Upload, Eye, UserCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
 
 interface Athlete {
   id: string;
@@ -16,15 +19,8 @@ interface Athlete {
   anchorScore: number;
   engineScore: number;
   whipScore: number;
+  userId: string;
 }
-
-const mockAthletes: Athlete[] = [
-  { id: "1", name: "Mike Torres", status: "active", lastActivity: "2 hours ago", sequenceScore: 85, anchorScore: 82, engineScore: 78, whipScore: 88 },
-  { id: "2", name: "Sarah Johnson", status: "active", lastActivity: "5 hours ago", sequenceScore: 78, anchorScore: 75, engineScore: 80, whipScore: 79 },
-  { id: "3", name: "Jake Williams", status: "needs_attention", lastActivity: "8 days ago", sequenceScore: 45, anchorScore: 48, engineScore: 42, whipScore: 46 },
-  { id: "4", name: "Emily Chen", status: "trial", lastActivity: "1 day ago", sequenceScore: 92, anchorScore: 90, engineScore: 93, whipScore: 92 },
-  { id: "5", name: "Marcus Brown", status: "active", lastActivity: "1 day ago", sequenceScore: 88, anchorScore: 85, engineScore: 90, whipScore: 89 }
-];
 
 const getStatusBadge = (status: Athlete["status"]) => {
   switch (status) {
@@ -38,10 +34,122 @@ const getStatusBadge = (status: Athlete["status"]) => {
 };
 
 export function AthleteListManager() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<"all" | Athlete["status"]>("all");
+  const [athletes, setAthletes] = useState<Athlete[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredAthletes = mockAthletes.filter(athlete => {
+  useEffect(() => {
+    loadAthletes();
+  }, []);
+
+  const loadAthletes = async () => {
+    try {
+      setLoading(true);
+      
+      // Get all players with their profiles
+      const { data: players, error: playersError } = await supabase
+        .from("players")
+        .select(`
+          id,
+          user_id,
+          first_name,
+          last_name,
+          is_active
+        `)
+        .eq("is_active", true);
+
+      if (playersError) throw playersError;
+
+      // Get user memberships to determine status
+      const { data: memberships, error: membershipsError } = await supabase
+        .from("user_memberships")
+        .select("user_id, tier, status");
+
+      if (membershipsError) throw membershipsError;
+
+      // Get latest activity
+      const { data: activities, error: activitiesError } = await supabase
+        .from("user_activity_tracking")
+        .select("user_id, last_swing_upload, last_task_completion");
+
+      if (activitiesError) throw activitiesError;
+
+      // Get latest analyses with scores
+      const { data: analyses, error: analysesError } = await supabase
+        .from("swing_analyses")
+        .select("user_id, anchor_score, engine_score, whip_score, overall_score, created_at")
+        .order("created_at", { ascending: false });
+
+      if (analysesError) throw analysesError;
+
+      // Process and combine data
+      const athletesData: Athlete[] = players?.map(player => {
+        const membership = memberships?.find(m => m.user_id === player.user_id);
+        const activity = activities?.find(a => a.user_id === player.user_id);
+        const userAnalyses = analyses?.filter(a => a.user_id === player.user_id) || [];
+        const latestAnalysis = userAnalyses[0];
+
+        // Calculate average scores from recent analyses
+        const recentAnalyses = userAnalyses.slice(0, 5);
+        const avgAnchor = recentAnalyses.length > 0 
+          ? Math.round(recentAnalyses.reduce((sum, a) => sum + Number(a.anchor_score), 0) / recentAnalyses.length)
+          : 0;
+        const avgEngine = recentAnalyses.length > 0 
+          ? Math.round(recentAnalyses.reduce((sum, a) => sum + Number(a.engine_score), 0) / recentAnalyses.length)
+          : 0;
+        const avgWhip = recentAnalyses.length > 0 
+          ? Math.round(recentAnalyses.reduce((sum, a) => sum + Number(a.whip_score), 0) / recentAnalyses.length)
+          : 0;
+        const avgSequence = recentAnalyses.length > 0 
+          ? Math.round(recentAnalyses.reduce((sum, a) => sum + Number(a.overall_score), 0) / recentAnalyses.length)
+          : 0;
+
+        // Determine status
+        let status: Athlete["status"] = "active";
+        if (membership?.tier === "free") {
+          status = "trial";
+        } else {
+          // Check if needs attention (no activity in 7+ days)
+          const lastActivity = activity?.last_swing_upload || activity?.last_task_completion;
+          if (lastActivity) {
+            const daysSinceActivity = Math.floor((Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24));
+            if (daysSinceActivity > 7) {
+              status = "needs_attention";
+            }
+          }
+        }
+
+        // Format last activity
+        let lastActivityStr = "No activity";
+        const lastActivity = activity?.last_swing_upload || activity?.last_task_completion;
+        if (lastActivity) {
+          lastActivityStr = formatDistanceToNow(new Date(lastActivity), { addSuffix: true });
+        }
+
+        return {
+          id: player.id,
+          userId: player.user_id,
+          name: `${player.first_name} ${player.last_name}`,
+          status,
+          lastActivity: lastActivityStr,
+          sequenceScore: avgSequence,
+          anchorScore: avgAnchor,
+          engineScore: avgEngine,
+          whipScore: avgWhip,
+        };
+      }) || [];
+
+      setAthletes(athletesData);
+    } catch (error) {
+      console.error("Error loading athletes:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredAthletes = athletes.filter(athlete => {
     const matchesSearch = athlete.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = selectedFilter === "all" || athlete.status === selectedFilter;
     return matchesSearch && matchesFilter;
@@ -78,7 +186,12 @@ export function AthleteListManager() {
         </div>
 
         <div className="space-y-2">
-          {filteredAthletes.map((athlete) => (
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading athletes...</div>
+          ) : filteredAthletes.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">No athletes found</div>
+          ) : (
+            filteredAthletes.map((athlete) => (
             <div
               key={athlete.id}
               className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent transition-colors"
@@ -115,16 +228,28 @@ export function AthleteListManager() {
                   <p className="text-sm font-medium">Last Activity</p>
                   <p className="text-xs text-muted-foreground">{athlete.lastActivity}</p>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    sessionStorage.setItem('selectedPlayerId', athlete.id);
+                    navigate('/analyze');
+                  }}
+                >
                   <Upload className="h-4 w-4 mr-2" />
                   Analyze
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate(`/player/${athlete.id}`)}
+                >
                   <Eye className="h-4 w-4" />
                 </Button>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
       </div>
     </Card>
