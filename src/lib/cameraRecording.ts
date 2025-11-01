@@ -14,6 +14,8 @@ export class CameraRecorder {
   private chunks: Blob[] = [];
   private videoElement: HTMLVideoElement | null = null;
   private currentFacingMode: 'user' | 'environment' = 'environment';
+  private recordingTimeout: number | null = null;
+  private autoStopCallback: (() => void) | null = null;
 
   async startPreview(
     videoElement: HTMLVideoElement,
@@ -88,13 +90,14 @@ export class CameraRecorder {
     }
   }
 
-  async startRecording(): Promise<{ success: boolean; error?: string }> {
+  async startRecording(autoStopCallback?: () => void): Promise<{ success: boolean; error?: string }> {
     if (!this.stream) {
       return { success: false, error: 'No camera stream available' };
     }
 
     try {
       this.chunks = [];
+      this.autoStopCallback = autoStopCallback || null;
       
       // Use the highest quality codec available
       const options: MediaRecorderOptions = {
@@ -111,7 +114,15 @@ export class CameraRecorder {
       };
 
       this.mediaRecorder.start(100); // Capture data every 100ms
-      console.log('Recording started');
+      console.log('Recording started - will auto-stop at 6 seconds');
+
+      // Auto-stop recording after 6 seconds
+      this.recordingTimeout = window.setTimeout(() => {
+        console.log('6 seconds reached - auto-stopping');
+        if (this.autoStopCallback) {
+          this.autoStopCallback();
+        }
+      }, 6000);
 
       return { success: true };
     } catch (error) {
@@ -128,6 +139,12 @@ export class CameraRecorder {
       if (!this.mediaRecorder) {
         resolve({ success: false, error: 'No active recording' });
         return;
+      }
+
+      // Clear the auto-stop timeout
+      if (this.recordingTimeout) {
+        clearTimeout(this.recordingTimeout);
+        this.recordingTimeout = null;
       }
 
       this.mediaRecorder.onstop = () => {

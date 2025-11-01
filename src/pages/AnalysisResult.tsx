@@ -104,6 +104,8 @@ export default function AnalysisResult() {
   const loadAnalysisFromSession = () => {
     const stored = sessionStorage.getItem('latestAnalysis');
     const analysisType = sessionStorage.getItem('latestAnalysisType') || 'analysis';
+    const storedPlayerId = sessionStorage.getItem('selectedPlayerId');
+    
     if (stored) {
       const analysisData = JSON.parse(stored);
       console.log('Analysis data:', analysisData);
@@ -120,7 +122,12 @@ export default function AnalysisResult() {
       loadSessionData();
     } else {
       toast.error('No analysis data found');
-      navigate('/analyze');
+      // Navigate back to player profile if we have a player ID, otherwise to analyze
+      if (storedPlayerId) {
+        navigate(`/player/${storedPlayerId}`);
+      } else {
+        navigate('/analyze');
+      }
     }
   };
 
@@ -284,6 +291,12 @@ export default function AnalysisResult() {
     if (!videoRef.current) return;
     setDuration(videoRef.current.duration);
     console.log('Video loaded successfully');
+    
+    // Autoplay the video
+    videoRef.current.play().catch(err => {
+      console.log('Autoplay prevented:', err);
+      // Autoplay might be blocked by browser policy, that's okay
+    });
   };
 
   const formatTime = (seconds: number) => {

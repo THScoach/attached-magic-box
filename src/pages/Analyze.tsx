@@ -153,11 +153,14 @@ export default function Analyze() {
   };
 
   const handleStartRecording = async () => {
-    const result = await recorderRef.current.startRecording();
+    const result = await recorderRef.current.startRecording(() => {
+      // Auto-stop callback after 6 seconds
+      handleStopRecording();
+    });
     
     if (result.success) {
       setIsRecording(true);
-      toast.success("Recording started");
+      toast.success("Recording started (6 sec max)");
     } else {
       toast.error("Recording Error", {
         description: result.error || "Failed to start recording"
@@ -338,6 +341,7 @@ export default function Analyze() {
       sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
       sessionStorage.setItem('currentSessionId', currentSessionId || '');
       sessionStorage.setItem('latestAnalysisType', videoType);
+      sessionStorage.setItem('selectedPlayerId', selectedPlayerId);
       
       // Update session stats
       if (sessionStats) {
@@ -461,6 +465,7 @@ export default function Analyze() {
       sessionStorage.setItem('latestAnalysis', JSON.stringify(analysis));
       sessionStorage.setItem('currentSessionId', currentSessionId || '');
       sessionStorage.setItem('latestAnalysisType', videoType);
+      sessionStorage.setItem('selectedPlayerId', selectedPlayerId);
       
       // Update session stats
       if (sessionStats) {
