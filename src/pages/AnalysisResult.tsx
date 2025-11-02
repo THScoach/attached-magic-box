@@ -16,7 +16,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
 import { toast } from "sonner";
-import { drawSkeletonOnCanvas, PoseData } from "@/lib/videoAnalysis";
 import { supabase } from "@/integrations/supabase/client";
 import { useCoachRickAccess } from "@/hooks/useCoachRickAccess";
 import { cn } from "@/lib/utils";
@@ -31,10 +30,9 @@ export default function AnalysisResult() {
   const [showDrillFeedback, setShowDrillFeedback] = useState(false);
   const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showSkeleton, setShowSkeleton] = useState(false);
   const [showTiming, setShowTiming] = useState(false);
   const [showCOMPath, setShowCOMPath] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState(1);
+  const [playbackRate, setPlaybackRate] = useState(0.5); // Start at half speed for better frame visibility
   const [sessionSwings, setSessionSwings] = useState<any[]>([]);
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -42,7 +40,6 @@ export default function AnalysisResult() {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isBuffering, setIsBuffering] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameCallbackIdRef = useRef<number | null>(null);
   const velocityData = generateVelocityData();
   const FPS = 30; // Frames per second
@@ -238,47 +235,95 @@ export default function AnalysisResult() {
     }
   };
 
-  const toggleSkeleton = () => {
-    setShowSkeleton(!showSkeleton);
-    setShowTiming(false);
-    setShowCOMPath(false);
-    if (!showSkeleton && analysis?.poseData) {
-      toast.success("Skeleton overlay enabled");
-    } else if (showSkeleton) {
-      toast.info("Skeleton overlay disabled");
-    } else {
-      toast.info("No pose data available for this analysis");
-    }
-  };
-
   const toggleTiming = () => {
     setShowTiming(!showTiming);
-    setShowSkeleton(false);
     setShowCOMPath(false);
   };
 
   const toggleCOMPath = () => {
     setShowCOMPath(!showCOMPath);
-    setShowSkeleton(false);
     setShowTiming(false);
   };
 
-  const stepForward = () => {
-    if (!videoRef.current) return;
-    const frameTime = 1 / FPS;
-    videoRef.current.currentTime = Math.min(
-      videoRef.current.currentTime + frameTime,
-      videoRef.current.duration
-    );
+  // Get the actual media time from video (frame-accurate)
+  const getMediaTime = (): Promise<number> => {
+    return new Promise((resolve) => {
+      if (!videoRef.current) {
+        resolve(0);
+        return;
+      }
+      
+      const video = videoRef.current;
+      if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
+        video.requestVideoFrameCallback((now, metadata) => {
+          resolve(metadata.mediaTime);
+        });
+      } else {
+        resolve(video.currentTime);
+      }
+    });
   };
 
-  const stepBackward = () => {
+  // Frame-accurate step forward
+  const stepForward = async () => {
     if (!videoRef.current) return;
-    const frameTime = 1 / FPS;
-    videoRef.current.currentTime = Math.max(
-      videoRef.current.currentTime - frameTime,
-      0
-    );
+    const video = videoRef.current;
+    
+    // Pause if playing
+    const wasPlaying = !video.paused;
+    if (wasPlaying) video.pause();
+    
+    // Get current frame time
+    const firstMediaTime = await getMediaTime();
+    
+    // Advance until we hit the next frame
+    let attempts = 0;
+    const maxAttempts = 100;
+    while (attempts < maxAttempts) {
+      video.currentTime += 0.001; // Small increment
+      const newMediaTime = await getMediaTime();
+      if (newMediaTime > firstMediaTime) {
+        console.log(`Stepped forward from frame at ${firstMediaTime.toFixed(4)}s to ${newMediaTime.toFixed(4)}s`);
+        break;
+      }
+      attempts++;
+    }
+    
+    if (attempts >= maxAttempts) {
+      console.warn('Could not find next frame, using fallback');
+      video.currentTime += 1 / FPS;
+    }
+  };
+
+  // Frame-accurate step backward
+  const stepBackward = async () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    
+    // Pause if playing
+    const wasPlaying = !video.paused;
+    if (wasPlaying) video.pause();
+    
+    // Get current frame time
+    const firstMediaTime = await getMediaTime();
+    
+    // Go back until we hit the previous frame
+    let attempts = 0;
+    const maxAttempts = 100;
+    while (attempts < maxAttempts) {
+      video.currentTime -= 0.001; // Small decrement
+      const newMediaTime = await getMediaTime();
+      if (newMediaTime < firstMediaTime) {
+        console.log(`Stepped backward from frame at ${firstMediaTime.toFixed(4)}s to ${newMediaTime.toFixed(4)}s`);
+        break;
+      }
+      attempts++;
+    }
+    
+    if (attempts >= maxAttempts) {
+      console.warn('Could not find previous frame, using fallback');
+      video.currentTime = Math.max(0, video.currentTime - 1 / FPS);
+    }
   };
 
   const skipBackward = () => {
@@ -302,7 +347,14 @@ export default function AnalysisResult() {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const percentage = x / rect.width;
-    videoRef.current.currentTime = percentage * videoRef.current.duration;
+    const targetTime = percentage * videoRef.current.duration;
+    
+    // Snap to nearest frame boundary
+    const targetFrame = Math.round(targetTime * FPS);
+    const snappedTime = targetFrame / FPS;
+    
+    videoRef.current.currentTime = snappedTime;
+    console.log(`Seeked to frame ${targetFrame} at ${snappedTime.toFixed(4)}s`);
   };
 
   const handleTimeUpdate = () => {
@@ -424,52 +476,6 @@ export default function AnalysisResult() {
     }
   }, [analysis, FPS]);
 
-  // Update skeleton overlay during video playback
-  useEffect(() => {
-    if (!showSkeleton || !analysis?.poseData || !videoRef.current || !canvasRef.current) {
-      // Clear canvas when skeleton is off
-      if (canvasRef.current) {
-        const ctx = canvasRef.current.getContext('2d');
-        if (ctx) {
-          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        }
-      }
-      return;
-    }
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const poseData = analysis.poseData as PoseData[];
-
-    const updateSkeleton = () => {
-      if (!video || !canvas) return;
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      // Set canvas size
-      canvas.width = video.videoWidth || video.clientWidth;
-      canvas.height = video.videoHeight || video.clientHeight;
-
-      // Clear previous frame
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const currentTime = video.currentTime * 1000;
-      const closestPose = poseData.reduce((prev, curr) => {
-        return Math.abs(curr.timestamp - currentTime) < Math.abs(prev.timestamp - currentTime) 
-          ? curr 
-          : prev;
-      });
-
-      if (closestPose) {
-        drawSkeletonOnCanvas(canvas, closestPose.keypoints, canvas.width, canvas.height);
-      }
-    };
-
-    const intervalId = setInterval(updateSkeleton, 33);
-    return () => clearInterval(intervalId);
-  }, [showSkeleton, analysis, isPlaying]);
-
   if (!analysis) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
       <p>Loading analysis...</p>
@@ -544,15 +550,6 @@ export default function AnalysisResult() {
                     playsInline
                     preload="auto"
                   />
-
-                  {/* Skeleton Overlay Canvas */}
-                  {showSkeleton && (
-                    <canvas
-                      ref={canvasRef}
-                      className="absolute inset-0 w-full h-full pointer-events-none"
-                      style={{ mixBlendMode: 'screen' }}
-                    />
-                  )}
                   
                   {/* Buffering Indicator */}
                   {isBuffering && (
@@ -579,17 +576,8 @@ export default function AnalysisResult() {
                     )}
                   </div>
 
-                  {/* Overlay Controls */}
+                  {/* Overlay Controls - Removed skeleton overlay for performance */}
                   <div className="absolute top-4 left-4 right-4 flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant={showSkeleton ? "default" : "secondary"}
-                      className="text-xs"
-                      onClick={toggleSkeleton}
-                      disabled={!analysis.poseData}
-                    >
-                      Skeleton
-                    </Button>
                     <Button 
                       size="sm" 
                       variant={showTiming ? "default" : "secondary"}
