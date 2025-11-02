@@ -832,7 +832,7 @@ export default function AnalysisResult() {
             />
           </div>
         )}
-      </div>
+        </div>
 
         {/* Overall H.I.T.S. Score */}
         <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
