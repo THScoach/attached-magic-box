@@ -17,6 +17,7 @@ import { TimingGraph } from "@/components/TimingGraph";
 import { COMPathGraph } from "@/components/COMPathGraph";
 import { JointDataViewer } from "@/components/JointDataViewer";
 import { FrontLegStabilityCard } from "@/components/FrontLegStabilityCard";
+import { WeightTransferCard } from "@/components/WeightTransferCard";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -28,6 +29,7 @@ import { useCoachRickAccess } from "@/hooks/useCoachRickAccess";
 import { cn } from "@/lib/utils";
 import type { FrameJointData } from "@/lib/poseAnalysis";
 import { calculateFrontLegStability } from "@/lib/frontLegStability";
+import { calculateWeightTransfer } from "@/lib/weightTransfer";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
@@ -901,6 +903,12 @@ export default function AnalysisResult() {
             {(() => {
               const stability = calculateFrontLegStability(jointData);
               return stability ? <FrontLegStabilityCard stability={stability} /> : null;
+            })()}
+            
+            {/* Weight Transfer Score */}
+            {(() => {
+              const weightTransfer = calculateWeightTransfer(jointData);
+              return weightTransfer ? <WeightTransferCard weightTransfer={weightTransfer} /> : null;
             })()}
             
             {/* Detailed Joint Data */}
