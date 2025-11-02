@@ -6,19 +6,14 @@ import { VelocityChart } from "@/components/VelocityChart";
 import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
-import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
 import { ResearchBenchmarks } from "@/components/ResearchBenchmarks";
 import { TempoRatioCard } from "@/components/TempoRatioCard";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
-import { TimingGraph } from "@/components/TimingGraph";
-import { COMPathGraph } from "@/components/COMPathGraph";
 import { JointDataViewer } from "@/components/JointDataViewer";
-import { FrontLegStabilityCard } from "@/components/FrontLegStabilityCard";
-import { WeightTransferCard } from "@/components/WeightTransferCard";
 import { MasterCoachReport as MasterCoachReportComponent } from "@/components/MasterCoachReport";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward, Settings } from "lucide-react";
+import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward, Settings } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
@@ -39,13 +34,9 @@ export default function AnalysisResult() {
   const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [showTiming, setShowTiming] = useState(false);
-  const [showCOMPath, setShowCOMPath] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState(0.5); // Start at half speed for better frame visibility
-  const [sessionSwings, setSessionSwings] = useState<any[]>([]);
-  const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(0.5);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -249,13 +240,6 @@ export default function AnalysisResult() {
       .order('created_at', { ascending: false });
     
     if (swings && swings.length > 0) {
-      setSessionSwings(swings);
-      const avgScore = swings.reduce((sum, s) => sum + Number(s.overall_score), 0) / swings.length;
-      setSessionStats({
-        total: swings.length,
-        avg: avgScore
-      });
-
       // Create training program for the latest analysis
       const { data: { user } } = await supabase.auth.getUser();
       if (user && swings[0]) {
@@ -335,16 +319,6 @@ export default function AnalysisResult() {
       });
       setIsPlaying(true);
     }
-  };
-
-  const toggleTiming = () => {
-    setShowTiming(!showTiming);
-    setShowCOMPath(false);
-  };
-
-  const toggleCOMPath = () => {
-    setShowCOMPath(!showCOMPath);
-    setShowTiming(false);
   };
 
   // Get the actual media time from video (frame-accurate)
@@ -601,36 +575,7 @@ export default function AnalysisResult() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        {/* Session Progress Card */}
-        {sessionStats && sessionStats.total > 1 && (
-          <Card className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <TrendingUp className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Session Progress</p>
-                <div className="flex gap-4 mt-1">
-                  <span className="text-lg font-bold">Swing #{sessionStats.total}</span>
-                  <span className="text-lg font-bold text-primary">
-                    {sessionStats.avg.toFixed(1)} avg
-                  </span>
-                </div>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toast.info("Viewing session history coming soon!")}
-              >
-                <History className="h-4 w-4" />
-              </Button>
-            </div>
-          </Card>
-        )}
-
-        {/* Video Player and Graphs */}
-        <div className={showTiming || showCOMPath ? "grid lg:grid-cols-2 gap-4" : ""}>
-          {/* Video Player */}
+        {/* Video Player */}
           <Card className="overflow-hidden">
             <div className="aspect-video bg-black relative group">
               {analysis.videoUrl ? (
@@ -676,26 +621,6 @@ export default function AnalysisResult() {
                     ) : (
                       <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
                     )}
-                  </div>
-
-                  {/* Overlay Controls - Removed skeleton overlay for performance */}
-                  <div className="absolute top-4 left-4 right-4 flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant={showTiming ? "default" : "secondary"}
-                      className="text-xs"
-                      onClick={toggleTiming}
-                    >
-                      Timing
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant={showCOMPath ? "default" : "secondary"}
-                      className="text-xs"
-                      onClick={toggleCOMPath}
-                    >
-                      COM Path
-                    </Button>
                   </div>
 
                 {/* Bottom Controls - Modern Video Player */}
@@ -810,29 +735,6 @@ export default function AnalysisResult() {
             )}
           </div>
         </Card>
-
-        {/* Timing Graph */}
-        {showTiming && (
-          <div className="lg:sticky lg:top-4 lg:self-start">
-            <TimingGraph 
-              analysis={analysis} 
-              currentTime={currentTime * 1000}
-              duration={duration * 1000}
-            />
-          </div>
-        )}
-
-        {/* COM Path Graph */}
-        {showCOMPath && (
-          <div className="lg:sticky lg:top-4 lg:self-start">
-            <COMPathGraph 
-              analysis={analysis} 
-              currentTime={currentTime * 1000}
-              duration={duration * 1000}
-            />
-          </div>
-        )}
-        </div>
 
         {/* Overall H.I.T.S. Score */}
         <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
@@ -986,66 +888,25 @@ export default function AnalysisResult() {
           </div>
         </section>
 
-        {/* Reboot-Style Metrics */}
-        <RebootStyleMetrics analysis={analysis} />
-
         {/* Research-Validated Benchmarks */}
         <ResearchBenchmarks analysis={analysis} />
 
-        {/* Joint Data Analysis - Full Keypoint Tracking */}
-        {jointData.length > 0 && (
-          <>
-            {/* Front Leg Stability Score */}
-            {(() => {
-              const stability = calculateFrontLegStability(jointData);
-              return stability ? <FrontLegStabilityCard stability={stability} /> : null;
-            })()}
-            
-            {/* Weight Transfer Score */}
-            {(() => {
-              const weightTransfer = calculateWeightTransfer(jointData);
-              return weightTransfer ? <WeightTransferCard weightTransfer={weightTransfer} /> : null;
-            })()}
-            
-            {/* Master Coach Report */}
-            {(() => {
-              const stability = calculateFrontLegStability(jointData);
-              const weightTransfer = calculateWeightTransfer(jointData);
-              const report = generateMasterCoachReport(
-                'Player',
-                analysis,
-                jointData,
-                stability,
-                weightTransfer
-              );
-              return <MasterCoachReportComponent report={report} />;
-            })()}
-            
-            {/* Advanced Toggle */}
-            <div className="flex justify-center">
-              <Button 
-                variant="ghost" 
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="gap-2"
-              >
-                <Settings className="h-4 w-4" />
-                {showAdvanced ? "Hide" : "Show"} Advanced Data
-              </Button>
-            </div>
-            
-            {/* Detailed Joint Data - Hidden by default */}
-            {showAdvanced && (
-              <JointDataViewer
-                frameData={jointData}
-                videoWidth={videoRef.current?.videoWidth || 1920}
-                videoHeight={videoRef.current?.videoHeight || 1080}
-              />
-            )}
-          </>
-        )}
-
         {/* Velocity Chart */}
         <VelocityChart data={velocityData} />
+
+        {/* Master Coach Report */}
+        {jointData.length > 0 && (() => {
+          const stability = calculateFrontLegStability(jointData);
+          const weightTransfer = calculateWeightTransfer(jointData);
+          const report = generateMasterCoachReport(
+            'Player',
+            analysis,
+            jointData,
+            stability,
+            weightTransfer
+          );
+          return <MasterCoachReportComponent report={report} />;
+        })()}
 
         {/* AI Coach Feedback */}
         <Card className="p-6 bg-blue-500/10 border-blue-500/20">
@@ -1129,7 +990,7 @@ export default function AnalysisResult() {
           >
             Analyze Another Swing
           </Button>
-          <Button 
+            <Button 
             size="lg"
             variant="outline"
             className="w-full"
@@ -1138,6 +999,31 @@ export default function AnalysisResult() {
             View Progress
           </Button>
         </div>
+
+        {/* Advanced Data Toggle */}
+        {jointData.length > 0 && (
+          <>
+            <div className="flex justify-center">
+              <Button 
+                variant="ghost" 
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                {showAdvanced ? "Hide" : "Show"} Advanced Data
+              </Button>
+            </div>
+            
+            {/* Detailed Joint Data - Hidden by default */}
+            {showAdvanced && (
+              <JointDataViewer
+                frameData={jointData}
+                videoWidth={videoRef.current?.videoWidth || 1920}
+                videoHeight={videoRef.current?.videoHeight || 1080}
+              />
+            )}
+          </>
+        )}
       </div>
 
       {/* Coach Rick Chat Modal */}
