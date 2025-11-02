@@ -135,62 +135,64 @@ Your task is to analyze swing videos frame-by-frame and provide detailed biomech
 - Balance recovery time: Elite 0.3-0.5s | Amateur 0.6-1.0s
 - Weight transfer completion: Elite 70-80% front foot at contact | Amateur 50-60%
 
-**CRITICAL: BIOMECHANICAL INTEGRITY & INJURY RISK ASSESSMENT**
+**CRITICAL: BIOTENSEGRITY ANALYSIS & INJURY RISK ASSESSMENT**
 
-ALWAYS analyze for joint stress patterns and violations of biomechanical laws that could lead to injury:
+BIOTENSEGRITY = The body's structural integrity maintained through balanced tension and compression forces.
 
-**High-Risk Movement Patterns:**
+ALWAYS analyze for biotensegrity violations - breakdowns in force transfer that create excessive joint compression or loss of tensional integrity:
 
-1. **Lumbar Spine Stress (Lower Back Injury Risk):**
-   - ⚠️ WARNING: Excessive torso rotation WITHOUT adequate hip lead
-   - Safe: Hip rotation leads torso by 40-60ms, X-Factor 25-35°
-   - DANGER: Torso rotates before or simultaneous with hips (reverse sequence)
-   - DANGER: X-Factor >40° (extreme separation = excessive lumbar stress)
-   - Youth players (<18): Extra caution - growth plates more vulnerable
+**High-Risk Biotensegrity Violations:**
 
-2. **Hip/Pelvis Joint Stress:**
-   - ⚠️ WARNING: Excessive lateral hip slide (>6 inches) without rotation
-   - Safe: Hip rotates while moving forward, minimal lateral drift
-   - DANGER: Hip sliding laterally instead of rotating (shearing force on joint)
-   - DANGER: Pelvis rotation >130° (over-rotation stresses hip labrum)
+1. **Lumbar Spine Biotensegrity (Lower Back):**
+   - ⚠️ VIOLATION: Torso rotation WITHOUT hip lead = loss of tensional support through core
+   - Healthy Tensegrity: Hip leads torso by 40-60ms, X-Factor 25-35° (balanced tension/compression)
+   - DANGER: Reverse sequence (torso before hips) = excessive compression on lumbar discs
+   - DANGER: X-Factor >40° = overstretched fascial networks, lumbar instability
+   - Youth (<18): Growth plates extra vulnerable to compression forces
 
-3. **Shoulder/Rotator Cuff Stress:**
-   - ⚠️ WARNING: Premature arm extension before torso completes rotation
-   - Safe: Arms extend AFTER torso reaches 70%+ of max rotation
-   - DANGER: "Casting" motion - hands extend too early, arm velocity >2.3x torso
-   - DANGER: Back shoulder dips below front shoulder >20° (impingement risk)
+2. **Hip/Pelvis Complex Biotensegrity:**
+   - ⚠️ VIOLATION: Excessive lateral slide (>6 inches) = shearing force, loss of joint decompression
+   - Healthy Tensegrity: Hip rotates while moving forward (smooth force transfer)
+   - DANGER: Lateral slide without rotation = breakdown in ground force transmission
+   - DANGER: Pelvis over-rotation >130° = hip labrum compression, capsular stress
 
-4. **Elbow/Wrist Stress:**
-   - ⚠️ WARNING: "Barring out" front arm - elbow locks before contact
-   - Safe: Front elbow maintains 150-170° angle through contact
-   - DANGER: Front elbow fully extended (180°) before contact (UCL stress)
-   - DANGER: Wrist extension >30° at contact (wrist joint overload)
+3. **Shoulder/Scapular System Biotensegrity:**
+   - ⚠️ VIOLATION: Premature arm extension = breakdown of posterior chain tension
+   - Healthy Tensegrity: Arms extend AFTER torso completes 70%+ rotation (proper force sequencing)
+   - DANGER: "Casting" motion (early extension) = rotator cuff compensates, loss of scapular stability
+   - DANGER: Back shoulder drop >20° = impingement, loss of joint decompression
 
-5. **Knee Joint Stress (Front Leg):**
-   - ⚠️ WARNING: Front knee collapsing inward (valgus stress)
-   - Safe: Front knee tracks over toes, maintains 15-25° flexion at contact
-   - DANGER: Front knee caves inward >5° (MCL/ACL risk)
-   - DANGER: Front knee locks straight <5° flexion (compressive force)
+4. **Elbow/Wrist Tensegrity:**
+   - ⚠️ VIOLATION: "Barring out" front arm = loss of forearm fascial tension
+   - Healthy Tensegrity: Front elbow 150-170° maintains spring-like tensional integrity
+   - DANGER: Full elbow extension (180°) pre-contact = UCL compression, medial elbow stress
+   - DANGER: Wrist hyperextension >30° = joint compression, loss of wrist stability
 
-6. **Timing-Based Injury Risks:**
-   - ⚠️ WARNING: Late fire initiation (FireStart <250ms before contact)
-   - Safe: FireStart 300-400ms before contact allows proper sequencing
-   - DANGER: Rushed fire phase = compensatory movements, improper loading
-   - DANGER: Very long load (>1200ms) with aggressive fire = momentum-based swing (loss of control)
+5. **Knee/Lower Chain Biotensegrity:**
+   - ⚠️ VIOLATION: Front knee valgus collapse = MCL/ACL compression from force misdirection
+   - Healthy Tensegrity: Knee tracks over toes, maintains 15-25° flexion (shock absorption)
+   - DANGER: Knee collapse inward >5° = loss of ground force integrity up the chain
+   - DANGER: Knee hyperextension <5° flexion = compressive forces, no tensional buffer
 
-**Age-Specific Considerations:**
-- Youth (<16 years): Growth plates still developing - prioritize movement quality over velocity
-- Adolescent (16-18): Rapid growth phase - monitor for compensation patterns
-- Adult (18+): Focus on efficiency and injury prevention through proper mechanics
+6. **Timing-Based Biotensegrity Breakdown:**
+   - ⚠️ VIOLATION: Rushed fire phase (<250ms) = forced compensations, improper force distribution
+   - Healthy Tensegrity: FireStart 300-400ms allows proper kinetic chain sequencing
+   - DANGER: Late fire = upper body compensates for lower body, breakdown in force transfer
+   - DANGER: Extreme load (>1200ms) + explosive fire = momentum-based, loss of structural control
+
+**Age-Specific Biotensegrity Considerations:**
+- Youth (<16): Developing tensional networks, growth plates vulnerable to compression - prioritize movement quality
+- Adolescent (16-18): Rapid growth disrupts tensional balance (tight muscles, mobility changes) - monitor compensation
+- Adult (18+): Accumulated stress patterns, restore optimal force transfer and joint decompression for longevity
 
 **In Your impactStatement:**
-- If you detect ANY high-risk pattern, you MUST mention it explicitly
-- Use specific language: "I notice [movement pattern] which places stress on your [joint/area]"
-- Provide actionable fix: "Focus on [corrective cue] to reduce injury risk"
-- Frame as opportunity: "Cleaning up this pattern will not only improve power but also protect your [body part]"
+- If you detect ANY biotensegrity violation, you MUST explicitly mention it
+- Frame as BOTH performance AND injury prevention: "This pattern not only limits power but also compromises structural integrity"
+- Use specific language: "I notice [pattern] which creates excessive compression on [joint] and disrupts force transfer through [system]"
+- Provide actionable fix: "By [corrective cue], you'll restore balanced tension/compression and protect [body part]"
 
 **Example Integration:**
-"Your explosive hip rotation (680°/s) is elite, BUT I notice your torso is starting to rotate before your hips have fully engaged. This reverse sequencing can place excessive stress on your lumbar spine. By ensuring your hips fire 40-60ms before your torso, you'll not only generate more power through proper kinetic chain but also protect your lower back for long-term health."
+"Your explosive hip rotation (680°/s) is elite, BUT I notice your torso is firing before your hips fully engage. This reverse sequencing breaks down the tensional integrity of your kinetic chain - your lumbar spine absorbs compression forces instead of transmitting rotational power. By ensuring your hips lead by 40-60ms, you'll restore proper force transfer AND protect your lower back's structural integrity for long-term durability."
 
 **Tempo Ratio (Load:Fire) - CRITICAL FORMULA:**
 
@@ -416,7 +418,7 @@ Provide detailed scores and analysis in this exact JSON format:
   "comCopDistance": <inches separation, elite 2-4, amateur 4-8>,
   "balanceRecoveryTime": <seconds after contact, elite 0.3-0.5>,
   "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
-  "impactStatement": "<2-3 sentence specific insight. MUST address any biomechanical integrity issues or injury risk patterns detected. Frame as opportunity for improvement AND injury prevention.>"
+  "impactStatement": "<2-3 sentence specific insight. MUST address any biotensegrity violations or injury risk patterns detected. Frame as opportunity for BOTH performance improvement AND structural integrity/injury prevention.>"
 }`
       : `Analyze this baseball/softball swing sequence. I'm providing ${frames.length} key frames from a high-speed video (300fps).
     
@@ -459,7 +461,7 @@ Provide detailed scores and analysis in this exact JSON format:
   "comCopDistance": <inches separation, elite 2-4, amateur 4-8>,
   "balanceRecoveryTime": <seconds after contact, elite 0.3-0.5>,
   "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
-  "impactStatement": "<2-3 sentence specific insight. MUST address any biomechanical integrity issues or injury risk patterns detected. Frame as opportunity for improvement AND injury prevention.>"
+  "impactStatement": "<2-3 sentence specific insight. MUST address any biotensegrity violations or injury risk patterns detected. Frame as opportunity for BOTH performance improvement AND structural integrity/injury prevention.>"
 }`;
 
     // Prepare messages with images
