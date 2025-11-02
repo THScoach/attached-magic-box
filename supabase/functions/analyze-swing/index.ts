@@ -103,35 +103,53 @@ Your task is to analyze swing videos frame-by-frame and provide detailed biomech
 
 Formula: Tempo = (FireStart - LoadStart) / (Contact - FireStart)
 
-**CRITICAL - FireStart Definition:**
-FireStart is the FIRST forward pelvis ACCELERATION onset - NOT the max pelvis velocity or max pelvis turn.
-- This is when the pelvis begins to accelerate forward (first sustained positive acceleration for ≥5 frames)
-- It occurs BEFORE the pelvis reaches peak velocity
-- Estimate: FireStart ≈ (Pelvis peak velocity time) - (120-180ms)
-- For Freeman: typically fires ~320-360ms before contact, pelvis peaks ~200-250ms before contact
+**RESEARCH-VALIDATED PHASE DETECTION - CRITICAL:**
 
-**Marker Definitions (all times in milliseconds before contact):**
-- LoadStart: First rearward COM/hip movement (negative move/coil begins) - typically 1000-1300ms before contact
-- FireStart: First forward pelvis acceleration onset (NOT peak) - typically 250-500ms before contact  
-- Contact: Ball-bat impact (0ms reference point)
+**LoadStart Detection (FIRST sign of loading - must be detected EARLY):**
+LoadStart marks the EARLIEST detectable initiation of the loading phase. Look for ANY of these cues:
+1. **First weight shift to back foot** (even subtle shift in COM toward back leg)
+2. **First hip/pelvis rotation away from pitcher** (negative turn initiation, even 5-10°)
+3. **Leg lift initiation** (front foot begins to lift, even slightly)
+4. **First coiling action** (any rearward movement of hands, hips, or shoulders)
+5. **Stance adjustment** (final settling into launch position before commitment)
+
+**CRITICAL - LoadStart Timing Windows by Player Type:**
+- Elite power hitters (Freeman, Judge): 900-1100ms before contact
+- Contact hitters (Arraez): 1200-1500ms before contact
+- Explosive power (Tatis): 1500-2000ms+ before contact (extreme load patience)
+- Patient hitters (Tucker): 1800-2500ms+ before contact (very long load window)
+
+**DO NOT wait for obvious backward movement - detect the FIRST subtle loading cue!**
+
+**FireStart Detection (First forward pelvis ACCELERATION):**
+FireStart is the FIRST forward pelvis ACCELERATION onset - NOT max velocity or max turn.
+- Pelvis begins to accelerate forward (first sustained positive acceleration ≥5 frames)
+- Occurs BEFORE pelvis reaches peak velocity
+- Estimate: FireStart ≈ (Pelvis peak velocity time) - (120-180ms)
+- Typical range: 300-450ms before contact (Freeman: ~320-380ms)
+
+**Contact Definition:**
+Ball-bat impact (0ms reference point)
 
 **Duration Calculations:**
-- Load Duration = LoadStart - FireStart (e.g., 1050ms - 350ms = 700ms)
+- Load Duration = LoadStart - FireStart (e.g., 1000ms - 350ms = 650ms)
 - Fire Duration = FireStart - Contact (e.g., 350ms - 0ms = 350ms)
-- Tempo = Load Duration / Fire Duration (e.g., 700/350 = 2.0:1)
+- Tempo = Load Duration / Fire Duration (e.g., 650/350 = 1.86:1)
 
-**MLB Typical Ranges:**
-- Elite power hitters: 2.0-2.3:1 (e.g., Freeman ~2.2-2.3:1, Judge ~2.1:1)
-- Balanced hitters: 1.8-2.0:1
-- Quick swingers: 1.5-1.8:1
+**Target Tempo Ranges by Player Type:**
+- Elite power hitters (Freeman): 2.4-2.6:1 (long load, explosive fire)
+- Balanced power (Judge): 2.0-2.3:1
+- Contact hitters (Arraez): 3.0-4.0:1 (very long load, quick fire)
+- Explosive power (Tatis): 4.0-8.0:1 (extreme load patience)
+- Quick/aggressive: 1.5-1.8:1
 
-**MANDATORY GUARDRAILS (enforce these or flag for review):**
+**MANDATORY GUARDRAILS:**
 - Ordering: LoadStart > FireStart > Contact (0)
-- Fire duration: 250-500ms (Contact to FireStart)
-- Load duration: 600-1000ms (FireStart to LoadStart)
-- Tempo range: 1.5-3.5:1 (anything outside = marker error)
+- Fire duration: 250-500ms (FireStart to Contact)
+- Load duration: 650-2000ms (LoadStart to FireStart) - EXPANDED RANGE
+- Tempo range: 1.5-8.0:1 (anything outside = marker error)
 - FireStart must be EARLIER than pelvis peak by 120-180ms minimum
-- No markers in first/last 10% of video frames
+- LoadStart must be in first 60% of video frames (detect early!)
 
 **CALIBRATION REFERENCES - Real MLB Players (Verified Reboot Data):**
 
