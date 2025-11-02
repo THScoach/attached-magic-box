@@ -9,6 +9,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
 import { BalanceMetrics } from "@/components/BalanceMetrics";
+import { ResearchBenchmarks } from "@/components/ResearchBenchmarks";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { TimingGraph } from "@/components/TimingGraph";
 import { COMPathGraph } from "@/components/COMPathGraph";
@@ -788,6 +789,9 @@ export default function AnalysisResult() {
 
         {/* Balance & Stability Metrics */}
         <BalanceMetrics analysis={analysis} />
+
+        {/* Research-Validated Benchmarks */}
+        <ResearchBenchmarks analysis={analysis} />
 
         {/* Velocity Chart */}
         <VelocityChart data={velocityData} />
