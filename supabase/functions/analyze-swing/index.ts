@@ -707,10 +707,12 @@ Provide detailed scores and analysis in this exact JSON format:
       validationErrors.push(`CRITICAL: Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 exceeds maximum 5.0:1 - Unrealistic tempo indicates detection error`);
     }
 
-    // Constraint 2: Load Duration (0.50 to 1.20 seconds)
+    // Constraint 2: Load Duration (0.30 to 1.20 seconds)
     const loadDuration = analysis.loadStartTiming - analysis.fireStartTiming;
-    if (loadDuration < 500) {
-      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms below minimum 500ms - Load Start detected too late`);
+    if (loadDuration < 300) {
+      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms below minimum 300ms - Load Start detected too late`);
+    } else if (loadDuration < 500) {
+      validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is short (typical: 500-900ms) - May indicate aggressive swing or partial video capture`);
     } else if (loadDuration > 1200) {
       validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms exceeds maximum 1200ms - Load Start detected too early or including pre-swing setup`);
     }
@@ -723,10 +725,12 @@ Provide detailed scores and analysis in this exact JSON format:
       validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms exceeds maximum 450ms - Fire Start detected too early`);
     }
 
-    // Constraint 4: Total Swing Time (0.80 to 1.50 seconds)
+    // Constraint 4: Total Swing Time (0.55 to 1.50 seconds)
     const totalSwingTime = analysis.loadStartTiming;
-    if (totalSwingTime < 800) {
-      validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms below minimum 800ms - Missing early load phase`);
+    if (totalSwingTime < 550) {
+      validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms below minimum 550ms - Missing early load phase or detection failure`);
+    } else if (totalSwingTime < 800) {
+      validationWarnings.push(`⚠️ Total swing time ${totalSwingTime}ms is short (typical: 800-1200ms) - May indicate partial video or frame rate processing issue`);
     } else if (totalSwingTime > 1500) {
       validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms exceeds maximum 1500ms - Including pre-swing setup or multiple pitches`);
     }
