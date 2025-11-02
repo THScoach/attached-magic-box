@@ -177,6 +177,7 @@ export default function PlayerProfile() {
             <AthleteScheduleCalendar 
               playerId={playerId!}
               userId={player.user_id}
+              isCoachView={isAdmin}
             />
           </TabsContent>
 

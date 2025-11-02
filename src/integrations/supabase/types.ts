@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      calendar_items: {
+        Row: {
+          coach_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          id: string
+          item_type: string
+          metadata: Json | null
+          player_id: string | null
+          scheduled_date: string
+          scheduled_time: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          coach_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          item_type: string
+          metadata?: Json | null
+          player_id?: string | null
+          scheduled_date: string
+          scheduled_time?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          coach_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          item_type?: string
+          metadata?: Json | null
+          player_id?: string | null
+          scheduled_date?: string
+          scheduled_time?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       coach_message_preferences: {
         Row: {
           created_at: string | null
@@ -567,6 +621,57 @@ export type Database = {
           total_swings?: number | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          biggest_challenge: string | null
+          created_at: string | null
+          current_level: string | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          motivation: string | null
+          onboarding_completed: boolean | null
+          phone: string | null
+          primary_goal: string | null
+          referral_source: string | null
+          updated_at: string | null
+          years_playing: number | null
+        }
+        Insert: {
+          biggest_challenge?: string | null
+          created_at?: string | null
+          current_level?: string | null
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          motivation?: string | null
+          onboarding_completed?: boolean | null
+          phone?: string | null
+          primary_goal?: string | null
+          referral_source?: string | null
+          updated_at?: string | null
+          years_playing?: number | null
+        }
+        Update: {
+          biggest_challenge?: string | null
+          created_at?: string | null
+          current_level?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          motivation?: string | null
+          onboarding_completed?: boolean | null
+          phone?: string | null
+          primary_goal?: string | null
+          referral_source?: string | null
+          updated_at?: string | null
+          years_playing?: number | null
         }
         Relationships: []
       }
