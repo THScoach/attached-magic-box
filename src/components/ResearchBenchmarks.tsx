@@ -47,16 +47,15 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
     return <TrendingDown className="h-4 w-4 text-red-500" />;
   };
 
-  // Use Reboot Motion in-game data benchmarks (actual MLB game performance)
   const benchmarks: BenchmarkMetric[] = [
     {
       label: "Tempo Ratio",
       value: analysis.tempoRatio || 0,
       unit: ":1",
       eliteRange: [2.0, 2.6],
-      mlbAverage: 2.43, // Reboot Motion Freeman data
+      mlbAverage: 2.43,
       percentile: calculatePercentile(analysis.tempoRatio || 0, 1.5, 2.6, 2.43),
-      citation: "Reboot Motion (2025)"
+      citation: ""
     },
     {
       label: "Pelvis Max Velocity",
@@ -83,7 +82,7 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [70, 76],
       mlbAverage: 72,
       percentile: calculatePercentile(analysis.batMaxVelocity || 0, 65, 76, 72),
-      citation: "Reboot Motion (2025)"
+      citation: "Welch et al. (1995)"
     },
     {
       label: "X-Factor (Peak Separation)",
@@ -99,7 +98,7 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       value: analysis.comMaxVelocity || 0,
       unit: "m/s",
       eliteRange: [1.0, 1.2],
-      mlbAverage: 1.06, // Reboot Motion Freeman data
+      mlbAverage: 1.06,
       percentile: calculatePercentile(analysis.comMaxVelocity || 0, 0.6, 1.2, 1.06),
       citation: "Reboot Motion (2025)"
     },
@@ -110,7 +109,7 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [120, 130],
       mlbAverage: 123,
       percentile: calculatePercentile(analysis.frontFootGRF || 0, 100, 130, 123),
-      citation: "Reboot Motion (2025)"
+      citation: "Welch et al. (1995)"
     },
     {
       label: "COM Peak Timing",
@@ -119,7 +118,7 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [100, 190],
       mlbAverage: 110,
       percentile: 100 - calculatePercentile(Math.abs((analysis.comPeakTiming || 110) - 110), 0, 50, 20),
-      citation: "Reboot Motion (2025)"
+      citation: "Fortenbaugh (2011)"
     }
   ];
 
@@ -165,9 +164,11 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
                   <span className={`text-xs font-semibold ${getPercentileColor(benchmark.percentile)}`}>
                     {benchmark.percentile.toFixed(0)}th percentile
                   </span>
-                  <span className="text-xs text-muted-foreground italic">
-                    {benchmark.citation}
-                  </span>
+                  {benchmark.citation && (
+                    <span className="text-xs text-muted-foreground italic">
+                      {benchmark.citation}
+                    </span>
+                  )}
                 </div>
               </div>
               
@@ -195,12 +196,15 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
           <div className="space-y-2 text-xs text-muted-foreground">
             <p>
               <strong>Reboot Motion (2025)</strong> - In-game biomechanical data from MLB players using 
-              wearable sensor technology. Captures actual game performance under live pitching conditions,
-              providing more realistic benchmarks than controlled laboratory studies.
+              wearable sensor technology. Captures actual game performance under live pitching conditions.
             </p>
-            <p className="text-xs italic">
-              Note: Lab-based studies (Welch 1995, Fortenbaugh 2011) show higher values due to controlled 
-              conditions. Reboot Motion game data reflects real-world performance constraints.
+            <p>
+              <strong>Welch et al. (1995)</strong> - "Hitting a Baseball: A Biomechanical Description." 
+              <em>Journal of Orthopaedic & Sports Physical Therapy</em> 22(5):193-201.
+            </p>
+            <p>
+              <strong>Fortenbaugh (2011)</strong> - "The Biomechanics of the Baseball Swing." 
+              PhD Dissertation, University of Miami. Elite AA-level MLB players (n=43).
             </p>
           </div>
         </div>
