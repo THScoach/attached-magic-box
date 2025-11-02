@@ -351,57 +351,70 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
           )}
 
           {/* Selected Date Details */}
-          {selectedDate && selectedDateItems.length > 0 && (
+          {selectedDate && (
             <Card className="mt-4">
               <CardHeader>
-                <CardTitle className="text-lg">
-                  {format(selectedDate, 'MMMM d, yyyy')}
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">
+                    {format(selectedDate, 'MMMM d, yyyy')}
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedDate(null)}>
+                    Close
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {selectedDateItems.map((item) => (
-                    <div 
-                      key={item.id} 
-                      className={cn(
-                        "p-3 border rounded-lg",
-                        item.item_type === 'analysis' && "cursor-pointer hover:bg-accent/50 transition-colors"
-                      )}
-                      onClick={() => {
-                        if (item.item_type === 'analysis') {
-                          const analysisId = item.id.replace('analysis-', '');
-                          navigate(`/player/${playerId}/analysis/${analysisId}`);
-                        }
-                      }}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <p className="font-medium">{item.title}</p>
-                          {item.description && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {item.description}
-                            </p>
-                          )}
-                          {item.scheduled_time && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {item.scheduled_time} {item.duration && `(${item.duration} min)`}
-                            </p>
-                          )}
-                          {item.item_type === 'analysis' && (
-                            <Badge variant="outline" className="mt-2">Click to view</Badge>
-                          )}
+                {selectedDateItems.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">No activities for this day</p>
+                ) : (
+                  <div className="space-y-2">
+                    {selectedDateItems.map((item) => (
+                      <div 
+                        key={item.id} 
+                        className={cn(
+                          "p-3 border rounded-lg",
+                          item.item_type === 'analysis' && "cursor-pointer hover:bg-accent/50 transition-colors"
+                        )}
+                        onClick={() => {
+                          if (item.item_type === 'analysis') {
+                            const analysisId = item.id.replace('analysis-', '');
+                            navigate(`/player/${playerId}/analysis/${analysisId}`);
+                          }
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <p className="font-medium">{item.title}</p>
+                            {item.description && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {item.description}
+                              </p>
+                            )}
+                            {item.scheduled_time && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {item.scheduled_time} {item.duration && `(${item.duration} min)`}
+                              </p>
+                            )}
+                            {item.item_type === 'analysis' && (
+                              <Badge variant="outline" className="mt-2">Click to view analysis</Badge>
+                            )}
+                          </div>
+                          <Badge variant={
+                            item.item_type === 'analysis' ? 'default' :
+                            item.item_type === 'program' ? 'secondary' :
+                            item.status === 'completed' ? 'default' :
+                            item.status === 'cancelled' ? 'destructive' :
+                            'secondary'
+                          }>
+                            {item.item_type === 'analysis' ? 'Analysis' :
+                             item.item_type === 'program' ? 'Program' :
+                             item.status || item.item_type}
+                          </Badge>
                         </div>
-                        <Badge variant={
-                          item.status === 'completed' ? 'default' :
-                          item.status === 'cancelled' ? 'destructive' :
-                          'secondary'
-                        }>
-                          {item.status || item.item_type}
-                        </Badge>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
