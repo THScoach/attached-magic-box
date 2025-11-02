@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { SwingAnalysis } from "@/types/swing";
 
 interface COMPathGraphProps {
@@ -213,7 +214,10 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
   return (
     <Card className="h-full">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Center of Mass Path</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">Center of Mass Path</CardTitle>
+          <InfoTooltip content="Your center of mass (body weight) moves backward during load, then explodes forward during swing. Elite hitters move 10-16 inches forward, reaching speeds of 1.0-1.2 m/s. More aggressive forward movement = more power." />
+        </div>
       </CardHeader>
       <CardContent>
         <canvas

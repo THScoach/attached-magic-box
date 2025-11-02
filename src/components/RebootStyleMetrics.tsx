@@ -1,6 +1,7 @@
 import { SwingAnalysis } from "@/types/swing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Zap, Target, TrendingUp, Gauge } from "lucide-react";
 
 interface RebootStyleMetricsProps {
@@ -73,9 +74,12 @@ export function RebootStyleMetrics({ analysis }: RebootStyleMetricsProps) {
 
       {/* Angular Velocities */}
       <Card className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          <h3 className="font-bold text-lg">Segment Angular Velocity</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            <h3 className="font-bold text-lg">Segment Angular Velocity</h3>
+          </div>
+          <InfoTooltip content="How fast each body part rotates (in degrees per second). Elite MLB hitters: Pelvis ~600°/s, Torso ~950°/s, Arm ~1800°/s. Faster rotation = more bat speed = harder hits." />
         </div>
         
         <div className="space-y-4">
@@ -153,9 +157,12 @@ export function RebootStyleMetrics({ analysis }: RebootStyleMetricsProps) {
 
       {/* X-Factor & Rotation */}
       <Card className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Target className="h-5 w-5 text-primary" />
-          <h3 className="font-bold text-lg">Torso Kinematics</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-primary" />
+            <h3 className="font-bold text-lg">Torso Kinematics</h3>
+          </div>
+          <InfoTooltip content="X-Factor is shoulder-hip separation. More separation (27°+ for MLB) stores elastic energy like a rubber band. When you 'unwind,' this energy explodes into bat speed." />
         </div>
         
         <div className="grid grid-cols-2 gap-4">
@@ -203,9 +210,12 @@ export function RebootStyleMetrics({ analysis }: RebootStyleMetricsProps) {
 
       {/* Center of Mass */}
       <Card className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Gauge className="h-5 w-5 text-primary" />
-          <h3 className="font-bold text-lg">Center of Mass</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Gauge className="h-5 w-5 text-primary" />
+            <h3 className="font-bold text-lg">Center of Mass</h3>
+          </div>
+          <InfoTooltip content="Elite hitters generate 123% of body weight force on front foot at contact. This aggressive weight transfer (10-16 inches forward) drives the kinetic chain and creates explosive power." />
         </div>
         
         <div className="grid grid-cols-2 gap-4">

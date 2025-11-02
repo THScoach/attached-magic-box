@@ -1,6 +1,7 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { VelocityData } from '@/types/swing';
 import { Card } from '@/components/ui/card';
+import { InfoTooltip } from '@/components/ui/info-tooltip';
 
 interface VelocityChartProps {
   data: VelocityData[];
@@ -10,8 +11,11 @@ export function VelocityChart({ data }: VelocityChartProps) {
   return (
     <Card className="p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-bold">Tempo & Sequence Analysis</h3>
-        <p className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold">Tempo & Sequence Analysis</h3>
+          <InfoTooltip content="Shows how velocity builds through the swing. Each body part should peak at different times (hips → torso → hands) like a whip. This separation creates the kinetic chain that generates power." />
+        </div>
+        <p className="text-sm text-muted-foreground mt-1">
           Angular velocity throughout the swing (0 = Impact)
         </p>
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { SwingAnalysis } from "@/types/swing";
 
 interface TimingGraphProps {
@@ -134,7 +135,10 @@ export function TimingGraph({ analysis, currentTime, duration }: TimingGraphProp
   return (
     <Card className="h-full">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Timing Sequence</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">Timing Sequence</CardTitle>
+          <InfoTooltip content="Your body moves like a chain: hips → torso → hands. Elite hitters show peaks about 30-50ms apart. If peaks happen at the same time, you're losing power." />
+        </div>
       </CardHeader>
       <CardContent>
         <canvas

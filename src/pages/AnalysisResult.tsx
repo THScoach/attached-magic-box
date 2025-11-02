@@ -11,6 +11,7 @@ import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { TimingGraph } from "@/components/TimingGraph";
 import { COMPathGraph } from "@/components/COMPathGraph";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
@@ -735,15 +736,24 @@ export default function AnalysisResult() {
         {/* Overall H.I.T.S. Score */}
         <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-2">Overall H.I.T.S. Score</p>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <p className="text-sm text-muted-foreground">Overall H.I.T.S. Score</p>
+              <InfoTooltip content="Your overall hitting performance score (0-100). Combines timing, power, and mechanics. Higher scores mean better swing efficiency and more consistent hard contact." />
+            </div>
             <div className="text-6xl font-bold text-primary mb-2">{analysis.hitsScore}</div>
-            <p className="text-lg font-medium">Tempo Ratio: {analysis.tempoRatio}:1</p>
+            <div className="flex items-center justify-center gap-2">
+              <p className="text-lg font-medium">Tempo Ratio: {analysis.tempoRatio}:1</p>
+              <InfoTooltip content="Load to Fire ratio. Elite hitters: 2.0-2.3 (longer load, explosive fire). This gives time to read pitch and generate maximum power. Too fast = rushed. Too slow = timing issues." />
+            </div>
           </div>
         </Card>
 
         {/* Three Pillars */}
         <section>
-          <h2 className="text-lg font-bold mb-3">The Three Pillars</h2>
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-lg font-bold">The Three Pillars</h2>
+            <InfoTooltip content="ANCHOR = Balance & stability. ENGINE = Timing & sequence (kinetic chain). WHIP = Acceleration & release. Master all three for elite hitting." />
+          </div>
           <div className="space-y-3">
             <PillarCard 
               pillar="ANCHOR" 
