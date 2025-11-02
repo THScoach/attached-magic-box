@@ -68,9 +68,36 @@ Your task is to analyze swing videos frame-by-frame and provide detailed biomech
 - Pelvis rotation at contact: Typical -100° to -130° (negative values)
 - Shoulder rotation at contact: Typical -115° to -145° (negative values)
 
-**Center of Mass:**
-- COM travel distance (% of body height): Typical 35-55%
-- COM max velocity (m/s): Typical 0.8-1.2 m/s
+**Center of Mass Movement (Research-Backed - Welch 1995, Fortenbaugh 2011):**
+
+**COM Displacement by Direction:**
+- Lateral (side-to-side): Elite 2-4 inches total | Amateur >6 inches (indicates loss of rotational axis)
+- Forward-Backward by Phase:
+  * Load phase: 2-4 inches backward (energy storage)
+  * Stride phase: 4-6 inches forward (weight shift initiation)
+  * Contact phase: 6-10 inches forward (aggressive transfer)
+  * Total forward displacement: Elite 10-16 inches | Amateur 8-12 inches
+- Vertical (up-down): Elite 2-3 inches total | Amateur >4 inches (maintain visual plane)
+
+**COM Velocity Patterns:**
+- Peak forward velocity: Elite 1.0-1.2 m/s | Average 0.6-0.8 m/s
+- CRITICAL TIMING: Peak COM velocity occurs 0.10-0.12 seconds BEFORE contact
+- Velocity progression: Load (0 m/s) → Stride (0.5-0.8 m/s) → Peak (1.0-1.2 m/s) → Contact (0.6-1.0 m/s deceleration)
+
+**COM Acceleration (Elite Pattern):**
+- Stride initiation: 3-5 m/s² forward
+- Front foot plant: 5-8 m/s² forward (PEAK - indicates explosive weight transfer)
+- Swing initiation: 2-4 m/s² deceleration (rotation takes over)
+
+**Ground Reaction Forces (Welch 1995 - Elite MLB Data):**
+- Load phase: 70-80% back foot, 20-30% front foot
+- Front foot at contact: 123% of body weight (validates explosive power transfer)
+- Back foot at contact: 20-30% (residual for rotational stability)
+
+**Balance/Stability Metrics:**
+- COM-COP horizontal distance: Elite 2-4 inches | Amateur 4-8 inches (closer = better balance)
+- Balance recovery time: Elite 0.3-0.5s | Amateur 0.6-1.0s
+- Weight transfer completion: Elite 70-80% front foot at contact | Amateur 50-60%
 
 **Tempo Ratio (Load:Fire) - CRITICAL FORMULA:**
 
@@ -215,6 +242,15 @@ Provide detailed scores and analysis in this exact JSON format:
   "shoulderRotation": <degrees at max turn, -115 to -145>,
   "comDistance": <percent of body height, 35-55>,
   "comMaxVelocity": <m/s, 0.8-1.2>,
+  "comLateralMovement": <inches total side-to-side, elite 2-4, amateur >6>,
+  "comForwardMovement": <inches total forward, elite 10-16, average 8-12>,
+  "comVerticalMovement": <inches total up-down, elite 2-3, amateur >4>,
+  "comPeakTiming": <ms before contact when COM velocity peaks, elite 100-120ms>,
+  "comAccelerationPeak": <m/s², elite 5-8 at front foot plant>,
+  "frontFootWeightPercent": <percent at contact, elite 70-80>,
+  "frontFootGRF": <percent of body weight, elite >120%>,
+  "comCopDistance": <inches separation, elite 2-4, amateur 4-8>,
+  "balanceRecoveryTime": <seconds after contact, elite 0.3-0.5>,
   "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
   "impactStatement": "<specific actionable insight>"
 }`
@@ -249,6 +285,15 @@ Provide detailed scores and analysis in this exact JSON format:
   "shoulderRotation": <degrees at max turn, -115 to -145>,
   "comDistance": <percent of body height, 35-55>,
   "comMaxVelocity": <m/s, 0.8-1.2>,
+  "comLateralMovement": <inches total side-to-side, elite 2-4, amateur >6>,
+  "comForwardMovement": <inches total forward, elite 10-16, average 8-12>,
+  "comVerticalMovement": <inches total up-down, elite 2-3, amateur >4>,
+  "comPeakTiming": <ms before contact when COM velocity peaks, elite 100-120ms>,
+  "comAccelerationPeak": <m/s², elite 5-8 at front foot plant>,
+  "frontFootWeightPercent": <percent at contact, elite 70-80>,
+  "frontFootGRF": <percent of body weight, elite >120%>,
+  "comCopDistance": <inches separation, elite 2-4, amateur 4-8>,
+  "balanceRecoveryTime": <seconds after contact, elite 0.3-0.5>,
   "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
   "impactStatement": "<specific actionable insight>"
 }`;
@@ -385,6 +430,15 @@ Provide detailed scores and analysis in this exact JSON format:
             shoulderRotation: analysis.shoulderRotation,
             comDistance: analysis.comDistance,
             comMaxVelocity: analysis.comMaxVelocity,
+            comLateralMovement: analysis.comLateralMovement,
+            comForwardMovement: analysis.comForwardMovement,
+            comVerticalMovement: analysis.comVerticalMovement,
+            comPeakTiming: analysis.comPeakTiming,
+            comAccelerationPeak: analysis.comAccelerationPeak,
+            frontFootWeightPercent: analysis.frontFootWeightPercent,
+            frontFootGRF: analysis.frontFootGRF,
+            comCopDistance: analysis.comCopDistance,
+            balanceRecoveryTime: analysis.balanceRecoveryTime,
             primaryOpportunity: analysis.primaryOpportunity,
             impactStatement: analysis.impactStatement
           }

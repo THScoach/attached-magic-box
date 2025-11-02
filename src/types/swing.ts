@@ -26,6 +26,16 @@ export interface SwingAnalysis {
   shoulderRotation?: number;
   comDistance?: number; // Center of mass travel distance
   comMaxVelocity?: number;
+  // Enhanced COM metrics from research (Welch 1995, Fortenbaugh 2011)
+  comLateralMovement?: number; // inches side-to-side
+  comForwardMovement?: number; // inches total forward
+  comVerticalMovement?: number; // inches up-down
+  comPeakTiming?: number; // ms before contact when COM velocity peaks
+  comAccelerationPeak?: number; // m/s² at front foot plant
+  frontFootWeightPercent?: number; // % at contact
+  frontFootGRF?: number; // % of body weight
+  comCopDistance?: number; // inches COM-COP separation (balance)
+  balanceRecoveryTime?: number; // seconds after contact
   mlbComparison?: {
     pelvisVelocity: { player: number; mlb: number };
     torsoVelocity: { player: number; mlb: number };

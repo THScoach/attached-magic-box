@@ -63,6 +63,17 @@ export function generateMockAnalysis(videoUrl: string): SwingAnalysis {
   const comDistance = 6 + Math.random() * 4;
   const comMaxVelocity = 8 + Math.random() * 6;
 
+  // Enhanced COM metrics from research (Welch 1995, Fortenbaugh 2011)
+  const comLateralMovement = 2 + Math.random() * 5; // 2-7 inches (elite 2-4)
+  const comForwardMovement = 8 + Math.random() * 10; // 8-18 inches (elite 10-16)
+  const comVerticalMovement = 1.5 + Math.random() * 3.5; // 1.5-5 inches (elite 2-3)
+  const comPeakTiming = 80 + Math.random() * 80; // 80-160ms before contact (elite 100-120)
+  const comAccelerationPeak = 3 + Math.random() * 7; // 3-10 m/s² (elite 5-8)
+  const frontFootWeightPercent = 55 + Math.random() * 30; // 55-85% (elite 70-80)
+  const frontFootGRF = 95 + Math.random() * 40; // 95-135% body weight (elite >120)
+  const comCopDistance = 2 + Math.random() * 6; // 2-8 inches (elite 2-4)
+  const balanceRecoveryTime = 0.2 + Math.random() * 0.8; // 0.2-1.0s (elite 0.3-0.5)
+
   // Calculate exit velocity and distance estimates
   const batSpeed = batMaxVelocity * 2.237; // Convert m/s to mph (for consistency)
   const launchAngle = 15 + Math.random() * 20; // 15-35 degrees
@@ -95,6 +106,15 @@ export function generateMockAnalysis(videoUrl: string): SwingAnalysis {
     shoulderRotation,
     comDistance,
     comMaxVelocity,
+    comLateralMovement,
+    comForwardMovement,
+    comVerticalMovement,
+    comPeakTiming,
+    comAccelerationPeak,
+    frontFootWeightPercent,
+    frontFootGRF,
+    comCopDistance,
+    balanceRecoveryTime,
     mlbComparison: {
       pelvisVelocity: { player: pelvisMaxVelocity, mlb: 700 },
       torsoVelocity: { player: torsoMaxVelocity, mlb: 1100 },

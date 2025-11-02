@@ -8,6 +8,7 @@ import { DrillFeedbackChat } from "@/components/DrillFeedbackChat";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
+import { BalanceMetrics } from "@/components/BalanceMetrics";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { TimingGraph } from "@/components/TimingGraph";
 import { COMPathGraph } from "@/components/COMPathGraph";
@@ -93,6 +94,15 @@ export default function AnalysisResult() {
         shoulderRotation: metrics.shoulderRotation,
         comDistance: metrics.comDistance,
         comMaxVelocity: metrics.comMaxVelocity,
+        comLateralMovement: metrics.comLateralMovement,
+        comForwardMovement: metrics.comForwardMovement,
+        comVerticalMovement: metrics.comVerticalMovement,
+        comPeakTiming: metrics.comPeakTiming,
+        comAccelerationPeak: metrics.comAccelerationPeak,
+        frontFootWeightPercent: metrics.frontFootWeightPercent,
+        frontFootGRF: metrics.frontFootGRF,
+        comCopDistance: metrics.comCopDistance,
+        balanceRecoveryTime: metrics.balanceRecoveryTime,
         mlbComparison: metrics.mlbComparison,
         exitVelocity: metrics.exitVelocity,
         launchAngle: metrics.launchAngle,
@@ -775,6 +785,9 @@ export default function AnalysisResult() {
 
         {/* Reboot-Style Metrics */}
         <RebootStyleMetrics analysis={analysis} />
+
+        {/* Balance & Stability Metrics */}
+        <BalanceMetrics analysis={analysis} />
 
         {/* Velocity Chart */}
         <VelocityChart data={velocityData} />
