@@ -26,11 +26,11 @@ const GROUND_TRUTH_PLAYERS: PlayerGroundTruth[] = [
   {
     name: "Freddie Freeman",
     expectedTempo: 2.50,
-    tempoRange: [2.40, 2.60],
-    loadStartWindow: [800, 900],
-    fireStartWindow: [320, 360],
-    pelvisPeakWindow: [180, 220],
-    playerType: "Aggressive Elite Power (BASELINE)"
+    tempoRange: [2.45, 2.55],
+    loadStartWindow: [830, 850],
+    fireStartWindow: [320, 340],
+    pelvisPeakWindow: [100, 120],
+    playerType: "Aggressive Elite Power (BASELINE - 300fps Validated)"
   },
   {
     name: "Aaron Judge",
