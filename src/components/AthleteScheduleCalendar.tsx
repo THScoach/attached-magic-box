@@ -42,6 +42,11 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
 
   const dateRange = useMemo(() => {
     switch (view) {
+      case 'day':
+        return {
+          start: selectedDate || currentDate,
+          end: selectedDate || currentDate
+        };
       case 'week':
         return {
           start: startOfWeek(currentDate),
@@ -58,7 +63,7 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
           end: endOfYear(currentDate)
         };
     }
-  }, [view, currentDate]);
+  }, [view, currentDate, selectedDate]);
 
   const { items, loading, addItem, updateItem, reload } = useCalendarItems(userId, playerId, dateRange.start, dateRange.end);
 
