@@ -346,21 +346,28 @@ export default function Analyze() {
 
     try {
       // Step 1: Upload video(s) to storage
-      const fileName = `${Date.now()}-${file.name}`;
+      const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      
+      console.log('Uploading file:', fileName, 'Size:', file.size, 'Type:', file.type);
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('swing-videos')
         .upload(fileName, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: file.type || 'video/mp4'
         });
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        toast.error("Failed to upload video");
+        toast.error("Failed to upload video", {
+          description: uploadError.message || "Please check your connection and try again"
+        });
         setIsAnalyzing(false);
         return;
       }
+      
+      console.log('Upload successful:', uploadData);
 
       setUploadProgress(30);
 

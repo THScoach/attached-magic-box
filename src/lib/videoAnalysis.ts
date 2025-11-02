@@ -249,8 +249,14 @@ export async function detectPoseInFrames(
   onProgress?: (progress: number) => void
 ): Promise<PoseData[]> {
   try {
-    // Dynamically import MediaPipe Pose
-    const { Pose } = await import('@mediapipe/pose');
+    // Dynamically import MediaPipe Pose module
+    const mediapipeModule = await import('@mediapipe/pose');
+    const Pose = mediapipeModule.Pose || (mediapipeModule as any).default?.Pose;
+    
+    if (!Pose) {
+      console.error('MediaPipe Pose not found in module');
+      return [];
+    }
     
     return new Promise((resolve, reject) => {
       const video = document.createElement('video');
