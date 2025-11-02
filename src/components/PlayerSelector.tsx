@@ -50,6 +50,8 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
     is_model: false
   });
 
+  console.log('[PlayerSelector] Received selectedPlayerId:', selectedPlayerId);
+
   useEffect(() => {
     loadPlayers();
   }, []);

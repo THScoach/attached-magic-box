@@ -31,7 +31,9 @@ export default function Analyze() {
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(() => {
     // Initialize from sessionStorage to avoid null flash
-    return sessionStorage.getItem('selectedPlayerId');
+    const stored = sessionStorage.getItem('selectedPlayerId');
+    console.log('[Analyze] Initializing with stored player ID:', stored);
+    return stored;
   });
   const [showSyncRecording, setShowSyncRecording] = useState(false);
   const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
@@ -41,8 +43,8 @@ export default function Analyze() {
   // Update sessionStorage when player changes
   useEffect(() => {
     if (selectedPlayerId) {
+      console.log('[Analyze] Updating sessionStorage with player ID:', selectedPlayerId);
       sessionStorage.setItem('selectedPlayerId', selectedPlayerId);
-      console.log('Selected Player ID changed:', selectedPlayerId);
     }
   }, [selectedPlayerId]);
   
