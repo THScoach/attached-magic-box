@@ -1,10 +1,17 @@
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Anchor, Settings, Zap, ChevronDown, ChevronUp, CheckCircle, AlertCircle, XCircle, Flame, Target } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Anchor, Settings, Zap, ChevronDown, ChevronUp, CheckCircle, AlertCircle, XCircle, Flame, Target, Activity, Dumbbell, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState } from "react";
+import { JointDataViewer } from "@/components/JointDataViewer";
+import { DrillCard } from "@/components/DrillCard";
+import type { FrameJointData } from "@/lib/poseAnalysis";
+import { getDrillsByPillar, scheduleDrillsToCalendar } from "@/lib/scheduleDrills";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ComponentMetric {
   name: string;
@@ -21,6 +28,9 @@ interface PillarCardProps {
   subtitle: string;
   className?: string;
   components?: ComponentMetric[];
+  jointData?: FrameJointData[];
+  videoWidth?: number;
+  videoHeight?: number;
 }
 
 const pillarConfig = {
@@ -50,10 +60,15 @@ const pillarConfig = {
   }
 };
 
-export function PillarCard({ pillar, score, subtitle, className, components = [] }: PillarCardProps) {
+export function PillarCard({ pillar, score, subtitle, className, components = [], jointData = [], videoWidth = 1920, videoHeight = 1080 }: PillarCardProps) {
   const config = pillarConfig[pillar];
   const Icon = config.icon;
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showJointData, setShowJointData] = useState(false);
+  const [showDrills, setShowDrills] = useState(false);
+  const [drills, setDrills] = useState<any[]>([]);
+  const [loadingDrills, setLoadingDrills] = useState(false);
+  const [schedulingDrills, setSchedulingDrills] = useState(false);
   
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-green-500";
@@ -80,6 +95,73 @@ export function PillarCard({ pillar, score, subtitle, className, components = []
     if (score >= 70) return "Advanced";
     if (score >= 50) return "Developing";
     return "Needs Work";
+  };
+
+  const handleShowJointData = () => {
+    if (jointData.length === 0) {
+      toast.info("No joint tracking data available for this analysis");
+      return;
+    }
+    setShowJointData(!showJointData);
+  };
+
+  const handleShowDrills = async () => {
+    if (!showDrills && drills.length === 0) {
+      setLoadingDrills(true);
+      const result = await getDrillsByPillar(pillar, 5);
+      if (result.success) {
+        setDrills(result.drills);
+      } else {
+        toast.error("Failed to load drills");
+      }
+      setLoadingDrills(false);
+    }
+    setShowDrills(!showDrills);
+  };
+
+  const handleScheduleDrills = async () => {
+    if (drills.length === 0) {
+      toast.error("No drills available to schedule");
+      return;
+    }
+
+    setSchedulingDrills(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Please sign in to schedule drills");
+        return;
+      }
+
+      // Get current player from session storage if available
+      const selectedPlayerId = sessionStorage.getItem('selected_player_id');
+
+      const result = await scheduleDrillsToCalendar({
+        userId: user.id,
+        playerId: selectedPlayerId,
+        drillIds: drills.map(d => d.id),
+        drillNames: drills.map(d => d.name),
+        pillar: pillar,
+        weeksAhead: 4,
+        sessionsPerWeek: 4
+      });
+
+      if (result.success) {
+        toast.success(`${pillar} drills scheduled!`, {
+          description: "4 sessions per week for the next 4 weeks added to your calendar"
+        });
+      } else {
+        toast.error("Failed to schedule drills", {
+          description: result.error
+        });
+      }
+    } catch (error) {
+      console.error('Error scheduling drills:', error);
+      toast.error("An error occurred while scheduling");
+    } finally {
+      setSchedulingDrills(false);
+    }
   };
 
   return (
@@ -188,6 +270,75 @@ export function PillarCard({ pillar, score, subtitle, className, components = []
               </Progress>
             </div>
           ))}
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-2 pt-2 border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShowJointData}
+              className="w-full justify-start"
+              disabled={jointData.length === 0}
+            >
+              <Activity className="h-4 w-4 mr-2" />
+              {showJointData ? "Hide Joint Information" : "View Joint Information"}
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShowDrills}
+              className="w-full justify-start"
+              disabled={loadingDrills}
+            >
+              <Dumbbell className="h-4 w-4 mr-2" />
+              {loadingDrills ? "Loading..." : showDrills ? "Hide Drill Recommendations" : "View Drill Recommendations"}
+            </Button>
+
+            {showDrills && drills.length > 0 && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleScheduleDrills}
+                className="w-full justify-start"
+                disabled={schedulingDrills}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                {schedulingDrills ? "Scheduling..." : "Add to Calendar (4x/week)"}
+              </Button>
+            )}
+          </div>
+
+          {/* Joint Data Viewer */}
+          {showJointData && jointData.length > 0 && (
+            <div className="pt-4 border-t">
+              <JointDataViewer 
+                frameData={jointData}
+                videoWidth={videoWidth}
+                videoHeight={videoHeight}
+              />
+            </div>
+          )}
+
+          {/* Drill Recommendations */}
+          {showDrills && (
+            <div className="pt-4 border-t space-y-3">
+              <h4 className="font-semibold text-sm">Recommended Drills for {pillar}</h4>
+              {drills.length > 0 ? (
+                drills.map(drill => (
+                  <DrillCard 
+                    key={drill.id}
+                    drill={drill}
+                    onViewDrill={(id) => {
+                      toast.info("Drill details coming soon!");
+                    }}
+                  />
+                ))
+              ) : (
+                <p className="text-xs text-muted-foreground">No drills available for this pillar yet.</p>
+              )}
+            </div>
+          )}
         </div>
       )}
     </Card>

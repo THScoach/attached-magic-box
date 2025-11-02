@@ -765,6 +765,9 @@ export default function AnalysisResult() {
               pillar="ANCHOR" 
               score={analysis.anchorScore}
               subtitle="Stability & Ground Force"
+              jointData={jointData}
+              videoWidth={1920}
+              videoHeight={1080}
               components={jointData.length > 0 ? (() => {
                 const stability = calculateFrontLegStability(jointData);
                 const weightTransfer = calculateWeightTransfer(jointData);
@@ -818,6 +821,9 @@ export default function AnalysisResult() {
               pillar="ENGINE" 
               score={analysis.engineScore}
               subtitle="Tempo & Sequence"
+              jointData={jointData}
+              videoWidth={1920}
+              videoHeight={1080}
               components={[
                 {
                   name: "Tempo Ratio",
@@ -859,6 +865,9 @@ export default function AnalysisResult() {
               pillar="WHIP" 
               score={analysis.whipScore}
               subtitle="Release & Acceleration"
+              jointData={jointData}
+              videoWidth={1920}
+              videoHeight={1080}
               components={[
                 ...(analysis.torsoMaxVelocity ? [{
                   name: "Torso Rotation",
