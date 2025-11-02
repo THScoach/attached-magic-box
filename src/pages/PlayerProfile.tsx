@@ -39,6 +39,9 @@ export default function PlayerProfile() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [activeTab, setActiveTab] = useState<string>(
+    (location.state as any)?.tab || 'activity'
+  );
 
   useEffect(() => {
     console.log('[PlayerProfile] Component mounted/updated for playerId:', playerId);
@@ -162,7 +165,7 @@ export default function PlayerProfile() {
 
       {/* Tabs */}
       <div className="px-6 py-6">
-        <Tabs defaultValue="activity" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 text-xs">
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="schedule">Schedule</TabsTrigger>

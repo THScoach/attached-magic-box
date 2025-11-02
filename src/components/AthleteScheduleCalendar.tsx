@@ -131,7 +131,7 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
       allItems = [...allItems, ...calendarItems];
     }
     
-    // Programs
+    // Programs - deduplicate by focus_pillar
     if (filterType === 'all' || filterType === 'program') {
       const programsForDate = programs.filter(program => {
         const start = new Date(program.start_date);
@@ -139,10 +139,19 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
         return date >= start && date <= end;
       });
 
-      const programItems = programsForDate.map(program => ({
+      // Deduplicate programs by focus_pillar (only show one program per pillar)
+      const uniquePrograms = programsForDate.reduce((acc, program) => {
+        if (!acc.find(p => p.focus_pillar === program.focus_pillar)) {
+          acc.push(program);
+        }
+        return acc;
+      }, [] as any[]);
+
+      const programItems = uniquePrograms.map(program => ({
         ...program,
         id: `program-${program.id}`,
         title: `${program.focus_pillar} Program`,
+        description: `Active program • Day ${Math.floor((date.getTime() - new Date(program.start_date).getTime()) / (1000 * 60 * 60 * 24)) + 1}`,
         item_type: 'program',
         scheduled_date: dateStr
       }));
@@ -319,12 +328,17 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
               <Card 
                 key={item.id}
                 className={cn(
-                  item.item_type === 'analysis' && "cursor-pointer hover:shadow-md transition-all"
+                  "cursor-pointer hover:shadow-md transition-all",
+                  item.item_type === 'analysis' && "hover:border-primary",
+                  item.item_type === 'program' && "hover:border-secondary"
                 )}
                 onClick={() => {
                   if (item.item_type === 'analysis') {
                     const analysisId = item.id.replace('analysis-', '');
                     navigate(`/player/${playerId}/analysis/${analysisId}`);
+                  } else if (item.item_type === 'program') {
+                    // Navigate to programs tab to show program details
+                    navigate(`/player/${playerId}`, { state: { tab: 'items' } });
                   }
                 }}
               >
@@ -361,6 +375,9 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
                       
                       {item.item_type === 'analysis' && (
                         <Badge variant="outline" className="mt-2">Click to view details</Badge>
+                      )}
+                      {item.item_type === 'program' && (
+                        <Badge variant="outline" className="mt-2">Click to view program</Badge>
                       )}
                     </div>
                   </div>
