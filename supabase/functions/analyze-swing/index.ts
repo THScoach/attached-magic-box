@@ -454,17 +454,52 @@ Provide detailed scores and analysis in this exact JSON format:
     // Parse the JSON from the response
     let analysis;
     try {
-      // Try to extract JSON from the response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysis = JSON.parse(jsonMatch[0]);
-      } else {
+      // Step 1: Remove markdown code fences
+      let cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      
+      // Step 2: Extract JSON object
+      const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
         throw new Error('No JSON found in response');
       }
+      
+      let jsonStr = jsonMatch[0];
+      
+      // Step 3: Fix common JSON issues from AI responses
+      // Fix: Missing quotes before property names (e.g., annaMaxVelocity" -> "armMaxVelocity")
+      jsonStr = jsonStr.replace(/\n\s*([a-zA-Z_][a-zA-Z0-9_]*")\s*:/g, '\n  "$1:');
+      
+      // Fix: Property name without opening quote (e.g., annaMaxVelocity -> "armMaxVelocity")
+      jsonStr = jsonStr.replace(/\n\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '\n  "$1":');
+      
+      // Step 4: Parse the cleaned JSON
+      analysis = JSON.parse(jsonStr);
+      
     } catch (parseError) {
       console.error('Error parsing AI response:', parseError);
       console.error('Raw content:', content);
-      throw new Error('Failed to parse analysis results');
+      
+      // Try one more time with aggressive cleaning
+      try {
+        let lastDitchContent = content
+          .replace(/```json\n?/g, '')
+          .replace(/```\n?/g, '')
+          .replace(/[\r\n]+/g, '\n')
+          .trim();
+        
+        const match = lastDitchContent.match(/\{[\s\S]*\}/);
+        if (match) {
+          // Fix all unquoted property names
+          let fixed = match[0].replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)(\s*:)/g, '$1"$2"$3');
+          analysis = JSON.parse(fixed);
+          console.log('Successfully parsed with aggressive cleaning');
+        } else {
+          throw new Error('No JSON structure found');
+        }
+      } catch (finalError) {
+        console.error('Final parse attempt failed:', finalError);
+        throw new Error('Failed to parse analysis results');
+      }
     }
 
     // ============= PRIORITY 2 & 3 FIXES: Calculate Missing Metrics =============
