@@ -340,9 +340,27 @@ export default function Analyze() {
       const frames = await extractVideoFrames(file, 8);
       setUploadProgress(50);
 
-      // Step 3: Pose detection (temporarily disabled, focusing on AI analysis)
-      const poseData = null;
+      // Step 3: Pose detection with MediaPipe
+      toast.info("Detecting body keypoints...");
+      const poseData = await detectPoseInFrames(file, (progress) => {
+        setUploadProgress(50 + progress * 0.2); // 50-70%
+      });
+      console.log(`Pose detection complete: ${poseData.length} frames with keypoints`);
       setUploadProgress(70);
+
+      // Process pose data into comprehensive joint analysis
+      import('@/lib/poseProcessor').then(({ processPoseData, summarizeJointData }) => {
+        if (poseData && poseData.length > 0) {
+          const frameJointData = processPoseData(poseData, file.size / 1000000); // Rough duration estimate
+          const jointSummary = summarizeJointData(frameJointData);
+          console.log('Joint data summary:', jointSummary);
+          // Store frameJointData and jointSummary for later use
+          sessionStorage.setItem('latestJointData', JSON.stringify({
+            frames: frameJointData,
+            summary: jointSummary
+          }));
+        }
+      });
 
       // Step 4: Analyze with AI
       toast.info("Analyzing swing biomechanics...");

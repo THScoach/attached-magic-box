@@ -15,6 +15,7 @@ import { TempoRatioCard } from "@/components/TempoRatioCard";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { TimingGraph } from "@/components/TimingGraph";
 import { COMPathGraph } from "@/components/COMPathGraph";
+import { JointDataViewer } from "@/components/JointDataViewer";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -24,12 +25,14 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCoachRickAccess } from "@/hooks/useCoachRickAccess";
 import { cn } from "@/lib/utils";
+import type { FrameJointData } from "@/lib/poseAnalysis";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
   const { analysisId } = useParams<{ analysisId?: string }>();
   const { hasAccess: hasCoachRickAccess } = useCoachRickAccess();
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
+  const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
   const [showDrillFeedback, setShowDrillFeedback] = useState(false);
@@ -125,6 +128,18 @@ export default function AnalysisResult() {
 
       setAnalysis(analysisData);
       setVideoType(data.video_type as 'analysis' | 'drill');
+      
+      // Load joint data from sessionStorage if available
+      const storedJointData = sessionStorage.getItem('latestJointData');
+      if (storedJointData) {
+        try {
+          const parsed = JSON.parse(storedJointData);
+          setJointData(parsed.frames || []);
+          console.log(`Loaded ${parsed.frames?.length || 0} frames of joint data`);
+        } catch (e) {
+          console.error('Failed to parse joint data:', e);
+        }
+      }
       
       console.log('Loaded latest analysis from database:', {
         frontFootGRF: analysisData.frontFootGRF,
@@ -877,6 +892,15 @@ export default function AnalysisResult() {
 
         {/* Research-Validated Benchmarks */}
         <ResearchBenchmarks analysis={analysis} />
+
+        {/* Joint Data Analysis - Full Keypoint Tracking */}
+        {jointData.length > 0 && (
+          <JointDataViewer
+            frameData={jointData}
+            videoWidth={videoRef.current?.videoWidth || 1920}
+            videoHeight={videoRef.current?.videoHeight || 1080}
+          />
+        )}
 
         {/* Phase Detection Validation */}
         {analysis.loadStartTiming && analysis.fireStartTiming && analysis.pelvisTiming && (

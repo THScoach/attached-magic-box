@@ -122,10 +122,118 @@ export async function detectPoseInFrames(
   videoFile: File,
   onProgress?: (progress: number) => void
 ): Promise<PoseData[]> {
-  // Pose detection is optional - for now, return empty array
-  // This will be enhanced in a future update with proper MediaPipe integration
-  console.log('Pose detection temporarily disabled - focusing on AI analysis');
-  return [];
+  try {
+    // Dynamically import MediaPipe Pose
+    const { Pose } = await import('@mediapipe/pose');
+    
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'auto';
+      video.muted = true;
+      video.playsInline = true;
+      
+      const poseData: PoseData[] = [];
+      let currentFrame = 0;
+      let isProcessing = false;
+      
+      // Initialize MediaPipe Pose
+      const pose = new Pose({
+        locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+        }
+      });
+      
+      pose.setOptions({
+        modelComplexity: 1, // 0, 1, or 2 (higher = more accurate but slower)
+        smoothLandmarks: true,
+        enableSegmentation: false,
+        smoothSegmentation: false,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+      
+      pose.onResults((results) => {
+        if (results.poseLandmarks) {
+          const keypoints: KeypointData[] = results.poseLandmarks.map((landmark, index) => ({
+            name: getLandmarkName(index),
+            x: landmark.x * video.videoWidth,
+            y: landmark.y * video.videoHeight,
+            score: landmark.visibility || 0
+          }));
+          
+          poseData.push({
+            keypoints,
+            timestamp: video.currentTime * 1000 // Convert to milliseconds
+          });
+        }
+        
+        isProcessing = false;
+      });
+      
+      const processFrame = async () => {
+        if (isProcessing || video.ended) return;
+        
+        isProcessing = true;
+        await pose.send({ image: video });
+        
+        currentFrame++;
+        if (onProgress) {
+          onProgress(Math.min((currentFrame / 120) * 100, 100)); // Assume ~120 frames
+        }
+      };
+      
+      video.onloadedmetadata = () => {
+        console.log('Video loaded for pose detection:', {
+          duration: video.duration,
+          width: video.videoWidth,
+          height: video.videoHeight
+        });
+        
+        // Process frames every 33ms (approximately 30fps)
+        const intervalId = setInterval(() => {
+          if (video.ended || video.currentTime >= video.duration) {
+            clearInterval(intervalId);
+            pose.close();
+            URL.revokeObjectURL(video.src);
+            video.remove();
+            console.log(`Pose detection complete: ${poseData.length} frames analyzed`);
+            resolve(poseData);
+            return;
+          }
+          
+          processFrame();
+        }, 33);
+        
+        video.play();
+      };
+      
+      video.onerror = (e) => {
+        console.error('Video error during pose detection:', e);
+        pose.close();
+        reject(new Error('Error loading video for pose detection'));
+      };
+      
+      video.src = URL.createObjectURL(videoFile);
+      video.load();
+    });
+  } catch (error) {
+    console.error('Pose detection error:', error);
+    // Fallback to no pose data
+    return [];
+  }
+}
+
+// Helper function to convert MediaPipe landmark index to readable name
+function getLandmarkName(index: number): string {
+  const names = [
+    'nose', 'left_eye_inner', 'left_eye', 'left_eye_outer', 'right_eye_inner',
+    'right_eye', 'right_eye_outer', 'left_ear', 'right_ear', 'mouth_left', 'mouth_right',
+    'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist',
+    'left_pinky', 'right_pinky', 'left_index', 'right_index', 'left_thumb', 'right_thumb',
+    'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle',
+    'left_heel', 'right_heel', 'left_foot_index', 'right_foot_index'
+  ];
+  return names[index] || `landmark_${index}`;
 }
 
 export function drawSkeletonOnCanvas(
