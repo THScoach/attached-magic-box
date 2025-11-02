@@ -40,6 +40,7 @@ export default function Analyze() {
   const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
   const [recordedVideoFile, setRecordedVideoFile] = useState<File | null>(null);
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
+  const [selectedPlayerName, setSelectedPlayerName] = useState<string | null>(null);
   
   // Update sessionStorage when player changes
   useEffect(() => {
@@ -47,6 +48,28 @@ export default function Analyze() {
       console.log('[Analyze] Updating sessionStorage with player ID:', selectedPlayerId);
       sessionStorage.setItem('selectedPlayerId', selectedPlayerId);
     }
+  }, [selectedPlayerId]);
+
+  // Fetch player name when selectedPlayerId changes
+  useEffect(() => {
+    const fetchPlayerName = async () => {
+      if (!selectedPlayerId) {
+        setSelectedPlayerName(null);
+        return;
+      }
+      
+      const { data } = await supabase
+        .from('players')
+        .select('first_name, last_name')
+        .eq('id', selectedPlayerId)
+        .single();
+      
+      if (data) {
+        setSelectedPlayerName(`${data.first_name} ${data.last_name}`);
+      }
+    };
+    
+    fetchPlayerName();
   }, [selectedPlayerId]);
   
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
@@ -596,13 +619,16 @@ export default function Analyze() {
                     </div>
                     <div>
                       <Label className="text-xs text-muted-foreground">Recording for</Label>
-                      <p className="font-semibold">Player Selected</p>
+                      <p className="font-semibold">{selectedPlayerName || 'Loading...'}</p>
                     </div>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setSelectedPlayerId(null)}
+                    onClick={() => {
+                      setSelectedPlayerId(null);
+                      setSelectedPlayerName(null);
+                    }}
                   >
                     Change
                   </Button>
