@@ -550,13 +550,31 @@ Provide detailed scores and analysis in this exact JSON format:
       // Step 1: Remove markdown code fences
       let cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
       
-      // Step 2: Extract JSON object
-      const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
+      // Step 2: Extract ONLY the first complete JSON object (stop at first closing brace with matching depth)
+      const firstBrace = cleanContent.indexOf('{');
+      if (firstBrace === -1) {
         throw new Error('No JSON found in response');
       }
       
-      let jsonStr = jsonMatch[0];
+      let depth = 0;
+      let jsonEnd = -1;
+      for (let i = firstBrace; i < cleanContent.length; i++) {
+        if (cleanContent[i] === '{') depth++;
+        if (cleanContent[i] === '}') {
+          depth--;
+          if (depth === 0) {
+            jsonEnd = i + 1;
+            break;
+          }
+        }
+      }
+      
+      if (jsonEnd === -1) {
+        throw new Error('Incomplete JSON object in response');
+      }
+      
+      let jsonStr = cleanContent.substring(firstBrace, jsonEnd);
+      console.log('Extracted JSON (first 200 chars):', jsonStr.substring(0, 200));
       
       // Step 3: Fix common JSON issues from AI responses
       // Fix: Missing quotes before property names (e.g., annaMaxVelocity" -> "armMaxVelocity")
