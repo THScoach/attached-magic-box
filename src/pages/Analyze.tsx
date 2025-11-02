@@ -29,24 +29,21 @@ export default function Analyze() {
   const [camera2Video, setCamera2Video] = useState<File | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(() => {
+    // Initialize from sessionStorage to avoid null flash
+    return sessionStorage.getItem('selectedPlayerId');
+  });
   const [showSyncRecording, setShowSyncRecording] = useState(false);
   const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
   const [recordedVideoFile, setRecordedVideoFile] = useState<File | null>(null);
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
   
-  // Load player ID from sessionStorage on mount
+  // Update sessionStorage when player changes
   useEffect(() => {
-    const storedPlayerId = sessionStorage.getItem('selectedPlayerId');
-    if (storedPlayerId) {
-      console.log('Loading stored player ID:', storedPlayerId);
-      setSelectedPlayerId(storedPlayerId);
+    if (selectedPlayerId) {
+      sessionStorage.setItem('selectedPlayerId', selectedPlayerId);
+      console.log('Selected Player ID changed:', selectedPlayerId);
     }
-  }, []);
-
-  // Debug player selection
-  useEffect(() => {
-    console.log('Selected Player ID changed:', selectedPlayerId);
   }, [selectedPlayerId]);
   
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
