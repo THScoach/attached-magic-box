@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { BottomNav } from "@/components/BottomNav";
 import { PlayerSelector } from "@/components/PlayerSelector";
 import { SyncRecording } from "@/components/SyncRecording";
+import { BatchVideoUpload } from "@/components/BatchVideoUpload";
 import { Upload, Camera, Loader2, X, Circle, Square, SwitchCamera, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -722,6 +723,18 @@ export default function Analyze() {
                 )}
               </div>
             </Card>
+
+            {/* Batch Upload Section */}
+            {selectedPlayerId && (
+              <BatchVideoUpload 
+                playerId={selectedPlayerId}
+                playerName={selectedPlayerName || undefined}
+                onUploadComplete={() => {
+                  // Refresh any necessary data
+                  console.log('Batch upload completed');
+                }}
+              />
+            )}
 
             {/* Dual Camera Mode Toggle */}
             <Card className="p-4">
