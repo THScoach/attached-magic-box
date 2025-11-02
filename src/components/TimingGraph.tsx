@@ -18,98 +18,117 @@ export function TimingGraph({ analysis, currentTime, duration }: TimingGraphProp
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * window.devicePixelRatio;
-    canvas.height = rect.height * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    let animationFrameId: number;
 
-    const width = rect.width;
-    const height = rect.height;
-    const padding = 40;
-    const graphWidth = width - padding * 2;
-    const graphHeight = height - padding * 2;
+    const draw = () => {
+      // Set canvas size
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
+      const width = rect.width;
+      const height = rect.height;
+      const padding = 40;
+      const graphWidth = width - padding * 2;
+      const graphHeight = height - padding * 2;
 
-    // Draw background
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
-    ctx.fillRect(padding, padding, graphWidth, graphHeight);
+      // Clear canvas
+      ctx.clearRect(0, 0, width, height);
 
-    // Draw grid
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 4; i++) {
-      const y = padding + (graphHeight / 4) * i;
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
-      ctx.stroke();
-    }
+      // Draw background
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+      ctx.fillRect(padding, padding, graphWidth, graphHeight);
 
-    // Draw timing events
-    const timingEvents = [
-      { label: 'Pelvis Peak', time: analysis.pelvisTiming, velocity: analysis.pelvisMaxVelocity, color: '#FF6B6B' },
-      { label: 'Torso Peak', time: analysis.torsoTiming, velocity: analysis.torsoMaxVelocity, color: '#4ECDC4' },
-      { label: 'Hands Peak', time: analysis.handsTiming, velocity: analysis.armMaxVelocity, color: '#FFD93D' }
-    ];
+      // Draw grid
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = padding + (graphHeight / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+      }
 
-    const maxVelocity = Math.max(
-      analysis.pelvisMaxVelocity || 0,
-      analysis.torsoMaxVelocity || 0,
-      analysis.armMaxVelocity || 0,
-      1000
-    );
+      // Draw timing events
+      const timingEvents = [
+        { label: 'Pelvis Peak', time: analysis.pelvisTiming, velocity: analysis.pelvisMaxVelocity, color: '#FF6B6B' },
+        { label: 'Torso Peak', time: analysis.torsoTiming, velocity: analysis.torsoMaxVelocity, color: '#4ECDC4' },
+        { label: 'Hands Peak', time: analysis.handsTiming, velocity: analysis.armMaxVelocity, color: '#FFD93D' }
+      ];
 
-    timingEvents.forEach((event, index) => {
-      if (!event.time || !event.velocity) return;
+      const maxVelocity = Math.max(
+        analysis.pelvisMaxVelocity || 0,
+        analysis.torsoMaxVelocity || 0,
+        analysis.armMaxVelocity || 0,
+        1000
+      );
 
-      const x = padding + (event.time / duration) * graphWidth;
-      const y = padding + graphHeight - (event.velocity / maxVelocity) * graphHeight;
+      timingEvents.forEach((event) => {
+        if (!event.time || !event.velocity) return;
 
-      // Draw vertical line
-      ctx.strokeStyle = event.color;
+        const x = padding + (event.time / duration) * graphWidth;
+        const y = padding + graphHeight - (event.velocity / maxVelocity) * graphHeight;
+
+        // Draw vertical line
+        ctx.strokeStyle = event.color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(x, padding);
+        ctx.lineTo(x, height - padding);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw point
+        ctx.fillStyle = event.color;
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw label
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText(event.label, x + 10, y - 10);
+        ctx.fillText(`${event.velocity} °/s`, x + 10, y + 5);
+      });
+
+      // Draw current time indicator
+      const currentX = padding + (currentTime / duration) * graphWidth;
+      ctx.strokeStyle = '#000';
       ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
       ctx.beginPath();
-      ctx.moveTo(x, padding);
-      ctx.lineTo(x, height - padding);
+      ctx.moveTo(currentX, padding);
+      ctx.lineTo(currentX, height - padding);
       ctx.stroke();
-      ctx.setLineDash([]);
 
-      // Draw point
-      ctx.fillStyle = event.color;
+      // Draw current time marker at top
+      ctx.fillStyle = '#000';
       ctx.beginPath();
-      ctx.arc(x, y, 6, 0, Math.PI * 2);
+      ctx.arc(currentX, padding - 10, 5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Draw label
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.fillText(event.label, x + 10, y - 10);
-      ctx.fillText(`${event.velocity} °/s`, x + 10, y + 5);
-    });
+      // Draw axis labels
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('Time (ms)', width / 2 - 30, height - 5);
+      ctx.save();
+      ctx.translate(15, height / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('Velocity (°/s)', 0, 0);
+      ctx.restore();
 
-    // Draw current time indicator
-    const currentX = padding + (currentTime / duration) * graphWidth;
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(currentX, padding);
-    ctx.lineTo(currentX, height - padding);
-    ctx.stroke();
+      animationFrameId = requestAnimationFrame(draw);
+    };
 
-    // Draw axis labels
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-    ctx.font = '11px sans-serif';
-    ctx.fillText('Time (ms)', width / 2 - 30, height - 5);
-    ctx.save();
-    ctx.translate(15, height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Velocity (°/s)', 0, 0);
-    ctx.restore();
+    draw();
 
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [analysis, currentTime, duration]);
 
   return (
