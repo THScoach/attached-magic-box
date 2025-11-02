@@ -17,6 +17,7 @@ serve(async (req) => {
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
     let userId = null;
+    let playerContext = '';
     
     if (authHeader) {
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -27,6 +28,39 @@ serve(async (req) => {
       
       const { data: { user } } = await supabase.auth.getUser();
       userId = user?.id;
+      
+      // Fetch player-specific data if playerId provided
+      if (playerId && userId) {
+        const { data: playerData, error: playerError } = await supabase
+          .from('players')
+          .select('first_name, last_name, birth_date, height, weight, position, handedness, notes')
+          .eq('id', playerId)
+          .eq('user_id', userId)
+          .single();
+        
+        if (playerData && !playerError) {
+          const age = playerData.birth_date 
+            ? Math.floor((Date.now() - new Date(playerData.birth_date).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+            : null;
+          
+          playerContext = `
+
+**PLAYER CONTEXT - ${playerData.first_name} ${playerData.last_name}:**
+${age ? `- Age: ${age} years old ${age < 16 ? '(YOUTH - prioritize movement quality over velocity, growth plates developing)' : age < 18 ? '(ADOLESCENT - monitor for compensation patterns during rapid growth)' : ''}` : ''}
+${playerData.height ? `- Height: ${playerData.height} inches` : ''}
+${playerData.weight ? `- Weight: ${playerData.weight} lbs` : ''}
+${playerData.handedness ? `- Bats: ${playerData.handedness === 'L' ? 'Left' : playerData.handedness === 'R' ? 'Right' : 'Switch'}` : ''}
+${playerData.position ? `- Position: ${playerData.position}` : ''}
+${playerData.notes ? `- Notes: ${playerData.notes}` : ''}
+
+**CRITICAL FOR THIS PLAYER:**
+${age && age < 18 ? '- Growth plates still developing - prioritize safe mechanics over power\n- Watch for compensation patterns as body changes\n- Focus on movement efficiency, not maximum velocity' : ''}
+- Consider this player's specific biomechanical characteristics when assessing injury risk
+- If notes mention past injuries or limitations, factor those into your analysis
+- Tailor recommendations to their age, size, and development stage
+`;
+        }
+      }
     }
     
     if (!frames || !Array.isArray(frames) || frames.length === 0) {
@@ -100,6 +134,63 @@ Your task is to analyze swing videos frame-by-frame and provide detailed biomech
 - COM-COP horizontal distance: Elite 2-4 inches | Amateur 4-8 inches (closer = better balance)
 - Balance recovery time: Elite 0.3-0.5s | Amateur 0.6-1.0s
 - Weight transfer completion: Elite 70-80% front foot at contact | Amateur 50-60%
+
+**CRITICAL: BIOMECHANICAL INTEGRITY & INJURY RISK ASSESSMENT**
+
+ALWAYS analyze for joint stress patterns and violations of biomechanical laws that could lead to injury:
+
+**High-Risk Movement Patterns:**
+
+1. **Lumbar Spine Stress (Lower Back Injury Risk):**
+   - ⚠️ WARNING: Excessive torso rotation WITHOUT adequate hip lead
+   - Safe: Hip rotation leads torso by 40-60ms, X-Factor 25-35°
+   - DANGER: Torso rotates before or simultaneous with hips (reverse sequence)
+   - DANGER: X-Factor >40° (extreme separation = excessive lumbar stress)
+   - Youth players (<18): Extra caution - growth plates more vulnerable
+
+2. **Hip/Pelvis Joint Stress:**
+   - ⚠️ WARNING: Excessive lateral hip slide (>6 inches) without rotation
+   - Safe: Hip rotates while moving forward, minimal lateral drift
+   - DANGER: Hip sliding laterally instead of rotating (shearing force on joint)
+   - DANGER: Pelvis rotation >130° (over-rotation stresses hip labrum)
+
+3. **Shoulder/Rotator Cuff Stress:**
+   - ⚠️ WARNING: Premature arm extension before torso completes rotation
+   - Safe: Arms extend AFTER torso reaches 70%+ of max rotation
+   - DANGER: "Casting" motion - hands extend too early, arm velocity >2.3x torso
+   - DANGER: Back shoulder dips below front shoulder >20° (impingement risk)
+
+4. **Elbow/Wrist Stress:**
+   - ⚠️ WARNING: "Barring out" front arm - elbow locks before contact
+   - Safe: Front elbow maintains 150-170° angle through contact
+   - DANGER: Front elbow fully extended (180°) before contact (UCL stress)
+   - DANGER: Wrist extension >30° at contact (wrist joint overload)
+
+5. **Knee Joint Stress (Front Leg):**
+   - ⚠️ WARNING: Front knee collapsing inward (valgus stress)
+   - Safe: Front knee tracks over toes, maintains 15-25° flexion at contact
+   - DANGER: Front knee caves inward >5° (MCL/ACL risk)
+   - DANGER: Front knee locks straight <5° flexion (compressive force)
+
+6. **Timing-Based Injury Risks:**
+   - ⚠️ WARNING: Late fire initiation (FireStart <250ms before contact)
+   - Safe: FireStart 300-400ms before contact allows proper sequencing
+   - DANGER: Rushed fire phase = compensatory movements, improper loading
+   - DANGER: Very long load (>1200ms) with aggressive fire = momentum-based swing (loss of control)
+
+**Age-Specific Considerations:**
+- Youth (<16 years): Growth plates still developing - prioritize movement quality over velocity
+- Adolescent (16-18): Rapid growth phase - monitor for compensation patterns
+- Adult (18+): Focus on efficiency and injury prevention through proper mechanics
+
+**In Your impactStatement:**
+- If you detect ANY high-risk pattern, you MUST mention it explicitly
+- Use specific language: "I notice [movement pattern] which places stress on your [joint/area]"
+- Provide actionable fix: "Focus on [corrective cue] to reduce injury risk"
+- Frame as opportunity: "Cleaning up this pattern will not only improve power but also protect your [body part]"
+
+**Example Integration:**
+"Your explosive hip rotation (680°/s) is elite, BUT I notice your torso is starting to rotate before your hips have fully engaged. This reverse sequencing can place excessive stress on your lumbar spine. By ensuring your hips fire 40-60ms before your torso, you'll not only generate more power through proper kinetic chain but also protect your lower back for long-term health."
 
 **Tempo Ratio (Load:Fire) - CRITICAL FORMULA:**
 
@@ -276,9 +367,9 @@ Use these five contrasting profiles to calibrate estimates across the full MLB s
 - Tatis: Explosive power (extreme 45° X-Factor, high bat speed, aggressive mechanics, ~6-8:1 tempo)
 - Machado: Elite velocity (120-154% of MLB avg rotational speeds, exceptional COM velocity, ~1.5-2.0:1 tempo)
 
-Be specific and use realistic values based on high-level players.`;
+Be specific and use realistic values based on high-level players.${playerContext}`;
 
-    const userPrompt = dualCamera && frames2 
+    const userPrompt = dualCamera && frames2
       ? `Analyze this baseball/softball swing sequence using DUAL CAMERA 3D RECONSTRUCTION. I'm providing ${frames.length} key frames from Camera 1 (open/catcher side at 45°) and ${frames2.length} frames from Camera 2 (closed/dugout side at 45°).
 
 **DUAL CAMERA ADVANTAGES:**
@@ -325,7 +416,7 @@ Provide detailed scores and analysis in this exact JSON format:
   "comCopDistance": <inches separation, elite 2-4, amateur 4-8>,
   "balanceRecoveryTime": <seconds after contact, elite 0.3-0.5>,
   "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
-  "impactStatement": "<specific actionable insight>"
+  "impactStatement": "<2-3 sentence specific insight. MUST address any biomechanical integrity issues or injury risk patterns detected. Frame as opportunity for improvement AND injury prevention.>"
 }`
       : `Analyze this baseball/softball swing sequence. I'm providing ${frames.length} key frames from a high-speed video (300fps).
     
@@ -368,7 +459,7 @@ Provide detailed scores and analysis in this exact JSON format:
   "comCopDistance": <inches separation, elite 2-4, amateur 4-8>,
   "balanceRecoveryTime": <seconds after contact, elite 0.3-0.5>,
   "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
-  "impactStatement": "<specific actionable insight>"
+  "impactStatement": "<2-3 sentence specific insight. MUST address any biomechanical integrity issues or injury risk patterns detected. Frame as opportunity for improvement AND injury prevention.>"
 }`;
 
     // Prepare messages with images
