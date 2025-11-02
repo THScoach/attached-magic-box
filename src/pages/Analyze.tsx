@@ -237,8 +237,10 @@ export default function Analyze() {
     }
 
     // Convert blob to file with contact timestamp metadata
-    const videoFile = new File([result.blob], `recording-${Date.now()}.webm`, {
-      type: 'video/webm'
+    // Use the blob's type to determine the correct file extension
+    const fileExtension = result.blob.type.includes('mp4') ? 'mp4' : 'webm';
+    const videoFile = new File([result.blob], `recording-${Date.now()}.${fileExtension}`, {
+      type: result.blob.type
     });
     
     // Store contact timestamp for later use in analysis

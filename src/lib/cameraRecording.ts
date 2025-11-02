@@ -19,6 +19,7 @@ export class CameraRecorder {
   private autoStopCallback: (() => void) | null = null;
   private isBuffering: boolean = false;
   private contactTimestamp: number | null = null; // Time when button pressed at contact
+  private currentMimeType: string = 'video/mp4'; // Store the mime type being used
 
   async startPreview(
     videoElement: HTMLVideoElement,
@@ -125,12 +126,15 @@ export class CameraRecorder {
       this.isBuffering = true;
       
       // Use the highest quality codec available
+      const mimeType = this.getSupportedMimeType();
       const options: MediaRecorderOptions = {
-        mimeType: this.getSupportedMimeType(),
-        videoBitsPerSecond: 12000000 // 12 Mbps for 240fps high quality
+        mimeType,
+        videoBitsPerSecond: 12000000 // 12 Mbps for high quality
       };
 
+      console.log('Starting MediaRecorder with:', options);
       this.mediaRecorder = new MediaRecorder(this.stream, options);
+      this.currentMimeType = mimeType; // Store for later use
 
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -203,8 +207,8 @@ export class CameraRecorder {
       }
 
       this.mediaRecorder.onstop = () => {
-        const blob = new Blob(this.chunks, { type: 'video/webm' });
-        console.log('Recording stopped, blob size:', blob.size);
+        const blob = new Blob(this.chunks, { type: this.currentMimeType });
+        console.log('Recording stopped, blob size:', blob.size, 'type:', this.currentMimeType);
         console.log('Contact occurred at:', this.contactTimestamp, 'ms');
         resolve({ 
           success: true, 
@@ -249,21 +253,36 @@ export class CameraRecorder {
   }
 
   private getSupportedMimeType(): string {
-    const types = [
-      'video/webm;codecs=vp9',
-      'video/webm;codecs=vp8',
-      'video/webm',
-      'video/mp4'
-    ];
+    // Detect iOS/iPad devices
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    // Prioritize MP4 for iOS devices, as they handle it best
+    const types = isIOS 
+      ? [
+          'video/mp4;codecs=h264',
+          'video/mp4',
+          'video/webm;codecs=vp9',
+          'video/webm;codecs=vp8',
+          'video/webm'
+        ]
+      : [
+          'video/webm;codecs=vp9',
+          'video/webm;codecs=vp8',
+          'video/webm',
+          'video/mp4;codecs=h264',
+          'video/mp4'
+        ];
 
     for (const type of types) {
       if (MediaRecorder.isTypeSupported(type)) {
-        console.log('Using mime type:', type);
+        console.log('Using mime type:', type, '(iOS device:', isIOS + ')');
         return type;
       }
     }
 
-    return 'video/webm';
+    // Fallback based on device
+    return isIOS ? 'video/mp4' : 'video/webm';
   }
 
   isRecording(): boolean {
