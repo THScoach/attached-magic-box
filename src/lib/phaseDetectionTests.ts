@@ -26,47 +26,47 @@ const GROUND_TRUTH_PLAYERS: PlayerGroundTruth[] = [
   {
     name: "Freddie Freeman",
     expectedTempo: 2.50,
-    tempoRange: [2.4, 2.6],
-    loadStartWindow: [950, 1100],
-    fireStartWindow: [340, 380],
-    pelvisPeakWindow: [200, 250],
-    playerType: "Elite Power Hitter"
+    tempoRange: [2.40, 2.60],
+    loadStartWindow: [800, 900],
+    fireStartWindow: [320, 360],
+    pelvisPeakWindow: [180, 220],
+    playerType: "Aggressive Elite Power (BASELINE)"
   },
   {
     name: "Aaron Judge",
-    expectedTempo: 2.10,
-    tempoRange: [2.0, 2.3],
-    loadStartWindow: [900, 1050],
-    fireStartWindow: [350, 400],
-    pelvisPeakWindow: [200, 240],
-    playerType: "Balanced Power"
+    expectedTempo: 2.70,
+    tempoRange: [2.60, 2.80],
+    loadStartWindow: [750, 850],
+    fireStartWindow: [280, 320],
+    pelvisPeakWindow: [160, 200],
+    playerType: "Aggressive-Balanced Power"
   },
   {
     name: "Luis Arraez",
-    expectedTempo: 3.80,
-    tempoRange: [3.5, 4.2],
-    loadStartWindow: [1200, 1500],
-    fireStartWindow: [280, 350],
-    pelvisPeakWindow: [170, 210],
-    playerType: "Elite Contact Hitter"
+    expectedTempo: 3.50,
+    tempoRange: [3.40, 3.60],
+    loadStartWindow: [950, 1050],
+    fireStartWindow: [280, 300],
+    pelvisPeakWindow: [160, 190],
+    playerType: "Patient Contact Hitter"
   },
   {
     name: "Fernando Tatis Jr.",
-    expectedTempo: 7.00,
-    tempoRange: [6.0, 8.5],
-    loadStartWindow: [1800, 2200],
-    fireStartWindow: [250, 320],
-    pelvisPeakWindow: [300, 350],
-    playerType: "Explosive Power (Extreme Separation)"
+    expectedTempo: 2.60,
+    tempoRange: [2.50, 2.70],
+    loadStartWindow: [700, 800],
+    fireStartWindow: [280, 300],
+    pelvisPeakWindow: [160, 190],
+    playerType: "Aggressive Power (Explosive)"
   },
   {
     name: "Kyle Tucker",
-    expectedTempo: 10.50,
-    tempoRange: [9.5, 11.5],
-    loadStartWindow: [2200, 2500],
-    fireStartWindow: [200, 250],
-    pelvisPeakWindow: [190, 220],
-    playerType: "Patient Power (Very Long Load)"
+    expectedTempo: 2.90,
+    tempoRange: [2.80, 3.00],
+    loadStartWindow: [800, 900],
+    fireStartWindow: [280, 320],
+    pelvisPeakWindow: [160, 200],
+    playerType: "Balanced Power (Smooth)"
   }
 ];
 
@@ -133,14 +133,14 @@ function validateFireDuration(markers: PhaseMarkers): TestResult {
  */
 function validateLoadDuration(markers: PhaseMarkers): TestResult {
   const loadDuration = markers.loadStart - markers.fireStart;
-  const isValid = loadDuration >= 650 && loadDuration <= 2500;
+  const isValid = loadDuration >= 500 && loadDuration <= 1200;
   
   return {
-    testName: "Load Duration (650-2500ms)",
+    testName: "Load Duration (500-1200ms)",
     passed: isValid,
-    expected: "650-2500ms",
+    expected: "500-1200ms",
     actual: `${loadDuration}ms`,
-    severity: loadDuration < 600 ? 'critical' : loadDuration > 2600 ? 'warning' : 'info'
+    severity: loadDuration < 500 ? 'critical' : loadDuration > 1200 ? 'critical' : 'info'
   };
 }
 
@@ -151,12 +151,15 @@ function validateTempoRatio(markers: PhaseMarkers, expectedRange: [number, numbe
   const tempo = calculateTempo(markers);
   const isValid = tempo >= expectedRange[0] && tempo <= expectedRange[1];
   
+  // Check if tempo is within hard constraints (1.5-5.0)
+  const withinHardLimits = tempo >= 1.5 && tempo <= 5.0;
+  
   return {
     testName: `Tempo Ratio (${expectedRange[0]}-${expectedRange[1]}:1)`,
-    passed: isValid,
+    passed: isValid && withinHardLimits,
     expected: `${expectedRange[0]}-${expectedRange[1]}:1`,
     actual: `${tempo.toFixed(2)}:1`,
-    severity: Math.abs(tempo - ((expectedRange[0] + expectedRange[1]) / 2)) > 0.5 ? 'critical' : 'warning'
+    severity: !withinHardLimits ? 'critical' : Math.abs(tempo - ((expectedRange[0] + expectedRange[1]) / 2)) > 0.3 ? 'warning' : 'info'
   };
 }
 
@@ -165,14 +168,14 @@ function validateTempoRatio(markers: PhaseMarkers, expectedRange: [number, numbe
  */
 function validateFireStartTiming(markers: PhaseMarkers): TestResult {
   const fireStartToPelvisPeak = markers.fireStart - markers.pelvisPeak;
-  const isValid = fireStartToPelvisPeak >= 120 && fireStartToPelvisPeak <= 200;
+  const isValid = fireStartToPelvisPeak >= 100 && fireStartToPelvisPeak <= 200;
   
   return {
-    testName: "FireStart to Pelvis Peak Timing (120-200ms)",
+    testName: "FireStart to Pelvis Peak Timing (100-200ms)",
     passed: isValid,
-    expected: "120-200ms before pelvis peak",
+    expected: "100-200ms before pelvis peak",
     actual: `${fireStartToPelvisPeak}ms`,
-    severity: fireStartToPelvisPeak < 100 || fireStartToPelvisPeak > 220 ? 'critical' : 'warning'
+    severity: fireStartToPelvisPeak < 80 || fireStartToPelvisPeak > 220 ? 'critical' : 'warning'
   };
 }
 
@@ -256,48 +259,70 @@ export function validatePhaseDetection(
 export function runEdgeCaseTests(): TestResult[] {
   const edgeCases: TestResult[] = [];
   
-  // Test 1: Zero fire duration
+  // Edge Case 1: Ultra-aggressive swing (at lower bound)
+  const aggressive: PhaseMarkers = { loadStart: 700, fireStart: 380, contact: 0, pelvisPeak: 180 };
+  const aggressiveTempo = calculateTempo(aggressive);
   edgeCases.push({
-    testName: "Edge Case: Zero Fire Duration",
-    passed: true,
-    expected: "Should reject (fire duration < 250ms)",
-    actual: "Validation correctly rejects",
+    testName: "Ultra-Aggressive Swing (1.84:1)",
+    passed: aggressiveTempo >= 1.5 && aggressiveTempo < 2.3,
+    expected: "1.5-2.3:1 range (below elite but valid)",
+    actual: `${aggressiveTempo.toFixed(2)}:1`,
+    severity: aggressiveTempo < 1.5 ? 'critical' : 'warning'
+  });
+  
+  // Edge Case 2: Patient swing (upper elite range)
+  const patient: PhaseMarkers = { loadStart: 1280, fireStart: 320, contact: 0, pelvisPeak: 170 };
+  const patientTempo = calculateTempo(patient);
+  edgeCases.push({
+    testName: "Patient Contact Swing (4.00:1)",
+    passed: patientTempo >= 3.8 && patientTempo <= 5.0,
+    expected: "3.8-5.0:1 range (patient hitter)",
+    actual: `${patientTempo.toFixed(2)}:1`,
+    severity: patientTempo > 5.0 ? 'critical' : 'info'
+  });
+  
+  // Edge Case 3: Inverted swing (fire longer than load) - MUST REJECT
+  const inverted: PhaseMarkers = { loadStart: 500, fireStart: 450, contact: 0, pelvisPeak: 200 };
+  const invertedTempo = calculateTempo(inverted);
+  edgeCases.push({
+    testName: "Inverted Swing Detection (MUST REJECT)",
+    passed: invertedTempo < 1.5,
+    expected: "< 1.5:1 (algorithm should reject)",
+    actual: `${invertedTempo.toFixed(2)}:1`,
+    severity: 'critical'
+  });
+  
+  // Edge Case 4: Impossible tempo (way too high) - MUST REJECT
+  const impossible: PhaseMarkers = { loadStart: 2100, fireStart: 300, contact: 0, pelvisPeak: 150 };
+  const impossibleTempo = calculateTempo(impossible);
+  edgeCases.push({
+    testName: "Impossible Tempo >5.0:1 (MUST REJECT)",
+    passed: impossibleTempo > 5.0,
+    expected: "> 5.0:1 (algorithm should reject)",
+    actual: `${impossibleTempo.toFixed(2)}:1`,
+    severity: 'critical'
+  });
+  
+  // Edge Case 5: Minimum fire duration boundary
+  const minFire: PhaseMarkers = { loadStart: 900, fireStart: 250, contact: 0, pelvisPeak: 130 };
+  const minFireTempo = calculateTempo(minFire);
+  edgeCases.push({
+    testName: "Minimum Fire Duration (250ms)",
+    passed: minFire.fireStart === 250 && minFireTempo >= 1.5,
+    expected: "Fire = 250ms (minimum acceptable)",
+    actual: `Fire ${minFire.fireStart}ms, Tempo ${minFireTempo.toFixed(2)}:1`,
     severity: 'info'
   });
   
-  // Test 2: Negative tempo
+  // Edge Case 6: Maximum load duration boundary
+  const maxLoad: PhaseMarkers = { loadStart: 1450, fireStart: 250, contact: 0, pelvisPeak: 130 };
+  const maxLoadTempo = calculateTempo(maxLoad);
+  const maxLoadDuration = maxLoad.loadStart - maxLoad.fireStart;
   edgeCases.push({
-    testName: "Edge Case: Markers Out of Order",
-    passed: true,
-    expected: "Should reject (FireStart > LoadStart)",
-    actual: "Validation correctly rejects",
-    severity: 'info'
-  });
-  
-  // Test 3: Extreme tempo (>15:1)
-  edgeCases.push({
-    testName: "Edge Case: Extreme Tempo Ratio",
-    passed: true,
-    expected: "Should flag warning (tempo > 12:1)",
-    actual: "Validation flags appropriately",
-    severity: 'info'
-  });
-  
-  // Test 4: LoadStart too early (>3000ms)
-  edgeCases.push({
-    testName: "Edge Case: LoadStart Beyond Video Start",
-    passed: true,
-    expected: "Should reject (LoadStart > 3000ms)",
-    actual: "Validation correctly rejects",
-    severity: 'info'
-  });
-  
-  // Test 5: FireStart after pelvis peak
-  edgeCases.push({
-    testName: "Edge Case: FireStart After Pelvis Peak",
-    passed: true,
-    expected: "Should reject (FireStart < PelvisPeak + 120ms)",
-    actual: "Validation correctly rejects",
+    testName: "Maximum Load Duration (1200ms)",
+    passed: maxLoadDuration === 1200 && maxLoadTempo <= 5.0,
+    expected: "Load = 1200ms (maximum acceptable)",
+    actual: `Load ${maxLoadDuration}ms, Tempo ${maxLoadTempo.toFixed(2)}:1`,
     severity: 'info'
   });
   

@@ -456,6 +456,7 @@ Provide detailed scores and analysis in this exact JSON format:
     // ============= PHASE DETECTION VALIDATION =============
     console.log('=== Phase Detection Validation ===');
     
+    const validationErrors: string[] = [];
     const validationWarnings: string[] = [];
     const validationDebug = {
       loadStart: analysis.loadStartTiming,
@@ -465,49 +466,99 @@ Provide detailed scores and analysis in this exact JSON format:
       loadDuration: analysis.loadStartTiming - analysis.fireStartTiming,
       fireDuration: analysis.fireStartTiming - 0,
       tempoRatio: analysis.tempoRatio,
-      calculatedTempo: (analysis.loadStartTiming - analysis.fireStartTiming) / analysis.fireStartTiming
+      calculatedTempo: (analysis.loadStartTiming - analysis.fireStartTiming) / analysis.fireStartTiming,
+      totalSwingTime: analysis.loadStartTiming
     };
 
     console.log('Phase Markers:', JSON.stringify(validationDebug, null, 2));
 
-    // Validation 1: Marker Ordering (LoadStart > FireStart > Contact)
-    if (!(analysis.loadStartTiming > analysis.fireStartTiming && analysis.fireStartTiming > 0)) {
-      validationWarnings.push(`⚠️ CRITICAL: Invalid marker ordering - LoadStart(${analysis.loadStartTiming}ms) > FireStart(${analysis.fireStartTiming}ms) > Contact(0ms)`);
+    // ============= HARD CONSTRAINTS (REJECT IF VIOLATED) =============
+    
+    // Constraint 1: Tempo Ratio (1.5:1 to 5.0:1)
+    if (analysis.tempoRatio < 1.5) {
+      validationErrors.push(`CRITICAL: Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 below minimum 1.5:1 - Fire phase longer than Load phase (inverted swing)`);
+    } else if (analysis.tempoRatio > 5.0) {
+      validationErrors.push(`CRITICAL: Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 exceeds maximum 5.0:1 - Unrealistic tempo indicates detection error`);
     }
 
-    // Validation 2: Fire Duration (250-500ms)
-    const fireDuration = analysis.fireStartTiming;
-    if (fireDuration < 250 || fireDuration > 500) {
-      validationWarnings.push(`⚠️ Fire Duration out of range: ${fireDuration}ms (expected 250-500ms)`);
-    }
-
-    // Validation 3: Load Duration (650-2000ms) - EXPANDED RANGE
+    // Constraint 2: Load Duration (0.50 to 1.20 seconds)
     const loadDuration = analysis.loadStartTiming - analysis.fireStartTiming;
-    if (loadDuration < 650) {
-      validationWarnings.push(`⚠️ CRITICAL: Load Duration too short: ${loadDuration}ms (expected 650-2000ms) - LoadStart likely detected LATE`);
-    } else if (loadDuration > 2000) {
-      validationWarnings.push(`⚠️ Load Duration unusually long: ${loadDuration}ms (expected 650-2000ms) - Verify detection or player has extreme patience`);
+    if (loadDuration < 500) {
+      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms below minimum 500ms - Load Start detected too late`);
+    } else if (loadDuration > 1200) {
+      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms exceeds maximum 1200ms - Load Start detected too early or including pre-swing setup`);
     }
 
-    // Validation 4: Tempo Range (1.5-8.0:1)
-    if (analysis.tempoRatio < 1.5 || analysis.tempoRatio > 8.0) {
-      validationWarnings.push(`⚠️ Tempo Ratio out of range: ${analysis.tempoRatio}:1 (expected 1.5-8.0:1)`);
+    // Constraint 3: Fire Duration (0.25 to 0.45 seconds)
+    const fireDuration = analysis.fireStartTiming;
+    if (fireDuration < 250) {
+      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms below minimum 250ms - Physiologically impossible, Fire Start detected too late`);
+    } else if (fireDuration > 450) {
+      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms exceeds maximum 450ms - Fire Start detected too early`);
     }
 
-    // Validation 5: FireStart vs Pelvis Peak Timing
-    const fireStartToPelvisPeak = analysis.fireStartTiming - analysis.pelvisTiming;
-    if (fireStartToPelvisPeak < 120 || fireStartToPelvisPeak > 180) {
-      validationWarnings.push(`⚠️ FireStart to Pelvis Peak timing: ${fireStartToPelvisPeak}ms (expected 120-180ms) - FireStart should be BEFORE pelvis peak`);
+    // Constraint 4: Total Swing Time (0.80 to 1.50 seconds)
+    const totalSwingTime = analysis.loadStartTiming;
+    if (totalSwingTime < 800) {
+      validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms below minimum 800ms - Missing early load phase`);
+    } else if (totalSwingTime > 1500) {
+      validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms exceeds maximum 1500ms - Including pre-swing setup or multiple pitches`);
     }
 
-    // Validation 6: Freeman Target Check (2.4-2.6:1 for elite power hitters)
-    if (analysis.tempoRatio < 2.2) {
-      validationWarnings.push(`ℹ️ Tempo below Freeman target: ${analysis.tempoRatio}:1 (Freeman target: 2.4-2.6:1) - Consider if LoadStart detection is capturing FIRST hand/hip movement`);
+    // Constraint 5: Marker Ordering (LoadStart > FireStart > Contact)
+    if (!(analysis.loadStartTiming > analysis.fireStartTiming && analysis.fireStartTiming > 0)) {
+      validationErrors.push(`CRITICAL: Invalid marker ordering - LoadStart(${analysis.loadStartTiming}ms) must be > FireStart(${analysis.fireStartTiming}ms) must be > Contact(0ms)`);
+    }
+
+    // ============= SOFT WARNINGS (LOG BUT ALLOW) =============
+
+    // Warning 1: Elite Range Check (2.5-3.5:1 for most elite hitters)
+    if (analysis.tempoRatio >= 1.5 && analysis.tempoRatio < 2.3) {
+      validationWarnings.push(`⚠️ Tempo ${analysis.tempoRatio.toFixed(2)}:1 below elite range (2.3-3.5:1) - Aggressive swing style or Load Start slightly late`);
+    } else if (analysis.tempoRatio > 3.8 && analysis.tempoRatio <= 5.0) {
+      validationWarnings.push(`⚠️ Tempo ${analysis.tempoRatio.toFixed(2)}:1 above typical elite range (2.3-3.5:1) - Patient contact hitter or Load Start slightly early`);
+    }
+
+    // Warning 2: FireStart vs Pelvis Peak Timing
+    if (analysis.pelvisTiming) {
+      const fireStartToPelvisPeak = analysis.fireStartTiming - analysis.pelvisTiming;
+      if (fireStartToPelvisPeak < 100 || fireStartToPelvisPeak > 200) {
+        validationWarnings.push(`⚠️ FireStart to Pelvis Peak timing: ${fireStartToPelvisPeak}ms (expected 100-200ms) - FireStart should align with hip rotation initiation`);
+      }
+    }
+
+    // Warning 3: Optimal Duration Ranges
+    if (loadDuration >= 500 && loadDuration < 650) {
+      validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is short but acceptable (optimal: 650-1000ms)`);
+    }
+    if (fireDuration >= 250 && fireDuration < 280) {
+      validationWarnings.push(`⚠️ Fire duration ${fireDuration}ms is short but acceptable (optimal: 280-380ms)`);
+    }
+
+    // ============= REJECT ANALYSIS IF HARD CONSTRAINTS VIOLATED =============
+    if (validationErrors.length > 0) {
+      console.error('❌ PHASE DETECTION VALIDATION FAILED:');
+      validationErrors.forEach(error => console.error(error));
+      console.error('Validation Debug:', JSON.stringify(validationDebug, null, 2));
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Phase detection validation failed',
+          validationErrors: validationErrors,
+          validationDebug: validationDebug,
+          message: 'The swing analysis detected invalid phase timing. This usually indicates the algorithm could not reliably detect the swing phases. Please ensure the video shows a complete swing with clear body movement, or try recording from a different angle.'
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     // Log validation results
     if (validationWarnings.length > 0) {
-      console.log('⚠️ VALIDATION WARNINGS:');
+      console.log('⚠️ VALIDATION WARNINGS (non-blocking):');
       validationWarnings.forEach(warning => console.log(warning));
     } else {
       console.log('✅ All phase detection validations passed');
@@ -515,9 +566,10 @@ Provide detailed scores and analysis in this exact JSON format:
 
     // Add validation data to analysis object for debugging
     analysis.validation = {
+      errors: validationErrors,
       warnings: validationWarnings,
       debug: validationDebug,
-      passed: validationWarnings.length === 0
+      passed: validationErrors.length === 0
     };
 
     console.log('=== End Phase Detection Validation ===');
