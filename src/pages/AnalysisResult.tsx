@@ -40,6 +40,7 @@ export default function AnalysisResult() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentFrame, setCurrentFrame] = useState(0);
+  const [isBuffering, setIsBuffering] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const velocityData = generateVelocityData();
@@ -222,13 +223,16 @@ export default function AnalysisResult() {
   };
 
   const togglePlayPause = () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || isBuffering) return;
     
     if (isPlaying) {
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
-      videoRef.current.play();
+      videoRef.current.play().catch(err => {
+        console.error('Play failed:', err);
+        toast.error('Unable to play video');
+      });
       setIsPlaying(true);
     }
   };
@@ -311,12 +315,29 @@ export default function AnalysisResult() {
     if (!videoRef.current) return;
     setDuration(videoRef.current.duration);
     videoRef.current.playbackRate = playbackRate;
-    console.log('Video loaded successfully');
+    console.log('Video metadata loaded');
+  };
+
+  const handleCanPlay = () => {
+    console.log('Video can play - buffered enough');
+    setIsBuffering(false);
+  };
+
+  const handleWaiting = () => {
+    console.log('Video waiting - buffering');
+    setIsBuffering(true);
+  };
+
+  const handleCanPlayThrough = () => {
+    console.log('Video loaded successfully - can play through');
+    setIsBuffering(false);
     
-    // Autoplay the video
-    videoRef.current.play().catch(err => {
-      console.log('Autoplay prevented:', err);
-    });
+    // Autoplay the video once fully loaded
+    if (videoRef.current) {
+      videoRef.current.play().catch(err => {
+        console.log('Autoplay prevented:', err);
+      });
+    }
   };
 
   const changePlaybackRate = (rate: number) => {
@@ -446,6 +467,9 @@ export default function AnalysisResult() {
                     onEnded={() => setIsPlaying(false)}
                     onError={handleVideoError}
                     onLoadedMetadata={handleLoadedMetadata}
+                    onCanPlay={handleCanPlay}
+                    onCanPlayThrough={handleCanPlayThrough}
+                    onWaiting={handleWaiting}
                     onTimeUpdate={handleTimeUpdate}
                     loop
                     playsInline
@@ -461,9 +485,22 @@ export default function AnalysisResult() {
                     />
                   )}
                   
+                  {/* Buffering Indicator */}
+                  {isBuffering && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent" />
+                        <p className="text-white text-sm">Loading video...</p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Play/Pause Overlay */}
                   <div 
-                    className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className={cn(
+                      "absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity",
+                      isBuffering ? "cursor-wait" : "cursor-pointer"
+                    )}
                     onClick={togglePlayPause}
                   >
                     {isPlaying ? (
