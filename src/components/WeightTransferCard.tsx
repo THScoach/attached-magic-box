@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, CheckCircle2, AlertTriangle, TrendingUp, ArrowDown } from 'lucide-react';
+import { AlertCircle, CheckCircle2, AlertTriangle, TrendingUp, ArrowDown, Target } from 'lucide-react';
 import { WeightTransferScore } from '@/lib/weightTransfer';
 
 interface WeightTransferCardProps {
@@ -18,11 +18,11 @@ export function WeightTransferCard({ weightTransfer }: WeightTransferCardProps) 
   };
   
   const getStatusBadge = (status: string) => {
-    if (status === 'elite') return <Badge className="bg-green-500">Elite</Badge>;
-    if (status === 'good') return <Badge className="bg-blue-500">Good</Badge>;
-    if (status === 'developing') return <Badge className="bg-yellow-500">Developing</Badge>;
-    if (status === 'beginner') return <Badge className="bg-orange-500">Beginner</Badge>;
-    return <Badge variant="destructive">Critical</Badge>;
+    if (status === 'elite') return <Badge className="bg-green-500 text-white">Elite ✅</Badge>;
+    if (status === 'good') return <Badge className="bg-blue-500 text-white">Good 👍</Badge>;
+    if (status === 'developing') return <Badge className="bg-yellow-500 text-white">Developing ⚠️</Badge>;
+    if (status === 'beginner') return <Badge className="bg-orange-500 text-white">Beginner 💡</Badge>;
+    return <Badge variant="destructive">Critical ❌</Badge>;
   };
   
   const getStatusIcon = (score: number) => {
@@ -143,9 +143,12 @@ export function WeightTransferCard({ weightTransfer }: WeightTransferCardProps) 
           <p className="text-sm leading-relaxed">{weightTransfer.insight}</p>
           
           {weightTransfer.overall_score < 90 && (
-            <div className="bg-secondary/50 p-3 rounded-lg">
-              <p className="text-xs font-medium text-muted-foreground mb-1">Recommended Drill:</p>
-              <p className="text-sm">{weightTransfer.recommended_drill}</p>
+            <div className="bg-blue-500/10 border-2 border-blue-500/30 p-4 rounded-lg">
+              <p className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
+                <Target className="h-4 w-4 text-blue-500" />
+                Recommended Drill:
+              </p>
+              <p className="font-medium">{weightTransfer.recommended_drill}</p>
             </div>
           )}
         </div>
