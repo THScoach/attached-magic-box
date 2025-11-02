@@ -8,12 +8,17 @@ import { BottomNav } from "@/components/BottomNav";
 import { PlayerAnalysisHistory } from "@/components/PlayerAnalysisHistory";
 import { ExternalSessionDataView } from "@/components/ExternalSessionDataView";
 import { ExternalSessionUpload } from "@/components/ExternalSessionUpload";
+import { AthleteScheduleCalendar } from "@/components/AthleteScheduleCalendar";
+import { AthleteCommunications } from "@/components/AthleteCommunications";
+import { AthletePrograms } from "@/components/AthletePrograms";
+import { AthleteItems } from "@/components/AthleteItems";
 import { ArrowLeft, User, TrendingUp, Upload, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useUserRole } from "@/hooks/useUserRole";
 
 interface Player {
   id: string;
+  user_id: string;
   first_name: string;
   last_name: string;
   birth_date: string | null;
@@ -155,25 +160,65 @@ export default function PlayerProfile() {
 
       {/* Tabs */}
       <div className="px-6 py-6">
-        <Tabs defaultValue="swings" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="swings">Swings</TabsTrigger>
-            <TabsTrigger value="external">External Data</TabsTrigger>
-            <TabsTrigger value="upload">Upload</TabsTrigger>
+        <Tabs defaultValue="activity" className="w-full">
+          <TabsList className="grid w-full grid-cols-5 text-xs">
+            <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="schedule">Schedule</TabsTrigger>
+            <TabsTrigger value="items">Items</TabsTrigger>
+            <TabsTrigger value="tools">Tools</TabsTrigger>
+            <TabsTrigger value="comms">Comms</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="swings" className="space-y-4 mt-6">
+          <TabsContent value="activity" className="space-y-4 mt-6">
             <PlayerAnalysisHistory playerId={playerId!} />
           </TabsContent>
 
-          <TabsContent value="external" className="space-y-4 mt-6">
-            <ExternalSessionDataView key={refreshKey} playerId={playerId!} />
+          <TabsContent value="schedule" className="space-y-4 mt-6">
+            <AthleteScheduleCalendar 
+              playerId={playerId!}
+              userId={player.user_id}
+            />
           </TabsContent>
 
-          <TabsContent value="upload" className="space-y-4 mt-6">
-            <ExternalSessionUpload 
-              playerId={playerId!} 
-              onUploadComplete={handleUploadComplete}
+          <TabsContent value="items" className="space-y-4 mt-6">
+            <AthleteItems 
+              playerId={playerId!}
+              userId={player.user_id}
+            />
+          </TabsContent>
+
+          <TabsContent value="tools" className="space-y-4 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>External Session Data</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ExternalSessionDataView key={refreshKey} playerId={playerId!} />
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload New Data</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ExternalSessionUpload 
+                  playerId={playerId!} 
+                  onUploadComplete={handleUploadComplete}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="comms" className="space-y-4 mt-6">
+            <AthletePrograms 
+              playerId={playerId!}
+              userId={player.user_id}
+            />
+            <AthleteCommunications 
+              playerId={playerId!}
+              userId={player.user_id}
+              athleteName={`${player.first_name} ${player.last_name}`}
             />
           </TabsContent>
         </Tabs>
