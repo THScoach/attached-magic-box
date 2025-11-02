@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { drawSkeletonOnCanvas, PoseData } from "@/lib/videoAnalysis";
 import { supabase } from "@/integrations/supabase/client";
 import { useCoachRickAccess } from "@/hooks/useCoachRickAccess";
+import { cn } from "@/lib/utils";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export default function AnalysisResult() {
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [showTiming, setShowTiming] = useState(false);
   const [showCOMPath, setShowCOMPath] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const [sessionSwings, setSessionSwings] = useState<any[]>([]);
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -308,13 +310,21 @@ export default function AnalysisResult() {
   const handleLoadedMetadata = () => {
     if (!videoRef.current) return;
     setDuration(videoRef.current.duration);
+    videoRef.current.playbackRate = playbackRate;
     console.log('Video loaded successfully');
     
     // Autoplay the video
     videoRef.current.play().catch(err => {
       console.log('Autoplay prevented:', err);
-      // Autoplay might be blocked by browser policy, that's okay
     });
+  };
+
+  const changePlaybackRate = (rate: number) => {
+    setPlaybackRate(rate);
+    if (videoRef.current) {
+      videoRef.current.playbackRate = rate;
+    }
+    toast.info(`Playback speed: ${rate}x`);
   };
 
   const formatTime = (seconds: number) => {
@@ -439,6 +449,7 @@ export default function AnalysisResult() {
                     onTimeUpdate={handleTimeUpdate}
                     loop
                     playsInline
+                    preload="auto"
                   />
 
                   {/* Skeleton Overlay Canvas */}
@@ -565,6 +576,26 @@ export default function AnalysisResult() {
                       <span className="font-semibold">{formatTime(currentTime)}</span>
                       <span className="text-white/50"> / </span>
                       <span className="text-white/70">{formatTime(duration)}</span>
+                    </div>
+
+                    {/* Playback Speed Control */}
+                    <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-lg border border-white/10">
+                      {[0.25, 0.5, 1, 2].map((rate) => (
+                        <Button
+                          key={rate}
+                          size="sm"
+                          variant={playbackRate === rate ? "default" : "ghost"}
+                          className={cn(
+                            "h-7 px-2 text-xs",
+                            playbackRate === rate 
+                              ? "text-primary-foreground" 
+                              : "text-white/70 hover:text-white hover:bg-white/10"
+                          )}
+                          onClick={() => changePlaybackRate(rate)}
+                        >
+                          {rate}x
+                        </Button>
+                      ))}
                     </div>
 
                     {/* Frame Counter */}
