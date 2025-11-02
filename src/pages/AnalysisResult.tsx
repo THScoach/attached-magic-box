@@ -16,6 +16,7 @@ import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { TimingGraph } from "@/components/TimingGraph";
 import { COMPathGraph } from "@/components/COMPathGraph";
 import { JointDataViewer } from "@/components/JointDataViewer";
+import { FrontLegStabilityCard } from "@/components/FrontLegStabilityCard";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -26,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCoachRickAccess } from "@/hooks/useCoachRickAccess";
 import { cn } from "@/lib/utils";
 import type { FrameJointData } from "@/lib/poseAnalysis";
+import { calculateFrontLegStability } from "@/lib/frontLegStability";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
@@ -140,7 +142,6 @@ export default function AnalysisResult() {
           console.error('Failed to parse joint data:', e);
         }
       }
-      
       console.log('Loaded latest analysis from database:', {
         frontFootGRF: analysisData.frontFootGRF,
         comPeakTiming: analysisData.comPeakTiming
@@ -895,11 +896,20 @@ export default function AnalysisResult() {
 
         {/* Joint Data Analysis - Full Keypoint Tracking */}
         {jointData.length > 0 && (
-          <JointDataViewer
-            frameData={jointData}
-            videoWidth={videoRef.current?.videoWidth || 1920}
-            videoHeight={videoRef.current?.videoHeight || 1080}
-          />
+          <>
+            {/* Front Leg Stability Score */}
+            {(() => {
+              const stability = calculateFrontLegStability(jointData);
+              return stability ? <FrontLegStabilityCard stability={stability} /> : null;
+            })()}
+            
+            {/* Detailed Joint Data */}
+            <JointDataViewer
+              frameData={jointData}
+              videoWidth={videoRef.current?.videoWidth || 1920}
+              videoHeight={videoRef.current?.videoHeight || 1080}
+            />
+          </>
         )}
 
         {/* Phase Detection Validation */}
