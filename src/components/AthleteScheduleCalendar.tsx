@@ -25,6 +25,10 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [coachId, setCoachId] = useState<string | null>(null);
+  const [programs, setPrograms] = useState<any[]>([]);
+  const [analyses, setAnalyses] = useState<any[]>([]);
+  const [filterType, setFilterType] = useState<string>('all');
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     const getCoachId = async () => {
@@ -58,17 +62,15 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
 
   const dateRange = getDateRange();
   const { items, loading, addItem, updateItem, reload } = useCalendarItems(userId, playerId, dateRange.start, dateRange.end);
-  const [programs, setPrograms] = useState<any[]>([]);
-  const [analyses, setAnalyses] = useState<any[]>([]);
-  const [filterType, setFilterType] = useState<string>('all');
 
   useEffect(() => {
     loadPrograms();
     loadAnalyses();
-  }, [userId, playerId, dateRange]);
+  }, [userId, playerId, view, currentDate]);
 
   const loadPrograms = async () => {
     try {
+      setDataLoading(true);
       const { data, error } = await supabase
         .from('training_programs')
         .select('*')
@@ -84,18 +86,21 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
 
   const loadAnalyses = async () => {
     try {
+      const range = getDateRange();
       const { data, error } = await supabase
         .from('swing_analyses')
         .select('*')
         .eq('player_id', playerId)
-        .gte('created_at', dateRange.start.toISOString())
-        .lte('created_at', dateRange.end.toISOString())
+        .gte('created_at', range.start.toISOString())
+        .lte('created_at', range.end.toISOString())
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setAnalyses(data || []);
     } catch (error) {
       console.error('Error loading analyses:', error);
+    } finally {
+      setDataLoading(false);
     }
   };
 
@@ -335,7 +340,7 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
           </div>
 
           {/* Calendar View */}
-          {loading ? (
+          {loading || dataLoading ? (
             <div className="text-center py-8 text-muted-foreground">Loading...</div>
           ) : (
             <>
