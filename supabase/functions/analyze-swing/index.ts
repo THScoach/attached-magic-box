@@ -702,16 +702,21 @@ Provide detailed scores and analysis in this exact JSON format:
     
     const validationErrors: string[] = [];
     const validationWarnings: string[] = [];
+    
+    // Convert negative timing to positive (absolute values for validation)
+    const loadStartAbs = Math.abs(analysis.loadStartTiming);
+    const fireStartAbs = Math.abs(analysis.fireStartTiming);
+    
     const validationDebug = {
       loadStart: analysis.loadStartTiming,
       fireStart: analysis.fireStartTiming,
       contact: 0,
       pelvisPeak: analysis.pelvisTiming,
-      loadDuration: analysis.loadStartTiming - analysis.fireStartTiming,
-      fireDuration: analysis.fireStartTiming - 0,
+      loadDuration: loadStartAbs - fireStartAbs,
+      fireDuration: fireStartAbs,
       tempoRatio: analysis.tempoRatio,
-      calculatedTempo: (analysis.loadStartTiming - analysis.fireStartTiming) / analysis.fireStartTiming,
-      totalSwingTime: analysis.loadStartTiming
+      calculatedTempo: (loadStartAbs - fireStartAbs) / fireStartAbs,
+      totalSwingTime: loadStartAbs
     };
 
     console.log('Phase Markers:', JSON.stringify(validationDebug, null, 2));
@@ -728,7 +733,7 @@ Provide detailed scores and analysis in this exact JSON format:
     }
 
     // Constraint 2: Load Duration (0.30 to 1.20 seconds)
-    const loadDuration = analysis.loadStartTiming - analysis.fireStartTiming;
+    const loadDuration = loadStartAbs - fireStartAbs;
     if (loadDuration < 300) {
       validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms below minimum 300ms - Load Start detected too late`);
     } else if (loadDuration < 500) {
@@ -738,7 +743,7 @@ Provide detailed scores and analysis in this exact JSON format:
     }
 
     // Constraint 3: Fire Duration (0.25 to 0.45 seconds)
-    const fireDuration = analysis.fireStartTiming;
+    const fireDuration = fireStartAbs;
     if (fireDuration < 250) {
       validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms below minimum 250ms - Physiologically impossible, Fire Start detected too late`);
     } else if (fireDuration > 450) {
@@ -746,7 +751,7 @@ Provide detailed scores and analysis in this exact JSON format:
     }
 
     // Constraint 4: Total Swing Time (0.55 to 1.50 seconds)
-    const totalSwingTime = analysis.loadStartTiming;
+    const totalSwingTime = loadStartAbs;
     if (totalSwingTime < 550) {
       validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms below minimum 550ms - Missing early load phase or detection failure`);
     } else if (totalSwingTime < 800) {
@@ -755,9 +760,9 @@ Provide detailed scores and analysis in this exact JSON format:
       validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms exceeds maximum 1500ms - Including pre-swing setup or multiple pitches`);
     }
 
-    // Constraint 5: Marker Ordering (LoadStart > FireStart > Contact)
-    if (!(analysis.loadStartTiming > analysis.fireStartTiming && analysis.fireStartTiming > 0)) {
-      validationErrors.push(`CRITICAL: Invalid marker ordering - LoadStart(${analysis.loadStartTiming}ms) must be > FireStart(${analysis.fireStartTiming}ms) must be > Contact(0ms)`);
+    // Constraint 5: Marker Ordering (LoadStart > FireStart > Contact when using absolute values)
+    if (!(loadStartAbs > fireStartAbs && fireStartAbs > 0)) {
+      validationErrors.push(`CRITICAL: Invalid marker ordering - LoadStart(${loadStartAbs}ms) must be > FireStart(${fireStartAbs}ms) must be > Contact(0ms)`);
     }
 
     // ============= SOFT WARNINGS (LOG BUT ALLOW) =============
