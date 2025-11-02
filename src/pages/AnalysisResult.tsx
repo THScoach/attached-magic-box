@@ -902,7 +902,7 @@ export default function AnalysisResult() {
         {/* Live Tempo Graph - Uses Real Swing Data */}
         <VelocityChart analysis={analysis} />
 
-        {/* Master Coach Report */}
+        {/* Coach Rick Report */}
         {jointData.length > 0 && (() => {
           const stability = calculateFrontLegStability(jointData);
           const weightTransfer = calculateWeightTransfer(jointData);

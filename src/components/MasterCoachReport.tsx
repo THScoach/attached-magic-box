@@ -64,7 +64,7 @@ export function MasterCoachReport({ report }: MasterCoachReportProps) {
           <div>
             <CardTitle className="text-2xl flex items-center gap-2">
               <FileText className="h-6 w-6" />
-              Master Coach Report
+              Coach Rick Report
             </CardTitle>
             <CardDescription className="mt-2">
               Personalized analysis and 4-week improvement plan

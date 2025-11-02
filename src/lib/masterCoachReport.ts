@@ -196,7 +196,7 @@ export function generateMasterCoachReport(
       'Your bat path is good.'
     ],
     what_could_be_better: analysis.batMaxVelocity && analysis.batMaxVelocity < 70
-      ? ['With a firmer front leg, your bat speed will jump up.']
+      ? ['With a firmer front leg, your exit speed will jump up.']
       : ['Keep that barrel on plane longer.']
   };
   
@@ -240,10 +240,10 @@ export function generateMasterCoachReport(
   if (primaryOpp.area === 'Front Leg Stability' && frontLeg) {
     mainMessage = {
       primary_opportunity: 'Front Leg Stability',
-      why_it_matters: 'Your front leg is your power post. When it bends too much, you lose bat speed.',
+      why_it_matters: 'Your front leg is your power post. When it bends too much, you lose exit speed.',
       current_value: frontLeg.knee_angle ? `${Math.round(frontLeg.knee_angle)}° at contact` : 'N/A',
       elite_value: '145-160° (firm but not locked)',
-      performance_impact: 'This costs you 4-6 mph of bat speed right now.',
+      performance_impact: 'This costs you 4-6 mph of exit speed right now.',
       the_fix: 'Make your front leg firmer when you hit the ball. Not locked. Just stable.',
       the_feeling: 'Stand in your stance. Have someone push on your front shoulder. Push back with your front leg. Feel it become strong? That is what we want.',
       the_words: '"Plant and rotate." Front foot lands, leg firms up, hips explode.',
@@ -260,7 +260,7 @@ export function generateMasterCoachReport(
         duration: '2 weeks, then retest'
       },
       expected_results: [
-        'Bat speed: +4-6 mph',
+        'Exit speed: +4-6 mph',
         'Hip speed: +30-40 deg/sec',
         'More power, more consistency',
         'Better balance through contact'
@@ -289,7 +289,7 @@ export function generateMasterCoachReport(
         duration: '2 weeks, then retest'
       },
       expected_results: [
-        'Bat speed: +3-5 mph',
+        'Exit speed: +3-5 mph',
         'Better power transfer',
         'More consistent contact',
         'Less head movement'
@@ -301,7 +301,7 @@ export function generateMasterCoachReport(
       why_it_matters: 'Your hips create all your power. Faster hips = faster bat.',
       current_value: analysis.pelvisMaxVelocity ? `${Math.round(analysis.pelvisMaxVelocity)} deg/sec` : 'N/A',
       elite_value: '600-700 deg/sec',
-      performance_impact: 'Getting your hips to 620+ will add 3-4 mph bat speed.',
+      performance_impact: 'Getting your hips to 620+ will add 3-4 mph exit speed.',
       the_fix: 'Turn your hips faster and harder. Fire them like a coiled spring.',
       the_feeling: 'Like throwing a punch. All the power comes from your hips.',
       the_words: '"Load and explode." Load slow, fire fast.',
@@ -320,7 +320,7 @@ export function generateMasterCoachReport(
       },
       expected_results: [
         'Hip speed: +40-60 deg/sec',
-        'Bat speed: +3-4 mph',
+        'Exit speed: +3-4 mph',
         'More power to all fields',
         'Better bat control'
       ]
@@ -402,7 +402,7 @@ export function generateMasterCoachReport(
     main_message: mainMessage,
     four_week_plan: fourWeekPlan,
     what_to_expect: {
-      after_4_weeks: `Your bat speed will be ${mainMessage.expected_results[0].split(':')[1]}. You'll feel more powerful and consistent.`,
+      after_4_weeks: `Your exit speed will be ${mainMessage.expected_results[0].split(':')[1]}. You'll feel more powerful and consistent.`,
       after_12_weeks: 'This fix will be automatic. Your swing will be 15-20% more powerful. College coaches will notice.',
       long_term: 'By senior year, you will be in the top 10% of hitters in your area. More power, more consistency, more confidence.'
     },
