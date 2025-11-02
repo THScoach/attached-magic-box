@@ -202,7 +202,15 @@ export function AthleteListManager() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium">{athlete.name}</p>
+                    <button 
+                      onClick={() => {
+                        console.log('[AthleteListManager] Navigating to player profile:', athlete.id);
+                        navigate(`/player/${athlete.id}`);
+                      }}
+                      className="font-medium hover:text-primary transition-colors cursor-pointer text-left"
+                    >
+                      {athlete.name}
+                    </button>
                     {getStatusBadge(athlete.status)}
                   </div>
                   <div className="flex items-center gap-4 mt-1">
