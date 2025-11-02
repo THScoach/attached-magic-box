@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { BottomNav } from "@/components/BottomNav";
 import { PlayerSelector } from "@/components/PlayerSelector";
 import { SyncRecording } from "@/components/SyncRecording";
@@ -573,20 +574,41 @@ export default function Analyze() {
             )}
 
             {/* Player Selection - Required */}
-            <Card className={`p-4 ${!selectedPlayerId ? 'border-2 border-yellow-500/50 bg-yellow-500/5' : ''}`}>
-              <div className="space-y-2">
-                {!selectedPlayerId && (
+            {!selectedPlayerId ? (
+              <Card className="p-4 border-2 border-yellow-500/50 bg-yellow-500/5">
+                <div className="space-y-2">
                   <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500 mb-2">
                     <span className="text-lg">👤</span>
                     <span className="text-sm font-semibold">Step 1: Select a player to continue</span>
                   </div>
-                )}
-                <PlayerSelector 
-                  selectedPlayerId={selectedPlayerId}
-                  onSelectPlayer={setSelectedPlayerId}
-                />
-              </div>
-            </Card>
+                  <PlayerSelector 
+                    selectedPlayerId={selectedPlayerId}
+                    onSelectPlayer={setSelectedPlayerId}
+                  />
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-4 bg-primary/5 border-primary/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <span className="text-lg">👤</span>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Recording for</Label>
+                      <p className="font-semibold">Player Selected</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedPlayerId(null)}
+                  >
+                    Change
+                  </Button>
+                </div>
+              </Card>
+            )}
 
             {/* Video Type Selection */}
             <Card className="p-4">
