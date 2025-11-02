@@ -700,9 +700,11 @@ Provide detailed scores and analysis in this exact JSON format:
 
     // ============= HARD CONSTRAINTS (REJECT IF VIOLATED) =============
     
-    // Constraint 1: Tempo Ratio (1.5:1 to 5.0:1)
-    if (analysis.tempoRatio < 1.5) {
-      validationErrors.push(`CRITICAL: Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 below minimum 1.5:1 - Fire phase longer than Load phase (inverted swing)`);
+    // Constraint 1: Tempo Ratio (1.0:1 to 5.0:1)
+    if (analysis.tempoRatio < 1.0) {
+      validationErrors.push(`CRITICAL: Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 below minimum 1.0:1 - Inverted swing or detection failure`);
+    } else if (analysis.tempoRatio < 1.5) {
+      validationWarnings.push(`⚠️ Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 is below typical range (1.5-3.5:1) - Fire phase longer than expected, may indicate aggressive timing or detection inaccuracy`);
     } else if (analysis.tempoRatio > 5.0) {
       validationErrors.push(`CRITICAL: Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 exceeds maximum 5.0:1 - Unrealistic tempo indicates detection error`);
     }
