@@ -11,6 +11,7 @@ import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
 import { BalanceMetrics } from "@/components/BalanceMetrics";
 import { ResearchBenchmarks } from "@/components/ResearchBenchmarks";
 import { PhaseDetectionValidator } from "@/components/PhaseDetectionValidator";
+import { TempoRatioCard } from "@/components/TempoRatioCard";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { TimingGraph } from "@/components/TimingGraph";
 import { COMPathGraph } from "@/components/COMPathGraph";
@@ -755,12 +756,15 @@ export default function AnalysisResult() {
               <InfoTooltip content="Your overall hitting performance score (0-100). Combines timing, power, and mechanics. Higher scores mean better swing efficiency and more consistent hard contact." />
             </div>
             <div className="text-6xl font-bold text-primary mb-2">{analysis.hitsScore}</div>
-            <div className="flex items-center justify-center gap-2">
-              <p className="text-lg font-medium">Tempo Ratio: {analysis.tempoRatio}:1</p>
-              <InfoTooltip content="Load to Fire ratio. Elite hitters: 2.0-2.3 (longer load, explosive fire). This gives time to read pitch and generate maximum power. Too fast = rushed. Too slow = timing issues." />
-            </div>
           </div>
         </Card>
+
+        {/* Enhanced Tempo Ratio Display */}
+        <TempoRatioCard 
+          tempoRatio={analysis.tempoRatio}
+          loadStartTiming={analysis.loadStartTiming}
+          fireStartTiming={analysis.fireStartTiming}
+        />
 
         {/* Three Pillars */}
         <section>
