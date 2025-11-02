@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Upload, Loader2, CheckCircle2, XCircle, FileVideo } from "lucide-react";
+import { Upload, Loader2, CheckCircle2, XCircle, FileVideo, Video } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { extractVideoMetadata } from "@/lib/videoAnalysis";
 
 interface BatchVideoUploadProps {
   playerId: string;
@@ -19,6 +20,11 @@ interface VideoUploadStatus {
   progress: number;
   error?: string;
   analysisId?: string;
+  frameRate?: number;
+  width?: number;
+  height?: number;
+  duration?: number;
+  isExtractingMetadata?: boolean;
 }
 
 export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: BatchVideoUploadProps) {
@@ -26,7 +32,7 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
   const [videos, setVideos] = useState<VideoUploadStatus[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const files = Array.from(event.target.files);
       
@@ -43,13 +49,44 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         return true;
       });
 
+      // Add videos with pending metadata extraction
       const newVideos: VideoUploadStatus[] = validFiles.map(file => ({
         file,
         status: 'pending',
-        progress: 0
+        progress: 0,
+        isExtractingMetadata: true
       }));
 
       setVideos(prev => [...prev, ...newVideos]);
+      
+      // Extract metadata for each video
+      const startIndex = videos.length;
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        try {
+          const metadata = await extractVideoMetadata(file);
+          setVideos(prev => prev.map((v, idx) => 
+            idx === startIndex + i 
+              ? { 
+                  ...v, 
+                  frameRate: metadata.frameRate,
+                  width: metadata.width,
+                  height: metadata.height,
+                  duration: metadata.duration,
+                  isExtractingMetadata: false
+                }
+              : v
+          ));
+        } catch (error) {
+          console.error(`Error extracting metadata for ${file.name}:`, error);
+          setVideos(prev => prev.map((v, idx) => 
+            idx === startIndex + i 
+              ? { ...v, isExtractingMetadata: false }
+              : v
+          ));
+        }
+      }
+
       toast.success(`${validFiles.length} video${validFiles.length > 1 ? 's' : ''} added`);
     }
   };
@@ -89,14 +126,20 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         i === index ? { ...v, status: 'analyzing', progress: 50 } : v
       ));
 
-      // Call analysis function
+      // Call analysis function with metadata
       const { data: analysisData, error: analysisError } = await supabase.functions
         .invoke('analyze-swing', {
           body: {
             videoUrl: publicUrl,
             playerId: playerId,
             userId: user.id,
-            videoType: 'practice'
+            videoType: 'practice',
+            videoMetadata: video.frameRate ? {
+              frameRate: video.frameRate,
+              width: video.width,
+              height: video.height,
+              duration: video.duration
+            } : undefined
           }
         });
 
@@ -285,9 +328,37 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
                         <p className="text-sm font-medium truncate">
                           {video.file.name}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          {(video.file.size / (1024 * 1024)).toFixed(2)} MB • {getStatusText(video.status)}
-                        </p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>{(video.file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                          {video.isExtractingMetadata ? (
+                            <>
+                              <span>•</span>
+                              <Loader2 className="h-3 w-3 animate-spin inline" />
+                              <span>Detecting fps...</span>
+                            </>
+                          ) : video.frameRate ? (
+                            <>
+                              <span>•</span>
+                              <span className={
+                                video.frameRate >= 120 
+                                  ? "text-green-600 font-semibold" 
+                                  : video.frameRate >= 60 
+                                  ? "text-yellow-600 font-semibold" 
+                                  : "text-red-600 font-semibold"
+                              }>
+                                {video.frameRate}fps
+                              </span>
+                              {video.width && video.height && (
+                                <>
+                                  <span>•</span>
+                                  <span>{video.width}x{video.height}</span>
+                                </>
+                              )}
+                            </>
+                          ) : null}
+                          <span>•</span>
+                          <span>{getStatusText(video.status)}</span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">

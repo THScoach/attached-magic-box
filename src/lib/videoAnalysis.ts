@@ -13,6 +13,132 @@ export interface PoseData {
   timestamp: number;
 }
 
+export interface VideoMetadata {
+  width: number;
+  height: number;
+  duration: number;
+  frameRate: number;
+  codec?: string;
+}
+
+// Extract video metadata including frame rate
+export async function extractVideoMetadata(videoFile: File): Promise<VideoMetadata> {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.muted = true;
+    video.playsInline = true;
+    
+    let frameRate = 30; // Default fallback
+    let frameCount = 0;
+    let lastTime = -1;
+    let frameTimes: number[] = [];
+    
+    const cleanup = () => {
+      URL.revokeObjectURL(video.src);
+      video.remove();
+    };
+    
+    video.onloadedmetadata = async () => {
+      try {
+        const width = video.videoWidth;
+        const height = video.videoHeight;
+        const duration = video.duration;
+        
+        // Method 1: Try to get frame rate from video track (works well for iOS .mov files)
+        if ('captureStream' in video || 'mozCaptureStream' in video) {
+          try {
+            const stream = (video as any).captureStream?.() || (video as any).mozCaptureStream?.();
+            if (stream) {
+              const videoTracks = stream.getVideoTracks();
+              if (videoTracks.length > 0) {
+                const settings = videoTracks[0].getSettings();
+                if (settings.frameRate) {
+                  frameRate = settings.frameRate;
+                  console.log(`Frame rate detected from track: ${frameRate}fps`);
+                  cleanup();
+                  resolve({ width, height, duration, frameRate });
+                  return;
+                }
+              }
+            }
+          } catch (e) {
+            console.log('Video track method not available, trying alternative methods');
+          }
+        }
+        
+        // Method 2: Use requestVideoFrameCallback (Chrome/Edge)
+        if ('requestVideoFrameCallback' in video) {
+          let sampleCount = 0;
+          const maxSamples = 30;
+          
+          const measureFrameRate = () => {
+            (video as any).requestVideoFrameCallback((now: number, metadata: any) => {
+              if (metadata && metadata.mediaTime !== undefined) {
+                if (lastTime !== -1) {
+                  const deltaTime = metadata.mediaTime - lastTime;
+                  if (deltaTime > 0) {
+                    frameTimes.push(1 / deltaTime);
+                  }
+                }
+                lastTime = metadata.mediaTime;
+                sampleCount++;
+                
+                if (sampleCount < maxSamples && !video.ended) {
+                  measureFrameRate();
+                } else {
+                  // Calculate average frame rate from samples
+                  if (frameTimes.length > 0) {
+                    frameRate = frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
+                    console.log(`Frame rate calculated from ${frameTimes.length} samples: ${frameRate.toFixed(2)}fps`);
+                  }
+                  cleanup();
+                  resolve({ width, height, duration, frameRate: Math.round(frameRate) });
+                }
+              }
+            });
+          };
+          
+          video.play().then(() => {
+            measureFrameRate();
+          }).catch(() => {
+            // Fallback if play fails
+            cleanup();
+            resolve({ width, height, duration, frameRate: 30 });
+          });
+          
+          return;
+        }
+        
+        // Method 3: Estimate from duration (least accurate)
+        // This is just a fallback - most modern browsers support one of the above methods
+        console.log('Using fallback frame rate estimation');
+        cleanup();
+        resolve({ width, height, duration, frameRate: 30 });
+        
+      } catch (error) {
+        console.error('Error extracting metadata:', error);
+        cleanup();
+        reject(error);
+      }
+    };
+    
+    video.onerror = (e) => {
+      console.error('Video error during metadata extraction:', e);
+      cleanup();
+      reject(new Error('Failed to load video for metadata extraction'));
+    };
+    
+    try {
+      video.src = URL.createObjectURL(videoFile);
+      video.load();
+    } catch (error) {
+      cleanup();
+      reject(error);
+    }
+  });
+}
+
 export async function extractVideoFrames(
   videoFile: File,
   numFrames: number = 8
