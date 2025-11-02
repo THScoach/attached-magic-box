@@ -10,6 +10,7 @@ import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
 import { BalanceMetrics } from "@/components/BalanceMetrics";
 import { ResearchBenchmarks } from "@/components/ResearchBenchmarks";
+import { PhaseDetectionValidator } from "@/components/PhaseDetectionValidator";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { TimingGraph } from "@/components/TimingGraph";
 import { COMPathGraph } from "@/components/COMPathGraph";
@@ -78,6 +79,8 @@ export default function AnalysisResult() {
         engineScore: Number(data.engine_score),
         whipScore: Number(data.whip_score),
         tempoRatio: metrics.tempoRatio || 0,
+        loadStartTiming: metrics.loadStartTiming,
+        fireStartTiming: metrics.fireStartTiming,
         primaryOpportunity: metrics.primaryOpportunity,
         impactStatement: metrics.impactStatement,
         recommendedDrills: metrics.recommendedDrills || [],
@@ -792,6 +795,16 @@ export default function AnalysisResult() {
 
         {/* Research-Validated Benchmarks */}
         <ResearchBenchmarks analysis={analysis} />
+
+        {/* Phase Detection Validation */}
+        {analysis.loadStartTiming && analysis.fireStartTiming && analysis.pelvisTiming && (
+          <PhaseDetectionValidator
+            loadStartTiming={analysis.loadStartTiming}
+            fireStartTiming={analysis.fireStartTiming}
+            pelvisTiming={analysis.pelvisTiming}
+            tempoRatio={analysis.tempoRatio}
+          />
+        )}
 
         {/* Velocity Chart */}
         <VelocityChart data={velocityData} />

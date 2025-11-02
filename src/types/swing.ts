@@ -8,6 +8,8 @@ export interface SwingAnalysis {
   engineScore: number;
   whipScore: number;
   tempoRatio: number;
+  loadStartTiming?: number; // ms before contact when loading begins
+  fireStartTiming?: number; // ms before contact when fire phase begins
   pelvisTiming?: number;
   torsoTiming?: number;
   handsTiming?: number;

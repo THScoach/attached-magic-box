@@ -90,6 +90,8 @@ export function generateMockAnalysis(videoUrl: string): SwingAnalysis {
     engineScore,
     whipScore,
     tempoRatio,
+    loadStartTiming: 900 + Math.random() * 200, // 900-1100ms for elite power hitters
+    fireStartTiming: 340 + Math.random() * 40, // 340-380ms
     pelvisTiming: parseFloat((Math.random() * 0.2 - 0.15).toFixed(3)),
     torsoTiming: parseFloat((Math.random() * 0.15 - 0.1).toFixed(3)),
     handsTiming: parseFloat((Math.random() * 0.1 - 0.05).toFixed(3)),
