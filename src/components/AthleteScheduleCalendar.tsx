@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar as CalendarIcon, Plus, ChevronLeft, ChevronRight } from "lucide-react";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addMonths, addWeeks, addYears, subMonths, subWeeks, subYears, eachDayOfInterval, isSameMonth, isSameDay, isToday, startOfYear, endOfYear } from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addMonths, addWeeks, addYears, subMonths, subWeeks, subYears, eachDayOfInterval, isSameMonth, isSameDay, isToday, startOfYear, endOfYear, startOfDay, endOfDay } from "date-fns";
 import { useCalendarItems } from "@/hooks/useCalendarItems";
 import { AddCalendarItemModal } from "./AddCalendarItemModal";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,9 +43,10 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
   const dateRange = useMemo(() => {
     switch (view) {
       case 'day':
+        const dayToUse = selectedDate || currentDate;
         return {
-          start: selectedDate || currentDate,
-          end: selectedDate || currentDate
+          start: startOfDay(dayToUse),
+          end: endOfDay(dayToUse)
         };
       case 'week':
         return {
