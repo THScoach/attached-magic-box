@@ -54,10 +54,32 @@ export class CameraRecorder {
       }
       
       const settings = videoTrack.getSettings();
-      const actualFps = settings.frameRate || 30;
+      let actualFps = settings.frameRate || 30;
       
       console.log('Camera settings:', settings);
       console.log('Actual frame rate:', actualFps);
+
+      // If we requested high FPS but got low FPS, try again with 120fps
+      if (targetFps >= 240 && actualFps < 100) {
+        console.log('Did not get high frame rate, trying 120fps...');
+        this.stream.getTracks().forEach(track => track.stop());
+        
+        const fallbackConstraints: RecordingConstraints = {
+          video: {
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+            frameRate: { ideal: 120, max: 120 },
+            facingMode: this.currentFacingMode
+          },
+          audio: true
+        };
+        
+        this.stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+        const newVideoTrack = this.stream.getVideoTracks()[0];
+        const newSettings = newVideoTrack.getSettings();
+        actualFps = newSettings.frameRate || 30;
+        console.log('Fallback frame rate:', actualFps);
+      }
 
       this.videoElement = videoElement;
       this.videoElement.srcObject = this.stream;

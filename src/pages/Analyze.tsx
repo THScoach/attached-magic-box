@@ -266,13 +266,19 @@ export default function Analyze() {
     setIsRecording(false);
   };
 
-  const handleDiscardRecording = () => {
+  const handleDiscardRecording = async () => {
     if (recordedVideoUrl) {
       URL.revokeObjectURL(recordedVideoUrl);
     }
     setRecordedVideoFile(null);
     setRecordedVideoUrl(null);
-    toast.info("Recording discarded");
+    setShowCamera(true); // Go back to camera preview
+    toast.info("Recording discarded - ready to record again");
+    
+    // Restart buffering so camera stays active
+    if (recorderRef.current && videoPreviewRef.current) {
+      await recorderRef.current.startBuffering();
+    }
   };
 
   const handleAnalyzeRecording = async () => {
