@@ -21,7 +21,7 @@ interface AthleteScheduleCalendarProps {
 export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false }: AthleteScheduleCalendarProps) {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState<'week' | 'month' | 'year'>('month');
+  const [view, setView] = useState<'week' | 'month' | 'year' | 'day'>('month');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [coachId, setCoachId] = useState<string | null>(null);
@@ -192,7 +192,12 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
           return (
             <button
               key={day.toString()}
-              onClick={() => setSelectedDate(day)}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('Day clicked:', day, 'Items:', dayItems);
+                setSelectedDate(day);
+                setView('day');
+              }}
               className={cn(
                 "bg-card p-2 min-h-24 text-left hover:bg-accent transition-colors",
                 !isCurrentMonth && "opacity-50",
@@ -242,7 +247,12 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
           return (
             <button
               key={day.toString()}
-              onClick={() => setSelectedDate(day)}
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('Week day clicked:', day);
+                setSelectedDate(day);
+                setView('day');
+              }}
               className={cn(
                 "border rounded-lg p-4 text-left hover:border-primary transition-colors",
                 isSelected && "border-primary bg-primary/5",
@@ -275,6 +285,89 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
     );
   };
 
+  const renderDayView = () => {
+    if (!selectedDate) return null;
+    
+    const dayItems = getItemsForDate(selectedDate);
+    const isTodayDate = isToday(selectedDate);
+    
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className={cn(
+            "text-2xl font-bold",
+            isTodayDate && "text-primary"
+          )}>
+            {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+          </h3>
+        </div>
+        
+        {dayItems.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              No activities scheduled for this day
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {dayItems.map((item) => (
+              <Card 
+                key={item.id}
+                className={cn(
+                  item.item_type === 'analysis' && "cursor-pointer hover:shadow-md transition-all"
+                )}
+                onClick={() => {
+                  if (item.item_type === 'analysis') {
+                    const analysisId = item.id.replace('analysis-', '');
+                    navigate(`/player/${playerId}/analysis/${analysisId}`);
+                  }
+                }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h4 className="font-semibold">{item.title}</h4>
+                        <Badge variant={
+                          item.item_type === 'analysis' ? 'default' :
+                          item.item_type === 'program' ? 'secondary' :
+                          item.status === 'completed' ? 'default' :
+                          item.status === 'cancelled' ? 'destructive' :
+                          'secondary'
+                        }>
+                          {item.item_type === 'analysis' ? 'Analysis' :
+                           item.item_type === 'program' ? 'Program' :
+                           item.status || item.item_type}
+                        </Badge>
+                      </div>
+                      
+                      {item.description && (
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {item.description}
+                        </p>
+                      )}
+                      
+                      {item.scheduled_time && (
+                        <p className="text-sm text-muted-foreground">
+                          <span className="font-medium">Time:</span> {item.scheduled_time}
+                          {item.duration && ` (${item.duration} min)`}
+                        </p>
+                      )}
+                      
+                      {item.item_type === 'analysis' && (
+                        <Badge variant="outline" className="mt-2">Click to view details</Badge>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const selectedDateItems = selectedDate ? getItemsForDate(selectedDate) : [];
 
   return (
@@ -298,7 +391,10 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
           {/* Calendar Controls */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
+              <Button variant="outline" size="sm" onClick={() => {
+                setCurrentDate(new Date());
+                setView('month');
+              }}>
                 Today
               </Button>
               <Button variant="outline" size="icon" onClick={() => navigateCalendar('prev')}>
@@ -308,7 +404,11 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
                 <ChevronRight className="h-4 w-4" />
               </Button>
               <h2 className="text-xl font-semibold ml-2">
-                {view === 'year' ? format(currentDate, 'yyyy') : format(currentDate, 'MMMM yyyy')}
+                {view === 'day' && selectedDate 
+                  ? format(selectedDate, 'MMMM d, yyyy')
+                  : view === 'year' 
+                  ? format(currentDate, 'yyyy') 
+                  : format(currentDate, 'MMMM yyyy')}
               </h2>
             </div>
 
@@ -329,9 +429,9 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
 
               <Tabs value={view} onValueChange={(v) => setView(v as any)}>
                 <TabsList>
+                  <TabsTrigger value="day">Day</TabsTrigger>
                   <TabsTrigger value="week">Week</TabsTrigger>
                   <TabsTrigger value="month">Month</TabsTrigger>
-                  <TabsTrigger value="year">Year</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -342,81 +442,10 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
             <div className="text-center py-8 text-muted-foreground">Loading...</div>
           ) : (
             <>
+              {view === 'day' && renderDayView()}
               {view === 'month' && renderMonthView()}
               {view === 'week' && renderWeekView()}
-              {view === 'year' && (
-                <div className="text-center py-8 text-muted-foreground">Year view coming soon</div>
-              )}
             </>
-          )}
-
-          {/* Selected Date Details */}
-          {selectedDate && (
-            <Card className="mt-4">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">
-                    {format(selectedDate, 'MMMM d, yyyy')}
-                  </CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedDate(null)}>
-                    Close
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {selectedDateItems.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-4">No activities for this day</p>
-                ) : (
-                  <div className="space-y-2">
-                    {selectedDateItems.map((item) => (
-                      <div 
-                        key={item.id} 
-                        className={cn(
-                          "p-3 border rounded-lg",
-                          item.item_type === 'analysis' && "cursor-pointer hover:bg-accent/50 transition-colors"
-                        )}
-                        onClick={() => {
-                          if (item.item_type === 'analysis') {
-                            const analysisId = item.id.replace('analysis-', '');
-                            navigate(`/player/${playerId}/analysis/${analysisId}`);
-                          }
-                        }}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <p className="font-medium">{item.title}</p>
-                            {item.description && (
-                              <p className="text-sm text-muted-foreground mt-1">
-                                {item.description}
-                              </p>
-                            )}
-                            {item.scheduled_time && (
-                              <p className="text-sm text-muted-foreground mt-1">
-                                {item.scheduled_time} {item.duration && `(${item.duration} min)`}
-                              </p>
-                            )}
-                            {item.item_type === 'analysis' && (
-                              <Badge variant="outline" className="mt-2">Click to view analysis</Badge>
-                            )}
-                          </div>
-                          <Badge variant={
-                            item.item_type === 'analysis' ? 'default' :
-                            item.item_type === 'program' ? 'secondary' :
-                            item.status === 'completed' ? 'default' :
-                            item.status === 'cancelled' ? 'destructive' :
-                            'secondary'
-                          }>
-                            {item.item_type === 'analysis' ? 'Analysis' :
-                             item.item_type === 'program' ? 'Program' :
-                             item.status || item.item_type}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
           )}
         </CardContent>
       </Card>
