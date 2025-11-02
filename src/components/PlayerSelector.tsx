@@ -85,14 +85,25 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
       .order('first_name');
 
     if (error) {
-      console.error('Error loading players:', error);
+      console.error('[PlayerSelector] Error loading players:', error);
       return;
     }
 
+    console.log('[PlayerSelector] Loaded players:', data?.length, 'Current selectedPlayerId:', selectedPlayerId);
     setPlayers(data || []);
     
-    // Auto-select if only one player
+    // Check if the selectedPlayerId exists in the loaded players
+    if (selectedPlayerId && data) {
+      const playerExists = data.some(p => p.id === selectedPlayerId);
+      console.log('[PlayerSelector] Selected player exists in list:', playerExists);
+      if (!playerExists) {
+        console.warn('[PlayerSelector] Selected player ID not found in players list!');
+      }
+    }
+    
+    // Auto-select if only one player and no player pre-selected
     if (data && data.length === 1 && !selectedPlayerId) {
+      console.log('[PlayerSelector] Auto-selecting single player:', data[0].id);
       onSelectPlayer(data[0].id);
     }
   };
@@ -156,6 +167,7 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
   };
 
   const selectedPlayer = players.find(p => p.id === selectedPlayerId);
+  console.log('[PlayerSelector] Rendering - selectedPlayer found:', selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : 'none', 'selectedPlayerId:', selectedPlayerId);
 
   // Filter players based on search query
   const filteredPlayers = players.filter(player => {
