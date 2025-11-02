@@ -161,11 +161,10 @@ export default function PlayerProfile() {
       {/* Tabs */}
       <div className="px-6 py-6">
         <Tabs defaultValue="activity" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 text-xs">
+          <TabsList className="grid w-full grid-cols-4 text-xs">
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="schedule">Schedule</TabsTrigger>
-            <TabsTrigger value="items">Items</TabsTrigger>
-            <TabsTrigger value="tools">Tools</TabsTrigger>
+            <TabsTrigger value="items">Programs</TabsTrigger>
             <TabsTrigger value="comms">Comms</TabsTrigger>
           </TabsList>
 
@@ -188,35 +187,8 @@ export default function PlayerProfile() {
             />
           </TabsContent>
 
-          <TabsContent value="tools" className="space-y-4 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>External Session Data</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ExternalSessionDataView key={refreshKey} playerId={playerId!} />
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload New Data</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ExternalSessionUpload 
-                  playerId={playerId!} 
-                  onUploadComplete={handleUploadComplete}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="comms" className="space-y-4 mt-6">
-            <AthletePrograms 
-              playerId={playerId!}
-              userId={player.user_id}
-            />
-            <AthleteCommunications 
+            <AthleteCommunications
               playerId={playerId!}
               userId={player.user_id}
               athleteName={`${player.first_name} ${player.last_name}`}

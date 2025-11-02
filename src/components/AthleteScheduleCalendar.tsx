@@ -56,6 +56,26 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
 
   const dateRange = getDateRange();
   const { items, loading, addItem, updateItem, reload } = useCalendarItems(userId, playerId, dateRange.start, dateRange.end);
+  const [programs, setPrograms] = useState<any[]>([]);
+
+  useEffect(() => {
+    loadPrograms();
+  }, [userId]);
+
+  const loadPrograms = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('training_programs')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_active', true);
+
+      if (error) throw error;
+      setPrograms(data || []);
+    } catch (error) {
+      console.error('Error loading programs:', error);
+    }
+  };
 
   const navigate = (direction: 'prev' | 'next') => {
     switch (view) {
@@ -73,7 +93,25 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
 
   const getItemsForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    return items.filter(item => item.scheduled_date === dateStr);
+    const calendarItems = items.filter(item => item.scheduled_date === dateStr);
+    
+    // Check if any active programs fall on this date
+    const programsForDate = programs.filter(program => {
+      const start = new Date(program.start_date);
+      const end = new Date(program.end_date);
+      return date >= start && date <= end;
+    });
+
+    // Convert programs to calendar-like items
+    const programItems = programsForDate.map(program => ({
+      ...program,
+      id: program.id,
+      title: `${program.focus_pillar} Program`,
+      item_type: 'program',
+      scheduled_date: dateStr
+    }));
+
+    return [...calendarItems, ...programItems];
   };
 
   const renderMonthView = () => {
