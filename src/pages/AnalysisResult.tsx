@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward, Settings } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
-import { generateVelocityData, mockDrills } from "@/lib/mockAnalysis";
+import { mockDrills } from "@/lib/mockAnalysis";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCoachRickAccess } from "@/hooks/useCoachRickAccess";
@@ -43,7 +43,6 @@ export default function AnalysisResult() {
   const [isBuffering, setIsBuffering] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const frameCallbackIdRef = useRef<number | null>(null);
-  const velocityData = generateVelocityData();
   const FPS = 30; // Frames per second
 
   useEffect(() => {
@@ -900,8 +899,8 @@ export default function AnalysisResult() {
         {/* Research-Validated Benchmarks */}
         <ResearchBenchmarks analysis={analysis} />
 
-        {/* Velocity Chart */}
-        <VelocityChart data={velocityData} />
+        {/* Live Tempo Graph - Uses Real Swing Data */}
+        <VelocityChart analysis={analysis} />
 
         {/* Master Coach Report */}
         {jointData.length > 0 && (() => {

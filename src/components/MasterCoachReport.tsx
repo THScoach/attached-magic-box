@@ -404,37 +404,7 @@ export function MasterCoachReport({ report }: MasterCoachReportProps) {
         
         <Separator />
         
-        {/* Section 5: 4-Week Plan */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Calendar className="h-6 w-6" />
-            Your 4-Week Plan
-          </h2>
-          
-          <div className="space-y-6">
-            {report.four_week_plan.map((week) => (
-              <div key={week.week} className="border rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-lg">Week {week.week}</h3>
-                  <Badge variant="outline">{week.focus}</Badge>
-                </div>
-                
-                <div className="grid gap-2">
-                  {week.drills.map((drill, i) => (
-                    <div key={i} className="grid grid-cols-4 gap-2 text-sm py-2 border-b last:border-0">
-                      <div className="font-semibold">{drill.day}</div>
-                      <div>{drill.drill}</div>
-                      <div className="text-muted-foreground">{drill.reps}</div>
-                      <div className="text-muted-foreground text-xs">{drill.notes}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-        
-        <Separator />
+        {/* Section 5: 4-Week Plan - HIDDEN per user request */}
         
         {/* Section 6: What to Expect */}
         <section className="space-y-4">
