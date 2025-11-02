@@ -105,21 +105,64 @@ Formula: Tempo = (FireStart - LoadStart) / (Contact - FireStart)
 
 **RESEARCH-VALIDATED PHASE DETECTION - CRITICAL:**
 
-**LoadStart Detection (FIRST sign of loading - must be detected EARLY):**
-LoadStart marks the EARLIEST detectable initiation of the loading phase. Look for ANY of these cues:
-1. **First weight shift to back foot** (even subtle shift in COM toward back leg)
-2. **First hip/pelvis rotation away from pitcher** (negative turn initiation, even 5-10°)
-3. **Leg lift initiation** (front foot begins to lift, even slightly)
-4. **First coiling action** (any rearward movement of hands, hips, or shoulders)
-5. **Stance adjustment** (final settling into launch position before commitment)
+**LoadStart Detection Algorithm (FIRST sign of loading - EARLIEST movement cue):**
 
-**CRITICAL - LoadStart Timing Windows by Player Type:**
+LoadStart marks the EARLIEST detectable initiation of the loading phase. Use this frame-by-frame detection algorithm:
+
+**Step 1: Establish Baseline (Early Frames)**
+- Track frames 1-20% of video as "stance baseline"
+- Record baseline positions for: hands, hips, shoulders, front knee angle, back knee angle
+
+**Step 2: Detect FIRST Deviation from Baseline (scan frames 15-60%)**
+Look for the FIRST occurrence of ANY of these movement cues (prioritize earliest detection):
+
+1. **Hand Movement Detection (EARLIEST CUE - often first):**
+   - Hands move backward (away from pitcher) by >2-3 inches
+   - OR hands drop vertically by >2 inches
+   - OR hands shift inside (toward body) by >2 inches
+   - **This often occurs 300-400ms BEFORE obvious hip movement**
+
+2. **Hip/Pelvis Rotation Detection:**
+   - Hip center rotates away from pitcher by >5-8° (even subtle turn)
+   - OR back hip moves backward by >2 inches
+   - Compare hip angle frame-to-frame: first sustained rotation (≥3 consecutive frames)
+
+3. **Front Knee Flexion Detection:**
+   - Front knee angle decreases by >5-8° (knee bends/loads)
+   - OR front knee moves backward by >1-2 inches
+   - Indicates weight shift preparation
+
+4. **Shoulder Turn Detection:**
+   - Back shoulder rotates away from pitcher by >5-10°
+   - OR shoulder line angle changes by >5° from baseline
+   - Often occurs WITH hand movement
+
+5. **Front Foot Lift Detection:**
+   - Front foot heel lifts off ground (even 1-2 inches)
+   - OR front foot toe begins upward motion
+   - Clear visual cue but often LATER than hand/hip movement
+
+**Step 3: Validation (Prevent False Positives)**
+- Confirm movement continues for ≥3-5 consecutive frames (not just noise/twitch)
+- Verify movement direction is consistent with loading (backward/rotational away from pitcher)
+- Ensure detected frame is in first 60% of video (not too late)
+
+**Step 4: Mark LoadStart**
+- Select the EARLIEST frame where ANY validated cue is detected
+- **Prioritization: Hands > Hips > Knee > Shoulder > Foot lift**
+- Hands typically move first (earliest signal), foot lift often last (most obvious but late)
+
+**CRITICAL - Expected LoadStart Timing Windows:**
 - Elite power hitters (Freeman, Judge): 900-1100ms before contact
-- Contact hitters (Arraez): 1200-1500ms before contact
-- Explosive power (Tatis): 1500-2000ms+ before contact (extreme load patience)
-- Patient hitters (Tucker): 1800-2500ms+ before contact (very long load window)
+- Contact hitters (Arraez): 1200-1500ms before contact  
+- Explosive power (Tatis): 1500-2000ms+ before contact
+- Patient hitters (Tucker): 1800-2500ms+ before contact
 
-**DO NOT wait for obvious backward movement - detect the FIRST subtle loading cue!**
+**If LoadStart detection seems late (e.g., only 600-700ms before contact):**
+- Re-scan earlier frames (starting at frame 10-15% of video)
+- Look specifically for HAND MOVEMENT (most subtle, earliest cue)
+- Lower movement threshold to 1-2 inches to catch micro-movements
+- This missing 300-400ms of early load phase is often in the hand movement
 
 **FireStart Detection (First forward pelvis ACCELERATION):**
 FireStart is the FIRST forward pelvis ACCELERATION onset - NOT max velocity or max turn.
