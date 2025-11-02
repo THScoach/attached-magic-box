@@ -29,6 +29,8 @@ export default function AnalysisResult() {
   const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
+  const [showTiming, setShowTiming] = useState(false);
+  const [showCOMPath, setShowCOMPath] = useState(false);
   const [sessionSwings, setSessionSwings] = useState<any[]>([]);
   const [sessionStats, setSessionStats] = useState<{ total: number; avg: number } | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -229,12 +231,36 @@ export default function AnalysisResult() {
 
   const toggleSkeleton = () => {
     setShowSkeleton(!showSkeleton);
+    setShowTiming(false);
+    setShowCOMPath(false);
     if (!showSkeleton && analysis?.poseData) {
       toast.success("Skeleton overlay enabled");
     } else if (showSkeleton) {
       toast.info("Skeleton overlay disabled");
     } else {
       toast.info("No pose data available for this analysis");
+    }
+  };
+
+  const toggleTiming = () => {
+    setShowTiming(!showTiming);
+    setShowSkeleton(false);
+    setShowCOMPath(false);
+    if (!showTiming) {
+      toast.success("Timing overlay enabled");
+    } else {
+      toast.info("Timing overlay disabled");
+    }
+  };
+
+  const toggleCOMPath = () => {
+    setShowCOMPath(!showCOMPath);
+    setShowSkeleton(false);
+    setShowTiming(false);
+    if (!showCOMPath) {
+      toast.success("COM Path overlay enabled");
+    } else {
+      toast.info("COM Path overlay disabled");
     }
   };
 
@@ -306,42 +332,166 @@ export default function AnalysisResult() {
     return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
 
-  // Update skeleton drawing during video playback
+  // Update overlays during video playback
   useEffect(() => {
-    if (!showSkeleton || !analysis?.poseData || !videoRef.current || !canvasRef.current) {
+    if (!canvasRef.current || !videoRef.current) return;
+    if (!showSkeleton && !showTiming && !showCOMPath) {
+      // Clear canvas when no overlay is shown
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
       return;
     }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    const poseData = analysis.poseData as PoseData[];
 
-    const updateSkeleton = () => {
+    const updateOverlay = () => {
       if (!video || !canvas) return;
 
-      const currentTime = video.currentTime * 1000; // Convert to milliseconds
-      
-      // Find the closest pose data to current video time
-      const closestPose = poseData.reduce((prev, curr) => {
-        return Math.abs(curr.timestamp - currentTime) < Math.abs(prev.timestamp - currentTime) 
-          ? curr 
-          : prev;
-      });
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-      if (closestPose) {
-        drawSkeletonOnCanvas(
-          canvas,
-          closestPose.keypoints,
-          video.videoWidth,
-          video.videoHeight
-        );
+      // Set canvas size to match video
+      canvas.width = video.videoWidth || video.clientWidth;
+      canvas.height = video.videoHeight || video.clientHeight;
+
+      // Clear previous frame
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (showSkeleton && analysis?.poseData) {
+        const poseData = analysis.poseData as PoseData[];
+        const currentTime = video.currentTime * 1000;
+        const closestPose = poseData.reduce((prev, curr) => {
+          return Math.abs(curr.timestamp - currentTime) < Math.abs(prev.timestamp - currentTime) 
+            ? curr 
+            : prev;
+        });
+
+        if (closestPose) {
+          drawSkeletonOnCanvas(canvas, closestPose.keypoints, canvas.width, canvas.height);
+        }
+      }
+
+      if (showTiming && analysis) {
+        drawTimingOverlay(ctx, canvas.width, canvas.height, currentFrame, analysis);
+      }
+
+      if (showCOMPath && analysis) {
+        drawCOMPathOverlay(ctx, canvas.width, canvas.height, currentFrame);
       }
     };
 
-    const intervalId = setInterval(updateSkeleton, 33); // ~30fps
-
+    const intervalId = setInterval(updateOverlay, 33); // ~30fps
     return () => clearInterval(intervalId);
-  }, [showSkeleton, analysis, isPlaying]);
+  }, [showSkeleton, showTiming, showCOMPath, analysis, isPlaying, currentFrame]);
+
+  const drawTimingOverlay = (
+    ctx: CanvasRenderingContext2D, 
+    width: number, 
+    height: number,
+    frame: number,
+    analysis: SwingAnalysis
+  ) => {
+    const totalFrames = Math.floor(duration * FPS);
+    
+    // Draw timing markers for pelvis, torso, and hands
+    const timingEvents = [
+      { label: 'Pelvis', frame: analysis.pelvisTiming ? Math.floor((analysis.pelvisTiming / 1000) * FPS) : null, color: '#FF6B6B' },
+      { label: 'Torso', frame: analysis.torsoTiming ? Math.floor((analysis.torsoTiming / 1000) * FPS) : null, color: '#4ECDC4' },
+      { label: 'Hands', frame: analysis.handsTiming ? Math.floor((analysis.handsTiming / 1000) * FPS) : null, color: '#95E1D3' }
+    ];
+
+    timingEvents.forEach((event, index) => {
+      if (event.frame === null || event.frame === undefined) return;
+      
+      const x = (event.frame / totalFrames) * width;
+      
+      // Draw vertical line
+      ctx.strokeStyle = event.color;
+      ctx.lineWidth = 3;
+      ctx.setLineDash([10, 5]);
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw label at top
+      ctx.fillStyle = event.color;
+      ctx.font = 'bold 16px sans-serif';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      ctx.shadowBlur = 4;
+      ctx.fillText(event.label, x + 5, 30 + (index * 25));
+      ctx.shadowBlur = 0;
+    });
+
+    // Draw current frame indicator
+    const currentX = (frame / totalFrames) * width;
+    ctx.strokeStyle = '#FFD93D';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(currentX, 0);
+    ctx.lineTo(currentX, height);
+    ctx.stroke();
+  };
+
+  const drawCOMPathOverlay = (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    frame: number
+  ) => {
+    // Simulate COM path based on frame progression
+    // In a real implementation, this would use actual COM tracking data
+    const totalFrames = Math.floor(duration * FPS);
+    const progress = frame / totalFrames;
+    
+    // Draw COM path (simplified visualization)
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const pathLength = width * 0.3;
+    
+    ctx.strokeStyle = '#6C5CE7';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = 'rgba(108, 92, 231, 0.6)';
+    ctx.shadowBlur = 10;
+    
+    // Draw the path up to current frame
+    ctx.beginPath();
+    for (let i = 0; i <= Math.min(frame, totalFrames); i++) {
+      const t = i / totalFrames;
+      const x = centerX - pathLength/2 + (pathLength * t);
+      const y = centerY + Math.sin(t * Math.PI) * 50; // Slight arc
+      
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+    
+    // Draw current COM position
+    const currentX = centerX - pathLength/2 + (pathLength * progress);
+    const currentY = centerY + Math.sin(progress * Math.PI) * 50;
+    
+    ctx.fillStyle = '#6C5CE7';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.arc(currentX, currentY, 8, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw COM label
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 4;
+    ctx.fillText('COM', currentX + 12, currentY - 10);
+  };
 
   if (!analysis) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
@@ -412,8 +562,8 @@ export default function AnalysisResult() {
                   playsInline
                 />
 
-                {/* Skeleton Overlay Canvas */}
-                {showSkeleton && analysis.poseData && (
+                {/* Overlay Canvas */}
+                {(showSkeleton || showTiming || showCOMPath) && (
                   <canvas
                     ref={canvasRef}
                     className="absolute inset-0 w-full h-full pointer-events-none"
@@ -446,17 +596,17 @@ export default function AnalysisResult() {
                   </Button>
                   <Button 
                     size="sm" 
-                    variant="secondary" 
+                    variant={showTiming ? "default" : "secondary"}
                     className="text-xs"
-                    onClick={() => toast.info("Timing overlay coming soon!")}
+                    onClick={toggleTiming}
                   >
                     Timing
                   </Button>
                   <Button 
                     size="sm" 
-                    variant="secondary" 
+                    variant={showCOMPath ? "default" : "secondary"}
                     className="text-xs"
-                    onClick={() => toast.info("COM Path overlay coming soon!")}
+                    onClick={toggleCOMPath}
                   >
                     COM Path
                   </Button>
