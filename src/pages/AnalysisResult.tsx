@@ -54,10 +54,88 @@ export default function AnalysisResult() {
     if (analysisId) {
       loadAnalysisFromDatabase(analysisId);
     } else {
-      // Otherwise load from sessionStorage (legacy behavior)
-      loadAnalysisFromSession();
+      // For /result/latest route, load the most recent analysis from database
+      loadLatestAnalysisFromDatabase();
     }
   }, [analysisId]);
+
+  const loadLatestAnalysisFromDatabase = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Please sign in to view analysis');
+        navigate('/auth');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('swing_analyses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error) throw error;
+
+      // Convert database format to SwingAnalysis format
+      const metrics = (data.metrics as any) || {};
+      const analysisData: SwingAnalysis = {
+        id: data.id,
+        videoUrl: data.video_url || '',
+        analyzedAt: new Date(data.created_at),
+        hitsScore: Number(data.overall_score),
+        anchorScore: Number(data.anchor_score),
+        engineScore: Number(data.engine_score),
+        whipScore: Number(data.whip_score),
+        tempoRatio: metrics.tempoRatio || 0,
+        loadStartTiming: metrics.loadStartTiming,
+        fireStartTiming: metrics.fireStartTiming,
+        primaryOpportunity: metrics.primaryOpportunity,
+        impactStatement: metrics.impactStatement,
+        recommendedDrills: metrics.recommendedDrills || [],
+        poseData: metrics.poseData,
+        pelvisTiming: metrics.pelvisTiming,
+        torsoTiming: metrics.torsoTiming,
+        handsTiming: metrics.handsTiming,
+        pelvisMaxVelocity: metrics.pelvisMaxVelocity,
+        torsoMaxVelocity: metrics.torsoMaxVelocity,
+        armMaxVelocity: metrics.armMaxVelocity,
+        batMaxVelocity: metrics.batMaxVelocity,
+        xFactor: metrics.xFactor,
+        xFactorStance: metrics.xFactorStance,
+        pelvisRotation: metrics.pelvisRotation,
+        shoulderRotation: metrics.shoulderRotation,
+        comDistance: metrics.comDistance,
+        comMaxVelocity: metrics.comMaxVelocity,
+        comLateralMovement: metrics.comLateralMovement,
+        comForwardMovement: metrics.comForwardMovement,
+        comVerticalMovement: metrics.comVerticalMovement,
+        comPeakTiming: metrics.comPeakTiming,
+        comAccelerationPeak: metrics.comAccelerationPeak,
+        frontFootWeightPercent: metrics.frontFootWeightPercent,
+        frontFootGRF: metrics.frontFootGRF,
+        comCopDistance: metrics.comCopDistance,
+        balanceRecoveryTime: metrics.balanceRecoveryTime,
+        mlbComparison: metrics.mlbComparison,
+        exitVelocity: metrics.exitVelocity,
+        launchAngle: metrics.launchAngle,
+        projectedDistance: metrics.projectedDistance
+      };
+
+      setAnalysis(analysisData);
+      setVideoType(data.video_type as 'analysis' | 'drill');
+      
+      console.log('Loaded latest analysis from database:', {
+        frontFootGRF: analysisData.frontFootGRF,
+        comPeakTiming: analysisData.comPeakTiming
+      });
+    } catch (error) {
+      console.error('Error loading latest analysis:', error);
+      toast.error('Failed to load latest analysis');
+      navigate('/analyze');
+    }
+  };
 
   const loadAnalysisFromDatabase = async (id: string) => {
     try {
