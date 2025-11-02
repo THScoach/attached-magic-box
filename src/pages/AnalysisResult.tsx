@@ -4,13 +4,10 @@ import { Card } from "@/components/ui/card";
 import { PillarCard } from "@/components/PillarCard";
 import { VelocityChart } from "@/components/VelocityChart";
 import { DrillCard } from "@/components/DrillCard";
-import { DrillFeedbackChat } from "@/components/DrillFeedbackChat";
 import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
-import { BalanceMetrics } from "@/components/BalanceMetrics";
 import { ResearchBenchmarks } from "@/components/ResearchBenchmarks";
-import { PhaseDetectionValidator } from "@/components/PhaseDetectionValidator";
 import { TempoRatioCard } from "@/components/TempoRatioCard";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { TimingGraph } from "@/components/TimingGraph";
@@ -43,8 +40,6 @@ export default function AnalysisResult() {
   const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
-  const [showDrillFeedback, setShowDrillFeedback] = useState(false);
-  const [videoType, setVideoType] = useState<'analysis' | 'drill'>('analysis');
   const [isPlaying, setIsPlaying] = useState(false);
   const [showTiming, setShowTiming] = useState(false);
   const [showCOMPath, setShowCOMPath] = useState(false);
@@ -136,7 +131,6 @@ export default function AnalysisResult() {
       };
 
       setAnalysis(analysisData);
-      setVideoType(data.video_type as 'analysis' | 'drill');
       
       // Load joint data from sessionStorage if available
       const storedJointData = sessionStorage.getItem('latestJointData');
@@ -216,7 +210,6 @@ export default function AnalysisResult() {
       };
 
       setAnalysis(analysisData);
-      setVideoType(data.video_type as 'analysis' | 'drill');
     } catch (error) {
       console.error('Error loading analysis:', error);
       toast.error('Failed to load analysis');
@@ -225,7 +218,6 @@ export default function AnalysisResult() {
 
   const loadAnalysisFromSession = () => {
     const stored = sessionStorage.getItem('latestAnalysis');
-    const analysisType = sessionStorage.getItem('latestAnalysisType') || 'analysis';
     const storedPlayerId = sessionStorage.getItem('selectedPlayerId');
     
     if (stored) {
@@ -233,12 +225,6 @@ export default function AnalysisResult() {
       console.log('Analysis data:', analysisData);
       console.log('Video URL:', analysisData.videoUrl);
       setAnalysis(analysisData);
-      setVideoType(analysisType as 'analysis' | 'drill');
-      
-      // For drills, automatically show feedback chat
-      if (analysisType === 'drill') {
-        setShowDrillFeedback(true);
-      }
       
       // Load session data and create training program
       loadSessionData();
@@ -1004,9 +990,6 @@ export default function AnalysisResult() {
         {/* Reboot-Style Metrics */}
         <RebootStyleMetrics analysis={analysis} />
 
-        {/* Balance & Stability Metrics */}
-        <BalanceMetrics analysis={analysis} />
-
         {/* Research-Validated Benchmarks */}
         <ResearchBenchmarks analysis={analysis} />
 
@@ -1067,30 +1050,8 @@ export default function AnalysisResult() {
           </>
         )}
 
-        {/* Phase Detection Validation */}
-        {analysis.loadStartTiming && analysis.fireStartTiming && analysis.pelvisTiming && (
-          <PhaseDetectionValidator
-            loadStartTiming={analysis.loadStartTiming}
-            fireStartTiming={analysis.fireStartTiming}
-            pelvisTiming={analysis.pelvisTiming}
-            tempoRatio={analysis.tempoRatio}
-          />
-        )}
-
         {/* Velocity Chart */}
         <VelocityChart data={velocityData} />
-
-        {/* Drill Feedback for Training Drills */}
-        {videoType === 'drill' && showDrillFeedback && analysis.id && (
-          <DrillFeedbackChat 
-            analysisId={analysis.id}
-            drillName="Training Drill"
-            onComplete={() => {
-              setShowDrillFeedback(false);
-              toast.success("Drill feedback saved!");
-            }}
-          />
-        )}
 
         {/* AI Coach Feedback */}
         <Card className="p-6 bg-blue-500/10 border-blue-500/20">
