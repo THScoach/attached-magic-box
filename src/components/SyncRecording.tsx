@@ -114,8 +114,14 @@ export function SyncRecording({ isOpen, onClose, onComplete }: SyncRecordingProp
     setShowCamera(true);
     setTimeout(async () => {
       if (videoRef.current) {
-        const result = await recorderRef.current.startPreview(videoRef.current, 120, 'environment');
-        if (!result.success) {
+        const result = await recorderRef.current.startPreview(videoRef.current, 240, 'environment');
+        if (result.success) {
+          // Start buffer recording immediately
+          const bufferResult = await recorderRef.current.startBuffering();
+          if (!bufferResult.success) {
+            console.error('Failed to start buffer:', bufferResult.error);
+          }
+        } else {
           toast.error("Failed to start camera");
         }
       }
@@ -168,8 +174,8 @@ export function SyncRecording({ isOpen, onClose, onComplete }: SyncRecordingProp
   const startRecording = async () => {
     if (!sessionId) return;
 
-    // Start local recording
-    const result = await recorderRef.current.startRecording();
+    // Start buffer recording locally
+    const result = await recorderRef.current.captureAtContact();
     if (!result.success) {
       toast.error("Failed to start recording");
       return;
@@ -186,12 +192,12 @@ export function SyncRecording({ isOpen, onClose, onComplete }: SyncRecordingProp
       })
       .eq('id', sessionId);
 
-    toast.success("Both cameras recording!");
+    toast.success("Contact captured on both cameras!");
   };
 
   // Handle remote recording start (for client)
   const handleRemoteRecordingStart = async () => {
-    const result = await recorderRef.current.startRecording();
+    const result = await recorderRef.current.captureAtContact();
     if (result.success) {
       setIsRecording(true);
     }

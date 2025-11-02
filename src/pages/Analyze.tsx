@@ -127,13 +127,22 @@ export default function Analyze() {
         console.log('Initializing camera...');
         
         try {
-          const result = await recorderRef.current.startPreview(videoPreviewRef.current!, 120, facingMode);
+          const result = await recorderRef.current.startPreview(videoPreviewRef.current!, 240, facingMode);
           
           if (result.success) {
             setActualFps(result.actualFps || 30);
+            
+            // Start buffer recording immediately after preview starts
+            const bufferResult = await recorderRef.current.startBuffering();
+            if (!bufferResult.success) {
+              console.error('Failed to start buffer:', bufferResult.error);
+            }
+            
             toast.success(`Camera ready at ${result.actualFps}fps`, {
-              description: result.actualFps && result.actualFps >= 120 
-                ? "High frame rate enabled!" 
+              description: result.actualFps && result.actualFps >= 240 
+                ? "240fps high-speed capture enabled!" 
+                : result.actualFps && result.actualFps >= 120
+                ? "High frame rate enabled!"
                 : "Device may not support high frame rates"
             });
           } else {
@@ -162,12 +171,19 @@ export default function Analyze() {
     if (!videoPreviewRef.current) return;
     
     toast.info("Switching camera...");
-    const result = await recorderRef.current.switchCamera(videoPreviewRef.current, 120);
+    const result = await recorderRef.current.switchCamera(videoPreviewRef.current, 240);
     
     if (result.success) {
       const newFacingMode = recorderRef.current.getCurrentFacingMode();
       setFacingMode(newFacingMode);
       setActualFps(result.actualFps || 30);
+      
+      // Restart buffer recording after camera switch
+      const bufferResult = await recorderRef.current.startBuffering();
+      if (!bufferResult.success) {
+        console.error('Failed to restart buffer:', bufferResult.error);
+      }
+      
       toast.success(`Switched to ${newFacingMode === 'user' ? 'front' : 'back'} camera`);
     } else {
       toast.error("Failed to switch camera", {
@@ -193,17 +209,19 @@ export default function Analyze() {
   };
 
   const handleStartRecording = async () => {
-    const result = await recorderRef.current.startRecording(() => {
-      // Auto-stop callback after 6 seconds
+    const result = await recorderRef.current.captureAtContact(() => {
+      // Auto-stop callback after 2 seconds post-contact
       handleStopRecording();
     });
     
     if (result.success) {
       setIsRecording(true);
-      toast.success("Recording started (6 sec max)");
+      toast.success("Contact captured! Recording 2 more seconds...", {
+        description: "Total: 2 sec before + 2 sec after contact"
+      });
     } else {
       toast.error("Recording Error", {
-        description: result.error || "Failed to start recording"
+        description: result.error || "Failed to capture at contact"
       });
     }
   };
@@ -218,15 +236,22 @@ export default function Analyze() {
       return;
     }
 
-    // Convert blob to file
+    // Convert blob to file with contact timestamp metadata
     const videoFile = new File([result.blob], `recording-${Date.now()}.webm`, {
       type: 'video/webm'
     });
+    
+    // Store contact timestamp for later use in analysis
+    if (result.contactTimestamp) {
+      console.log('Contact timestamp stored:', result.contactTimestamp, 'ms');
+      // This will be passed to analysis and used to align velocity graphs
+      (videoFile as any).contactTimestamp = result.contactTimestamp;
+    }
 
     // Create URL for preview
     const videoUrl = URL.createObjectURL(result.blob);
 
-    toast.success("Recording saved! Review it below.");
+    toast.success("4-second clip captured! (2 sec before + 2 sec after contact)");
     setShowCamera(false);
     setCameraRequested(false);
     setRecordedVideoFile(videoFile);
