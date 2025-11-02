@@ -377,17 +377,41 @@ export default function Analyze() {
         .getPublicUrl(fileName);
 
       // Step 2: Extract key frames for AI analysis
+      console.log('Starting frame extraction...');
       toast.info("Extracting frames from video...");
-      const frames = await extractVideoFrames(file, 8);
-      setUploadProgress(50);
+      
+      let frames: string[] = [];
+      try {
+        frames = await extractVideoFrames(file, 8);
+        console.log(`Frame extraction complete: ${frames.length} frames extracted`);
+        setUploadProgress(50);
+      } catch (frameError) {
+        console.error('Frame extraction failed:', frameError);
+        toast.error("Failed to process video frames", {
+          description: frameError instanceof Error ? frameError.message : "Unknown error"
+        });
+        setIsAnalyzing(false);
+        return;
+      }
 
       // Step 3: Pose detection with MediaPipe
+      console.log('Starting pose detection...');
       toast.info("Detecting body keypoints...");
-      const poseData = await detectPoseInFrames(file, (progress) => {
-        setUploadProgress(50 + progress * 0.2); // 50-70%
-      });
-      console.log(`Pose detection complete: ${poseData.length} frames with keypoints`);
-      setUploadProgress(70);
+      
+      let poseData: any[] = [];
+      try {
+        poseData = await detectPoseInFrames(file, (progress) => {
+          setUploadProgress(50 + progress * 0.2); // 50-70%
+        });
+        console.log(`Pose detection complete: ${poseData.length} frames with keypoints`);
+        setUploadProgress(70);
+      } catch (poseError) {
+        console.error('Pose detection failed:', poseError);
+        console.log('Continuing without pose data...');
+        // Continue with empty pose data rather than failing completely
+        poseData = [];
+        setUploadProgress(70);
+      }
 
       // Process pose data into comprehensive joint analysis
       import('@/lib/poseProcessor').then(({ processPoseData, summarizeJointData }) => {
