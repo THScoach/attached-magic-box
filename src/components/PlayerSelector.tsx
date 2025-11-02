@@ -33,6 +33,7 @@ interface PlayerSelectorProps {
 export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: PlayerSelectorProps) {
   const navigate = useNavigate();
   const [players, setPlayers] = useState<Player[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showDialog, setShowDialog] = useState(false);
   const { role, isCoach, isAthlete } = useUserRole();
@@ -57,8 +58,12 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
   }, []);
 
   const loadPlayers = async () => {
+    setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     // Check if user is admin - they can see all players
     const { data: userRoleData } = await supabase
@@ -86,11 +91,13 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
 
     if (error) {
       console.error('[PlayerSelector] Error loading players:', error);
+      setLoading(false);
       return;
     }
 
     console.log('[PlayerSelector] Loaded players:', data?.length, 'Current selectedPlayerId:', selectedPlayerId);
     setPlayers(data || []);
+    setLoading(false);
     
     // Check if the selectedPlayerId exists in the loaded players
     if (selectedPlayerId && data) {
@@ -181,6 +188,16 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
     : limit 
       ? filteredPlayers.slice(0, limit) 
       : filteredPlayers;
+
+  if (loading) {
+    return (
+      <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10">
+        <div className="text-center py-6 text-muted-foreground">
+          <p className="text-sm">Loading players...</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10">
