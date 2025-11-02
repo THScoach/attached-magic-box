@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,7 +40,7 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
     getCoachId();
   }, []);
 
-  const getDateRange = () => {
+  const dateRange = useMemo(() => {
     switch (view) {
       case 'week':
         return {
@@ -58,15 +58,14 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
           end: endOfYear(currentDate)
         };
     }
-  };
+  }, [view, currentDate]);
 
-  const dateRange = getDateRange();
   const { items, loading, addItem, updateItem, reload } = useCalendarItems(userId, playerId, dateRange.start, dateRange.end);
 
   useEffect(() => {
     loadPrograms();
     loadAnalyses();
-  }, [userId, playerId, view, currentDate]);
+  }, [userId, playerId, dateRange]);
 
   const loadPrograms = async () => {
     try {
@@ -86,13 +85,12 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
 
   const loadAnalyses = async () => {
     try {
-      const range = getDateRange();
       const { data, error } = await supabase
         .from('swing_analyses')
         .select('*')
         .eq('player_id', playerId)
-        .gte('created_at', range.start.toISOString())
-        .lte('created_at', range.end.toISOString())
+        .gte('created_at', dateRange.start.toISOString())
+        .lte('created_at', dateRange.end.toISOString())
         .order('created_at', { ascending: false });
 
       if (error) throw error;
