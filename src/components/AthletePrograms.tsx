@@ -62,25 +62,21 @@ export function AthletePrograms({ playerId, userId }: AthleteProgramsProps) {
         .from('training_programs')
         .select('*')
         .eq('user_id', userId)
+        .order('is_active', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       
-      // Deduplicate: only show one program per pillar (most recent active one)
-      const uniquePrograms = (data || []).reduce((acc, program) => {
-        const existing = acc.find(p => p.focus_pillar === program.focus_pillar);
-        if (!existing) {
-          // Add first program for this pillar
-          acc.push(program);
-        } else if (program.is_active && !existing.is_active) {
-          // Replace inactive with active program
-          const index = acc.indexOf(existing);
-          acc[index] = program;
+      // Deduplicate: only show one program per pillar (prioritize active, then most recent)
+      const programsByPillar = new Map<string, Program>();
+      (data || []).forEach(program => {
+        const pillar = program.focus_pillar.toUpperCase();
+        if (!programsByPillar.has(pillar)) {
+          programsByPillar.set(pillar, program);
         }
-        return acc;
-      }, [] as Program[]);
+      });
       
-      setPrograms(uniquePrograms);
+      setPrograms(Array.from(programsByPillar.values()));
     } catch (error) {
       console.error('Error loading programs:', error);
     } finally {
