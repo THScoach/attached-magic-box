@@ -9,11 +9,11 @@ import { CoachRickChat } from "@/components/CoachRickChat";
 import { ResearchBenchmarks } from "@/components/ResearchBenchmarks";
 import { TempoRatioCard } from "@/components/TempoRatioCard";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
-import { JointDataViewer } from "@/components/JointDataViewer";
 import { MasterCoachReport as MasterCoachReportComponent } from "@/components/MasterCoachReport";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
+import { DetailedMetricsView } from "@/components/DetailedMetricsView";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward, Settings } from "lucide-react";
+import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { mockDrills } from "@/lib/mockAnalysis";
@@ -34,7 +34,7 @@ export default function AnalysisResult() {
   const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showDetailedMetrics, setShowDetailedMetrics] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(0.5);
   const [currentTime, setCurrentTime] = useState(0);
@@ -753,11 +753,21 @@ export default function AnalysisResult() {
           fireStartTiming={analysis.fireStartTiming}
         />
 
-        {/* Three Pillars */}
+        {/* Three Pillars - Condensed */}
         <section>
-          <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-lg font-bold">The Three Pillars</h2>
-            <InfoTooltip content="ANCHOR = Balance & stability. ENGINE = Timing & sequence (kinetic chain). WHIP = Acceleration & release. Master all three for elite hitting." />
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold">The Three Pillars</h2>
+              <InfoTooltip content="ANCHOR = Balance & stability. ENGINE = Timing & sequence (kinetic chain). WHIP = Acceleration & release. Master all three for elite hitting." />
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowDetailedMetrics(true)}
+              className="text-xs"
+            >
+              View Details
+            </Button>
           </div>
           <div className="space-y-3">
             <PillarCard 
@@ -767,54 +777,6 @@ export default function AnalysisResult() {
               jointData={jointData}
               videoWidth={1920}
               videoHeight={1080}
-              components={jointData.length > 0 ? (() => {
-                const stability = calculateFrontLegStability(jointData);
-                const weightTransfer = calculateWeightTransfer(jointData);
-                const components = [];
-                
-                if (stability) {
-                  components.push({
-                    name: "Front Leg Stability",
-                    score: stability.overall_score,
-                    currentValue: `${stability.knee_angle?.toFixed(0)}° knee angle`,
-                    optimalRange: "145-160°",
-                    status: stability.overall_status
-                  });
-                  components.push({
-                    name: "Knee Angle",
-                    score: stability.knee_score,
-                    currentValue: `${stability.knee_angle?.toFixed(0)}°`,
-                    optimalRange: "145-160°",
-                    status: stability.knee_status
-                  });
-                  components.push({
-                    name: "Ankle Angle",
-                    score: stability.ankle_score,
-                    currentValue: `${stability.ankle_angle?.toFixed(0)}°`,
-                    optimalRange: "10-15°",
-                    status: stability.ankle_status
-                  });
-                  components.push({
-                    name: "Leg Deceleration",
-                    score: stability.deceleration_score,
-                    currentValue: `${stability.deceleration_rate?.toFixed(1)} m/s²`,
-                    optimalRange: ">10 m/s²",
-                    status: stability.deceleration_status
-                  });
-                }
-                
-                if (weightTransfer) {
-                  components.push({
-                    name: "Weight Transfer",
-                    score: weightTransfer.overall_score,
-                    currentValue: `${weightTransfer.vertical_movement?.toFixed(1)}" vertical rise`,
-                    optimalRange: "2-3 inches",
-                    status: weightTransfer.overall_status
-                  });
-                }
-                
-                return components;
-              })() : undefined}
             />
             <PillarCard 
               pillar="ENGINE" 
@@ -823,42 +785,6 @@ export default function AnalysisResult() {
               jointData={jointData}
               videoWidth={1920}
               videoHeight={1080}
-              components={[
-                {
-                  name: "Tempo Ratio",
-                  score: Math.min(100, Math.max(0, (analysis.tempoRatio - 1.5) / 1.5 * 100)),
-                  currentValue: `${analysis.tempoRatio.toFixed(2)}:1`,
-                  optimalRange: "2.5-3.5:1",
-                  percentile: analysis.tempoRatio > 2.5 ? 88 : 65,
-                  status: analysis.tempoRatio >= 2.5 && analysis.tempoRatio <= 3.5 ? "Elite timing" : "Adjust tempo ratio"
-                },
-                ...(analysis.xFactor ? [{
-                  name: "Hip-Shoulder Separation",
-                  score: Math.min(100, Math.max(0, (analysis.xFactor / 45) * 100)),
-                  currentValue: `${analysis.xFactor.toFixed(0)}°`,
-                  optimalRange: "30-45°",
-                  percentile: 71,
-                  status: analysis.xFactor >= 30 && analysis.xFactor <= 45 ? "Optimal separation" : "Adjust separation angle"
-                }] : []),
-                ...(analysis.pelvisMaxVelocity ? [{
-                  name: "Pelvis Rotation Velocity",
-                  score: Math.min(100, Math.max(0, (analysis.pelvisMaxVelocity / 800) * 100)),
-                  currentValue: `${analysis.pelvisMaxVelocity.toFixed(0)}°/s`,
-                  optimalRange: "550-700°/s",
-                  percentile: 86,
-                  status: analysis.pelvisMaxVelocity >= 550 && analysis.pelvisMaxVelocity <= 700 ? "Elite rotation speed" : "Adjust rotation velocity"
-                }] : []),
-                ...(jointData.length > 0 ? (() => {
-                  const weightTransfer = calculateWeightTransfer(jointData);
-                  return weightTransfer ? [{
-                    name: "Weight Transfer Mechanics",
-                    score: weightTransfer.overall_score,
-                    currentValue: `${(weightTransfer.timing_peak ? weightTransfer.timing_peak * 1000 : 0).toFixed(0)}ms before contact`,
-                    optimalRange: "100-150ms",
-                    status: weightTransfer.overall_status
-                  }] : [];
-                })() : [])
-              ]}
             />
             <PillarCard 
               pillar="WHIP" 
@@ -867,56 +793,11 @@ export default function AnalysisResult() {
               jointData={jointData}
               videoWidth={1920}
               videoHeight={1080}
-              components={[
-                ...(analysis.torsoMaxVelocity ? [{
-                  name: "Torso Rotation",
-                  score: Math.min(100, Math.max(0, (analysis.torsoMaxVelocity / 1200) * 100)),
-                  currentValue: `${analysis.torsoMaxVelocity.toFixed(0)}°/s`,
-                  optimalRange: "900-1200°/s",
-                  percentile: 68,
-                  status: analysis.torsoMaxVelocity >= 900 && analysis.torsoMaxVelocity <= 1200 ? "Elite torso speed" : "Adjust torso rotation"
-                }] : []),
-                ...(analysis.batMaxVelocity ? [{
-                  name: "Bat Speed",
-                  score: Math.min(100, Math.max(0, (analysis.batMaxVelocity / 85) * 100)),
-                  currentValue: `${analysis.batMaxVelocity.toFixed(1)} mph`,
-                  optimalRange: "70-80 mph",
-                  percentile: 84,
-                  status: analysis.batMaxVelocity >= 70 && analysis.batMaxVelocity <= 80 ? "Elite bat speed" : "Increase bat speed"
-                }] : []),
-                ...(analysis.armMaxVelocity ? [{
-                  name: "Arm Speed",
-                  score: Math.min(100, Math.max(0, (analysis.armMaxVelocity / 1500) * 100)),
-                  currentValue: `${analysis.armMaxVelocity.toFixed(0)}°/s`,
-                  optimalRange: "1200-1500°/s",
-                  status: analysis.armMaxVelocity >= 1200 && analysis.armMaxVelocity <= 1500 ? "Elite arm acceleration" : "Increase arm speed"
-                }] : [])
-              ]}
             />
           </div>
         </section>
 
-        {/* Research-Validated Benchmarks */}
-        <ResearchBenchmarks analysis={analysis} />
-
-        {/* Live Tempo Graph - Uses Real Swing Data */}
-        <VelocityChart analysis={analysis} />
-
-        {/* Coach Rick Report */}
-        {jointData.length > 0 && (() => {
-          const stability = calculateFrontLegStability(jointData);
-          const weightTransfer = calculateWeightTransfer(jointData);
-          const report = generateMasterCoachReport(
-            'Player',
-            analysis,
-            jointData,
-            stability,
-            weightTransfer
-          );
-          return <MasterCoachReportComponent report={report} />;
-        })()}
-
-        {/* AI Coach Feedback */}
+        {/* AI Coach Feedback - Your #1 Opportunity */}
         <Card className="p-6 bg-blue-500/10 border-blue-500/20">
           <div className="flex items-start gap-4 mb-4">
             <CoachRickAvatar size="md" className="shrink-0" />
@@ -998,7 +879,7 @@ export default function AnalysisResult() {
           >
             Analyze Another Swing
           </Button>
-            <Button 
+          <Button 
             size="lg"
             variant="outline"
             className="w-full"
@@ -1008,31 +889,30 @@ export default function AnalysisResult() {
           </Button>
         </div>
 
-        {/* Advanced Data Toggle */}
-        {jointData.length > 0 && (
-          <>
-            <div className="flex justify-center">
-              <Button 
-                variant="ghost" 
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="gap-2"
-              >
-                <Settings className="h-4 w-4" />
-                {showAdvanced ? "Hide" : "Show"} Advanced Data
-              </Button>
-            </div>
-            
-            {/* Detailed Joint Data - Hidden by default */}
-            {showAdvanced && (
-              <JointDataViewer
-                frameData={jointData}
-                videoWidth={videoRef.current?.videoWidth || 1920}
-                videoHeight={videoRef.current?.videoHeight || 1080}
-              />
-            )}
-          </>
-        )}
+        {/* Coach Rick Report - Condensed at bottom */}
+        {jointData.length > 0 && (() => {
+          const stability = calculateFrontLegStability(jointData);
+          const weightTransfer = calculateWeightTransfer(jointData);
+          const report = generateMasterCoachReport(
+            'Player',
+            analysis,
+            jointData,
+            stability,
+            weightTransfer
+          );
+          return <MasterCoachReportComponent report={report} />;
+        })()}
       </div>
+
+      {/* Detailed Metrics Sheet */}
+      <DetailedMetricsView
+        isOpen={showDetailedMetrics}
+        onClose={() => setShowDetailedMetrics(false)}
+        analysis={analysis}
+        jointData={jointData}
+        videoWidth={videoRef.current?.videoWidth || 1920}
+        videoHeight={videoRef.current?.videoHeight || 1080}
+      />
 
       {/* Coach Rick Chat Modal */}
       {showCoachChat && (
