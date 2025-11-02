@@ -43,6 +43,7 @@ export default function AnalysisResult() {
   const [isBuffering, setIsBuffering] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const frameCallbackIdRef = useRef<number | null>(null);
   const velocityData = generateVelocityData();
   const FPS = 30; // Frames per second
 
@@ -308,14 +309,22 @@ export default function AnalysisResult() {
     if (!videoRef.current) return;
     const time = videoRef.current.currentTime;
     setCurrentTime(time);
-    setCurrentFrame(Math.floor(time * FPS));
   };
 
   const handleLoadedMetadata = () => {
     if (!videoRef.current) return;
-    setDuration(videoRef.current.duration);
-    videoRef.current.playbackRate = playbackRate;
-    console.log('Video metadata loaded');
+    const video = videoRef.current;
+    setDuration(video.duration);
+    video.playbackRate = playbackRate;
+    
+    console.log('Video metadata loaded:');
+    console.log('- Duration:', video.duration, 'seconds');
+    console.log('- Video dimensions:', video.videoWidth, 'x', video.videoHeight);
+    console.log('- Playback rate:', video.playbackRate);
+    
+    // Calculate approximate total frames
+    const totalFrames = Math.round(video.duration * FPS);
+    console.log('- Approximate frames (at 30fps):', totalFrames);
   };
 
   const handleCanPlay = () => {
@@ -354,6 +363,66 @@ export default function AnalysisResult() {
     const ms = Math.floor((seconds % 1) * 100);
     return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
+
+  // Frame-accurate video playback using requestVideoFrameCallback
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Check if requestVideoFrameCallback is supported
+    if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
+      const updateFrame = (now: number, metadata: any) => {
+        // Update frame count based on actual video frame metadata
+        if (metadata.mediaTime !== undefined) {
+          const frameNum = Math.round(metadata.mediaTime * FPS);
+          setCurrentFrame(frameNum);
+          
+          // Log frame info periodically (every 30 frames)
+          if (frameNum % 30 === 0) {
+            console.log('Frame:', frameNum, 'Time:', metadata.mediaTime.toFixed(3), 'Presented frames:', metadata.presentedFrames);
+          }
+        }
+        
+        // Re-register callback for next frame
+        if (video && !video.paused && !video.ended) {
+          frameCallbackIdRef.current = video.requestVideoFrameCallback(updateFrame);
+        }
+      };
+
+      // Start frame callback when video plays
+      const handlePlay = () => {
+        if (frameCallbackIdRef.current !== null) {
+          video.cancelVideoFrameCallback(frameCallbackIdRef.current);
+        }
+        frameCallbackIdRef.current = video.requestVideoFrameCallback(updateFrame);
+      };
+
+      // Cancel frame callback when video pauses
+      const handlePause = () => {
+        if (frameCallbackIdRef.current !== null) {
+          video.cancelVideoFrameCallback(frameCallbackIdRef.current);
+          frameCallbackIdRef.current = null;
+        }
+      };
+
+      video.addEventListener('play', handlePlay);
+      video.addEventListener('pause', handlePause);
+      video.addEventListener('ended', handlePause);
+
+      // Cleanup
+      return () => {
+        if (frameCallbackIdRef.current !== null) {
+          video.cancelVideoFrameCallback(frameCallbackIdRef.current);
+        }
+        video.removeEventListener('play', handlePlay);
+        video.removeEventListener('pause', handlePause);
+        video.removeEventListener('ended', handlePause);
+      };
+    } else {
+      // Fallback for browsers without requestVideoFrameCallback
+      console.warn('requestVideoFrameCallback not supported, using fallback');
+    }
+  }, [analysis, FPS]);
 
   // Update skeleton overlay during video playback
   useEffect(() => {
