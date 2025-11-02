@@ -15,7 +15,7 @@ export function RoleBasedRedirect({ children }: RoleBasedRedirectProps) {
     if (!loading && role) {
       // Redirect based on role
       if (role === "admin") {
-        navigate("/admin", { replace: true });
+        navigate("/dashboard", { replace: true });
       } else if (role === "coach") {
         navigate("/coach-dashboard", { replace: true });
       } else if (role === "athlete") {
