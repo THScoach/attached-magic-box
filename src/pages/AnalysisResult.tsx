@@ -395,47 +395,56 @@ export default function AnalysisResult() {
     frame: number,
     analysis: SwingAnalysis
   ) => {
-    const totalFrames = Math.floor(duration * FPS);
-    
-    // Draw timing markers for pelvis, torso, and hands
+    // Draw timing markers with better visibility
     const timingEvents = [
-      { label: 'Pelvis', frame: analysis.pelvisTiming ? Math.floor((analysis.pelvisTiming / 1000) * FPS) : null, color: '#FF6B6B' },
-      { label: 'Torso', frame: analysis.torsoTiming ? Math.floor((analysis.torsoTiming / 1000) * FPS) : null, color: '#4ECDC4' },
-      { label: 'Hands', frame: analysis.handsTiming ? Math.floor((analysis.handsTiming / 1000) * FPS) : null, color: '#95E1D3' }
+      { label: 'Pelvis Peak', time: analysis.pelvisTiming, color: '#FF6B6B' },
+      { label: 'Torso Peak', time: analysis.torsoTiming, color: '#4ECDC4' },
+      { label: 'Hands Peak', time: analysis.handsTiming, color: '#FFD93D' }
     ];
 
+    const padding = 60;
+    const labelHeight = 40;
+
     timingEvents.forEach((event, index) => {
-      if (event.frame === null || event.frame === undefined) return;
+      if (!event.time) return;
       
-      const x = (event.frame / totalFrames) * width;
+      const eventFrame = Math.floor((event.time / 1000) * FPS);
+      const progress = eventFrame / Math.floor(duration * FPS);
+      const x = padding + (width - padding * 2) * progress;
       
       // Draw vertical line
       ctx.strokeStyle = event.color;
       ctx.lineWidth = 3;
-      ctx.setLineDash([10, 5]);
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+      ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
+      ctx.moveTo(x, labelHeight + 20);
+      ctx.lineTo(x, height - 40);
       ctx.stroke();
-      ctx.setLineDash([]);
 
-      // Draw label at top
+      // Draw dot at top
       ctx.fillStyle = event.color;
-      ctx.font = 'bold 16px sans-serif';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      ctx.beginPath();
+      ctx.arc(x, labelHeight, 8, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw label with background
+      ctx.font = 'bold 14px sans-serif';
+      const textWidth = ctx.measureText(event.label).width;
+      const labelX = Math.max(10, Math.min(x - textWidth / 2, width - textWidth - 10));
+      
+      // Background
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      ctx.shadowBlur = 0;
+      ctx.fillRect(labelX - 8, labelHeight - 30, textWidth + 16, 22);
+      
+      // Text
+      ctx.fillStyle = event.color;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
       ctx.shadowBlur = 4;
-      ctx.fillText(event.label, x + 5, 30 + (index * 25));
+      ctx.fillText(event.label, labelX, labelHeight - 12);
       ctx.shadowBlur = 0;
     });
-
-    // Draw current frame indicator
-    const currentX = (frame / totalFrames) * width;
-    ctx.strokeStyle = '#FFD93D';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(currentX, 0);
-    ctx.lineTo(currentX, height);
-    ctx.stroke();
   };
 
   const drawCOMPathOverlay = (
@@ -444,27 +453,29 @@ export default function AnalysisResult() {
     height: number,
     frame: number
   ) => {
-    // Simulate COM path based on frame progression
-    // In a real implementation, this would use actual COM tracking data
+    if (!analysis) return;
+    
+    // Draw a more prominent COM path
     const totalFrames = Math.floor(duration * FPS);
-    const progress = frame / totalFrames;
+    const progress = Math.min(frame / totalFrames, 1);
     
-    // Draw COM path (simplified visualization)
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const pathLength = width * 0.3;
+    // Path parameters - make it more visible
+    const startX = width * 0.3;
+    const endX = width * 0.7;
+    const centerY = height * 0.6;
+    const amplitude = height * 0.15;
     
-    ctx.strokeStyle = '#6C5CE7';
-    ctx.lineWidth = 4;
-    ctx.shadowColor = 'rgba(108, 92, 231, 0.6)';
-    ctx.shadowBlur = 10;
-    
-    // Draw the path up to current frame
+    // Draw background path (full path in semi-transparent)
+    ctx.strokeStyle = 'rgba(108, 92, 231, 0.3)';
+    ctx.lineWidth = 6;
+    ctx.shadowColor = 'rgba(108, 92, 231, 0.5)';
+    ctx.shadowBlur = 15;
     ctx.beginPath();
-    for (let i = 0; i <= Math.min(frame, totalFrames); i++) {
-      const t = i / totalFrames;
-      const x = centerX - pathLength/2 + (pathLength * t);
-      const y = centerY + Math.sin(t * Math.PI) * 50; // Slight arc
+    
+    for (let i = 0; i <= 100; i++) {
+      const t = i / 100;
+      const x = startX + (endX - startX) * t;
+      const y = centerY - Math.sin(t * Math.PI) * amplitude;
       
       if (i === 0) {
         ctx.moveTo(x, y);
@@ -474,23 +485,68 @@ export default function AnalysisResult() {
     }
     ctx.stroke();
     
-    // Draw current COM position
-    const currentX = centerX - pathLength/2 + (pathLength * progress);
-    const currentY = centerY + Math.sin(progress * Math.PI) * 50;
+    // Draw active path (up to current frame)
+    ctx.strokeStyle = '#6C5CE7';
+    ctx.lineWidth = 8;
+    ctx.shadowBlur = 20;
+    ctx.beginPath();
     
-    ctx.fillStyle = '#6C5CE7';
+    const steps = Math.floor(progress * 100);
+    for (let i = 0; i <= steps; i++) {
+      const t = i / 100;
+      const x = startX + (endX - startX) * t;
+      const y = centerY - Math.sin(t * Math.PI) * amplitude;
+      
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+    
+    // Draw start marker
+    ctx.fillStyle = '#FF6B6B';
     ctx.shadowBlur = 15;
     ctx.beginPath();
-    ctx.arc(currentX, currentY, 8, 0, Math.PI * 2);
+    ctx.arc(startX, centerY, 10, 0, Math.PI * 2);
     ctx.fill();
     
-    // Draw COM label
+    // Draw current COM position
+    const currentX = startX + (endX - startX) * progress;
+    const currentY = centerY - Math.sin(progress * Math.PI) * amplitude;
+    
+    ctx.fillStyle = '#FFD93D';
+    ctx.shadowBlur = 20;
+    ctx.beginPath();
+    ctx.arc(currentX, currentY, 12, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw COM label with background
     ctx.shadowBlur = 0;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 14px sans-serif';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.font = 'bold 16px sans-serif';
+    const labelText = 'COM';
+    const labelWidth = ctx.measureText(labelText).width;
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.fillRect(currentX + 15, currentY - 22, labelWidth + 12, 26);
+    
+    ctx.fillStyle = '#FFD93D';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
     ctx.shadowBlur = 4;
-    ctx.fillText('COM', currentX + 12, currentY - 10);
+    ctx.fillText(labelText, currentX + 21, currentY - 4);
+    ctx.shadowBlur = 0;
+    
+    // Draw distance indicator
+    if (analysis.comDistance) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      ctx.fillRect(width / 2 - 60, height - 50, 120, 30);
+      
+      ctx.fillStyle = '#6C5CE7';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.shadowBlur = 4;
+      ctx.fillText(`${analysis.comDistance}" forward`, width / 2 - 52, height - 28);
+    }
   };
 
   if (!analysis) {
