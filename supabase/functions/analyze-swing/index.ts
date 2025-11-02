@@ -453,6 +453,76 @@ Provide detailed scores and analysis in this exact JSON format:
       throw new Error('Failed to parse analysis results');
     }
 
+    // ============= PHASE DETECTION VALIDATION =============
+    console.log('=== Phase Detection Validation ===');
+    
+    const validationWarnings: string[] = [];
+    const validationDebug = {
+      loadStart: analysis.loadStartTiming,
+      fireStart: analysis.fireStartTiming,
+      contact: 0,
+      pelvisPeak: analysis.pelvisTiming,
+      loadDuration: analysis.loadStartTiming - analysis.fireStartTiming,
+      fireDuration: analysis.fireStartTiming - 0,
+      tempoRatio: analysis.tempoRatio,
+      calculatedTempo: (analysis.loadStartTiming - analysis.fireStartTiming) / analysis.fireStartTiming
+    };
+
+    console.log('Phase Markers:', JSON.stringify(validationDebug, null, 2));
+
+    // Validation 1: Marker Ordering (LoadStart > FireStart > Contact)
+    if (!(analysis.loadStartTiming > analysis.fireStartTiming && analysis.fireStartTiming > 0)) {
+      validationWarnings.push(`⚠️ CRITICAL: Invalid marker ordering - LoadStart(${analysis.loadStartTiming}ms) > FireStart(${analysis.fireStartTiming}ms) > Contact(0ms)`);
+    }
+
+    // Validation 2: Fire Duration (250-500ms)
+    const fireDuration = analysis.fireStartTiming;
+    if (fireDuration < 250 || fireDuration > 500) {
+      validationWarnings.push(`⚠️ Fire Duration out of range: ${fireDuration}ms (expected 250-500ms)`);
+    }
+
+    // Validation 3: Load Duration (650-2000ms) - EXPANDED RANGE
+    const loadDuration = analysis.loadStartTiming - analysis.fireStartTiming;
+    if (loadDuration < 650) {
+      validationWarnings.push(`⚠️ CRITICAL: Load Duration too short: ${loadDuration}ms (expected 650-2000ms) - LoadStart likely detected LATE`);
+    } else if (loadDuration > 2000) {
+      validationWarnings.push(`⚠️ Load Duration unusually long: ${loadDuration}ms (expected 650-2000ms) - Verify detection or player has extreme patience`);
+    }
+
+    // Validation 4: Tempo Range (1.5-8.0:1)
+    if (analysis.tempoRatio < 1.5 || analysis.tempoRatio > 8.0) {
+      validationWarnings.push(`⚠️ Tempo Ratio out of range: ${analysis.tempoRatio}:1 (expected 1.5-8.0:1)`);
+    }
+
+    // Validation 5: FireStart vs Pelvis Peak Timing
+    const fireStartToPelvisPeak = analysis.fireStartTiming - analysis.pelvisTiming;
+    if (fireStartToPelvisPeak < 120 || fireStartToPelvisPeak > 180) {
+      validationWarnings.push(`⚠️ FireStart to Pelvis Peak timing: ${fireStartToPelvisPeak}ms (expected 120-180ms) - FireStart should be BEFORE pelvis peak`);
+    }
+
+    // Validation 6: Freeman Target Check (2.4-2.6:1 for elite power hitters)
+    if (analysis.tempoRatio < 2.2) {
+      validationWarnings.push(`ℹ️ Tempo below Freeman target: ${analysis.tempoRatio}:1 (Freeman target: 2.4-2.6:1) - Consider if LoadStart detection is capturing FIRST hand/hip movement`);
+    }
+
+    // Log validation results
+    if (validationWarnings.length > 0) {
+      console.log('⚠️ VALIDATION WARNINGS:');
+      validationWarnings.forEach(warning => console.log(warning));
+    } else {
+      console.log('✅ All phase detection validations passed');
+    }
+
+    // Add validation data to analysis object for debugging
+    analysis.validation = {
+      warnings: validationWarnings,
+      debug: validationDebug,
+      passed: validationWarnings.length === 0
+    };
+
+    console.log('=== End Phase Detection Validation ===');
+    // ============= END VALIDATION =============
+
     // Save to database if user is authenticated
     let analysisId = null;
     if (userId && videoUrl) {
