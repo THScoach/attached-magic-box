@@ -18,7 +18,6 @@ import { WeightTransferCard } from "@/components/WeightTransferCard";
 import { MasterCoachReport as MasterCoachReportComponent } from "@/components/MasterCoachReport";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward, Settings } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
@@ -1023,21 +1022,16 @@ export default function AnalysisResult() {
             })()}
             
             {/* Advanced Toggle */}
-            <Card className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Settings className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <h3 className="font-semibold">Advanced Analysis</h3>
-                    <p className="text-sm text-muted-foreground">Show detailed joint tracking and frame-by-frame data</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={showAdvanced}
-                  onCheckedChange={setShowAdvanced}
-                />
-              </div>
-            </Card>
+            <div className="flex justify-center">
+              <Button 
+                variant="ghost" 
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                {showAdvanced ? "Hide" : "Show"} Advanced Data
+              </Button>
+            </div>
             
             {/* Detailed Joint Data - Hidden by default */}
             {showAdvanced && (
