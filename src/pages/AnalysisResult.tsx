@@ -9,6 +9,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { CoachRickChat } from "@/components/CoachRickChat";
 import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
+import { TimingGraph } from "@/components/TimingGraph";
+import { COMPathGraph } from "@/components/COMPathGraph";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, History, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
@@ -246,22 +248,12 @@ export default function AnalysisResult() {
     setShowTiming(!showTiming);
     setShowSkeleton(false);
     setShowCOMPath(false);
-    if (!showTiming) {
-      toast.success("Timing overlay enabled");
-    } else {
-      toast.info("Timing overlay disabled");
-    }
   };
 
   const toggleCOMPath = () => {
     setShowCOMPath(!showCOMPath);
     setShowSkeleton(false);
     setShowTiming(false);
-    if (!showCOMPath) {
-      toast.success("COM Path overlay enabled");
-    } else {
-      toast.info("COM Path overlay disabled");
-    }
   };
 
   const stepForward = () => {
@@ -332,222 +324,51 @@ export default function AnalysisResult() {
     return `${mins}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
 
-  // Update overlays during video playback
+  // Update skeleton overlay during video playback
   useEffect(() => {
-    if (!canvasRef.current || !videoRef.current) return;
-    if (!showSkeleton && !showTiming && !showCOMPath) {
-      // Clear canvas when no overlay is shown
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!showSkeleton || !analysis?.poseData || !videoRef.current || !canvasRef.current) {
+      // Clear canvas when skeleton is off
+      if (canvasRef.current) {
+        const ctx = canvasRef.current.getContext('2d');
+        if (ctx) {
+          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        }
       }
       return;
     }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
+    const poseData = analysis.poseData as PoseData[];
 
-    const updateOverlay = () => {
+    const updateSkeleton = () => {
       if (!video || !canvas) return;
 
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // Set canvas size to match video
+      // Set canvas size
       canvas.width = video.videoWidth || video.clientWidth;
       canvas.height = video.videoHeight || video.clientHeight;
 
       // Clear previous frame
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (showSkeleton && analysis?.poseData) {
-        const poseData = analysis.poseData as PoseData[];
-        const currentTime = video.currentTime * 1000;
-        const closestPose = poseData.reduce((prev, curr) => {
-          return Math.abs(curr.timestamp - currentTime) < Math.abs(prev.timestamp - currentTime) 
-            ? curr 
-            : prev;
-        });
+      const currentTime = video.currentTime * 1000;
+      const closestPose = poseData.reduce((prev, curr) => {
+        return Math.abs(curr.timestamp - currentTime) < Math.abs(prev.timestamp - currentTime) 
+          ? curr 
+          : prev;
+      });
 
-        if (closestPose) {
-          drawSkeletonOnCanvas(canvas, closestPose.keypoints, canvas.width, canvas.height);
-        }
-      }
-
-      if (showTiming && analysis) {
-        drawTimingOverlay(ctx, canvas.width, canvas.height, currentFrame, analysis);
-      }
-
-      if (showCOMPath && analysis) {
-        drawCOMPathOverlay(ctx, canvas.width, canvas.height, currentFrame);
+      if (closestPose) {
+        drawSkeletonOnCanvas(canvas, closestPose.keypoints, canvas.width, canvas.height);
       }
     };
 
-    const intervalId = setInterval(updateOverlay, 33); // ~30fps
+    const intervalId = setInterval(updateSkeleton, 33);
     return () => clearInterval(intervalId);
-  }, [showSkeleton, showTiming, showCOMPath, analysis, isPlaying, currentFrame]);
-
-  const drawTimingOverlay = (
-    ctx: CanvasRenderingContext2D, 
-    width: number, 
-    height: number,
-    frame: number,
-    analysis: SwingAnalysis
-  ) => {
-    // Draw timing markers with better visibility
-    const timingEvents = [
-      { label: 'Pelvis Peak', time: analysis.pelvisTiming, color: '#FF6B6B' },
-      { label: 'Torso Peak', time: analysis.torsoTiming, color: '#4ECDC4' },
-      { label: 'Hands Peak', time: analysis.handsTiming, color: '#FFD93D' }
-    ];
-
-    const padding = 60;
-    const labelHeight = 40;
-
-    timingEvents.forEach((event, index) => {
-      if (!event.time) return;
-      
-      const eventFrame = Math.floor((event.time / 1000) * FPS);
-      const progress = eventFrame / Math.floor(duration * FPS);
-      const x = padding + (width - padding * 2) * progress;
-      
-      // Draw vertical line
-      ctx.strokeStyle = event.color;
-      ctx.lineWidth = 3;
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-      ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.moveTo(x, labelHeight + 20);
-      ctx.lineTo(x, height - 40);
-      ctx.stroke();
-
-      // Draw dot at top
-      ctx.fillStyle = event.color;
-      ctx.beginPath();
-      ctx.arc(x, labelHeight, 8, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Draw label with background
-      ctx.font = 'bold 14px sans-serif';
-      const textWidth = ctx.measureText(event.label).width;
-      const labelX = Math.max(10, Math.min(x - textWidth / 2, width - textWidth - 10));
-      
-      // Background
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-      ctx.shadowBlur = 0;
-      ctx.fillRect(labelX - 8, labelHeight - 30, textWidth + 16, 22);
-      
-      // Text
-      ctx.fillStyle = event.color;
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-      ctx.shadowBlur = 4;
-      ctx.fillText(event.label, labelX, labelHeight - 12);
-      ctx.shadowBlur = 0;
-    });
-  };
-
-  const drawCOMPathOverlay = (
-    ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number,
-    frame: number
-  ) => {
-    if (!analysis) return;
-    
-    // Draw a more prominent COM path
-    const totalFrames = Math.floor(duration * FPS);
-    const progress = Math.min(frame / totalFrames, 1);
-    
-    // Path parameters - make it more visible
-    const startX = width * 0.3;
-    const endX = width * 0.7;
-    const centerY = height * 0.6;
-    const amplitude = height * 0.15;
-    
-    // Draw background path (full path in semi-transparent)
-    ctx.strokeStyle = 'rgba(108, 92, 231, 0.3)';
-    ctx.lineWidth = 6;
-    ctx.shadowColor = 'rgba(108, 92, 231, 0.5)';
-    ctx.shadowBlur = 15;
-    ctx.beginPath();
-    
-    for (let i = 0; i <= 100; i++) {
-      const t = i / 100;
-      const x = startX + (endX - startX) * t;
-      const y = centerY - Math.sin(t * Math.PI) * amplitude;
-      
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-    }
-    ctx.stroke();
-    
-    // Draw active path (up to current frame)
-    ctx.strokeStyle = '#6C5CE7';
-    ctx.lineWidth = 8;
-    ctx.shadowBlur = 20;
-    ctx.beginPath();
-    
-    const steps = Math.floor(progress * 100);
-    for (let i = 0; i <= steps; i++) {
-      const t = i / 100;
-      const x = startX + (endX - startX) * t;
-      const y = centerY - Math.sin(t * Math.PI) * amplitude;
-      
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-    }
-    ctx.stroke();
-    
-    // Draw start marker
-    ctx.fillStyle = '#FF6B6B';
-    ctx.shadowBlur = 15;
-    ctx.beginPath();
-    ctx.arc(startX, centerY, 10, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Draw current COM position
-    const currentX = startX + (endX - startX) * progress;
-    const currentY = centerY - Math.sin(progress * Math.PI) * amplitude;
-    
-    ctx.fillStyle = '#FFD93D';
-    ctx.shadowBlur = 20;
-    ctx.beginPath();
-    ctx.arc(currentX, currentY, 12, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Draw COM label with background
-    ctx.shadowBlur = 0;
-    ctx.font = 'bold 16px sans-serif';
-    const labelText = 'COM';
-    const labelWidth = ctx.measureText(labelText).width;
-    
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-    ctx.fillRect(currentX + 15, currentY - 22, labelWidth + 12, 26);
-    
-    ctx.fillStyle = '#FFD93D';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-    ctx.shadowBlur = 4;
-    ctx.fillText(labelText, currentX + 21, currentY - 4);
-    ctx.shadowBlur = 0;
-    
-    // Draw distance indicator
-    if (analysis.comDistance) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-      ctx.fillRect(width / 2 - 60, height - 50, 120, 30);
-      
-      ctx.fillStyle = '#6C5CE7';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.shadowBlur = 4;
-      ctx.fillText(`${analysis.comDistance}" forward`, width / 2 - 52, height - 28);
-    }
-  };
+  }, [showSkeleton, analysis, isPlaying]);
 
   if (!analysis) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
@@ -599,74 +420,76 @@ export default function AnalysisResult() {
           </Card>
         )}
 
-        {/* Video Player */}
-        <Card className="overflow-hidden">
-          <div className="aspect-video bg-black relative group">
-            {analysis.videoUrl ? (
-              <>
-                <video
-                  ref={videoRef}
-                  src={analysis.videoUrl}
-                  className="w-full h-full object-contain"
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  onEnded={() => setIsPlaying(false)}
-                  onError={handleVideoError}
-                  onLoadedMetadata={handleLoadedMetadata}
-                  onTimeUpdate={handleTimeUpdate}
-                  loop
-                  playsInline
-                />
-
-                {/* Overlay Canvas */}
-                {(showSkeleton || showTiming || showCOMPath) && (
-                  <canvas
-                    ref={canvasRef}
-                    className="absolute inset-0 w-full h-full pointer-events-none"
-                    style={{ mixBlendMode: 'screen' }}
+        {/* Video Player and Graphs */}
+        <div className={showTiming || showCOMPath ? "grid lg:grid-cols-2 gap-4" : ""}>
+          {/* Video Player */}
+          <Card className="overflow-hidden">
+            <div className="aspect-video bg-black relative group">
+              {analysis.videoUrl ? (
+                <>
+                  <video
+                    ref={videoRef}
+                    src={analysis.videoUrl}
+                    className="w-full h-full object-contain"
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                    onEnded={() => setIsPlaying(false)}
+                    onError={handleVideoError}
+                    onLoadedMetadata={handleLoadedMetadata}
+                    onTimeUpdate={handleTimeUpdate}
+                    loop
+                    playsInline
                   />
-                )}
-                
-                {/* Play/Pause Overlay */}
-                <div 
-                  className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={togglePlayPause}
-                >
-                  {isPlaying ? (
-                    <Pause className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
-                  ) : (
-                    <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
-                  )}
-                </div>
 
-                {/* Overlay Controls */}
-                <div className="absolute top-4 left-4 right-4 flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant={showSkeleton ? "default" : "secondary"}
-                    className="text-xs"
-                    onClick={toggleSkeleton}
-                    disabled={!analysis.poseData}
+                  {/* Skeleton Overlay Canvas */}
+                  {showSkeleton && (
+                    <canvas
+                      ref={canvasRef}
+                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      style={{ mixBlendMode: 'screen' }}
+                    />
+                  )}
+                  
+                  {/* Play/Pause Overlay */}
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={togglePlayPause}
                   >
-                    Skeleton
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={showTiming ? "default" : "secondary"}
-                    className="text-xs"
-                    onClick={toggleTiming}
-                  >
-                    Timing
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant={showCOMPath ? "default" : "secondary"}
-                    className="text-xs"
-                    onClick={toggleCOMPath}
-                  >
-                    COM Path
-                  </Button>
-                </div>
+                    {isPlaying ? (
+                      <Pause className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+                    ) : (
+                      <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+                    )}
+                  </div>
+
+                  {/* Overlay Controls */}
+                  <div className="absolute top-4 left-4 right-4 flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant={showSkeleton ? "default" : "secondary"}
+                      className="text-xs"
+                      onClick={toggleSkeleton}
+                      disabled={!analysis.poseData}
+                    >
+                      Skeleton
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={showTiming ? "default" : "secondary"}
+                      className="text-xs"
+                      onClick={toggleTiming}
+                    >
+                      Timing
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={showCOMPath ? "default" : "secondary"}
+                      className="text-xs"
+                      onClick={toggleCOMPath}
+                    >
+                      COM Path
+                    </Button>
+                  </div>
 
                 {/* Bottom Controls - Modern Video Player */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/90 to-transparent pt-12 pb-4 px-4">
@@ -760,6 +583,29 @@ export default function AnalysisResult() {
             )}
           </div>
         </Card>
+
+        {/* Timing Graph */}
+        {showTiming && (
+          <div className="lg:sticky lg:top-4 lg:self-start">
+            <TimingGraph 
+              analysis={analysis} 
+              currentTime={currentTime * 1000}
+              duration={duration * 1000}
+            />
+          </div>
+        )}
+
+        {/* COM Path Graph */}
+        {showCOMPath && (
+          <div className="lg:sticky lg:top-4 lg:self-start">
+            <COMPathGraph 
+              analysis={analysis} 
+              currentTime={currentTime * 1000}
+              duration={duration * 1000}
+            />
+          </div>
+        )}
+      </div>
 
         {/* Overall H.I.T.S. Score */}
         <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
