@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ interface AthleteScheduleCalendarProps {
 }
 
 export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false }: AthleteScheduleCalendarProps) {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'week' | 'month' | 'year'>('month');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -57,10 +59,13 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
   const dateRange = getDateRange();
   const { items, loading, addItem, updateItem, reload } = useCalendarItems(userId, playerId, dateRange.start, dateRange.end);
   const [programs, setPrograms] = useState<any[]>([]);
+  const [analyses, setAnalyses] = useState<any[]>([]);
+  const [filterType, setFilterType] = useState<string>('all');
 
   useEffect(() => {
     loadPrograms();
-  }, [userId]);
+    loadAnalyses();
+  }, [userId, playerId, dateRange]);
 
   const loadPrograms = async () => {
     try {
@@ -77,7 +82,24 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
     }
   };
 
-  const navigate = (direction: 'prev' | 'next') => {
+  const loadAnalyses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('swing_analyses')
+        .select('*')
+        .eq('player_id', playerId)
+        .gte('created_at', dateRange.start.toISOString())
+        .lte('created_at', dateRange.end.toISOString())
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAnalyses(data || []);
+    } catch (error) {
+      console.error('Error loading analyses:', error);
+    }
+  };
+
+  const navigateCalendar = (direction: 'prev' | 'next') => {
     switch (view) {
       case 'week':
         setCurrentDate(direction === 'next' ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1));
@@ -93,25 +115,54 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
 
   const getItemsForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    const calendarItems = items.filter(item => item.scheduled_date === dateStr);
+    let allItems: any[] = [];
     
-    // Check if any active programs fall on this date
-    const programsForDate = programs.filter(program => {
-      const start = new Date(program.start_date);
-      const end = new Date(program.end_date);
-      return date >= start && date <= end;
-    });
+    // Calendar items
+    if (filterType === 'all' || !['program', 'analysis'].includes(filterType)) {
+      const calendarItems = items.filter(item => item.scheduled_date === dateStr);
+      allItems = [...allItems, ...calendarItems];
+    }
+    
+    // Programs
+    if (filterType === 'all' || filterType === 'program') {
+      const programsForDate = programs.filter(program => {
+        const start = new Date(program.start_date);
+        const end = new Date(program.end_date);
+        return date >= start && date <= end;
+      });
 
-    // Convert programs to calendar-like items
-    const programItems = programsForDate.map(program => ({
-      ...program,
-      id: program.id,
-      title: `${program.focus_pillar} Program`,
-      item_type: 'program',
-      scheduled_date: dateStr
-    }));
+      const programItems = programsForDate.map(program => ({
+        ...program,
+        id: `program-${program.id}`,
+        title: `${program.focus_pillar} Program`,
+        item_type: 'program',
+        scheduled_date: dateStr
+      }));
+      
+      allItems = [...allItems, ...programItems];
+    }
 
-    return [...calendarItems, ...programItems];
+    // Analyses
+    if (filterType === 'all' || filterType === 'analysis') {
+      const analysesForDate = analyses.filter(analysis => {
+        const analysisDate = format(new Date(analysis.created_at), 'yyyy-MM-dd');
+        return analysisDate === dateStr;
+      });
+
+      const analysisItems = analysesForDate.map(analysis => ({
+        ...analysis,
+        id: `analysis-${analysis.id}`,
+        title: `Swing Analysis`,
+        description: `H.I.T.S: ${analysis.overall_score.toFixed(0)} • ${analysis.video_type}`,
+        item_type: 'analysis',
+        scheduled_date: dateStr,
+        status: 'completed'
+      }));
+      
+      allItems = [...allItems, ...analysisItems];
+    }
+
+    return allItems;
   };
 
   const renderMonthView = () => {
@@ -247,10 +298,10 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
               <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
                 Today
               </Button>
-              <Button variant="outline" size="icon" onClick={() => navigate('prev')}>
+              <Button variant="outline" size="icon" onClick={() => navigateCalendar('prev')}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="icon" onClick={() => navigate('next')}>
+              <Button variant="outline" size="icon" onClick={() => navigateCalendar('next')}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
               <h2 className="text-xl font-semibold ml-2">
@@ -259,12 +310,13 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
             </div>
 
             <div className="flex items-center gap-2">
-              <Select defaultValue="all">
+              <Select value={filterType} onValueChange={setFilterType}>
                 <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Categories" />
+                  <SelectValue placeholder="Filter" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="analysis">Analysis</SelectItem>
                   <SelectItem value="program">Program</SelectItem>
                   <SelectItem value="assessment">Assessment</SelectItem>
                   <SelectItem value="habit">Habit</SelectItem>
@@ -306,7 +358,19 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
               <CardContent>
                 <div className="space-y-2">
                   {selectedDateItems.map((item) => (
-                    <div key={item.id} className="p-3 border rounded-lg">
+                    <div 
+                      key={item.id} 
+                      className={cn(
+                        "p-3 border rounded-lg",
+                        item.item_type === 'analysis' && "cursor-pointer hover:bg-accent/50 transition-colors"
+                      )}
+                      onClick={() => {
+                        if (item.item_type === 'analysis') {
+                          const analysisId = item.id.replace('analysis-', '');
+                          navigate(`/player/${playerId}/analysis/${analysisId}`);
+                        }
+                      }}
+                    >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <p className="font-medium">{item.title}</p>
@@ -320,13 +384,16 @@ export function AthleteScheduleCalendar({ playerId, userId, isCoachView = false 
                               {item.scheduled_time} {item.duration && `(${item.duration} min)`}
                             </p>
                           )}
+                          {item.item_type === 'analysis' && (
+                            <Badge variant="outline" className="mt-2">Click to view</Badge>
+                          )}
                         </div>
                         <Badge variant={
                           item.status === 'completed' ? 'default' :
                           item.status === 'cancelled' ? 'destructive' :
                           'secondary'
                         }>
-                          {item.status}
+                          {item.status || item.item_type}
                         </Badge>
                       </div>
                     </div>

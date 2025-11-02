@@ -69,8 +69,14 @@ export function PlayerAnalysisHistory({ playerId }: PlayerAnalysisHistoryProps) 
 
       {/* Analysis List */}
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold">All Analyses</h3>
-        {analyses.map((analysis) => (
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Recent Analyses</h3>
+          <Badge variant="secondary" className="text-xs">Last 5</Badge>
+        </div>
+        <p className="text-sm text-muted-foreground -mt-2">
+          View older analyses in the Schedule tab calendar
+        </p>
+        {analyses.slice(0, 5).map((analysis) => (
           <Card key={analysis.id} className="cursor-pointer hover:bg-accent/50 transition-colors"
                 onClick={() => navigate(`/player/${playerId}/analysis/${analysis.id}`)}>
             <CardContent className="p-4">
