@@ -345,29 +345,61 @@ export default function Analyze() {
     setUploadProgress(10);
 
     try {
-      // Step 1: Upload video(s) to storage
+      // Step 1: Upload video(s) to storage with retry logic
       const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       
       console.log('Uploading file:', fileName, 'Size:', file.size, 'Type:', file.type);
+      toast.info("Uploading video...", { description: "This may take a moment for larger files" });
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('swing-videos')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: file.type || 'video/mp4'
-        });
+      // Retry logic for upload
+      let uploadData, uploadError;
+      const maxRetries = 3;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const result = await supabase.storage
+            .from('swing-videos')
+            .upload(fileName, file, {
+              cacheControl: '3600',
+              upsert: false,
+              contentType: file.type || 'video/mp4'
+            });
+          
+          uploadData = result.data;
+          uploadError = result.error;
+          
+          if (!uploadError) {
+            console.log('Upload successful:', uploadData);
+            break;
+          }
+          
+          // If error and not last attempt, retry
+          if (attempt < maxRetries) {
+            console.log(`Upload attempt ${attempt} failed, retrying...`);
+            toast.info(`Retrying upload (${attempt}/${maxRetries})...`);
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Exponential backoff
+          }
+        } catch (err: any) {
+          console.error(`Upload attempt ${attempt} error:`, err);
+          uploadError = err;
+          
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+          }
+        }
+      }
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
-        toast.error("Failed to upload video", {
-          description: uploadError.message || "Please check your connection and try again"
+        console.error('Upload error after retries:', uploadError);
+        const errorMsg = uploadError.message || uploadError.toString();
+        toast.error("Upload failed", {
+          description: errorMsg.includes("Load failed") 
+            ? "Network connection lost. Please check your internet and try again."
+            : errorMsg
         });
         setIsAnalyzing(false);
         return;
       }
-      
-      console.log('Upload successful:', uploadData);
 
       setUploadProgress(30);
 
