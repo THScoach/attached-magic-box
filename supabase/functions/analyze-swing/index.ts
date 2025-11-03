@@ -880,7 +880,8 @@ Provide detailed scores and analysis in this exact JSON format:
             comCopDistance: analysis.comCopDistance,
             balanceRecoveryTime: analysis.balanceRecoveryTime,
             primaryOpportunity: analysis.primaryOpportunity,
-            impactStatement: analysis.impactStatement
+            impactStatement: analysis.impactStatement,
+            poseData: keypoints || []
           }
         })
         .select()
