@@ -15,6 +15,7 @@ import { DetailedMetricsView } from "@/components/DetailedMetricsView";
 import { COMPathGraph } from "@/components/COMPathGraph";
 import { VideoKeyMomentOverlay } from "@/components/VideoKeyMomentOverlay";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
@@ -576,182 +577,193 @@ export default function AnalysisResult() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        {/* Video Player */}
-          <Card className="overflow-hidden">
-            <div className="aspect-video bg-black relative group">
-              {analysis.videoUrl ? (
-                <>
-                  <video
-                    ref={videoRef}
-                    src={analysis.videoUrl}
-                    className="w-full h-full object-contain"
-                    onPlay={() => setIsPlaying(true)}
-                    onPause={() => setIsPlaying(false)}
-                    onEnded={() => setIsPlaying(false)}
-                    onError={handleVideoError}
-                    onLoadedMetadata={handleLoadedMetadata}
-                    onCanPlay={handleCanPlay}
-                    onCanPlayThrough={handleCanPlayThrough}
-                    onWaiting={handleWaiting}
-                    onTimeUpdate={handleTimeUpdate}
-                    loop
-                    playsInline
-                    preload="auto"
-                  />
-                  
-                  {/* Buffering Indicator */}
-                  {isBuffering && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent" />
-                        <p className="text-white text-sm">Loading video...</p>
+        {/* Video Player and COM Trace Tabs */}
+        <Tabs defaultValue="video" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="video">Video Analysis</TabsTrigger>
+            <TabsTrigger value="com">COM Trace</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="video" className="mt-4">
+            <Card className="overflow-hidden">
+              <div className="aspect-video bg-black relative group">
+                {analysis.videoUrl ? (
+                  <>
+                    <video
+                      ref={videoRef}
+                      src={analysis.videoUrl}
+                      className="w-full h-full object-contain"
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
+                      onEnded={() => setIsPlaying(false)}
+                      onError={handleVideoError}
+                      onLoadedMetadata={handleLoadedMetadata}
+                      onCanPlay={handleCanPlay}
+                      onCanPlayThrough={handleCanPlayThrough}
+                      onWaiting={handleWaiting}
+                      onTimeUpdate={handleTimeUpdate}
+                      loop
+                      playsInline
+                      preload="auto"
+                    />
+                    
+                    {/* Buffering Indicator */}
+                    {isBuffering && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent" />
+                          <p className="text-white text-sm">Loading video...</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Key Moment Overlays */}
+                    <VideoKeyMomentOverlay
+                      analysis={analysis}
+                      currentTime={currentTime}
+                      duration={duration}
+                      videoWidth={videoRef.current?.videoWidth || 1920}
+                      videoHeight={videoRef.current?.videoHeight || 1080}
+                    />
+
+                    {/* Play/Pause Overlay */}
+                    <div 
+                      className={cn(
+                        "absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity",
+                        isBuffering ? "cursor-wait" : "cursor-pointer"
+                      )}
+                      onClick={togglePlayPause}
+                    >
+                      {isPlaying ? (
+                        <Pause className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+                      ) : (
+                        <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+                      )}
+                    </div>
+
+                  {/* Bottom Controls - Modern Video Player */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/90 to-transparent pt-12 pb-4 px-4">
+                    {/* Progress Bar */}
+                    <div 
+                      className="w-full h-1.5 bg-white/20 rounded-full mb-3 cursor-pointer group/progress hover:h-2 transition-all"
+                      onClick={handleSeek}
+                    >
+                      <div 
+                        className="h-full bg-primary rounded-full relative group-hover/progress:bg-primary/90 transition-colors"
+                        style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                      >
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover/progress:opacity-100 transition-opacity" />
                       </div>
                     </div>
-                  )}
 
-                  {/* Key Moment Overlays */}
-                  <VideoKeyMomentOverlay
-                    analysis={analysis}
-                    currentTime={currentTime}
-                    duration={duration}
-                    videoWidth={videoRef.current?.videoWidth || 1920}
-                    videoHeight={videoRef.current?.videoHeight || 1080}
-                  />
-
-                  {/* Play/Pause Overlay */}
-                  <div 
-                    className={cn(
-                      "absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity",
-                      isBuffering ? "cursor-wait" : "cursor-pointer"
-                    )}
-                    onClick={togglePlayPause}
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
-                    ) : (
-                      <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
-                    )}
-                  </div>
-
-                {/* Bottom Controls - Modern Video Player */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/90 to-transparent pt-12 pb-4 px-4">
-                  {/* Progress Bar */}
-                  <div 
-                    className="w-full h-1.5 bg-white/20 rounded-full mb-3 cursor-pointer group/progress hover:h-2 transition-all"
-                    onClick={handleSeek}
-                  >
-                    <div 
-                      className="h-full bg-primary rounded-full relative group-hover/progress:bg-primary/90 transition-colors"
-                      style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
-                    >
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover/progress:opacity-100 transition-opacity" />
-                    </div>
-                  </div>
-
-                  {/* Controls Row */}
-                  <div className="flex items-center gap-2">
-                    {/* Frame Navigation */}
-                    <div className="flex items-center gap-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                        onClick={skipBackward}
-                        title="Back 1 second"
-                      >
-                        <SkipBack className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                        onClick={stepBackward}
-                        title="Back 1 frame"
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-9 w-9 p-0 text-white hover:bg-white/20"
-                        onClick={togglePlayPause}
-                      >
-                        {isPlaying ? (
-                          <Pause className="h-5 w-5" />
-                        ) : (
-                          <Play className="h-5 w-5" />
-                        )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                        onClick={stepForward}
-                        title="Forward 1 frame"
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0 text-white hover:bg-white/20"
-                        onClick={skipForward}
-                        title="Forward 1 second"
-                      >
-                        <SkipForward className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    {/* Time Display */}
-                    <div className="flex-1 text-white text-xs font-mono ml-2">
-                      <span className="font-semibold">{formatTime(currentTime)}</span>
-                      <span className="text-white/50"> / </span>
-                      <span className="text-white/70">{formatTime(duration)}</span>
-                    </div>
-
-                    {/* Playback Speed Control */}
-                    <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-lg border border-white/10">
-                      {[0.25, 0.5, 1, 2].map((rate) => (
+                    {/* Controls Row */}
+                    <div className="flex items-center gap-2">
+                      {/* Frame Navigation */}
+                      <div className="flex items-center gap-1">
                         <Button
-                          key={rate}
                           size="sm"
-                          variant={playbackRate === rate ? "default" : "ghost"}
-                          className={cn(
-                            "h-7 px-2 text-xs",
-                            playbackRate === rate 
-                              ? "text-primary-foreground" 
-                              : "text-white/70 hover:text-white hover:bg-white/10"
-                          )}
-                          onClick={() => changePlaybackRate(rate)}
+                          variant="ghost"
+                          className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                          onClick={skipBackward}
+                          title="Back 1 second"
                         >
-                          {rate}x
+                          <SkipBack className="h-4 w-4" />
                         </Button>
-                      ))}
-                    </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                          onClick={stepBackward}
+                          title="Back 1 frame"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-9 w-9 p-0 text-white hover:bg-white/20"
+                          onClick={togglePlayPause}
+                        >
+                          {isPlaying ? (
+                            <Pause className="h-5 w-5" />
+                          ) : (
+                            <Play className="h-5 w-5" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                          onClick={stepForward}
+                          title="Forward 1 frame"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                          onClick={skipForward}
+                          title="Forward 1 second"
+                        >
+                          <SkipForward className="h-4 w-4" />
+                        </Button>
+                      </div>
 
-                    {/* Frame Counter */}
-                    <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10">
-                      <span className="text-white/70 text-xs">Frame</span>
-                      <span className="text-white font-mono font-bold text-sm">{currentFrame}</span>
-                      <span className="text-white/50 text-xs">/ {Math.floor(duration * FPS)}</span>
+                      {/* Time Display */}
+                      <div className="flex-1 text-white text-xs font-mono ml-2">
+                        <span className="font-semibold">{formatTime(currentTime)}</span>
+                        <span className="text-white/50"> / </span>
+                        <span className="text-white/70">{formatTime(duration)}</span>
+                      </div>
+
+                      {/* Playback Speed Control */}
+                      <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-lg border border-white/10">
+                        {[0.25, 0.5, 1, 2].map((rate) => (
+                          <Button
+                            key={rate}
+                            size="sm"
+                            variant={playbackRate === rate ? "default" : "ghost"}
+                            className={cn(
+                              "h-7 px-2 text-xs",
+                              playbackRate === rate 
+                                ? "text-primary-foreground" 
+                                : "text-white/70 hover:text-white hover:bg-white/10"
+                            )}
+                            onClick={() => changePlaybackRate(rate)}
+                          >
+                            {rate}x
+                          </Button>
+                        ))}
+                      </div>
+
+                      {/* Frame Counter */}
+                      <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10">
+                        <span className="text-white/70 text-xs">Frame</span>
+                        <span className="text-white font-mono font-bold text-sm">{currentFrame}</span>
+                        <span className="text-white/50 text-xs">/ {Math.floor(duration * FPS)}</span>
+                      </div>
                     </div>
                   </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center h-full text-white">
+                  <p>No video available</p>
                 </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-center h-full text-white">
-                <p>No video available</p>
-              </div>
-            )}
-          </div>
-        </Card>
+              )}
+            </div>
+          </Card>
+          </TabsContent>
 
-        {/* Center of Mass Path - Synced with Video */}
-        <COMPathGraph 
-          analysis={analysis}
-          currentTime={currentTime}
-          duration={duration}
-        />
+          <TabsContent value="com" className="mt-4">
+            <COMPathGraph 
+              analysis={analysis}
+              currentTime={currentTime}
+              duration={duration}
+            />
+          </TabsContent>
+        </Tabs>
+
 
         {/* Overall H.I.T.S. Score */}
         <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
