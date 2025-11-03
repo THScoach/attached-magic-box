@@ -34,6 +34,11 @@ export async function extractVideoMetadata(videoFile: File): Promise<VideoMetada
     let lastTime = -1;
     let frameTimes: number[] = [];
     
+    // Check if this is an iOS slow-motion video by filename/type
+    const isLikelyiOSSlowMo = (videoFile.name.toLowerCase().includes('img_') && 
+                               videoFile.type === 'video/quicktime') ||
+                              videoFile.name.toLowerCase().includes('slowmo');
+    
     const cleanup = () => {
       URL.revokeObjectURL(video.src);
       video.remove();
@@ -45,7 +50,16 @@ export async function extractVideoMetadata(videoFile: File): Promise<VideoMetada
         const height = video.videoHeight;
         const duration = video.duration;
         
-        // Method 1: Try to get frame rate from video track (works well for iOS .mov files)
+        // PRIORITY: Check for iOS slow-motion indicators
+        // iOS slow-mo files are often named IMG_XXXX.mov and are 240fps but report as 30fps
+        if (isLikelyiOSSlowMo) {
+          console.log('Detected likely iOS slow-motion video - assuming 240fps capture rate');
+          cleanup();
+          resolve({ width, height, duration, frameRate: 240 });
+          return;
+        }
+        
+        // Method 1: Try to get frame rate from video track (works well for some videos)
         if ('captureStream' in video || 'mozCaptureStream' in video) {
           try {
             const stream = (video as any).captureStream?.() || (video as any).mozCaptureStream?.();

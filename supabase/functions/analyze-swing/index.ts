@@ -430,7 +430,19 @@ Be specific and use realistic values based on high-level players.${playerContext
     const userPrompt = dualCamera && frames2
       ? `Analyze this baseball/softball swing sequence using DUAL CAMERA 3D RECONSTRUCTION. I'm providing ${frames.length} key frames from Camera 1 (open/catcher side at 45°) and ${frames2.length} frames from Camera 2 (closed/dugout side at 45°). 
 
-**VIDEO SPECS:** Original video captured at ${sourceFrameRate || 'unknown'}fps, frames sampled at ${samplingFrameRate || 30}fps for analysis (each frame = ${1000 / (samplingFrameRate || 30)}ms apart).
+**CRITICAL VIDEO SPECS & TIMING CALCULATIONS:**
+- Original video captured at ${sourceFrameRate || 'unknown'}fps
+- Frames sampled for analysis at ${samplingFrameRate || 30}fps
+- Frame interval during sampling: ${1000 / (samplingFrameRate || 30)}ms between analyzed frames
+${sourceFrameRate && sourceFrameRate > (samplingFrameRate || 30) ? `
+**⚠️ HIGH FRAME RATE VIDEO (${sourceFrameRate}fps) - CRITICAL TIMING ADJUSTMENT:**
+This slow-motion video plays back at ${samplingFrameRate || 30}fps but was captured at ${sourceFrameRate}fps.
+- **Frame spacing**: You see frames ${1000 / (samplingFrameRate || 30)}ms apart during playback
+- **BUT actual swing timing is compressed by ${(samplingFrameRate || 30) / sourceFrameRate}x**
+- **FORMULA: Real swing time = Frame count × ${1000 / (samplingFrameRate || 30)}ms × ${(samplingFrameRate || 30) / sourceFrameRate}**
+- **Example**: 10 frames apart = 10 × ${1000 / (samplingFrameRate || 30)}ms × ${(samplingFrameRate || 30) / sourceFrameRate} = ${10 * 1000 / (samplingFrameRate || 30) * (samplingFrameRate || 30) / sourceFrameRate}ms real time
+- **Apply this to ALL timing measurements** (LoadStart, FireStart, phase timings)
+` : ''}
 
 **DUAL CAMERA ADVANTAGES:**
 You now have stereoscopic views that enable true 3D coordinate estimation. Use triangulation principles to:
@@ -480,7 +492,19 @@ Provide detailed scores and analysis in this exact JSON format:
 }`
       : `Analyze this baseball/softball swing sequence. I'm providing ${frames.length} key frames sampled from the video.
 
-**VIDEO SPECS:** Original video captured at ${sourceFrameRate || 30}fps, frames sampled at ${samplingFrameRate || 30}fps for analysis (each frame = ${1000 / (samplingFrameRate || 30)}ms apart).
+**CRITICAL VIDEO SPECS & TIMING CALCULATIONS:**
+- Original video captured at ${sourceFrameRate || 30}fps  
+- Frames sampled for analysis at ${samplingFrameRate || 30}fps
+- Frame interval during sampling: ${1000 / (samplingFrameRate || 30)}ms between analyzed frames
+${sourceFrameRate && sourceFrameRate > (samplingFrameRate || 30) ? `
+**⚠️ HIGH FRAME RATE VIDEO (${sourceFrameRate}fps) - CRITICAL TIMING ADJUSTMENT:**
+This slow-motion video plays back at ${samplingFrameRate || 30}fps but was captured at ${sourceFrameRate}fps.
+- **Frame spacing**: You see frames ${1000 / (samplingFrameRate || 30)}ms apart during playback
+- **BUT actual swing timing is compressed by ${(samplingFrameRate || 30) / sourceFrameRate}x**
+- **FORMULA: Real swing time = Frame count × ${1000 / (samplingFrameRate || 30)}ms × ${(samplingFrameRate || 30) / sourceFrameRate}**
+- **Example**: 10 frames apart = 10 × ${1000 / (samplingFrameRate || 30)}ms × ${(samplingFrameRate || 30) / sourceFrameRate} = ${10 * 1000 / (samplingFrameRate || 30) * (samplingFrameRate || 30) / sourceFrameRate}ms real time
+- **Apply this to ALL timing measurements** (LoadStart, FireStart, phase timings)
+` : ''}
     
 ${keypoints ? `I've also detected body keypoints for tracking movement. Focus on the kinematic sequence - the timing and velocity of:
 1. Pelvis rotation
