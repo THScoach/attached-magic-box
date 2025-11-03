@@ -669,6 +669,7 @@ export type Database = {
           primary_goal: string | null
           referral_source: string | null
           updated_at: string | null
+          whop_user_id: string | null
           years_playing: number | null
         }
         Insert: {
@@ -685,6 +686,7 @@ export type Database = {
           primary_goal?: string | null
           referral_source?: string | null
           updated_at?: string | null
+          whop_user_id?: string | null
           years_playing?: number | null
         }
         Update: {
@@ -701,6 +703,7 @@ export type Database = {
           primary_goal?: string | null
           referral_source?: string | null
           updated_at?: string | null
+          whop_user_id?: string | null
           years_playing?: number | null
         }
         Relationships: []
