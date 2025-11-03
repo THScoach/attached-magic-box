@@ -106,6 +106,9 @@ export function calculateFrontLegStability(frameData: FrameJointData[]): FrontLe
   // Find contact frame
   const contactFrame = frameData.find(f => f.phase === 'contact') || frameData[Math.floor(frameData.length * 0.8)];
   
+  // Safety check for angles array
+  if (!contactFrame || !contactFrame.angles) return null;
+  
   // Extract knee angle at contact
   const kneeAngleData = contactFrame.angles.find(a => a.name === 'lead_knee_angle');
   const kneeAngle = kneeAngleData?.angle || null;
