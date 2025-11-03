@@ -414,6 +414,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          metadata: Json | null
           name: string
           source: string
           user_id: string | null
@@ -422,6 +423,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          metadata?: Json | null
           name: string
           source?: string
           user_id?: string | null
@@ -430,6 +432,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          metadata?: Json | null
           name?: string
           source?: string
           user_id?: string | null

@@ -17,22 +17,32 @@ export default function DemoReport() {
         return;
       }
 
-      // Store lead capture data if available
+      // Store lead capture data and send email
       const leadData = sessionStorage.getItem('leadCapture');
       if (leadData) {
         try {
-          const { name, email } = JSON.parse(leadData);
+          const { name, email, honeypot } = JSON.parse(leadData);
           
-          await supabase.from('leads').insert({
-            user_id: session.user.id,
-            name,
-            email,
-            source: 'sample_report'
+          // Call edge function to send email
+          const { error } = await supabase.functions.invoke('send-lead-email', {
+            body: {
+              name,
+              email,
+              honeypot,
+              ipAddress: 'browser' // Browser doesn't have access to real IP
+            }
           });
+          
+          if (error) {
+            console.error('Email send error:', error);
+            toast.error("Couldn't send email, but you can still view the report");
+          } else {
+            toast.success("Check your email for the sample report link!");
+          }
           
           sessionStorage.removeItem('leadCapture');
         } catch (error) {
-          console.error('Error storing lead:', error);
+          console.error('Error processing lead:', error);
         }
       }
 

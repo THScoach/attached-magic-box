@@ -13,8 +13,9 @@ export default function Landing() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [honeypot, setHoneypot] = useState("");
 
-  const handleDemoRequest = (e: React.FormEvent) => {
+  const handleDemoRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !name) {
       toast.error("Please enter your name and email");
@@ -22,7 +23,7 @@ export default function Landing() {
     }
     
     // Store in session storage for after auth
-    sessionStorage.setItem('leadCapture', JSON.stringify({ name, email }));
+    sessionStorage.setItem('leadCapture', JSON.stringify({ name, email, honeypot }));
     
     // Redirect to auth with return URL
     navigate('/auth?returnTo=/demo-report');
@@ -200,6 +201,18 @@ export default function Landing() {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleDemoRequest} className="space-y-4">
+                    {/* Honeypot field - hidden from users, catches bots */}
+                    <input
+                      type="text"
+                      name="website"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                      style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
+                      tabIndex={-1}
+                      autoComplete="off"
+                      aria-hidden="true"
+                    />
+                    
                     <div>
                       <Label htmlFor="name" className="text-white">Your Name</Label>
                       <Input
