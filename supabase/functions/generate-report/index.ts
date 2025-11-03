@@ -99,12 +99,33 @@ serve(async (req) => {
       size: letter; 
       margin: 0.5in; 
     }
+    @media print {
+      .no-print { display: none; }
+      body { margin: 0; }
+    }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: #1a1a1a;
       line-height: 1.6;
       margin: 0;
-      padding: 0;
+      padding: 20px;
+    }
+    .print-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #F4C430;
+      color: #1a1a1a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .print-button:hover {
+      background: #FFD700;
     }
     .header {
       text-align: center;
@@ -201,6 +222,7 @@ serve(async (req) => {
   </style>
 </head>
 <body>
+  <button class="print-button no-print" onclick="window.print()">Download PDF</button>
   <div class="header">
     <h1>SWING ANALYSIS REPORT</h1>
     <div class="subtitle">${playerName}</div>
@@ -349,18 +371,31 @@ serve(async (req) => {
 </html>
     `;
 
-    // For now, return the HTML directly
-    // In production, you would convert this to PDF using a library like puppeteer or html-pdf
-    // and upload to storage, then return the URL
+    // Upload HTML to storage
+    const fileName = `report-${Date.now()}.html`;
+    const filePath = `reports/${fileName}`;
     
-    // Convert HTML to base64 data URL for download
-    const base64Html = btoa(unescape(encodeURIComponent(html)));
-    const dataUrl = `data:text/html;base64,${base64Html}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('swing-videos')
+      .upload(filePath, html, {
+        contentType: 'text/html',
+        upsert: true
+      });
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      throw uploadError;
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('swing-videos')
+      .getPublicUrl(filePath);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        reportUrl: dataUrl,
+        reportUrl: publicUrl,
         analysisCount: analyses.length,
         avgScore: avgScore.toFixed(1),
         improvement: improvement.toFixed(1)

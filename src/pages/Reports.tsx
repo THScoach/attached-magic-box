@@ -93,7 +93,11 @@ export default function Reports() {
 
   const downloadReport = () => {
     if (reportUrl) {
-      window.open(reportUrl, '_blank');
+      // Open in new tab where user can use browser's print-to-PDF
+      const printWindow = window.open(reportUrl, '_blank');
+      if (printWindow) {
+        printWindow.focus();
+      }
     }
   };
 
@@ -256,7 +260,7 @@ export default function Reports() {
               className="flex-1"
             >
               <FileDown className="h-4 w-4 mr-2" />
-              Download PDF
+              View & Print Report
             </Button>
             <Button 
               onClick={shareReport}
