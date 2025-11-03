@@ -571,10 +571,39 @@ Provide detailed scores and analysis in this exact JSON format:
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
-    const data = await response.json();
+    // Parse response with better error handling
+    console.log('AI response status:', response.status);
+    console.log('AI response headers:', Object.fromEntries(response.headers.entries()));
+    
+    let data;
+    let responseText;
+    try {
+      responseText = await response.text();
+      console.log('Response text length:', responseText.length);
+      console.log('Response text preview (first 500 chars):', responseText.substring(0, 500));
+      
+      if (!responseText || responseText.trim().length === 0) {
+        throw new Error('Empty response from AI gateway');
+      }
+      
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse AI response:', parseError);
+      console.error('Response text:', responseText);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to parse AI response', 
+          details: parseError instanceof Error ? parseError.message : 'Unknown parse error',
+          responsePreview: responseText ? responseText.substring(0, 200) : 'empty'
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
+      console.error('No content in AI response. Data:', JSON.stringify(data));
       throw new Error('No content in AI response');
     }
 
