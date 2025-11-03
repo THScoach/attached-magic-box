@@ -615,6 +615,7 @@ export default function AnalysisResult() {
                       ref={videoRef}
                       src={analysis.videoUrl}
                       className="w-full h-full object-contain"
+                      style={{ transform: 'rotate(180deg)' }}
                       onPlay={() => setIsPlaying(true)}
                       onPause={() => setIsPlaying(false)}
                       onEnded={() => setIsPlaying(false)}
