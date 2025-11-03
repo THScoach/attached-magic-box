@@ -1,5 +1,5 @@
 import { Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface InfoTooltipProps {
   content: string;
@@ -8,17 +8,18 @@ interface InfoTooltipProps {
 
 export function InfoTooltip({ content, className = "" }: InfoTooltipProps) {
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button className={`inline-flex items-center justify-center rounded-full hover:bg-muted transition-colors ${className}`}>
-            <Info className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent className="max-w-xs">
-          <p className="text-sm">{content}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button 
+          type="button"
+          className={`inline-flex items-center justify-center rounded-full hover:bg-muted transition-colors p-1 ${className}`}
+        >
+          <Info className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="max-w-xs text-sm" side="top">
+        {content}
+      </PopoverContent>
+    </Popover>
   );
 }
