@@ -39,7 +39,7 @@ const POSE_CONNECTIONS = [
   [0, 12], // Nose to right shoulder
 ];
 
-function SkeletonModel({ joints }: { joints: any }) {
+function SkeletonModel({ joints }: { joints: any[] | null }) {
   const groupRef = useRef<THREE.Group>(null);
 
   useEffect(() => {
@@ -47,12 +47,22 @@ function SkeletonModel({ joints }: { joints: any }) {
 
     // Clear previous skeleton
     while (groupRef.current.children.length > 0) {
-      groupRef.current.remove(groupRef.current.children[0]);
+      const child = groupRef.current.children[0];
+      groupRef.current.remove(child);
+      // Dispose geometries and materials
+      if (child instanceof THREE.Mesh) {
+        child.geometry?.dispose();
+        if (Array.isArray(child.material)) {
+          child.material.forEach(m => m.dispose());
+        } else {
+          child.material?.dispose();
+        }
+      }
     }
 
-    // Create joint spheres
-    joints.forEach((joint: any, index: number) => {
-      if (!joint) return;
+    // Create joint spheres with visibility check
+    joints.forEach((joint, index) => {
+      if (!joint || !joint.confidence || joint.confidence < 0.5) return;
       
       const geometry = new THREE.SphereGeometry(0.03, 16, 16);
       const material = new THREE.MeshStandardMaterial({ 
@@ -67,17 +77,21 @@ function SkeletonModel({ joints }: { joints: any }) {
 
     // Create bone connections
     POSE_CONNECTIONS.forEach(([start, end]) => {
-      if (!joints[start] || !joints[end]) return;
+      const startJoint = joints[start];
+      const endJoint = joints[end];
+      
+      if (!startJoint || !endJoint || 
+          startJoint.confidence < 0.5 || endJoint.confidence < 0.5) return;
       
       const startPos = new THREE.Vector3(
-        joints[start].x,
-        joints[start].y,
-        joints[start].z
+        startJoint.x,
+        startJoint.y,
+        startJoint.z
       );
       const endPos = new THREE.Vector3(
-        joints[end].x,
-        joints[end].y,
-        joints[end].z
+        endJoint.x,
+        endJoint.y,
+        endJoint.z
       );
       
       const direction = new THREE.Vector3().subVectors(endPos, startPos);
@@ -105,14 +119,22 @@ function SkeletonModel({ joints }: { joints: any }) {
 
 function Scene({ poseData, currentTime, duration }: SwingAvatar3DProps) {
   const getCurrentJoints = () => {
-    if (!poseData || poseData.length === 0 || duration === 0) return null;
+    if (!poseData || poseData.length === 0 || duration === 0) {
+      console.log('No pose data available');
+      return null;
+    }
     
     // Calculate which frame to show based on current time
     const frameIndex = Math.floor((currentTime / duration) * poseData.length);
     const clampedIndex = Math.max(0, Math.min(frameIndex, poseData.length - 1));
     
     const frame = poseData[clampedIndex];
-    if (!frame?.joints) return null;
+    if (!frame?.joints) {
+      console.log('No joints in frame', clampedIndex);
+      return null;
+    }
+
+    console.log('Frame', clampedIndex, 'joints:', Object.keys(frame.joints).length);
 
     // Convert MediaPipe coordinates to 3D space (joints is a Record, not array)
     // We need to create an array indexed by landmark ID
@@ -130,7 +152,7 @@ function Scene({ poseData, currentTime, duration }: SwingAvatar3DProps) {
       }
     });
     
-    return jointsArray;
+    return jointsArray.filter(j => j !== undefined);
   };
 
   const joints = getCurrentJoints();
@@ -161,7 +183,15 @@ function Scene({ poseData, currentTime, duration }: SwingAvatar3DProps) {
       />
       
       {/* Skeleton */}
-      {joints && <SkeletonModel joints={joints} />}
+      {joints && joints.length > 0 ? (
+        <SkeletonModel joints={joints} />
+      ) : (
+        // Placeholder sphere when no data
+        <mesh position={[0, 1, 0]}>
+          <sphereGeometry args={[0.1, 32, 32]} />
+          <meshStandardMaterial color="#ff6b6b" />
+        </mesh>
+      )}
       
       {/* Controls */}
       <OrbitControls 
@@ -169,17 +199,47 @@ function Scene({ poseData, currentTime, duration }: SwingAvatar3DProps) {
         enableZoom={true}
         enableRotate={true}
         target={[0, 1, 0]}
+        minDistance={2}
+        maxDistance={10}
       />
     </>
   );
 }
 
 export function SwingAvatar3D({ poseData, currentTime, duration }: SwingAvatar3DProps) {
+  console.log('SwingAvatar3D render:', {
+    hasPoseData: !!poseData,
+    poseDataLength: poseData?.length || 0,
+    currentTime,
+    duration
+  });
+
   return (
-    <div className="w-full h-full bg-gradient-to-br from-gray-900 to-black rounded-lg overflow-hidden">
-      <Canvas shadows>
-        <Scene poseData={poseData} currentTime={currentTime} duration={duration} />
-      </Canvas>
+    <div className="w-full h-full bg-gradient-to-br from-gray-900 to-black rounded-lg overflow-hidden relative">
+      {!poseData || poseData.length === 0 ? (
+        <div className="absolute inset-0 flex items-center justify-center text-white/70">
+          <div className="text-center">
+            <div className="text-4xl mb-2">👤</div>
+            <p className="text-sm">No motion capture data available</p>
+            <p className="text-xs text-white/50 mt-1">Record a new swing to see 3D visualization</p>
+          </div>
+        </div>
+      ) : (
+        <Canvas
+          shadows
+          gl={{ 
+            antialias: true,
+            alpha: true,
+            preserveDrawingBuffer: true
+          }}
+          onCreated={({ gl }) => {
+            gl.setClearColor('#000000', 0);
+            console.log('Canvas created successfully');
+          }}
+        >
+          <Scene poseData={poseData} currentTime={currentTime} duration={duration} />
+        </Canvas>
+      )}
     </div>
   );
 }
