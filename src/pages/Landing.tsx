@@ -1,11 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
-import { Anchor, Zap, Settings, ChevronRight } from "lucide-react";
+import { Anchor, Zap, Settings, ChevronRight, FileText, ArrowRight } from "lucide-react";
 import { HitsLogo, HitsMonogram } from "@/components/HitsLogo";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Landing() {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [showDemo, setShowDemo] = useState(false);
+
+  const handleDemoRequest = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !name) {
+      toast.error("Please enter your name and email");
+      return;
+    }
+    
+    toast.success("Opening sample report!");
+    window.open("/demo-report", "_blank");
+    setShowDemo(true);
+  };
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -53,7 +72,7 @@ export default function Landing() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 px-8 py-6 text-lg font-bold uppercase">
-                <a href="#system">What's The HITS System?</a>
+                <a href="#sample-report">See Sample Report</a>
               </Button>
             </div>
           </div>
@@ -96,6 +115,125 @@ export default function Landing() {
                   <p className="text-gray-300 text-xs text-center font-semibold">{tech}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sample Report Lead Capture */}
+      <section id="sample-report" className="py-24 bg-zinc-950">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="mb-4 text-4xl font-black uppercase md:text-5xl">
+                See What You'll Get
+              </h2>
+              <p className="text-xl text-gray-300">
+                View a real swing analysis report and see how we track your progress over time
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 items-start">
+              {/* Demo Report Features */}
+              <div className="space-y-6">
+                <div className="flex gap-4 items-start">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
+                    <span className="text-lg font-black text-primary">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Progress Tracking Over Time</h3>
+                    <p className="text-gray-400 text-sm">
+                      See exactly how your swing metrics improve session by session
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
+                    <span className="text-lg font-black text-primary">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Three Pillars Breakdown</h3>
+                    <p className="text-gray-400 text-sm">
+                      Understand your ANCHOR, ENGINE, and WHIP scores with detailed analysis
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
+                    <span className="text-lg font-black text-primary">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Actionable Insights</h3>
+                    <p className="text-gray-400 text-sm">
+                      Get specific recommendations on what to work on next
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 items-start">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
+                    <span className="text-lg font-black text-primary">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Downloadable PDF</h3>
+                    <p className="text-gray-400 text-sm">
+                      Print and share your progress with coaches and recruiters
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lead Capture Form */}
+              <Card className="bg-black border-white/20">
+                <CardHeader>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="h-6 w-6 text-primary" />
+                    <CardTitle className="text-xl">View Sample Report</CardTitle>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    Enter your info to see a real example
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleDemoRequest} className="space-y-4">
+                    <div>
+                      <Label htmlFor="name" className="text-white">Your Name</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Enter your name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                        className="bg-zinc-900 border-white/10 text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email" className="text-white">Email Address</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="bg-zinc-900 border-white/10 text-white"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-lg font-bold">
+                      View Sample Report
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </form>
+                  {showDemo && (
+                    <p className="text-xs text-center text-gray-400 mt-4">
+                      Ready to get started? <Link to="/auth" className="text-primary underline">Create your free account</Link>
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
