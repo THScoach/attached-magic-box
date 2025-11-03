@@ -23,3 +23,13 @@ verify_jwt = false
 
 [functions.task-reminders]
 verify_jwt = false
+
+[functions.generate-report]
+verify_jwt = false
+
+[functions.extract-session-data]
+verify_jwt = false
+
+[functions.check-height-weight-reminders]
+verify_jwt = false
+

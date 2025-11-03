@@ -1,4 +1,4 @@
-import { Home, Camera, TrendingUp, Target, User } from "lucide-react";
+import { Home, Camera, TrendingUp, Target, User, FileText } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./NotificationBell";
@@ -10,7 +10,7 @@ export function BottomNav() {
   const navItems = [
     { icon: Home, label: "Home", path: "/dashboard" },
     { icon: Camera, label: "Analyze", path: "/analyze" },
-    { icon: TrendingUp, label: "Progress", path: "/progress" },
+    { icon: FileText, label: "Reports", path: "/reports" },
     { icon: Target, label: "Drills", path: "/drills" },
     { icon: User, label: "Profile", path: "/profile" }
   ];
