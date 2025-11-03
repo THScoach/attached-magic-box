@@ -36,6 +36,7 @@ export default function AnalysisResult() {
   const { analysisId } = useParams<{ analysisId?: string }>();
   const { hasAccess: hasCoachRickAccess } = useCoachRickAccess();
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
+  const [playerName, setPlayerName] = useState<string>('');
   const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
@@ -73,13 +74,19 @@ export default function AnalysisResult() {
 
       const { data, error } = await supabase
         .from('swing_analyses')
-        .select('*')
+        .select('*, players(first_name, last_name)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
 
       if (error) throw error;
+
+      // Set player name
+      if (data.players) {
+        const player = data.players as any;
+        setPlayerName(`${player.first_name} ${player.last_name}`.trim());
+      }
 
       // Convert database format to SwingAnalysis format
       const metrics = (data.metrics as any) || {};
@@ -164,11 +171,17 @@ export default function AnalysisResult() {
     try {
       const { data, error } = await supabase
         .from('swing_analyses')
-        .select('*')
+        .select('*, players(first_name, last_name)')
         .eq('id', id)
         .single();
 
       if (error) throw error;
+
+      // Set player name
+      if (data.players) {
+        const player = data.players as any;
+        setPlayerName(`${player.first_name} ${player.last_name}`.trim());
+      }
 
       // Convert database format to SwingAnalysis format
       const metrics = (data.metrics as any) || {};
@@ -656,7 +669,9 @@ export default function AnalysisResult() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
-        <h1 className="text-2xl font-bold mb-2">Swing Analysis</h1>
+        <h1 className="text-2xl font-bold mb-2">
+          {playerName ? `${playerName} - Swing Analysis` : 'Swing Analysis'}
+        </h1>
         <p className="text-muted-foreground">
           {new Date(analysis.analyzedAt).toLocaleDateString('en-US', { 
             month: 'short', 
