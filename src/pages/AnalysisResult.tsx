@@ -126,20 +126,30 @@ export default function AnalysisResult() {
 
       setAnalysis(analysisData);
       
-      // Load joint data from sessionStorage if available
-      const storedJointData = sessionStorage.getItem('latestJointData');
-      if (storedJointData) {
-        try {
-          const parsed = JSON.parse(storedJointData);
-          setJointData(parsed.frames || []);
-          console.log(`Loaded ${parsed.frames?.length || 0} frames of joint data`);
-        } catch (e) {
-          console.error('Failed to parse joint data:', e);
+      // Load joint data from database poseData or sessionStorage
+      if (metrics.poseData && Array.isArray(metrics.poseData)) {
+        console.log(`Loaded ${metrics.poseData.length} frames of joint data from database`);
+        setJointData(metrics.poseData);
+      } else {
+        // Fallback to sessionStorage if database doesn't have pose data
+        const storedJointData = sessionStorage.getItem('latestJointData');
+        if (storedJointData) {
+          try {
+            const parsed = JSON.parse(storedJointData);
+            setJointData(parsed.frames || []);
+            console.log(`Loaded ${parsed.frames?.length || 0} frames of joint data from sessionStorage`);
+          } catch (e) {
+            console.error('Failed to parse joint data:', e);
+          }
+        } else {
+          console.log('No joint data available in database or sessionStorage');
         }
       }
+      
       console.log('Loaded latest analysis from database:', {
         frontFootGRF: analysisData.frontFootGRF,
-        comPeakTiming: analysisData.comPeakTiming
+        comPeakTiming: analysisData.comPeakTiming,
+        hasPoseData: !!metrics.poseData
       });
     } catch (error) {
       console.error('Error loading latest analysis:', error);
@@ -204,6 +214,15 @@ export default function AnalysisResult() {
       };
 
       setAnalysis(analysisData);
+      
+      // Load joint data from database poseData
+      if (metrics.poseData && Array.isArray(metrics.poseData)) {
+        console.log(`Loaded ${metrics.poseData.length} frames of joint data from database`);
+        setJointData(metrics.poseData);
+      } else {
+        console.log('No joint data available in database for this analysis');
+        setJointData([]);
+      }
     } catch (error) {
       console.error('Error loading analysis:', error);
       toast.error('Failed to load analysis');
