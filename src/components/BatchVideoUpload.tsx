@@ -128,7 +128,7 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
           user_id: user.id,
           player_id: playerId,
           video_url: publicUrl,
-          video_type: 'practice',
+          video_type: 'analysis',
           overall_score: 0,
           anchor_score: 0,
           engine_score: 0,
