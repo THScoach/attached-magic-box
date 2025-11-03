@@ -71,37 +71,50 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
       ctx.lineTo(padding, height - padding);
       ctx.stroke();
 
-      // Calculate COM path synced with video timing
+      // Calculate COM path synced with video timing using actual swing phase data
       const progress = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
       
       // Use actual COM distance from analysis (in inches) to scale the path
       const comDistance = analysis.comDistance || 45;
       const scaleFactor = comDistance / 50;
       
+      // Calculate actual timing points based on swing analysis data
+      // Times are given as "ms before contact", so we need to convert to video time
+      const contactTime = duration; // Assuming contact is at the end of the video
+      const loadStartTime = analysis.loadStartTiming ? contactTime - (analysis.loadStartTiming / 1000) : contactTime * 0.2;
+      const fireStartTime = analysis.fireStartTiming ? contactTime - (analysis.fireStartTiming / 1000) : contactTime * 0.5;
+      const comPeakTime = analysis.comPeakTiming ? contactTime - (analysis.comPeakTiming / 1000) : contactTime * 0.85;
+      
+      // Convert times to progress values (0-1)
+      const loadProgress = duration > 0 ? loadStartTime / duration : 0.2;
+      const fireProgress = duration > 0 ? fireStartTime / duration : 0.5;
+      const peakProgress = duration > 0 ? comPeakTime / duration : 0.85;
+      
       // Calculate path based on typical swing mechanics
       const startX = padding + graphWidth * 0.15;
       const peakX = padding + graphWidth * 0.85;
       const centerY = padding + graphHeight * 0.5;
       
-      // Create realistic COM path based on swing phases
+      // Create realistic COM path based on actual swing phase timing
       const getCOMPosition = (t: number) => {
         let x, y;
         
-        if (t < 0.2) {
+        if (t < loadProgress) {
           // Loading phase: slight backward and down
-          x = startX - (t / 0.2) * (graphWidth * 0.05);
-          y = centerY + (t / 0.2) * (graphHeight * 0.15);
-        } else if (t < 0.5) {
+          const phaseProgress = loadProgress > 0 ? t / loadProgress : 0;
+          x = startX - phaseProgress * (graphWidth * 0.05);
+          y = centerY + phaseProgress * (graphHeight * 0.15);
+        } else if (t < fireProgress) {
           // Weight shift: moving forward and slightly up
-          const loadProgress = (t - 0.2) / 0.3;
-          x = startX - (graphWidth * 0.05) + loadProgress * (peakX - startX + graphWidth * 0.05) * 0.4;
-          y = centerY + (graphHeight * 0.15) - loadProgress * (graphHeight * 0.2);
+          const phaseProgress = (fireProgress - loadProgress) > 0 ? (t - loadProgress) / (fireProgress - loadProgress) : 0;
+          x = startX - (graphWidth * 0.05) + phaseProgress * (peakX - startX + graphWidth * 0.05) * 0.4;
+          y = centerY + (graphHeight * 0.15) - phaseProgress * (graphHeight * 0.2);
         } else {
           // Drive phase: explosive forward movement
-          const driveProgress = (t - 0.5) / 0.5;
+          const phaseProgress = (1 - fireProgress) > 0 ? (t - fireProgress) / (1 - fireProgress) : 0;
           x = startX - (graphWidth * 0.05) + 0.4 * (peakX - startX + graphWidth * 0.05) + 
-              driveProgress * 0.6 * (peakX - startX + graphWidth * 0.05) * scaleFactor;
-          y = centerY - (graphHeight * 0.05) + Math.sin(driveProgress * Math.PI) * (graphHeight * 0.1);
+              phaseProgress * 0.6 * (peakX - startX + graphWidth * 0.05) * scaleFactor;
+          y = centerY - (graphHeight * 0.05) + Math.sin(phaseProgress * Math.PI) * (graphHeight * 0.1);
         }
         
         return { x, y };
@@ -169,25 +182,25 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // Draw phase labels
+      // Draw phase labels at actual timing points
       ctx.font = 'bold 10px sans-serif';
       
       // Loading phase
-      const loadPos = getCOMPosition(0.2);
+      const loadPos = getCOMPosition(loadProgress);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
       ctx.fillRect(loadPos.x - 16, loadPos.y + 13, 32, 16);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       ctx.fillText('Load', loadPos.x - 12, loadPos.y + 25);
       
       // Weight shift phase  
-      const shiftPos = getCOMPosition(0.5);
+      const shiftPos = getCOMPosition(fireProgress);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
       ctx.fillRect(shiftPos.x - 16, shiftPos.y - 27, 32, 16);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       ctx.fillText('Shift', shiftPos.x - 12, shiftPos.y - 15);
       
       // Drive phase
-      const drivePos = getCOMPosition(0.85);
+      const drivePos = getCOMPosition(peakProgress);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
       ctx.fillRect(drivePos.x - 19, drivePos.y - 27, 38, 16);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
