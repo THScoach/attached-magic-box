@@ -293,7 +293,7 @@ export default function Analyze() {
       toast.error("No recording to analyze");
       return;
     }
-    await processVideoFile(recordedVideoFile);
+    await processVideoFile(recordedVideoFile, undefined, videoType);
     // Clean up
     if (recordedVideoUrl) {
       URL.revokeObjectURL(recordedVideoUrl);
@@ -519,7 +519,7 @@ export default function Analyze() {
             videoUrl: publicUrl,
             sessionId: currentSessionId,
             playerId: playerIdToUse,
-            videoType: videoType || 'practice',
+            videoType: videoType || 'analysis',
             drillId: drillId,
             drillName: drillName
           }
