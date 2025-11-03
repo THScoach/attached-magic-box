@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Upload, Loader2, CheckCircle2, XCircle, FileVideo, Video } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { extractVideoMetadata } from "@/lib/videoAnalysis";
+import { Pose } from "@mediapipe/pose";
 
 interface BatchVideoUploadProps {
   playerId: string;
@@ -31,6 +32,8 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
   const navigate = useNavigate();
   const [videos, setVideos] = useState<VideoUploadStatus[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -91,6 +94,92 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
     }
   };
 
+  const extractFramesAndPoseData = async (videoFile: File): Promise<any[]> => {
+    return new Promise((resolve, reject) => {
+      if (!videoRef.current || !canvasRef.current) {
+        reject(new Error("Video or canvas ref not available"));
+        return;
+      }
+
+      const videoElement = videoRef.current;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error("Could not get canvas context"));
+        return;
+      }
+
+      const poseFrames: any[] = [];
+      let pose: Pose | null = null;
+
+      // Create object URL for video
+      const videoUrl = URL.createObjectURL(videoFile);
+      videoElement.src = videoUrl;
+
+      videoElement.onloadedmetadata = async () => {
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+
+        // Initialize MediaPipe Pose
+        pose = new Pose({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+        });
+
+        pose.setOptions({
+          modelComplexity: 1,
+          smoothLandmarks: true,
+          enableSegmentation: false,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+
+        pose.onResults((results) => {
+          if (results.poseLandmarks) {
+            poseFrames.push({
+              timestamp: videoElement.currentTime,
+              landmarks: results.poseLandmarks
+            });
+          }
+        });
+
+        await pose.initialize();
+
+        // Extract frames at 30fps intervals
+        const fps = 30;
+        const frameInterval = 1 / fps;
+        let currentTime = 0;
+
+        const processFrame = async () => {
+          if (currentTime >= videoElement.duration) {
+            // Done processing
+            URL.revokeObjectURL(videoUrl);
+            pose?.close();
+            resolve(poseFrames);
+            return;
+          }
+
+          videoElement.currentTime = currentTime;
+          await new Promise(r => {
+            videoElement.onseeked = () => {
+              ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+              pose?.send({ image: canvas }).then(r);
+            };
+          });
+
+          currentTime += frameInterval;
+          setTimeout(processFrame, 10);
+        };
+
+        processFrame();
+      };
+
+      videoElement.onerror = () => {
+        URL.revokeObjectURL(videoUrl);
+        reject(new Error("Failed to load video"));
+      };
+    });
+  };
+
   const processVideo = async (video: VideoUploadStatus, index: number): Promise<void> => {
     try {
       // Update status to uploading
@@ -100,6 +189,19 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
+
+      // Extract pose data from video
+      setVideos(prev => prev.map((v, i) => 
+        i === index ? { ...v, status: 'analyzing', progress: 20 } : v
+      ));
+
+      console.log(`Extracting pose data from ${video.file.name}...`);
+      const poseData = await extractFramesAndPoseData(video.file);
+      console.log(`Extracted ${poseData.length} frames with pose data`);
+
+      setVideos(prev => prev.map((v, i) => 
+        i === index ? { ...v, progress: 50 } : v
+      ));
 
       // Upload video to storage
       const fileName = `${Date.now()}-${video.file.name}`;
@@ -113,7 +215,7 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
       if (uploadError) throw uploadError;
 
       setVideos(prev => prev.map((v, i) => 
-        i === index ? { ...v, progress: 40 } : v
+        i === index ? { ...v, progress: 60 } : v
       ));
 
       // Get public URL
@@ -121,33 +223,22 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         .from('swing-videos')
         .getPublicUrl(fileName);
 
-      // Save to database with 'pending' status for server-side processing
-      const { data: savedAnalysis, error: dbError } = await supabase
-        .from('swing_analyses')
-        .insert({
-          user_id: user.id,
-          player_id: playerId,
-          video_url: publicUrl,
-          video_type: 'analysis',
-          overall_score: 0,
-          anchor_score: 0,
-          engine_score: 0,
-          whip_score: 0,
-          metrics: {
-            status: 'pending_analysis',
-            uploadedAt: new Date().toISOString(),
-            videoMetadata: video.frameRate ? {
-              frameRate: video.frameRate,
-              width: video.width,
-              height: video.height,
-              duration: video.duration
-            } : undefined
-          }
-        })
-        .select()
-        .single();
+      // Send to analyze-swing edge function with pose data
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-swing', {
+        body: {
+          videoUrl: publicUrl,
+          playerId: playerId,
+          videoType: 'analysis',
+          keypoints: poseData,
+          frames: poseData.length
+        }
+      });
 
-      if (dbError) throw dbError;
+      if (analysisError) throw analysisError;
+
+      setVideos(prev => prev.map((v, i) => 
+        i === index ? { ...v, progress: 90 } : v
+      ));
 
       // Mark as completed with the analysis ID
       toast.success(`${video.file.name} uploaded successfully`);
@@ -157,7 +248,7 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
           ...v, 
           status: 'completed', 
           progress: 100,
-          analysisId: savedAnalysis.id 
+          analysisId: analysisData.analysisId 
         } : v
       ));
 
