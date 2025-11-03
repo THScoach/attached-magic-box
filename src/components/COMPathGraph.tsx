@@ -427,93 +427,75 @@ export function COMPathGraph({ analysis, currentTime, duration, onSeek }: COMPat
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-lg">Center of Mass Analysis</CardTitle>
-            <InfoTooltip content="Your center of mass (body weight) moves backward during load, then explodes forward during swing. Elite hitters move 10-16 inches forward, reaching speeds of 1.0-1.2 m/s. More aggressive forward movement = more power." />
+            <CardTitle className="text-base font-semibold">Center of Mass Analysis</CardTitle>
+            <InfoTooltip content="Your center of mass (body weight) moves backward during load, then explodes forward during swing. Elite: 10-16 inches forward, reaching speeds of 1.0-1.2 m/s. More aggressive forward movement = more power." />
           </div>
           <button
             onClick={() => setShowEliteBenchmark(!showEliteBenchmark)}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showEliteBenchmark ? 'Hide' : 'Show'} Elite Comparison
+            {showEliteBenchmark ? 'Hide' : 'Show'} Elite
           </button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {/* Performance Badges */}
-        <div className="flex flex-wrap gap-2">
-          {analysis.comDistance && (
-            <Badge variant={comDistancePercent >= 90 ? "default" : comDistancePercent >= 70 ? "secondary" : "outline"}>
-              <TrendingUp className="h-3 w-3 mr-1" />
-              {comDistancePercent}% Elite Distance
-            </Badge>
-          )}
-          {analysis.comMaxVelocity && (
-            <Badge variant={velocityPercent >= 90 ? "default" : velocityPercent >= 70 ? "secondary" : "outline"}>
-              <Zap className="h-3 w-3 mr-1" />
-              {velocityPercent}% Elite Velocity
-            </Badge>
-          )}
-        </div>
+        {(analysis.comDistance || analysis.comMaxVelocity) && (
+          <div className="flex flex-wrap gap-2">
+            {analysis.comDistance && (
+              <Badge variant={comDistancePercent >= 90 ? "default" : comDistancePercent >= 70 ? "secondary" : "outline"} className="text-xs">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {comDistancePercent >= 90 ? '✓' : comDistancePercent >= 70 ? '~' : '×'} {comDistancePercent}% Elite Distance
+              </Badge>
+            )}
+            {analysis.comMaxVelocity && (
+              <Badge variant={velocityPercent >= 90 ? "default" : velocityPercent >= 70 ? "secondary" : "outline"} className="text-xs">
+                <Zap className="h-3 w-3 mr-1" />
+                {velocityPercent >= 90 ? '✓' : velocityPercent >= 70 ? '~' : '×'} {velocityPercent}% Elite Velocity
+              </Badge>
+            )}
+          </div>
+        )}
         
         {/* Main COM Path */}
         <div className="space-y-2">
-          <div className="text-sm font-semibold text-muted-foreground">COM Movement Path</div>
+          <div className="text-xs font-medium text-muted-foreground">COM Movement Path</div>
           <canvas
             ref={canvasRef}
-            className="w-full h-[240px] cursor-pointer hover:opacity-90 transition-opacity"
-            style={{ width: '100%', height: '240px' }}
+            className="w-full h-[220px] cursor-pointer hover:opacity-90 transition-opacity rounded-lg border"
+            style={{ width: '100%', height: '220px' }}
             onClick={handleCanvasClick}
-            title="Click to jump to this moment in the video"
+            title="Click to jump to this moment"
           />
         </div>
         
         {/* Velocity Graph */}
         <div className="space-y-2">
-          <div className="text-sm font-semibold text-muted-foreground">COM Velocity Curve</div>
+          <div className="text-xs font-medium text-muted-foreground">COM Velocity Curve</div>
           <canvas
             ref={velocityCanvasRef}
-            className="w-full h-[120px]"
-            style={{ width: '100%', height: '120px' }}
+            className="w-full h-[100px] rounded-lg border"
+            style={{ width: '100%', height: '100px' }}
           />
         </div>
         
         {/* Metrics Grid */}
-        <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+        <div className="grid grid-cols-2 gap-4 pt-3 border-t">
           <div className="space-y-1">
             <div className="text-xs text-muted-foreground">Forward Movement</div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-bold">{analysis.comDistance || 0}"</span>
-              <span className="text-xs text-muted-foreground">/ {ELITE_BENCHMARKS.comDistance}" elite</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold">{(analysis.comDistance || 0).toFixed(2)}"</span>
             </div>
+            <div className="text-xs text-muted-foreground">/ {ELITE_BENCHMARKS.comDistance}" elite</div>
           </div>
           
           <div className="space-y-1">
             <div className="text-xs text-muted-foreground">Peak Velocity</div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-bold">{analysis.comMaxVelocity?.toFixed(1) || 0}</span>
-              <span className="text-xs text-muted-foreground">/ {ELITE_BENCHMARKS.comMaxVelocity} ft/s</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold">{analysis.comMaxVelocity?.toFixed(1) || 0}</span>
             </div>
+            <div className="text-xs text-muted-foreground">/ {ELITE_BENCHMARKS.comMaxVelocity} ft/s</div>
           </div>
-          
-          {analysis.frontFootGRF && (
-            <div className="space-y-1">
-              <div className="text-xs text-muted-foreground">Front Foot Force</div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold">{Math.round(analysis.frontFootGRF)}%</span>
-                <span className="text-xs text-muted-foreground">body weight</span>
-              </div>
-            </div>
-          )}
-          
-          {analysis.comCopDistance && (
-            <div className="space-y-1">
-              <div className="text-xs text-muted-foreground">Balance Control</div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold">{analysis.comCopDistance.toFixed(1)}"</span>
-                <span className="text-xs text-muted-foreground">COM-COP</span>
-              </div>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>

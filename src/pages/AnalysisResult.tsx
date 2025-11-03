@@ -859,27 +859,27 @@ export default function AnalysisResult() {
           </TabsContent>
 
           {/* COM Trace Tab */}
-          <TabsContent value="com" className="mt-4 space-y-4">
+          <TabsContent value="com" className="mt-6">
             {/* COM Analysis Graphs */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* COM Path Graph with Interactive Features */}
-            <COMPathGraph 
-              analysis={analysis}
-              currentTime={currentTime}
-              duration={duration}
-              onSeek={(time) => {
-                if (videoRef.current) {
-                  videoRef.current.currentTime = time;
-                }
-              }}
-            />
-            
-            {/* Phase Timing Metrics */}
-            <COMPhaseMetrics 
-              analysis={analysis}
-              duration={duration}
-            />
-          </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* COM Path Graph with Interactive Features */}
+              <COMPathGraph 
+                analysis={analysis}
+                currentTime={currentTime}
+                duration={duration}
+                onSeek={(time) => {
+                  if (videoRef.current) {
+                    videoRef.current.currentTime = time;
+                  }
+                }}
+              />
+              
+              {/* Phase Timing Metrics */}
+              <COMPhaseMetrics 
+                analysis={analysis}
+                duration={duration}
+              />
+            </div>
           </TabsContent>
         </Tabs>
 
