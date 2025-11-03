@@ -598,12 +598,11 @@ export default function AnalysisResult() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        {/* Video Player, 3D Motion, and COM Trace Tabs */}
+        {/* Video Player and 3D Motion Tabs */}
         <Tabs defaultValue="video" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="video">Video Analysis</TabsTrigger>
             <TabsTrigger value="motion">3D Motion</TabsTrigger>
-            <TabsTrigger value="com">COM Trace</TabsTrigger>
           </TabsList>
           
           <TabsContent value="video" className="mt-4">
@@ -858,29 +857,6 @@ export default function AnalysisResult() {
             </Card>
           </TabsContent>
 
-          {/* COM Trace Tab */}
-          <TabsContent value="com" className="mt-6">
-            {/* COM Analysis Graphs */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* COM Path Graph with Interactive Features */}
-              <COMPathGraph 
-                analysis={analysis}
-                currentTime={currentTime}
-                duration={duration}
-                onSeek={(time) => {
-                  if (videoRef.current) {
-                    videoRef.current.currentTime = time;
-                  }
-                }}
-              />
-              
-              {/* Phase Timing Metrics */}
-              <COMPhaseMetrics 
-                analysis={analysis}
-                duration={duration}
-              />
-            </div>
-          </TabsContent>
         </Tabs>
 
 
