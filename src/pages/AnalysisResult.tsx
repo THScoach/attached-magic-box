@@ -12,6 +12,8 @@ import { CoachRickAvatar } from "@/components/CoachRickAvatar";
 import { MasterCoachReport as MasterCoachReportComponent } from "@/components/MasterCoachReport";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { DetailedMetricsView } from "@/components/DetailedMetricsView";
+import { COMPathGraph } from "@/components/COMPathGraph";
+import { VideoKeyMomentOverlay } from "@/components/VideoKeyMomentOverlay";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -607,6 +609,15 @@ export default function AnalysisResult() {
                     </div>
                   )}
 
+                  {/* Key Moment Overlays */}
+                  <VideoKeyMomentOverlay
+                    analysis={analysis}
+                    currentTime={currentTime}
+                    duration={duration}
+                    videoWidth={videoRef.current?.videoWidth || 1920}
+                    videoHeight={videoRef.current?.videoHeight || 1080}
+                  />
+
                   {/* Play/Pause Overlay */}
                   <div 
                     className={cn(
@@ -734,6 +745,13 @@ export default function AnalysisResult() {
             )}
           </div>
         </Card>
+
+        {/* Center of Mass Path - Synced with Video */}
+        <COMPathGraph 
+          analysis={analysis}
+          currentTime={currentTime}
+          duration={duration}
+        />
 
         {/* Overall H.I.T.S. Score */}
         <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
