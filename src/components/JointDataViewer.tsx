@@ -66,7 +66,7 @@ export function JointDataViewer({ frameData, videoWidth, videoHeight }: JointDat
           Joint Data Analysis
         </CardTitle>
         <CardDescription>
-          Frame {selectedFrame.frame_number} ({selectedFrame.timestamp.toFixed(0)}ms) - {selectedFrame.phase.toUpperCase()} Phase
+          Frame {selectedFrame.frame_number} ({selectedFrame.timestamp.toFixed(0)}ms) - {selectedFrame.phase?.toUpperCase() || 'UNKNOWN'} Phase
         </CardDescription>
       </CardHeader>
       <CardContent>
