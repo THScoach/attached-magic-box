@@ -13,6 +13,7 @@ import { MasterCoachReport as MasterCoachReportComponent } from "@/components/Ma
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { DetailedMetricsView } from "@/components/DetailedMetricsView";
 import { COMPathGraph } from "@/components/COMPathGraph";
+import { COMPhaseMetrics } from "@/components/COMPhaseMetrics";
 import { VideoKeyMomentOverlay } from "@/components/VideoKeyMomentOverlay";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -756,7 +757,7 @@ export default function AnalysisResult() {
           </TabsContent>
 
           <TabsContent value="com" className="mt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Video Player - Same as Video Tab */}
               <Card className="overflow-hidden">
                 <div className="aspect-video bg-black relative group">
@@ -866,11 +867,23 @@ export default function AnalysisResult() {
               </div>
             </Card>
 
-            {/* COM Path Graph */}
-            <div className="h-full">
+            {/* Right Column: COM Analysis */}
+            <div className="space-y-4">
+              {/* COM Path Graph with Interactive Features */}
               <COMPathGraph 
                 analysis={analysis}
                 currentTime={currentTime}
+                duration={duration}
+                onSeek={(time) => {
+                  if (videoRef.current) {
+                    videoRef.current.currentTime = time;
+                  }
+                }}
+              />
+              
+              {/* Phase Timing Metrics */}
+              <COMPhaseMetrics 
+                analysis={analysis}
                 duration={duration}
               />
             </div>

@@ -1,16 +1,30 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
+import { Badge } from "@/components/ui/badge";
 import { SwingAnalysis } from "@/types/swing";
+import { TrendingUp, Zap } from "lucide-react";
 
 interface COMPathGraphProps {
   analysis: SwingAnalysis;
   currentTime: number;
   duration: number;
+  onSeek?: (time: number) => void;
 }
 
-export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphProps) {
+export function COMPathGraph({ analysis, currentTime, duration, onSeek }: COMPathGraphProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const velocityCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [hoveredTime, setHoveredTime] = useState<number | null>(null);
+  const [showEliteBenchmark, setShowEliteBenchmark] = useState(true);
+  
+  // Elite benchmarks from research (Welch 1995, Fortenbaugh 2011)
+  const ELITE_BENCHMARKS = {
+    comDistance: 14, // inches (10-16 range, using 14 as typical elite)
+    comMaxVelocity: 3.5, // ft/s (converted from 1.0-1.2 m/s)
+    frontFootGRF: 123, // % body weight
+    comPeakVelocityTiming: 0.12 // seconds before contact
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -18,6 +32,22 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Calculate common values used by both draw functions
+    const progress = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
+    const comDistance = analysis.comDistance || 45;
+    const scaleFactor = comDistance / 50;
+    
+    // Calculate actual timing points based on swing analysis data
+    const contactTime = duration;
+    const loadStartTime = analysis.loadStartTiming ? contactTime - (analysis.loadStartTiming / 1000) : contactTime * 0.2;
+    const fireStartTime = analysis.fireStartTiming ? contactTime - (analysis.fireStartTiming / 1000) : contactTime * 0.5;
+    const comPeakTime = analysis.comPeakTiming ? contactTime - (analysis.comPeakTiming / 1000) : contactTime * 0.85;
+    
+    // Convert times to progress values (0-1)
+    const loadProgress = duration > 0 ? loadStartTime / duration : 0.2;
+    const fireProgress = duration > 0 ? fireStartTime / duration : 0.5;
+    const peakProgress = duration > 0 ? comPeakTime / duration : 0.85;
 
     const draw = () => {
       // Set canvas size
@@ -71,25 +101,6 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
       ctx.lineTo(padding, height - padding);
       ctx.stroke();
 
-      // Calculate COM path synced with video timing using actual swing phase data
-      const progress = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
-      
-      // Use actual COM distance from analysis (in inches) to scale the path
-      const comDistance = analysis.comDistance || 45;
-      const scaleFactor = comDistance / 50;
-      
-      // Calculate actual timing points based on swing analysis data
-      // Times are given as "ms before contact", so we need to convert to video time
-      const contactTime = duration; // Assuming contact is at the end of the video
-      const loadStartTime = analysis.loadStartTiming ? contactTime - (analysis.loadStartTiming / 1000) : contactTime * 0.2;
-      const fireStartTime = analysis.fireStartTiming ? contactTime - (analysis.fireStartTiming / 1000) : contactTime * 0.5;
-      const comPeakTime = analysis.comPeakTiming ? contactTime - (analysis.comPeakTiming / 1000) : contactTime * 0.85;
-      
-      // Convert times to progress values (0-1)
-      const loadProgress = duration > 0 ? loadStartTime / duration : 0.2;
-      const fireProgress = duration > 0 ? fireStartTime / duration : 0.5;
-      const peakProgress = duration > 0 ? comPeakTime / duration : 0.85;
-      
       // Calculate path based on typical swing mechanics
       const startX = padding + graphWidth * 0.15;
       const peakX = padding + graphWidth * 0.85;
@@ -225,6 +236,50 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
       ctx.fillText('Vertical Position', 0, 0);
       ctx.restore();
 
+      // Draw elite benchmark path if enabled
+      if (showEliteBenchmark) {
+        ctx.strokeStyle = 'rgba(34, 197, 94, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        
+        const eliteScaleFactor = ELITE_BENCHMARKS.comDistance / 50;
+        for (let i = 0; i <= 100; i++) {
+          const t = i / 100;
+          let x, y;
+          
+          if (t < loadProgress) {
+            const phaseProgress = loadProgress > 0 ? t / loadProgress : 0;
+            x = startX - phaseProgress * (graphWidth * 0.05);
+            y = centerY + phaseProgress * (graphHeight * 0.15);
+          } else if (t < fireProgress) {
+            const phaseProgress = (fireProgress - loadProgress) > 0 ? (t - loadProgress) / (fireProgress - loadProgress) : 0;
+            x = startX - (graphWidth * 0.05) + phaseProgress * (peakX - startX + graphWidth * 0.05) * 0.4;
+            y = centerY + (graphHeight * 0.15) - phaseProgress * (graphHeight * 0.2);
+          } else {
+            const phaseProgress = (1 - fireProgress) > 0 ? (t - fireProgress) / (1 - fireProgress) : 0;
+            x = startX - (graphWidth * 0.05) + 0.4 * (peakX - startX + graphWidth * 0.05) + 
+                phaseProgress * 0.6 * (peakX - startX + graphWidth * 0.05) * eliteScaleFactor;
+            y = centerY - (graphHeight * 0.05) + Math.sin(phaseProgress * Math.PI) * (graphHeight * 0.1);
+          }
+          
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Elite benchmark label
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.fillRect(width - padding - 85, padding + 10, 75, 16);
+        ctx.fillStyle = 'rgba(34, 197, 94, 0.8)';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText('Elite Benchmark', width - padding - 80, padding + 22);
+      }
+      
       // Draw current distance traveled
       const currentDistance = Math.round(comDistance * progress);
       const distanceText = `${currentDistance}" forward`;
@@ -236,36 +291,227 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
       ctx.fillText(distanceText, currentPos.x + 15, currentPos.y);
     };
 
+    // Draw velocity graph
+    const drawVelocityGraph = () => {
+      const velocityCanvas = velocityCanvasRef.current;
+      if (!velocityCanvas) return;
+      
+      const ctx = velocityCanvas.getContext('2d');
+      if (!ctx) return;
+      
+      const rect = velocityCanvas.getBoundingClientRect();
+      velocityCanvas.width = rect.width * window.devicePixelRatio;
+      velocityCanvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      
+      const width = rect.width;
+      const height = rect.height;
+      const padding = 40;
+      const graphWidth = width - padding * 2;
+      const graphHeight = height - padding * 2;
+      
+      ctx.clearRect(0, 0, width, height);
+      
+      // Background
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+      ctx.fillRect(padding, padding, graphWidth, graphHeight);
+      
+      // Grid
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const x = padding + (graphWidth / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(x, padding);
+        ctx.lineTo(x, height - padding);
+        ctx.stroke();
+      }
+      
+      // Axes
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(padding, height - padding);
+      ctx.lineTo(width - padding, height - padding);
+      ctx.moveTo(padding, padding);
+      ctx.lineTo(padding, height - padding);
+      ctx.stroke();
+      
+      // Calculate velocity curve
+      const maxVelocity = analysis.comMaxVelocity || ELITE_BENCHMARKS.comMaxVelocity;
+      const velocityScale = graphHeight / (maxVelocity * 1.2);
+      
+      // Draw velocity curve
+      ctx.strokeStyle = '#FF6B6B';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      
+      for (let i = 0; i <= 100; i++) {
+        const t = i / 100;
+        let velocity = 0;
+        
+        if (t < loadProgress) {
+          velocity = 0.1 * maxVelocity * (t / loadProgress);
+        } else if (t < fireProgress) {
+          const phaseProgress = (t - loadProgress) / (fireProgress - loadProgress);
+          velocity = 0.1 * maxVelocity + phaseProgress * 0.3 * maxVelocity;
+        } else {
+          const phaseProgress = (t - fireProgress) / (1 - fireProgress);
+          velocity = 0.4 * maxVelocity + phaseProgress * 0.6 * maxVelocity * Math.sin(phaseProgress * Math.PI * 0.8);
+        }
+        
+        const x = padding + t * graphWidth;
+        const y = height - padding - velocity * velocityScale;
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+      
+      // Current position marker
+      const currentVelocityX = padding + progress * graphWidth;
+      ctx.strokeStyle = '#FFD93D';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(currentVelocityX, padding);
+      ctx.lineTo(currentVelocityX, height - padding);
+      ctx.stroke();
+      
+      // Labels
+      ctx.font = '10px sans-serif';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillText('Time', width / 2 - 15, height - 10);
+      
+      ctx.save();
+      ctx.translate(15, height / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('Velocity (ft/s)', -40, 0);
+      ctx.restore();
+    };
+
     draw();
-  }, [analysis, currentTime, duration]);
+    drawVelocityGraph();
+  }, [analysis, currentTime, duration, showEliteBenchmark]);
+  
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onSeek) return;
+    
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const padding = 50;
+    const graphWidth = rect.width - padding * 2;
+    
+    if (x < padding || x > rect.width - padding) return;
+    
+    const relativeX = (x - padding) / graphWidth;
+    const targetTime = relativeX * duration;
+    onSeek(targetTime);
+  };
+
+  // Calculate performance vs elite
+  const comDistancePercent = analysis.comDistance 
+    ? Math.round((analysis.comDistance / ELITE_BENCHMARKS.comDistance) * 100)
+    : 0;
+  const velocityPercent = analysis.comMaxVelocity
+    ? Math.round((analysis.comMaxVelocity / ELITE_BENCHMARKS.comMaxVelocity) * 100)
+    : 0;
 
   return (
     <Card className="h-full">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Center of Mass Path</CardTitle>
-          <InfoTooltip content="Your center of mass (body weight) moves backward during load, then explodes forward during swing. Elite hitters move 10-16 inches forward, reaching speeds of 1.0-1.2 m/s. More aggressive forward movement = more power." />
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg">Center of Mass Analysis</CardTitle>
+            <InfoTooltip content="Your center of mass (body weight) moves backward during load, then explodes forward during swing. Elite hitters move 10-16 inches forward, reaching speeds of 1.0-1.2 m/s. More aggressive forward movement = more power." />
+          </div>
+          <button
+            onClick={() => setShowEliteBenchmark(!showEliteBenchmark)}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showEliteBenchmark ? 'Hide' : 'Show'} Elite Comparison
+          </button>
         </div>
       </CardHeader>
-      <CardContent>
-        <canvas
-          ref={canvasRef}
-          className="w-full h-[300px]"
-          style={{ width: '100%', height: '300px' }}
-        />
-        <div className="mt-4 space-y-2">
-          <div className="flex items-center gap-2 text-sm">
-            <div className="w-3 h-3 rounded-full bg-[#6C5CE7]" />
-            <span>COM Path</span>
-          </div>
+      <CardContent className="space-y-4">
+        {/* Performance Badges */}
+        <div className="flex flex-wrap gap-2">
           {analysis.comDistance && (
-            <div className="text-sm">
-              <span className="font-semibold">Total Forward Movement:</span> {analysis.comDistance} inches
-            </div>
+            <Badge variant={comDistancePercent >= 90 ? "default" : comDistancePercent >= 70 ? "secondary" : "outline"}>
+              <TrendingUp className="h-3 w-3 mr-1" />
+              {comDistancePercent}% Elite Distance
+            </Badge>
           )}
           {analysis.comMaxVelocity && (
-            <div className="text-sm">
-              <span className="font-semibold">Peak Velocity:</span> {analysis.comMaxVelocity} ft/s
+            <Badge variant={velocityPercent >= 90 ? "default" : velocityPercent >= 70 ? "secondary" : "outline"}>
+              <Zap className="h-3 w-3 mr-1" />
+              {velocityPercent}% Elite Velocity
+            </Badge>
+          )}
+        </div>
+        
+        {/* Main COM Path */}
+        <div className="space-y-2">
+          <div className="text-sm font-semibold text-muted-foreground">COM Movement Path</div>
+          <canvas
+            ref={canvasRef}
+            className="w-full h-[240px] cursor-pointer hover:opacity-90 transition-opacity"
+            style={{ width: '100%', height: '240px' }}
+            onClick={handleCanvasClick}
+            title="Click to jump to this moment in the video"
+          />
+        </div>
+        
+        {/* Velocity Graph */}
+        <div className="space-y-2">
+          <div className="text-sm font-semibold text-muted-foreground">COM Velocity Curve</div>
+          <canvas
+            ref={velocityCanvasRef}
+            className="w-full h-[120px]"
+            style={{ width: '100%', height: '120px' }}
+          />
+        </div>
+        
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+          <div className="space-y-1">
+            <div className="text-xs text-muted-foreground">Forward Movement</div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-bold">{analysis.comDistance || 0}"</span>
+              <span className="text-xs text-muted-foreground">/ {ELITE_BENCHMARKS.comDistance}" elite</span>
+            </div>
+          </div>
+          
+          <div className="space-y-1">
+            <div className="text-xs text-muted-foreground">Peak Velocity</div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-bold">{analysis.comMaxVelocity?.toFixed(1) || 0}</span>
+              <span className="text-xs text-muted-foreground">/ {ELITE_BENCHMARKS.comMaxVelocity} ft/s</span>
+            </div>
+          </div>
+          
+          {analysis.frontFootGRF && (
+            <div className="space-y-1">
+              <div className="text-xs text-muted-foreground">Front Foot Force</div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg font-bold">{Math.round(analysis.frontFootGRF)}%</span>
+                <span className="text-xs text-muted-foreground">body weight</span>
+              </div>
+            </div>
+          )}
+          
+          {analysis.comCopDistance && (
+            <div className="space-y-1">
+              <div className="text-xs text-muted-foreground">Balance Control</div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg font-bold">{analysis.comCopDistance.toFixed(1)}"</span>
+                <span className="text-xs text-muted-foreground">COM-COP</span>
+              </div>
             </div>
           )}
         </div>
