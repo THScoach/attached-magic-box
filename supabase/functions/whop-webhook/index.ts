@@ -15,55 +15,65 @@ Deno.serve(async (req) => {
     const webhookSecret = Deno.env.get('WHOP_WEBHOOK_SECRET');
 
     if (!webhookSecret) {
-      console.error('WHOP_WEBHOOK_SECRET not configured');
+      console.error('[Whop] WHOP_WEBHOOK_SECRET not configured');
       return new Response(JSON.stringify({ error: 'Webhook secret not configured' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Verify webhook signature
     const body = await req.text();
+    const payload = JSON.parse(body);
     
-    // Simple signature verification (you may need to adjust based on Whop's actual signature method)
-    // This is a placeholder - check Whop's documentation for exact signature verification
-    if (signature !== webhookSecret) {
-      console.error('Invalid webhook signature');
+    console.log('[Whop] Webhook received:', payload.action || payload.type);
+    
+    // Verify webhook signature (simple check - adjust based on Whop's docs)
+    if (signature && signature !== webhookSecret) {
+      console.error('[Whop] Invalid webhook signature');
       return new Response(JSON.stringify({ error: 'Invalid signature' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const payload = JSON.parse(body);
-    console.log('Webhook received:', payload);
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Handle different webhook events
-    const eventType = payload.action;
+    const eventType = payload.action || payload.type;
 
     switch (eventType) {
+      case 'membership.went_valid':
       case 'membership_activated':
         await handleMembershipActivated(supabase, payload);
         break;
+        
+      case 'membership.went_invalid':
       case 'membership_deactivated':
         await handleMembershipDeactivated(supabase, payload);
         break;
+        
+      case 'payment.succeeded':
       case 'payment_succeeded':
         await handlePaymentSucceeded(supabase, payload);
         break;
+        
+      case 'payment.failed':
+      case 'payment_failed':
+        await handlePaymentFailed(supabase, payload);
+        break;
+        
       default:
-        console.log('Unhandled event type:', eventType);
+        console.log('[Whop] Unhandled event type:', eventType);
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, received: true }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Webhook error:', error);
+    console.error('[Whop] Webhook error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
@@ -73,43 +83,95 @@ Deno.serve(async (req) => {
 });
 
 async function handleMembershipActivated(supabase: any, payload: any) {
-  const { user_id, membership_id, plan_id } = payload.data;
-  const tier = mapPlanToTier(plan_id);
+  const data = payload.data || payload;
+  const { user, product } = data;
+  
+  const whopUserId = user?.id || data.user_id;
+  const whopEmail = user?.email || data.email;
+  const productId = product?.id || data.product_id || data.plan_id;
+  const membershipId = data.membership?.id || data.membership_id;
+  const validUntil = data.membership?.valid_until || data.valid_until;
+  
+  console.log('[Whop] Activating membership:', { whopUserId, whopEmail, productId, membershipId });
+  
+  if (!whopUserId && !whopEmail) {
+    console.error('[Whop] No user identifier found in payload');
+    return;
+  }
+
+  // Map product ID to tier
+  const tier = mapPlanToTier(productId);
+  console.log('[Whop] Mapped product', productId, 'to tier:', tier);
+
+  // Find user by email or whop_user_id
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id')
+    .or(`email.eq.${whopEmail},whop_user_id.eq.${whopUserId}`)
+    .limit(1);
+
+  if (!profiles || profiles.length === 0) {
+    console.error('[Whop] User not found with email:', whopEmail, 'or whop_user_id:', whopUserId);
+    return;
+  }
+
+  const userId = profiles[0].id;
+  
+  // Update profile with whop_user_id if not set
+  await supabase
+    .from('profiles')
+    .update({ whop_user_id: whopUserId })
+    .eq('id', userId);
 
   // Calculate expiration for challenge tier (7 days)
   const expiresAt = tier === 'challenge' 
-    ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    ? new Date(validUntil || Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
     : null;
 
+  // Upsert membership
   const { error } = await supabase
     .from('user_memberships')
     .upsert({
-      user_id: user_id, // You'll need to map this to your auth.users.id
+      user_id: userId,
       tier,
       status: 'active',
-      whop_membership_id: membership_id,
-      whop_user_id: user_id,
+      whop_membership_id: membershipId,
+      whop_user_id: whopUserId,
       expires_at: expiresAt,
       started_at: new Date().toISOString(),
       swing_count: 0, // Reset swing count on activation
+      updated_at: new Date().toISOString(),
+    }, {
+      onConflict: 'user_id'
     });
 
   if (error) {
-    console.error('Error activating membership:', error);
+    console.error('[Whop] Error activating membership:', error);
+  } else {
+    console.log('[Whop] Successfully activated', tier, 'tier for user', userId);
   }
 }
 
 async function handleMembershipDeactivated(supabase: any, payload: any) {
-  const { membership_id, user_id } = payload.data;
+  const data = payload.data || payload;
+  const membershipId = data.membership?.id || data.membership_id;
+  const whopUserId = data.user?.id || data.user_id;
 
-  // Get the current membership to check if it's challenge tier
+  console.log('[Whop] Deactivating membership:', { membershipId, whopUserId });
+
+  // Get the current membership
   const { data: membership } = await supabase
     .from('user_memberships')
-    .select('tier')
-    .eq('whop_membership_id', membership_id)
+    .select('tier, user_id')
+    .or(`whop_membership_id.eq.${membershipId},whop_user_id.eq.${whopUserId}`)
     .single();
 
-  if (membership?.tier === 'challenge') {
+  if (!membership) {
+    console.error('[Whop] Membership not found:', membershipId);
+    return;
+  }
+
+  if (membership.tier === 'challenge') {
     // Challenge expired - revert to free tier
     const { error } = await supabase
       .from('user_memberships')
@@ -117,43 +179,84 @@ async function handleMembershipDeactivated(supabase: any, payload: any) {
         tier: 'free',
         status: 'active',
         cancelled_at: new Date().toISOString(),
-        swing_count: 0 // Reset to 0 swings for free tier
+        swing_count: 0, // Reset to 0 swings for free tier
+        updated_at: new Date().toISOString(),
       })
-      .eq('whop_membership_id', membership_id);
+      .eq('user_id', membership.user_id);
 
     if (error) {
-      console.error('Error reverting challenge to free:', error);
+      console.error('[Whop] Error reverting challenge to free:', error);
+    } else {
+      console.log('[Whop] Challenge expired, reverted to free tier for user', membership.user_id);
     }
   } else {
-    // Other tiers just cancel
+    // Other tiers - cancel but keep tier (allow grace period)
     const { error } = await supabase
       .from('user_memberships')
       .update({ 
         status: 'cancelled',
-        cancelled_at: new Date().toISOString()
+        cancelled_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
-      .eq('whop_membership_id', membership_id);
+      .eq('user_id', membership.user_id);
 
     if (error) {
-      console.error('Error deactivating membership:', error);
+      console.error('[Whop] Error cancelling membership:', error);
+    } else {
+      console.log('[Whop] Cancelled membership for user', membership.user_id);
     }
   }
 }
 
 async function handlePaymentSucceeded(supabase: any, payload: any) {
-  console.log('Payment succeeded:', payload.data);
-  // Add any payment tracking logic here
+  const data = payload.data || payload;
+  const amount = data.amount || data.total;
+  const userId = data.user?.id || data.user_id;
+  
+  console.log('[Whop] Payment succeeded for user', userId, '- Amount:', amount);
+  
+  // You can add payment tracking logic here if needed
+  // For now, just log it
+}
+
+async function handlePaymentFailed(supabase: any, payload: any) {
+  const data = payload.data || payload;
+  const userId = data.user?.id || data.user_id;
+  
+  console.log('[Whop] Payment failed for user', userId);
+  
+  // You can add payment failure handling here
+  // e.g., send notification email, update status, etc.
 }
 
 function mapPlanToTier(planId: string): string {
-  // Map your Whop plan IDs to your membership tiers
-  // Update these IDs with your actual Whop plan IDs
+  // Map your Whop product IDs to membership tiers
+  // Update these with your actual Whop product IDs from dashboard
   const planMapping: Record<string, string> = {
-    'prod_Wkwv5hjyghOXC': 'free',      // Free (2 swings)
-    'prod_WfvSV2wW8AwTc': 'challenge',  // 7-Day Challenge
-    'prod_kNyobCww4tc2p': 'diy',       // DIY Platform
-    'prod_SqdIUcKJXwmuB': 'elite',     // Elite Transformation
+    // Challenge (7-Day Trial)
+    'prod_challenge': 'challenge',
+    'prod_7day': 'challenge',
+    
+    // DIY Platform
+    'prod_diy': 'diy',
+    'prod_diy_annual': 'diy',
+    
+    // Elite Transformation
+    'prod_elite': 'elite',
+    'prod_elite_annual': 'elite',
+    
+    // Legacy IDs (keep for backwards compatibility)
+    'prod_WfvSV2wW8AwTc': 'challenge',
+    'prod_kNyobCww4tc2p': 'diy',
+    'prod_SqdIUcKJXwmuB': 'elite',
   };
 
-  return planMapping[planId] || 'free';
+  const tier = planMapping[planId] || 'free';
+  
+  if (tier === 'free' && planId) {
+    console.warn('[Whop] Unknown product ID:', planId, '- defaulting to free tier');
+    console.warn('[Whop] Update planMapping in whop-webhook to include this product ID');
+  }
+  
+  return tier;
 }

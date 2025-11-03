@@ -32,6 +32,8 @@ import LiveCoaching from "./pages/LiveCoaching";
 import CoachRoster from "./pages/CoachRoster";
 import PlayerProfile from "./pages/PlayerProfile";
 import FreeOnboarding from "./pages/FreeOnboarding";
+import Pricing from "./pages/Pricing";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +58,8 @@ const App = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/request-demo" element={<RequestDemo />} />
             <Route path="/book-call" element={<BookCall />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/checkout-success" element={<ProtectedRoute><CheckoutSuccess /></ProtectedRoute>} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/coach-auth" element={<CoachAuth />} />
             
