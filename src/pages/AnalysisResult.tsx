@@ -756,7 +756,7 @@ export default function AnalysisResult() {
           </TabsContent>
 
           <TabsContent value="com" className="mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               {/* Video Player - Same as Video Tab */}
               <Card className="overflow-hidden">
                 <div className="aspect-video bg-black relative group">
@@ -867,11 +867,13 @@ export default function AnalysisResult() {
             </Card>
 
             {/* COM Path Graph */}
-            <COMPathGraph 
-              analysis={analysis}
-              currentTime={currentTime}
-              duration={duration}
-            />
+            <div className="h-full">
+              <COMPathGraph 
+                analysis={analysis}
+                currentTime={currentTime}
+                duration={duration}
+              />
+            </div>
           </div>
           </TabsContent>
         </Tabs>
