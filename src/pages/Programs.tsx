@@ -133,25 +133,31 @@ export default function Programs() {
               </CardContent>
             </Card>
 
-            {/* $29.97/mo - HITS Membership (DIY) */}
+            {/* DIY - $297/year */}
             <Card className="border-2 border-white/20 bg-zinc-900 hover:border-white/40 transition-all">
+              <div className="absolute -top-4 left-8 bg-blue-500 text-white px-6 py-1.5 rounded-full text-xs font-black uppercase">
+                MOST POPULAR
+              </div>
               <CardHeader>
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
                     <div className="mb-2 space-y-1">
                       <div>
-                        <span className="text-4xl font-black text-white">$29.97</span>
-                        <span className="text-xl text-gray-400">/mo</span>
+                        <span className="text-4xl font-black text-white">$297</span>
+                        <span className="text-xl text-gray-400">/year</span>
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        or 4 payments of $74.25 with Klarna
                       </div>
                     </div>
-                    <CardTitle className="text-2xl font-black uppercase mb-2">HITS Membership</CardTitle>
+                    <CardTitle className="text-2xl font-black uppercase mb-2">DIY Membership</CardTitle>
                     <CardDescription className="text-gray-400 text-base">
                       Full platform access with unlimited AI-powered analysis
                     </CardDescription>
                   </div>
                   <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
                     <a href="https://whop.com/the-hitting-skool/hits-diy-platform/" target="_blank" rel="noopener noreferrer">
-                      Join Now <ArrowRight className="ml-2 h-5 w-5" />
+                      Join DIY <ArrowRight className="ml-2 h-5 w-5" />
                     </a>
                   </Button>
                 </div>
@@ -160,54 +166,58 @@ export default function Programs() {
                 <div className="grid md:grid-cols-3 gap-4 text-sm">
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Unlimited AI video reviews</span>
+                    <span className="text-gray-300">Unlimited swing analyses</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Full drill library (60+ exercises)</span>
+                    <span className="text-gray-300">Coach Rick AI chat (unlimited)</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Tempo Tracker dashboard</span>
+                    <span className="text-gray-300">Personalized drill plans</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Progress tracking</span>
+                    <span className="text-gray-300">Progress tracking & history</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Weekly training schedules</span>
+                    <span className="text-gray-300">Community access</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Community support</span>
+                    <span className="text-gray-300">Advanced biomechanics reports</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* HITS Ultimate - Premium Equipment Package */}
+            {/* Elite - $997/year */}
             <Card className="relative border-2 border-primary bg-gradient-to-br from-primary/5 via-zinc-900 to-zinc-950 hover:border-primary transition-all shadow-xl shadow-primary/20">
               <div className="absolute -top-4 left-8 bg-gradient-to-r from-primary to-amber-400 text-black px-6 py-1.5 rounded-full text-xs font-black uppercase">
-                ⭐ Ultimate Package
+                PREMIUM
               </div>
               <CardHeader>
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
-                    <div className="mb-2">
-                      <span className="text-3xl font-black text-primary">Call for Details</span>
+                    <div className="mb-2 space-y-1">
+                      <div>
+                        <span className="text-4xl font-black text-primary">$997</span>
+                        <span className="text-xl text-gray-400">/year</span>
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        or 12 payments of $83 with Klarna
+                      </div>
                     </div>
-                    <CardTitle className="text-2xl font-black uppercase mb-2">
-                      HITS Ultimate
-                    </CardTitle>
+                    <CardTitle className="text-2xl font-black uppercase mb-2">Elite</CardTitle>
                     <CardDescription className="text-gray-400 text-base">
-                      Complete equipment package + elite coaching — we send you everything
+                      Premium coaching with monthly 1-on-1 calls and custom programming
                     </CardDescription>
                   </div>
                   <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <Link to="/book-call">
-                      Schedule Call <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
+                    <a href="https://whop.com/the-hitting-skool/" target="_blank" rel="noopener noreferrer">
+                      Join Elite <ArrowRight className="ml-2 h-5 w-5" />
+                    </a>
                   </Button>
                 </div>
               </CardHeader>
@@ -215,96 +225,28 @@ export default function Programs() {
                 <div className="grid md:grid-cols-3 gap-4 text-sm mb-6">
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300 font-semibold">Blast Motion sensor (included)</span>
+                    <span className="text-gray-300 font-semibold">Everything in DIY, PLUS:</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300 font-semibold">Stack Bat training system (included)</span>
+                    <span className="text-gray-300 font-semibold">Monthly 1-on-1 video call</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300 font-semibold">Premium training equipment</span>
+                    <span className="text-gray-300">Custom 12-week training program</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Everything from 90-Day program</span>
+                    <span className="text-gray-300">Priority support (24-hour response)</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">White-glove setup + support</span>
+                    <span className="text-gray-300">Equipment recommendations</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Equipment shipped to your door</span>
+                    <span className="text-gray-300">Exclusive community access</span>
                   </div>
-                </div>
-                <div className="p-4 rounded-lg bg-primary/10 border border-primary/30">
-                  <p className="text-base font-black text-primary text-center">
-                    All Equipment + Elite Coaching — Complete Training Arsenal
-                  </p>
-                  <p className="text-xs text-center text-gray-400 mt-2">
-                    Limited availability • Requires consultation • Equipment value $800+
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Elite - 90-Day Transformation */}
-            <Card className="border-2 border-white/20 bg-zinc-900 hover:border-white/40 transition-all">
-              <CardHeader>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <div className="mb-2">
-                      <span className="text-3xl font-black text-white">$2,497</span>
-                    </div>
-                    <CardTitle className="text-2xl font-black uppercase mb-2">
-                      HITS 90-Day Transformation
-                    </CardTitle>
-                    <CardDescription className="text-gray-400 text-base">
-                      Done-with-you elite coaching with performance guarantee
-                    </CardDescription>
-                  </div>
-                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <Link to="/book-call">
-                      Book Call <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4 text-sm mb-6">
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300 font-semibold">Weekly 1-on-1 video reviews</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Custom 90-day periodization plan</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Priority support (24hr response)</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Direct access to Coach Rick</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Bi-weekly progress check-ins</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300 font-bold">Performance guarantee</span>
-                  </div>
-                </div>
-                <div className="p-4 rounded-lg bg-primary/10 border border-primary/30">
-                  <p className="text-base font-black text-primary text-center">
-                    +5 MPH Exit Velo Guarantee or Full Refund
-                  </p>
-                  <p className="text-xs text-center text-gray-400 mt-2">
-                    Limited to 15 athletes per quarter • Requires consultation
-                  </p>
                 </div>
               </CardContent>
             </Card>
