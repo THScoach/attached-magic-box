@@ -605,6 +605,14 @@ export default function Analyze() {
         shoulderRotation: analysisData.analysis.shoulderRotation,
         comDistance: analysisData.analysis.comDistance,
         comMaxVelocity: analysisData.analysis.comMaxVelocity,
+        // Bat Speed Quality metrics
+        directionScore: analysisData.analysis.direction_score,
+        timingScore: analysisData.analysis.timing_score,
+        efficiencyScore: analysisData.analysis.efficiency_score,
+        swingMechanicsQualityScore: analysisData.analysis.swing_mechanics_quality_score,
+        attackAngle: analysisData.analysis.attackAngle,
+        batPathPlane: analysisData.analysis.batPathPlane,
+        connectionQuality: analysisData.analysis.connectionQuality,
         poseData: poseData
       };
 
@@ -732,6 +740,14 @@ export default function Analyze() {
         shoulderRotation: analysisData.analysis.shoulderRotation,
         comDistance: analysisData.analysis.comDistance,
         comMaxVelocity: analysisData.analysis.comMaxVelocity,
+        // Bat Speed Quality metrics
+        directionScore: analysisData.analysis.direction_score,
+        timingScore: analysisData.analysis.timing_score,
+        efficiencyScore: analysisData.analysis.efficiency_score,
+        swingMechanicsQualityScore: analysisData.analysis.swing_mechanics_quality_score,
+        attackAngle: analysisData.analysis.attackAngle,
+        batPathPlane: analysisData.analysis.batPathPlane,
+        connectionQuality: analysisData.analysis.connectionQuality,
         poseData: null
       };
 

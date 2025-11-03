@@ -47,6 +47,17 @@ export interface SwingAnalysis {
   exitVelocity?: number; // mph
   launchAngle?: number; // degrees
   projectedDistance?: number; // feet
+  // Bat Speed Quality Framework
+  directionScore?: number; // 0-100
+  timingScore?: number; // 0-100
+  efficiencyScore?: number; // 0-100
+  swingMechanicsQualityScore?: number; // 0-100
+  attackAngle?: number; // degrees
+  batPathPlane?: number; // degrees  
+  connectionQuality?: number; // 0-100
+  sequenceQuality?: number; // 0-100
+  accelerationPattern?: number; // 0-100
+  balanceScore?: number; // 0-100
 }
 
 export interface VelocityData {

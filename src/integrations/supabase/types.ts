@@ -911,17 +911,24 @@ export type Database = {
       swing_analyses: {
         Row: {
           anchor_score: number
+          attack_angle: number | null
+          bat_path_plane: number | null
+          connection_quality: number | null
           created_at: string
+          direction_score: number | null
           drill_effectiveness_score: number | null
           drill_feedback: Json | null
           drill_id: string | null
           drill_name: string | null
+          efficiency_score: number | null
           engine_score: number
           id: string
           metrics: Json
           overall_score: number
           player_id: string | null
           session_id: string | null
+          swing_mechanics_quality_score: number | null
+          timing_score: number | null
           user_id: string | null
           video_type: string
           video_url: string | null
@@ -929,17 +936,24 @@ export type Database = {
         }
         Insert: {
           anchor_score: number
+          attack_angle?: number | null
+          bat_path_plane?: number | null
+          connection_quality?: number | null
           created_at?: string
+          direction_score?: number | null
           drill_effectiveness_score?: number | null
           drill_feedback?: Json | null
           drill_id?: string | null
           drill_name?: string | null
+          efficiency_score?: number | null
           engine_score: number
           id?: string
           metrics: Json
           overall_score: number
           player_id?: string | null
           session_id?: string | null
+          swing_mechanics_quality_score?: number | null
+          timing_score?: number | null
           user_id?: string | null
           video_type?: string
           video_url?: string | null
@@ -947,17 +961,24 @@ export type Database = {
         }
         Update: {
           anchor_score?: number
+          attack_angle?: number | null
+          bat_path_plane?: number | null
+          connection_quality?: number | null
           created_at?: string
+          direction_score?: number | null
           drill_effectiveness_score?: number | null
           drill_feedback?: Json | null
           drill_id?: string | null
           drill_name?: string | null
+          efficiency_score?: number | null
           engine_score?: number
           id?: string
           metrics?: Json
           overall_score?: number
           player_id?: string | null
           session_id?: string | null
+          swing_mechanics_quality_score?: number | null
+          timing_score?: number | null
           user_id?: string | null
           video_type?: string
           video_url?: string | null

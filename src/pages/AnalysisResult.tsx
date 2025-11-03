@@ -9,6 +9,7 @@ import { CoachRickChat } from "@/components/CoachRickChat";
 import { ResearchBenchmarks } from "@/components/ResearchBenchmarks";
 import { TempoRatioCard } from "@/components/TempoRatioCard";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
+import { BatSpeedQualityCard } from "@/components/BatSpeedQualityCard";
 import { MasterCoachReport as MasterCoachReportComponent } from "@/components/MasterCoachReport";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { DetailedMetricsView } from "@/components/DetailedMetricsView";
@@ -135,7 +136,15 @@ export default function AnalysisResult() {
         mlbComparison: metrics.mlbComparison,
         exitVelocity: metrics.exitVelocity,
         launchAngle: metrics.launchAngle,
-        projectedDistance: metrics.projectedDistance
+        projectedDistance: metrics.projectedDistance,
+        // Bat Speed Quality metrics
+        directionScore: data.direction_score || metrics.directionScore,
+        timingScore: data.timing_score || metrics.timingScore,
+        efficiencyScore: data.efficiency_score || metrics.efficiencyScore,
+        swingMechanicsQualityScore: data.swing_mechanics_quality_score || metrics.swingMechanicsQualityScore,
+        attackAngle: data.attack_angle || metrics.attackAngle,
+        batPathPlane: data.bat_path_plane || metrics.batPathPlane,
+        connectionQuality: data.connection_quality || metrics.connectionQuality
       };
 
       setAnalysis(analysisData);
@@ -233,7 +242,15 @@ export default function AnalysisResult() {
         mlbComparison: metrics.mlbComparison,
         exitVelocity: metrics.exitVelocity,
         launchAngle: metrics.launchAngle,
-        projectedDistance: metrics.projectedDistance
+        projectedDistance: metrics.projectedDistance,
+        // Bat Speed Quality metrics
+        directionScore: data.direction_score || metrics.directionScore,
+        timingScore: data.timing_score || metrics.timingScore,
+        efficiencyScore: data.efficiency_score || metrics.efficiencyScore,
+        swingMechanicsQualityScore: data.swing_mechanics_quality_score || metrics.swingMechanicsQualityScore,
+        attackAngle: data.attack_angle || metrics.attackAngle,
+        batPathPlane: data.bat_path_plane || metrics.batPathPlane,
+        connectionQuality: data.connection_quality || metrics.connectionQuality
       };
 
       setAnalysis(analysisData);
@@ -990,6 +1007,11 @@ export default function AnalysisResult() {
           loadStartTiming={analysis.loadStartTiming}
           fireStartTiming={analysis.fireStartTiming}
         />
+
+        {/* Bat Speed Quality Card */}
+        {analysis.swingMechanicsQualityScore && (
+          <BatSpeedQualityCard analysis={analysis} />
+        )}
 
         {/* Three Pillars - Condensed */}
         <section>

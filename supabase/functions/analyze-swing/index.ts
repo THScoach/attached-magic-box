@@ -929,6 +929,121 @@ Provide detailed scores and analysis in this exact JSON format:
     console.log('=== End Phase Detection Validation ===');
     // ============= END VALIDATION =============
 
+    // ============= BAT SPEED QUALITY CALCULATIONS =============
+    console.log('=== Calculating Bat Speed Quality Scores ===');
+    
+    // Extract metrics needed for quality calculations
+    const attackAngle = analysis.attackAngle || 10; // Default to neutral if not detected
+    const batPathPlane = analysis.batPathPlane || 10; // Default to neutral
+    const connectionQuality = analysis.connectionQuality || 75; // Default to decent
+    const tempoRatio = analysis.tempoRatio || 2.5;
+    const sequenceQuality = analysis.sequenceQuality || 75; // Based on kinematic sequence
+    const accelerationPattern = analysis.accelerationPattern || 75; // Based on smooth accel
+    const xFactor = Math.abs(analysis.xFactor || 35); // Hip-shoulder separation
+    const balanceScore = analysis.balanceScore || 75; // From COM stability
+    
+    // Calculate Direction Score (0-100)
+    function calculateDirectionScore(attackAngle: number, batPathPlane: number, connectionQuality: number): number {
+      // Attack angle score
+      let attackScore = 100;
+      if (attackAngle >= 5 && attackAngle <= 15) {
+        attackScore = 100;
+      } else if (attackAngle >= 0 && attackAngle < 5) {
+        attackScore = 100 - ((5 - attackAngle) * 5);
+      } else if (attackAngle > 15 && attackAngle <= 25) {
+        attackScore = 100 - ((attackAngle - 15) * 3);
+      } else if (attackAngle < 0) {
+        attackScore = Math.max(0, 50 + (attackAngle * 5));
+      } else {
+        attackScore = Math.max(0, 70 - ((attackAngle - 25) * 5));
+      }
+      
+      // Bat path plane score
+      let pathScore = 100;
+      if (batPathPlane >= 5 && batPathPlane <= 15) {
+        pathScore = 100;
+      } else if (batPathPlane >= 0 && batPathPlane < 5) {
+        pathScore = 100 - ((5 - batPathPlane) * 5);
+      } else if (batPathPlane > 15 && batPathPlane <= 25) {
+        pathScore = 100 - ((batPathPlane - 15) * 3);
+      } else if (batPathPlane < 0) {
+        pathScore = Math.max(0, 50 + (batPathPlane * 5));
+      } else {
+        pathScore = Math.max(0, 70 - ((batPathPlane - 25) * 5));
+      }
+      
+      // Combine scores
+      const dirScore = (attackScore * 0.40) + (pathScore * 0.35) + (connectionQuality * 0.25);
+      return Math.round(dirScore * 10) / 10;
+    }
+    
+    // Calculate Timing Score (0-100)
+    function calculateTimingScore(tempoRatio: number, sequenceQuality: number, accelPattern: number): number {
+      // Tempo ratio score
+      let tempoScore = 100;
+      if (tempoRatio >= 2.3 && tempoRatio <= 2.7) {
+        tempoScore = 100;
+      } else if (tempoRatio >= 2.0 && tempoRatio < 2.3) {
+        tempoScore = 100 - ((2.3 - tempoRatio) * 20);
+      } else if (tempoRatio > 2.7 && tempoRatio <= 3.0) {
+        tempoScore = 100 - ((tempoRatio - 2.7) * 15);
+      } else if (tempoRatio >= 1.5 && tempoRatio < 2.0) {
+        tempoScore = Math.max(50, 100 - ((2.3 - tempoRatio) * 25));
+      } else if (tempoRatio > 3.0 && tempoRatio <= 3.5) {
+        tempoScore = Math.max(50, 100 - ((tempoRatio - 2.7) * 20));
+      } else {
+        tempoScore = Math.max(30, 50 - Math.abs(tempoRatio - 2.5) * 10);
+      }
+      
+      // Combine scores
+      const timScore = (tempoScore * 0.40) + (sequenceQuality * 0.35) + (accelPattern * 0.25);
+      return Math.round(timScore * 10) / 10;
+    }
+    
+    // Calculate Efficiency Score (0-100)
+    function calculateEfficiencyScore(xFactor: number, connectionQuality: number, balanceScore: number): number {
+      // Hip-shoulder separation score
+      let separationScore = 100;
+      if (xFactor >= 40 && xFactor <= 50) {
+        separationScore = 100;
+      } else if (xFactor >= 35 && xFactor < 40) {
+        separationScore = 100 - ((40 - xFactor) * 4);
+      } else if (xFactor > 50 && xFactor <= 55) {
+        separationScore = 100 - ((xFactor - 50) * 2);
+      } else if (xFactor >= 30 && xFactor < 35) {
+        separationScore = Math.max(60, 100 - ((40 - xFactor) * 5));
+      } else if (xFactor > 55 && xFactor <= 60) {
+        separationScore = Math.max(85, 100 - ((xFactor - 50) * 3));
+      } else if (xFactor < 30) {
+        separationScore = Math.max(40, 60 - ((30 - xFactor) * 2));
+      } else {
+        separationScore = Math.max(70, 100 - ((xFactor - 50) * 4));
+      }
+      
+      // Combine scores
+      const effScore = (separationScore * 0.40) + (connectionQuality * 0.35) + (balanceScore * 0.25);
+      return Math.round(effScore * 10) / 10;
+    }
+    
+    // Calculate component scores
+    analysis.direction_score = calculateDirectionScore(attackAngle, batPathPlane, connectionQuality);
+    analysis.timing_score = calculateTimingScore(tempoRatio, sequenceQuality, accelerationPattern);
+    analysis.efficiency_score = calculateEfficiencyScore(xFactor, connectionQuality, balanceScore);
+    
+    // Calculate overall Swing Mechanics Quality Score
+    analysis.swing_mechanics_quality_score = Math.round(
+      (analysis.direction_score * 0.40 + analysis.timing_score * 0.35 + analysis.efficiency_score * 0.25) * 10
+    ) / 10;
+    
+    console.log('Bat Speed Quality Scores:', {
+      direction: analysis.direction_score,
+      timing: analysis.timing_score,
+      efficiency: analysis.efficiency_score,
+      overall: analysis.swing_mechanics_quality_score
+    });
+    console.log('=== End Bat Speed Quality Calculations ===');
+    // ============= END BAT SPEED QUALITY =============
+
     // Save to database if user is authenticated
     let analysisId = null;
     if (userId && videoUrl) {
@@ -953,6 +1068,13 @@ Provide detailed scores and analysis in this exact JSON format:
           engine_score: analysis.engineScore,
           whip_score: analysis.whipScore,
           drill_effectiveness_score: videoType === 'drill' ? overallScore : null,
+          direction_score: analysis.direction_score,
+          timing_score: analysis.timing_score,
+          efficiency_score: analysis.efficiency_score,
+          swing_mechanics_quality_score: analysis.swing_mechanics_quality_score,
+          attack_angle: analysis.attackAngle,
+          bat_path_plane: analysis.batPathPlane,
+          connection_quality: analysis.connectionQuality,
           metrics: {
             hitsScore: analysis.hitsScore,
             tempoRatio: analysis.tempoRatio,
