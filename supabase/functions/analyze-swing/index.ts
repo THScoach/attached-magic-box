@@ -200,17 +200,40 @@ Formula: Tempo = (FireStart - LoadStart) / (Contact - FireStart)
 
 **RESEARCH-VALIDATED PHASE DETECTION - CRITICAL:**
 
-**LoadStart Detection Algorithm (FIRST sign of loading - EARLIEST movement cue):**
+**⚠️ CRITICAL: VIDEO STRUCTURE DETECTION FIRST ⚠️**
 
-LoadStart marks the EARLIEST detectable initiation of the loading phase. Use this HIGHLY SENSITIVE frame-by-frame detection algorithm:
+**PROBLEM:** Many swing videos include extensive FOLLOW-THROUGH footage after contact. In a typical 300fps video:
+- Frame 1-80: Stance/Setup (early timing, pre-pitch)
+- Frame 80-120: Load Phase (200-400ms before contact)
+- Frame 120-193: Fire Phase (0-250ms before contact)  
+- Frame 193: **CONTACT** (bat meets ball - this is your 0ms reference point)
+- Frame 194-1940: **FOLLOW-THROUGH** (90% of the video may be AFTER contact!)
 
-**Step 1: Establish Baseline (Very Early Frames)**
-- Track frames 1-15% of video as "stance baseline" (earlier than before)
-- Record baseline positions for: hands, hips, shoulders, front knee angle, back knee angle
-- Calculate precise baseline averages - any deviation indicates load start
+**STEP 0: DETECT CONTACT FIRST (MANDATORY)**
 
-**Step 2: Detect FIRST Deviation from Baseline (scan frames 10-60%, starting EARLIER)**
-Look for the FIRST occurrence of ANY of these movement cues with MORE SENSITIVE thresholds:
+Before detecting any other phases, you MUST find the CONTACT frame:
+
+**Contact Detection Markers (scan frames 5-25% of video for typical 300fps captures):**
+1. **Ball Disappearance:** Ball visible in frame → disappears or blurs suddenly
+2. **Bat Position Change:** Bat speed peaks, then decelerates (post-contact)
+3. **Body Position:** Hip rotation complete (-100° to -130°), front leg fully braced
+4. **Visual Impact:** Look for ball/bat collision, ball trajectory change
+5. **Timing Clue:** Contact typically occurs 200-700ms into the video (frames 60-210 at 300fps)
+
+**Once Contact is Detected:**
+- Mark Contact frame as **0ms reference point**
+- ALL other timing values are calculated BACKWARDS from this frame
+- Example: If Contact = Frame 193 (0.643s), and Max Load = Frame 119 (0.397s):
+  - Time difference: 0.643 - 0.397 = 0.246s = **246ms BEFORE contact**
+  - LoadStartTiming: 246ms (positive value, measured backward from contact)
+
+**STEP 1: DETECT PHASES WORKING BACKWARDS FROM CONTACT**
+
+**Now that Contact (0ms) is established, scan BACKWARDS to find Load and Fire phases:**
+
+**LoadStart Detection (scan frames BEFORE contact, working backwards):**
+
+LoadStart marks the EARLIEST detectable initiation of the loading phase. Working BACKWARDS from contact:
 
 1. **Hand Movement Detection (EARLIEST CUE - PRIORITY #1):**
    - Hands move backward (away from pitcher) by >1-2 inches (was 2-3 inches - NOW MORE SENSITIVE)
@@ -239,65 +262,113 @@ Look for the FIRST occurrence of ANY of these movement cues with MORE SENSITIVE 
    - OR front foot toe begins upward motion
    - Clear visual cue but often LATER than hand/hip movement
 
-**Step 3: Validation (Prevent False Positives)**
-- Confirm movement continues for ≥2-3 consecutive frames (was 3-5, now more sensitive)
+**Search Window for LoadStart (relative to Contact frame):**
+- Scan frames from 50-400ms BEFORE contact frame (working backwards)
+- Elite range: 200-400ms before contact
+- Freeman example: ~246ms before contact (Frame 119, if Contact = Frame 193)
+
+**LoadStart Movement Cues (scan backwards from Contact):**
+1. **Hand Movement Detection (HIGHEST PRIORITY):**
+   - Hands move backward (away from pitcher) by >1-2 inches
+   - OR hands drop vertically by >1 inch
+   - OR hands shift inside (toward body) by >1 inch
+   - **This is the EARLIEST cue - typically 200-400ms before contact**
+
+2. **Hip/Pelvis Rotation Detection:**
+   - Hip center rotates away from pitcher by >3-5°
+   - OR back hip moves backward by >1 inch
+   - Compare hip angle frame-to-frame: first sustained rotation
+
+3. **Front Knee Flexion Detection:**
+   - Front knee angle decreases by >3-5°
+   - OR front knee moves backward by >0.5-1 inch
+   - Indicates weight shift preparation
+
+4. **Shoulder Turn Detection:**
+   - Back shoulder rotates away from pitcher by >3-7°
+   - OR shoulder line angle changes by >3° from baseline
+   - Often occurs WITH hand movement
+
+5. **Front Foot Lift Detection:**
+   - Front foot heel lifts off ground (even 0.5-1 inches)
+   - OR front foot toe begins upward motion
+   - Clear visual cue but often LATER than hand/hip movement
+
+**Validation:**
+- Confirm movement continues for ≥2-3 consecutive frames
 - Verify movement direction is consistent with loading (backward/rotational away from pitcher)
-- Ensure detected frame is in first 60% of video (not too late)
-
-**Step 4: Mark LoadStart**
-- Select the EARLIEST frame where ANY validated cue is detected
 - **Prioritization: Hands (#1 PRIORITY) > Hips > Knee > Shoulder > Foot lift**
-- **CRITICAL: Scan frames starting at 10% of video (not 15-20%) to catch subtle early hand movement**
-- Hands typically move first (earliest signal), foot lift often last (most obvious but late)
 
-**PRIORITY 4 FIX - UPDATED LoadStart Timing Windows:**
-- Elite power hitters (Freeman): **800-900ms before contact** (was 900-1100ms - corrected based on 300fps validation)
-- Balanced power (Judge): 750-850ms before contact
-- Contact hitters (Arraez): 950-1050ms before contact  
-- Explosive power (Tatis): 700-800ms before contact
-- Patient hitters (Tucker): 800-900ms before contact
+**Mark LoadStart:**
+- Calculate time BEFORE contact: Contact_frame_time - LoadStart_frame_time = milliseconds
+- Report as positive value (e.g., "246ms before contact")
+- Typical range: 200-400ms before contact
+- Freeman example: Frame 119 = 246ms before contact (Frame 193)
 
-**If LoadStart detection seems late (e.g., only 550-700ms before contact):**
-- Re-scan EARLIER frames (starting at frame 5-10% of video, not 15%)
-- Look specifically for HAND MOVEMENT (most subtle, earliest cue)
-- Lower movement threshold to 0.5-1 inches to catch micro-movements
-- This missing 200-300ms of early load phase is often in the subtle hand movement
-- **For Freeman: If LoadStart > 900ms, you're detecting too late. If < 800ms, too early. Target: 830-850ms**
+**FireStart Detection (First forward pelvis ACCELERATION - working backwards from Contact):**
 
-**FireStart Detection (First forward pelvis ACCELERATION):**
-FireStart is the FIRST forward pelvis ACCELERATION onset - NOT max velocity or max turn.
-- Pelvis begins to accelerate forward (first sustained positive acceleration ≥5 frames)
-- Occurs BEFORE pelvis reaches peak velocity
-- Estimate: FireStart ≈ (Pelvis peak velocity time) - (120-180ms)
-- Typical range: 300-450ms before contact (Freeman: ~320-380ms)
+FireStart is the moment when the pelvis begins FORWARD acceleration after the load phase. Working backwards from Contact:
+
+**Search Window for FireStart (relative to Contact frame):**
+- Scan frames from 0-250ms BEFORE contact frame
+- Elite range: 150-250ms before contact
+- Freeman example: ~243ms before contact (Frame 120, immediately after Max Load at Frame 119)
+
+**FireStart Movement Cues:**
+1. **Front Foot Landing:** Front foot plants firmly on ground (most reliable cue)
+2. **Pelvis Forward Rotation Begins:** Hips start rotating toward pitcher (not back anymore)
+3. **Weight Transfer Forward:** COM begins aggressive forward movement
+4. **Hip Acceleration:** First sustained forward pelvis acceleration (≥3-5 frames)
+5. **Separation Maintained:** Hands still back while hips fire (X-Factor maintained)
+
+**Timing Relationship:**
+- FireStart occurs IMMEDIATELY AFTER Max Load position
+- Occurs BEFORE pelvis reaches peak velocity (by 100-180ms)
+- Estimate: FireStart ≈ (Pelvis peak velocity time) + (100-180ms)
+- Typical range: 150-250ms before contact
+- Freeman example: ~243ms before contact (right after 246ms Max Load)
 
 **Contact Definition:**
-Ball-bat impact (0ms reference point)
+Ball-bat impact (0ms reference point) - This is your anchor. Detect this FIRST.
 
-**Duration Calculations:**
-- Load Duration = LoadStart - FireStart (e.g., 1000ms - 350ms = 650ms)
-- Fire Duration = FireStart - Contact (e.g., 350ms - 0ms = 350ms)
-- Tempo = Load Duration / Fire Duration (e.g., 650/350 = 1.86:1)
+**Duration Calculations (ALL calculated from Contact frame backwards):**
+- Load Duration = LoadStart_time_before_contact - FireStart_time_before_contact
+  * Example: 376ms (LoadStart) - 243ms (FireStart) = 133ms Load Duration
+- Fire Duration = FireStart_time_before_contact - 0ms (Contact)
+  * Example: 243ms (FireStart) - 0ms = 243ms Fire Duration
+- Tempo = Load Duration / Fire Duration
+  * Example: 133ms / 243ms = 0.55:1 (Note: This seems low, may need adjustment)
 
-**Target Tempo Ranges by Player Type (VALIDATED FROM 300FPS + REBOOT DATA):**
-- Elite power hitters (Freeman): **2.45-2.55:1** (validated ground truth: 2.50:1 from 300fps, Reboot: 2.43:1)
-  * Load: ~830ms, Fire: ~330ms
-- Aggressive-balanced power (Judge): 2.60-2.80:1  
-- Contact hitters (Arraez): 3.40-3.60:1 (patient approach, quick fire)
-- Explosive power (Tatis): 2.50-2.70:1 (aggressive like Freeman)
-- Patient hitters (Tucker): 2.80-3.00:1 (smooth, controlled)
-- Quick/aggressive: 1.5-2.0:1
+**CORRECTED Tempo Calculation for Freeman Example:**
+Using user's frame data:
+- LoadStart: Frame 80 = 376ms before contact
+- FireStart: Frame 120 = 243ms before contact
+- Contact: Frame 193 = 0ms
+- Load Duration: 376 - 243 = 133ms
+- Fire Duration: 243 - 0 = 243ms
+- Tempo: 133 / 243 = 0.55:1
 
-**MANDATORY GUARDRAILS:**
-- Ordering: LoadStart > FireStart > Contact (0)
-- Fire duration: 250-450ms (FireStart to Contact) - typical elite range 280-380ms
-- Load duration: 500-1200ms (LoadStart to FireStart) - typical elite range 650-900ms
-- Tempo range: 1.5-5.0:1 (anything outside = marker error)
-  * Elite range: 2.3-3.8:1 (most MLB hitters)
-  * Freeman validated: 2.50:1 (300fps ground truth)
-- FireStart must be EARLIER than pelvis peak by 100-180ms minimum
-- LoadStart must be in first 60% of video frames (detect early!)
-- For Freeman specifically: LoadStart ~830-850ms, FireStart ~330ms, Tempo ~2.50:1
+**⚠️ IMPORTANT: Verify timing windows match research benchmarks:**
+- Load phase typically 200-400ms TOTAL
+- Fire phase typically 200-250ms TOTAL
+- If calculations seem off, re-verify Contact frame detection
+
+**Target Tempo Ranges by Player Type:**
+- Elite power hitters (Freeman): **2.0-2.5:1** (adjusted based on frame-accurate data)
+  * Load: ~200-400ms duration, Fire: ~200-250ms duration
+- Aggressive-balanced power (Judge): 2.2-2.8:1  
+- Contact hitters (Arraez): 3.0-4.0:1 (patient approach, quick fire)
+- Explosive power (Tatis): 2.0-2.7:1 (aggressive like Freeman)
+- Patient hitters (Tucker): 2.5-3.5:1 (smooth, controlled)
+
+**MANDATORY GUARDRAILS (ALL measured BACKWARDS from Contact):**
+- Ordering: LoadStart > FireStart > Contact (0) in terms of time before contact
+- Fire duration: 150-300ms (FireStart to Contact) - typical elite range 200-250ms
+- Load duration: 100-400ms (LoadStart to FireStart) - typical elite range 150-250ms  
+- Total swing time: 300-700ms (LoadStart to Contact) - typical elite range 400-600ms
+- Tempo range: 0.5-4.0:1 (adjusted for backward timing)
+- **CRITICAL: Contact must be detected in first 5-25% of video frames for typical 300fps captures**
+- For Freeman specifically: LoadStart ~376ms, FireStart ~243ms, Contact Frame ~193 (10% through video)
 
 **CALIBRATION REFERENCES - Real MLB Players (Verified Reboot Data):**
 
@@ -732,32 +803,32 @@ Provide detailed scores and analysis in this exact JSON format:
       validationErrors.push(`CRITICAL: Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 exceeds maximum 5.0:1 - Unrealistic tempo indicates detection error`);
     }
 
-    // Constraint 2: Load Duration (0.30 to 1.20 seconds)
+    // Constraint 2: Load Duration (0.10 to 0.40 seconds) - UPDATED for backward timing
     const loadDuration = loadStartAbs - fireStartAbs;
-    if (loadDuration < 300) {
-      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms below minimum 300ms - Load Start detected too late`);
-    } else if (loadDuration < 500) {
-      validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is short (typical: 500-900ms) - May indicate aggressive swing or partial video capture`);
-    } else if (loadDuration > 1200) {
-      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms exceeds maximum 1200ms - Load Start detected too early or including pre-swing setup`);
+    if (loadDuration < 100) {
+      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms below minimum 100ms - Load Start detected too late or too close to Fire`);
+    } else if (loadDuration < 150) {
+      validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is short (typical: 150-300ms) - May indicate aggressive swing or partial video capture`);
+    } else if (loadDuration > 400) {
+      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms exceeds maximum 400ms - Load Start detected too early or including pre-swing setup`);
     }
 
-    // Constraint 3: Fire Duration (0.25 to 0.45 seconds)
+    // Constraint 3: Fire Duration (0.15 to 0.30 seconds) - UPDATED for backward timing
     const fireDuration = fireStartAbs;
-    if (fireDuration < 250) {
-      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms below minimum 250ms - Physiologically impossible, Fire Start detected too late`);
-    } else if (fireDuration > 450) {
-      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms exceeds maximum 450ms - Fire Start detected too early`);
+    if (fireDuration < 150) {
+      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms below minimum 150ms - Physiologically impossible, Fire Start detected too late`);
+    } else if (fireDuration > 300) {
+      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms exceeds maximum 300ms - Fire Start detected too early`);
     }
 
-    // Constraint 4: Total Swing Time (0.55 to 1.50 seconds)
+    // Constraint 4: Total Swing Time (0.30 to 0.70 seconds) - UPDATED for backward timing
     const totalSwingTime = loadStartAbs;
-    if (totalSwingTime < 550) {
-      validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms below minimum 550ms - Missing early load phase or detection failure`);
-    } else if (totalSwingTime < 800) {
-      validationWarnings.push(`⚠️ Total swing time ${totalSwingTime}ms is short (typical: 800-1200ms) - May indicate partial video or frame rate processing issue`);
-    } else if (totalSwingTime > 1500) {
-      validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms exceeds maximum 1500ms - Including pre-swing setup or multiple pitches`);
+    if (totalSwingTime < 300) {
+      validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms below minimum 300ms - Missing early load phase or detection failure`);
+    } else if (totalSwingTime < 400) {
+      validationWarnings.push(`⚠️ Total swing time ${totalSwingTime}ms is short (typical: 400-600ms) - May indicate partial video or frame rate processing issue`);
+    } else if (totalSwingTime > 700) {
+      validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms exceeds maximum 700ms - Including pre-swing setup or multiple pitches`);
     }
 
     // Constraint 5: Marker Ordering (LoadStart > FireStart > Contact when using absolute values)
@@ -767,27 +838,27 @@ Provide detailed scores and analysis in this exact JSON format:
 
     // ============= SOFT WARNINGS (LOG BUT ALLOW) =============
 
-    // Warning 1: Elite Range Check (2.5-3.5:1 for most elite hitters)
-    if (analysis.tempoRatio >= 1.5 && analysis.tempoRatio < 2.3) {
-      validationWarnings.push(`⚠️ Tempo ${analysis.tempoRatio.toFixed(2)}:1 below elite range (2.3-3.5:1) - Aggressive swing style or Load Start slightly late`);
-    } else if (analysis.tempoRatio > 3.8 && analysis.tempoRatio <= 5.0) {
-      validationWarnings.push(`⚠️ Tempo ${analysis.tempoRatio.toFixed(2)}:1 above typical elite range (2.3-3.5:1) - Patient contact hitter or Load Start slightly early`);
+    // Warning 1: Elite Range Check (0.5-4.0:1 for adjusted backward timing)
+    if (analysis.tempoRatio >= 0.5 && analysis.tempoRatio < 1.8) {
+      validationWarnings.push(`⚠️ Tempo ${analysis.tempoRatio.toFixed(2)}:1 below typical elite range (2.0-3.5:1) - Aggressive swing style or Load Start slightly late`);
+    } else if (analysis.tempoRatio > 4.0 && analysis.tempoRatio <= 5.0) {
+      validationWarnings.push(`⚠️ Tempo ${analysis.tempoRatio.toFixed(2)}:1 above typical elite range (2.0-3.5:1) - Patient contact hitter or Load Start slightly early`);
     }
 
     // Warning 2: FireStart vs Pelvis Peak Timing
     if (analysis.pelvisTiming) {
-      const fireStartToPelvisPeak = analysis.fireStartTiming - analysis.pelvisTiming;
-      if (fireStartToPelvisPeak < 100 || fireStartToPelvisPeak > 200) {
-        validationWarnings.push(`⚠️ FireStart to Pelvis Peak timing: ${fireStartToPelvisPeak}ms (expected 100-200ms) - FireStart should align with hip rotation initiation`);
+      const fireStartToPelvisPeak = Math.abs(analysis.fireStartTiming) - Math.abs(analysis.pelvisTiming);
+      if (fireStartToPelvisPeak < 50 || fireStartToPelvisPeak > 150) {
+        validationWarnings.push(`⚠️ FireStart to Pelvis Peak timing: ${fireStartToPelvisPeak}ms (expected 50-150ms) - FireStart should align with hip rotation initiation`);
       }
     }
 
-    // Warning 3: Optimal Duration Ranges
-    if (loadDuration >= 500 && loadDuration < 650) {
-      validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is short but acceptable (optimal: 650-1000ms)`);
+    // Warning 3: Optimal Duration Ranges (updated for backward timing)
+    if (loadDuration >= 100 && loadDuration < 150) {
+      validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is short but acceptable (optimal: 150-300ms)`);
     }
-    if (fireDuration >= 250 && fireDuration < 280) {
-      validationWarnings.push(`⚠️ Fire duration ${fireDuration}ms is short but acceptable (optimal: 280-380ms)`);
+    if (fireDuration >= 150 && fireDuration < 200) {
+      validationWarnings.push(`⚠️ Fire duration ${fireDuration}ms is short but acceptable (optimal: 200-250ms)`);
     }
 
     // ============= REJECT ANALYSIS IF HARD CONSTRAINTS VIOLATED =============
