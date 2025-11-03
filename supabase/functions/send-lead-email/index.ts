@@ -126,7 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
     const reportUrl = `${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovableproject.com') || 'https://yourapp.com'}/demo-report`;
     
     const emailResponse = await resend.emails.send({
-      from: "H.I.T.S. System <onboarding@resend.dev>",
+      from: "HITS <hello@hits.com>",
       to: [email],
       subject: "Your Sample Swing Analysis Report",
       html: `
