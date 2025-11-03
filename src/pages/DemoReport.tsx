@@ -200,6 +200,240 @@ export default function DemoReport() {
           margin-bottom: 20px;
           border-radius: 8px;
         }
+        .swing-frames-section {
+          margin-bottom: 30px;
+        }
+        .frames-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          margin: 20px 0;
+        }
+        .frame-box {
+          text-align: center;
+        }
+        .frame-placeholder {
+          background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+          color: #F4C430;
+          height: 180px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          font-size: 24px;
+          font-weight: bold;
+          border: 2px solid #F4C430;
+          margin-bottom: 8px;
+        }
+        .frame-label {
+          font-size: 14px;
+          color: #666;
+        }
+        .comparison-box {
+          background: #f9f9f9;
+          padding: 25px;
+          border-radius: 12px;
+          border-left: 4px solid #F4C430;
+        }
+        .your-score-row {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 30px;
+          padding-bottom: 20px;
+          border-bottom: 2px solid #ddd;
+        }
+        .your-score-row .label {
+          min-width: 120px;
+          font-size: 16px;
+        }
+        .progress-bar-container {
+          flex: 1;
+          height: 30px;
+          background: #e5e7eb;
+          border-radius: 15px;
+          overflow: hidden;
+          position: relative;
+        }
+        .progress-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+          transition: width 0.3s ease;
+        }
+        .percentage {
+          min-width: 50px;
+          text-align: right;
+          font-weight: bold;
+          font-size: 18px;
+        }
+        .elite-scale {
+          margin: 20px 0;
+        }
+        .scale-row {
+          display: flex;
+          align-items: center;
+          padding: 12px;
+          margin-bottom: 8px;
+          border-radius: 6px;
+          background: white;
+        }
+        .scale-row.current {
+          background: #fef3c7;
+          border: 2px solid #F4C430;
+          font-weight: bold;
+        }
+        .scale-row .stars {
+          min-width: 120px;
+          font-size: 18px;
+        }
+        .scale-row .range {
+          flex: 1;
+        }
+        .scale-row .badge {
+          background: #F4C430;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: bold;
+        }
+        .percentile-callout {
+          text-align: center;
+          font-size: 18px;
+          margin-top: 20px;
+          padding: 15px;
+          background: white;
+          border-radius: 8px;
+        }
+        .training-plan-card {
+          background: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          border-left: 4px solid #F4C430;
+        }
+        .training-plan-card h4 {
+          margin: 0 0 15px 0;
+          font-size: 18px;
+        }
+        .drill-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .drill-list li {
+          padding: 8px 0;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        .drill-list li:last-child {
+          border-bottom: none;
+        }
+        .expected-gains {
+          background: linear-gradient(135deg, #F4C430 0%, #FFD700 100%);
+          padding: 25px;
+          border-radius: 12px;
+          margin-top: 30px;
+        }
+        .expected-gains h4 {
+          margin: 0 0 20px 0;
+          text-align: center;
+          font-size: 20px;
+        }
+        .gains-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+        }
+        .gain-item {
+          text-align: center;
+          background: white;
+          padding: 15px;
+          border-radius: 8px;
+        }
+        .gain-value {
+          font-size: 32px;
+          font-weight: bold;
+          color: #10b981;
+          margin-bottom: 5px;
+        }
+        .gain-label {
+          font-size: 14px;
+          color: #666;
+          text-transform: uppercase;
+        }
+        .testimonial-card {
+          background: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+          margin-bottom: 15px;
+          border-left: 4px solid #F4C430;
+        }
+        .testimonial-card .quote {
+          font-size: 16px;
+          font-style: italic;
+          margin-bottom: 10px;
+          color: #1a1a1a;
+        }
+        .testimonial-card .author {
+          font-size: 14px;
+          color: #666;
+          text-align: right;
+        }
+        .cta-card {
+          background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+          color: white;
+          padding: 30px;
+          border-radius: 12px;
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .cta-card h4 {
+          margin: 0 0 15px 0;
+          font-size: 24px;
+          color: #F4C430;
+        }
+        .cta-card p {
+          margin: 0 0 20px 0;
+          font-size: 16px;
+        }
+        .cta-button-container {
+          margin-top: 20px;
+        }
+        .cta-button {
+          background: #F4C430;
+          color: #1a1a1a;
+          border: none;
+          padding: 15px 40px;
+          border-radius: 8px;
+          font-size: 18px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+          background: #FFD700;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(244, 196, 48, 0.4);
+        }
+        .urgency-banner {
+          background: #fef3c7;
+          border: 2px solid #F4C430;
+          padding: 15px;
+          border-radius: 8px;
+          text-align: center;
+          font-size: 16px;
+        }
+        @media (max-width: 768px) {
+          .frames-grid {
+            grid-template-columns: 1fr;
+          }
+          .gains-grid {
+            grid-template-columns: 1fr;
+          }
+          .your-score-row {
+            flex-direction: column;
+            align-items: stretch;
+          }
+        }
       `}</style>
 
       <button className="print-button no-print" onClick={() => window.print()}>
@@ -212,8 +446,25 @@ export default function DemoReport() {
 
       <div className="header">
         <h1>SWING ANALYSIS REPORT</h1>
-        <div className="subtitle">Sample Analysis</div>
-        <div className="subtitle">Jan 15 - Feb 28, 2025</div>
+        <div className="subtitle">Sample Analysis • Jan 15 - Feb 28, 2025</div>
+      </div>
+
+      {/* Key Swing Frames Section */}
+      <div className="swing-frames-section">
+        <div className="frames-grid">
+          <div className="frame-box">
+            <div className="frame-placeholder">LOAD</div>
+            <div className="frame-label">Frame 119 • Weight Shift</div>
+          </div>
+          <div className="frame-box">
+            <div className="frame-placeholder">FIRE</div>
+            <div className="frame-label">Frame 120 • Hip Rotation</div>
+          </div>
+          <div className="frame-box">
+            <div className="frame-placeholder">CONTACT</div>
+            <div className="frame-label">Frame 193 • Impact Zone</div>
+          </div>
+        </div>
       </div>
 
       <div className="summary-box">
@@ -234,6 +485,48 @@ export default function DemoReport() {
             <div className="stat-value trend-positive">
               +12.8
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Elite Comparison Section */}
+      <div className="section">
+        <h3>How You Compare</h3>
+        <div className="comparison-box">
+          <div className="your-score-row">
+            <span className="label">Your Score: <strong>78.4</strong></span>
+            <div className="progress-bar-container">
+              <div className="progress-bar-fill" style={{ width: '78.4%' }}></div>
+            </div>
+            <span className="percentage">78%</span>
+          </div>
+          
+          <div className="elite-scale">
+            <div className="scale-row elite">
+              <span className="stars">⭐⭐⭐⭐⭐</span>
+              <span className="range">Elite MLB (90+)</span>
+            </div>
+            <div className="scale-row advanced">
+              <span className="stars">⭐⭐⭐⭐</span>
+              <span className="range">Advanced (80-89)</span>
+            </div>
+            <div className="scale-row good current">
+              <span className="stars">⭐⭐⭐</span>
+              <span className="range">Good (70-79)</span>
+              <span className="badge">← YOU ARE HERE</span>
+            </div>
+            <div className="scale-row developing">
+              <span className="stars">⭐⭐</span>
+              <span className="range">Developing (60-69)</span>
+            </div>
+            <div className="scale-row beginner">
+              <span className="stars">⭐</span>
+              <span className="range">Beginner (&lt;60)</span>
+            </div>
+          </div>
+          
+          <div className="percentile-callout">
+            🎯 You're in the <strong>top 40%</strong> of hitters!
           </div>
         </div>
       </div>
@@ -354,15 +647,91 @@ export default function DemoReport() {
         </div>
       </div>
 
+      {/* Personalized Training Plan */}
+      <div className="section">
+        <h3>Your Personalized Training Plan</h3>
+        
+        <div className="training-plan-card">
+          <h4>🎯 Week 1-2: ANCHOR (Front Leg)</h4>
+          <ul className="drill-list">
+            <li><strong>A2: Wall Push Drill</strong> - 10 reps • Focus on front leg stability</li>
+            <li><strong>A3: Step and Stick</strong> - 15 reps • Practice weight transfer</li>
+            <li><strong>A4: Resistance Band</strong> - 3 sets • Build leg strength</li>
+          </ul>
+        </div>
+
+        <div className="training-plan-card">
+          <h4>⚡ Week 3-4: ENGINE (Timing)</h4>
+          <ul className="drill-list">
+            <li><strong>E2: Shift-Turn Rhythm</strong> - 20 reps • Master 3:1 tempo ratio</li>
+            <li><strong>E4: Three-Step Rhythm</strong> - 15 reps • Load-stride-fire sequence</li>
+            <li><strong>E6: Separation Holds</strong> - 10 reps • Hip-shoulder connection</li>
+          </ul>
+        </div>
+
+        <div className="training-plan-card">
+          <h4>💥 Week 5-6: WHIP (Acceleration)</h4>
+          <ul className="drill-list">
+            <li><strong>W3: Overload/Underload</strong> - 10 reps each • Increase bat speed</li>
+            <li><strong>W5: One-Arm Swings</strong> - 15 reps per arm • Improve extension</li>
+            <li><strong>W7: Tee Exits</strong> - 20 reps • Focus on contact quality</li>
+          </ul>
+        </div>
+
+        <div className="expected-gains">
+          <h4>Expected Gains (6 Weeks)</h4>
+          <div className="gains-grid">
+            <div className="gain-item">
+              <div className="gain-value">+5-8 mph</div>
+              <div className="gain-label">Exit Velocity</div>
+            </div>
+            <div className="gain-item">
+              <div className="gain-value">+15-20 ft</div>
+              <div className="gain-label">Distance</div>
+            </div>
+            <div className="gain-item">
+              <div className="gain-value">+10-15 pts</div>
+              <div className="gain-label">HITS Score</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Social Proof */}
+      <div className="section">
+        <h3>Real Results from Athletes Like You</h3>
+        
+        <div className="testimonial-card">
+          <div className="quote">"Went from 68 to 84 in 8 weeks. Exit velo jumped from 82 to 89 mph."</div>
+          <div className="author">— Marcus T., 16U Travel Ball</div>
+        </div>
+
+        <div className="testimonial-card">
+          <div className="quote">"The 3:1 tempo was a game-changer. Seeing the data made it click."</div>
+          <div className="author">— Jake S., High School Varsity</div>
+        </div>
+
+        <div className="testimonial-card">
+          <div className="quote">"Coach Rick's feedback helped me understand what I was doing wrong. Now I'm hitting bombs."</div>
+          <div className="author">— Devon L., College Prospect</div>
+        </div>
+      </div>
+
       <div className="section">
         <h3>Next Steps</h3>
-        <div className="pillar-card">
-          <h4>Continue Training</h4>
-          <p>Keep working on your swing mechanics with focused drill work. Consistency is key to long-term improvement.</p>
+        
+        <div className="cta-card">
+          <h4>🚀 Ready to Get Your Full Analysis?</h4>
+          <p>Upload your swing video and get instant feedback on all three pillars.</p>
+          <div className="cta-button-container">
+            <button className="cta-button" onClick={() => navigate('/analyze')}>
+              Analyze My Swing Now
+            </button>
+          </div>
         </div>
-        <div className="pillar-card">
-          <h4>Schedule Your Next Analysis</h4>
-          <p>Regular video analysis helps track progress and identify areas for improvement. Aim for weekly or bi-weekly assessments.</p>
+
+        <div className="urgency-banner">
+          ⚡ <strong>Limited Time:</strong> First 100 athletes get personalized drill videos from Coach Rick
         </div>
       </div>
 
