@@ -12,15 +12,20 @@ import { FocusTodayCard } from "@/components/dashboard/FocusTodayCard";
 import { GrindScoreCard } from "@/components/GrindScoreCard";
 import { CoachRickChatBubble } from "@/components/CoachRickChatBubble";
 import { EquipmentOnboardingModal } from "@/components/EquipmentOnboardingModal";
+import { FreeSwingCounter } from "@/components/FreeSwingCounter";
 import { User, TrendingUp, Target, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTierAccess } from "@/hooks/useTierAccess";
+import { useUserMembership } from "@/hooks/useUserMembership";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const tierAccess = useTierAccess();
+  const { membership } = useUserMembership();
+  const { isCoach, isAdmin } = useUserRole();
   const [todaysProgram, setTodaysProgram] = useState<any>(null);
   const [showPromoRedeem, setShowPromoRedeem] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -140,6 +145,12 @@ export default function Dashboard() {
             <p className="text-muted-foreground">Let's build on yesterday's work</p>
           </div>
           <div className="flex items-center gap-2">
+            {!isCoach && !isAdmin && membership?.tier === 'free' && (
+              <FreeSwingCounter 
+                swingsUsed={membership.swingCount || 0}
+                swingsLimit={10}
+              />
+            )}
             <NotificationCenter />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
               <User className="h-5 w-5" />

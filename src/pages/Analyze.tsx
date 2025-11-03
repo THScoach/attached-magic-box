@@ -345,10 +345,49 @@ export default function Analyze() {
       return;
     }
 
-    // Require player selection
-    if (!selectedPlayerId) {
-      toast.error("Please select a player first");
-      return;
+    // Auto-create default player if none exist
+    let playerIdToUse = selectedPlayerId;
+    if (!playerIdToUse) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Please sign in to continue");
+        return;
+      }
+
+      // Check if user has any players
+      const { data: existingPlayers } = await supabase
+        .from('players')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      if (!existingPlayers || existingPlayers.length === 0) {
+        // Auto-create "Me" player
+        const { data: newPlayer, error: playerError } = await supabase
+          .from('players')
+          .insert({
+            user_id: user.id,
+            first_name: 'Me',
+            last_name: '',
+            is_active: true
+          })
+          .select()
+          .single();
+
+        if (playerError || !newPlayer) {
+          console.error('Failed to create default player:', playerError);
+          toast.error("Failed to create player profile");
+          return;
+        }
+
+        playerIdToUse = newPlayer.id;
+        setSelectedPlayerId(newPlayer.id);
+        toast.success("Player profile created!");
+      } else {
+        // Has players but none selected
+        toast.error("Please select a player first");
+        return;
+      }
     }
 
     setIsAnalyzing(true);
@@ -479,7 +518,7 @@ export default function Analyze() {
             keypoints: poseData,
             videoUrl: publicUrl,
             sessionId: currentSessionId,
-            playerId: selectedPlayerId,
+            playerId: playerIdToUse,
             videoType: videoType || 'practice',
             drillId: drillId,
             drillName: drillName

@@ -78,9 +78,37 @@ export function EquipmentOnboardingModal({
     }
   };
 
+  const handleSkip = async () => {
+    setIsSubmitting(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Mark as onboarded but skipped
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          equipment_onboarded: true,
+          equipment_skipped: true,
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("You can complete equipment setup anytime in Settings");
+      onComplete();
+    } catch (error) {
+      console.error("Skip error:", error);
+      toast.error("Failed to skip equipment setup");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md"  onInteractOutside={(e) => e.preventDefault()}>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleSkip()}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <CoachRickAvatar size="sm" />
@@ -133,21 +161,31 @@ export function EquipmentOnboardingModal({
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => handleSubmit()}
+              disabled={isSubmitting}
+              className="flex-1"
+            >
+              I don't have any tools yet
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="flex-1"
+            >
+              {isSubmitting ? "Saving..." : "Continue"}
+            </Button>
+          </div>
           <Button
-            variant="outline"
-            onClick={() => handleSubmit()}
+            variant="ghost"
+            onClick={handleSkip}
             disabled={isSubmitting}
-            className="flex-1"
+            className="w-full text-muted-foreground hover:text-foreground"
           >
-            I don't have any tools yet
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting || selectedEquipment.length === 0}
-            className="flex-1"
-          >
-            {isSubmitting ? "Saving..." : "Continue"}
+            Skip for now
           </Button>
         </div>
       </DialogContent>
