@@ -149,7 +149,9 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
 
       if (dbError) throw dbError;
 
-      // Mark as completed (uploaded, pending analysis)
+      // Mark as completed with the analysis ID
+      toast.success(`${video.file.name} uploaded successfully`);
+      
       setVideos(prev => prev.map((v, i) => 
         i === index ? { 
           ...v, 
