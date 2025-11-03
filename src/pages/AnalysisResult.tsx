@@ -756,11 +756,123 @@ export default function AnalysisResult() {
           </TabsContent>
 
           <TabsContent value="com" className="mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Video Player - Same as Video Tab */}
+              <Card className="overflow-hidden">
+                <div className="aspect-video bg-black relative group">
+                  {analysis.videoUrl ? (
+                    <>
+                      <video
+                        ref={videoRef}
+                        src={analysis.videoUrl}
+                        className="w-full h-full object-contain"
+                        onPlay={() => setIsPlaying(true)}
+                        onPause={() => setIsPlaying(false)}
+                        onEnded={() => setIsPlaying(false)}
+                        onError={handleVideoError}
+                        onLoadedMetadata={handleLoadedMetadata}
+                        onCanPlay={handleCanPlay}
+                        onCanPlayThrough={handleCanPlayThrough}
+                        onWaiting={handleWaiting}
+                        onTimeUpdate={handleTimeUpdate}
+                        loop
+                        playsInline
+                        preload="auto"
+                      />
+                      
+                      {/* Buffering Indicator */}
+                      {isBuffering && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent" />
+                            <p className="text-white text-sm">Loading video...</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Play/Pause Overlay */}
+                      <div 
+                        className={cn(
+                          "absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity",
+                          isBuffering ? "cursor-wait" : "cursor-pointer"
+                        )}
+                        onClick={togglePlayPause}
+                      >
+                        {isPlaying ? (
+                          <Pause className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+                        ) : (
+                          <Play className="h-20 w-20 text-white/80 group-hover:scale-110 transition-transform" />
+                        )}
+                      </div>
+
+                    {/* Bottom Controls - Simplified for side-by-side */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/90 to-transparent pt-8 pb-3 px-3">
+                      {/* Progress Bar */}
+                      <div 
+                        className="w-full h-1.5 bg-white/20 rounded-full mb-2 cursor-pointer group/progress hover:h-2 transition-all"
+                        onClick={handleSeek}
+                      >
+                        <div 
+                          className="h-full bg-primary rounded-full relative group-hover/progress:bg-primary/90 transition-colors"
+                          style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                        >
+                          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover/progress:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
+
+                      {/* Controls Row - Compact */}
+                      <div className="flex items-center gap-1 justify-center">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 w-7 p-0 text-white hover:bg-white/20"
+                          onClick={skipBackward}
+                          title="Back 1 second"
+                        >
+                          <SkipBack className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0 text-white hover:bg-white/20"
+                          onClick={togglePlayPause}
+                        >
+                          {isPlaying ? (
+                            <Pause className="h-4 w-4" />
+                          ) : (
+                            <Play className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 w-7 p-0 text-white hover:bg-white/20"
+                          onClick={skipForward}
+                          title="Forward 1 second"
+                        >
+                          <SkipForward className="h-3 w-3" />
+                        </Button>
+                        <div className="text-white text-xs font-mono ml-2">
+                          {formatTime(currentTime)} / {formatTime(duration)}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-white">
+                    <p>No video available</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* COM Path Graph */}
             <COMPathGraph 
               analysis={analysis}
               currentTime={currentTime}
               duration={duration}
             />
+          </div>
           </TabsContent>
         </Tabs>
 
