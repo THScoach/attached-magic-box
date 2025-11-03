@@ -462,6 +462,23 @@ export default function Analyze() {
         .from('swing-videos')
         .getPublicUrl(fileName);
 
+      // Step 1.5: Extract video metadata to detect frame rate
+      console.log('Extracting video metadata...');
+      const { extractVideoMetadata } = await import('@/lib/videoAnalysis');
+      let sourceFrameRate = 30; // Default
+      let samplingFrameRate = 30; // We always sample at 30fps
+      
+      try {
+        const metadata = await extractVideoMetadata(file);
+        sourceFrameRate = metadata.frameRate;
+        console.log(`Video metadata: ${metadata.width}x${metadata.height}, ${sourceFrameRate}fps, ${metadata.duration}s`);
+        if (sourceFrameRate === 240) {
+          console.log('⚠️ Detected iOS slow-motion video (240fps) - will adjust timing calculations');
+        }
+      } catch (metaError) {
+        console.warn('Could not extract video metadata, using defaults:', metaError);
+      }
+      
       // Step 2: Extract key frames for AI analysis
       console.log('Starting frame extraction...');
       
@@ -480,14 +497,14 @@ export default function Analyze() {
         return;
       }
 
-      // Step 3: Pose detection with MediaPipe
+      // Step 3: Pose detection with MediaPipe (pass sourceFrameRate for timestamp correction)
       console.log('Starting pose detection...');
       
       let poseData: any[] = [];
       try {
         poseData = await detectPoseInFrames(file, (progress) => {
           setUploadProgress(50 + progress * 0.2); // 50-70%
-        });
+        }, sourceFrameRate); // Pass frame rate for timestamp correction
         console.log(`Pose detection complete: ${poseData.length} frames with keypoints`);
         setUploadProgress(70);
         setAnalysisStep('Body positions detected! Analyzing biomechanics...');
@@ -528,8 +545,8 @@ export default function Analyze() {
             videoType: videoType || 'analysis',
             drillId: drillId,
             drillName: drillName,
-            sourceFrameRate: 30,  // Browser recording is always 30fps
-            samplingFrameRate: 30  // Same as source for in-app recording
+            sourceFrameRate: sourceFrameRate,  // Detected from video metadata (e.g., 240fps for iOS slow-mo)
+            samplingFrameRate: samplingFrameRate  // We sample at 30fps for pose detection
           }
         }
       );

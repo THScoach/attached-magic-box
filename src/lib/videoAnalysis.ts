@@ -260,7 +260,8 @@ export async function extractVideoFrames(
 
 export async function detectPoseInFrames(
   videoFile: File,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  sourceFrameRate?: number // Original capture frame rate (e.g., 240fps for iOS slow-mo)
 ): Promise<PoseData[]> {
   try {
     // Dynamically import MediaPipe Pose module
@@ -307,9 +308,17 @@ export async function detectPoseInFrames(
             score: landmark.visibility || 0
           }));
           
+          // Calculate real swing time if this is a slow-motion video
+          // For 240fps video sampled at 30fps: real_time = playback_time × (30/240) = playback_time × 0.125
+          const samplingRate = 30; // We sample at 30fps (processFrame every 33ms)
+          const playbackTime = video.currentTime * 1000; // milliseconds
+          const realTimestamp = sourceFrameRate && sourceFrameRate > samplingRate
+            ? playbackTime * (samplingRate / sourceFrameRate)
+            : playbackTime;
+          
           poseData.push({
             keypoints,
-            timestamp: video.currentTime * 1000 // Convert to milliseconds
+            timestamp: realTimestamp
           });
         }
         
