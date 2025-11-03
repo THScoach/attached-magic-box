@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { PlayerSelector } from "@/components/PlayerSelector";
 import { SyncRecording } from "@/components/SyncRecording";
 import { BatchVideoUpload } from "@/components/BatchVideoUpload";
+import { VideoTagModal } from "@/components/VideoTagModal";
 import { Upload, Camera, Loader2, X, Circle, Square, SwitchCamera, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -42,6 +43,9 @@ export default function Analyze() {
   const [recordedVideoFile, setRecordedVideoFile] = useState<File | null>(null);
   const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
   const [selectedPlayerName, setSelectedPlayerName] = useState<string | null>(null);
+  const [showTagModal, setShowTagModal] = useState(false);
+  const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
+  const [pendingVideoCamera, setPendingVideoCamera] = useState<1 | 2 | undefined>(undefined);
   
   // Update sessionStorage when player changes
   useEffect(() => {
@@ -298,7 +302,13 @@ export default function Analyze() {
     setRecordedVideoUrl(null);
   };
 
-  const processVideoFile = async (file: File, camera?: 1 | 2) => {
+  const processVideoFile = async (
+    file: File, 
+    camera?: 1 | 2,
+    videoType?: string,
+    drillId?: string,
+    drillName?: string
+  ) => {
     // Check swing limit for free tier users (10 free swings) - but not for coaches/admins
     if (!isCoach && !isAdmin && membership?.tier === 'free' && (membership.swingCount || 0) >= 10) {
       toast.error("Free swing limit reached", {
@@ -470,7 +480,9 @@ export default function Analyze() {
             videoUrl: publicUrl,
             sessionId: currentSessionId,
             playerId: selectedPlayerId,
-            videoType: videoType
+            videoType: videoType || 'practice',
+            drillId: drillId,
+            drillName: drillName
           }
         }
       );
@@ -675,7 +687,32 @@ export default function Analyze() {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, camera?: 1 | 2) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    await processVideoFile(file, camera);
+    
+    // If dual camera mode, just process directly
+    if (dualCameraMode && camera) {
+      await processVideoFile(file, camera);
+      return;
+    }
+    
+    // Otherwise show tagging modal
+    setPendingVideoFile(file);
+    setPendingVideoCamera(camera);
+    setShowTagModal(true);
+  };
+
+  const handleTagSubmit = (data: { videoType: string; drillId?: string; drillName?: string }) => {
+    if (pendingVideoFile) {
+      processVideoFile(
+        pendingVideoFile, 
+        pendingVideoCamera,
+        data.videoType,
+        data.drillId,
+        data.drillName
+      );
+      setPendingVideoFile(null);
+      setPendingVideoCamera(undefined);
+    }
+    setShowTagModal(false);
   };
 
   return (
@@ -1249,6 +1286,15 @@ export default function Analyze() {
           toast.success("Both videos ready! Click 'Analyze with Dual Cameras' to proceed.");
         }}
       />
+
+      <VideoTagModal 
+        open={showTagModal}
+        onOpenChange={setShowTagModal}
+        onSubmit={handleTagSubmit}
+        videoFileName={pendingVideoFile?.name}
+      />
+
+      <BottomNav />
     </div>
   );
 }

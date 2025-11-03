@@ -8,6 +8,7 @@ import { Upload, Loader2, CheckCircle2, XCircle, FileVideo, Video } from "lucide
 import { useNavigate } from "react-router-dom";
 import { extractVideoMetadata } from "@/lib/videoAnalysis";
 import { Pose } from "@mediapipe/pose";
+import { VideoTagModal } from "@/components/VideoTagModal";
 
 interface BatchVideoUploadProps {
   playerId: string;
@@ -17,7 +18,7 @@ interface BatchVideoUploadProps {
 
 interface VideoUploadStatus {
   file: File;
-  status: 'pending' | 'uploading' | 'analyzing' | 'completed' | 'error';
+  status: 'pending' | 'tagging' | 'uploading' | 'analyzing' | 'completed' | 'error';
   progress: number;
   error?: string;
   analysisId?: string;
@@ -26,12 +27,17 @@ interface VideoUploadStatus {
   height?: number;
   duration?: number;
   isExtractingMetadata?: boolean;
+  videoType?: string;
+  drillId?: string;
+  drillName?: string;
 }
 
 export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: BatchVideoUploadProps) {
   const navigate = useNavigate();
   const [videos, setVideos] = useState<VideoUploadStatus[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showTagModal, setShowTagModal] = useState(false);
+  const [currentTaggingIndex, setCurrentTaggingIndex] = useState<number | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -52,15 +58,21 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         return true;
       });
 
-      // Add videos with pending metadata extraction
+      // Add videos with tagging status
       const newVideos: VideoUploadStatus[] = validFiles.map(file => ({
         file,
-        status: 'pending',
+        status: 'tagging',
         progress: 0,
         isExtractingMetadata: true
       }));
 
       setVideos(prev => [...prev, ...newVideos]);
+      
+      // Show tagging modal for first video
+      if (validFiles.length > 0) {
+        setCurrentTaggingIndex(videos.length);
+        setShowTagModal(true);
+      }
       
       // Extract metadata for each video
       const startIndex = videos.length;
@@ -90,7 +102,33 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         }
       }
 
-      toast.success(`${validFiles.length} video${validFiles.length > 1 ? 's' : ''} added`);
+    }
+  };
+
+  const handleTagSubmit = (data: { videoType: string; drillId?: string; drillName?: string }) => {
+    if (currentTaggingIndex === null) return;
+
+    // Update the video with tag data
+    setVideos(prev => prev.map((v, i) => 
+      i === currentTaggingIndex 
+        ? { 
+            ...v, 
+            status: 'pending',
+            videoType: data.videoType,
+            drillId: data.drillId,
+            drillName: data.drillName
+          }
+        : v
+    ));
+
+    // Check if there are more videos to tag
+    const nextIndex = currentTaggingIndex + 1;
+    if (nextIndex < videos.length && videos[nextIndex].status === 'tagging') {
+      setCurrentTaggingIndex(nextIndex);
+    } else {
+      setShowTagModal(false);
+      setCurrentTaggingIndex(null);
+      toast.success(`${videos.length} video${videos.length > 1 ? 's' : ''} tagged and ready to process`);
     }
   };
 
@@ -223,12 +261,14 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         .from('swing-videos')
         .getPublicUrl(fileName);
 
-      // Send to analyze-swing edge function with pose data
+      // Send to analyze-swing edge function with pose data and tag metadata
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-swing', {
         body: {
           videoUrl: publicUrl,
           playerId: playerId,
-          videoType: 'analysis',
+          videoType: video.videoType || 'practice',
+          drillId: video.drillId,
+          drillName: video.drillName,
           keypoints: poseData,
           frames: poseData.length
         }
@@ -327,8 +367,10 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
 
   const getStatusText = (status: VideoUploadStatus['status']) => {
     switch (status) {
+      case 'tagging':
+        return 'Needs tagging';
       case 'pending':
-        return 'Pending';
+        return 'Ready to process';
       case 'uploading':
         return 'Uploading...';
       case 'analyzing':
@@ -476,13 +518,17 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         {videos.length > 0 && (
           <Button
             onClick={handleStartProcessing}
-            disabled={isProcessing || videos.every(v => v.status !== 'pending')}
+            disabled={isProcessing || videos.every(v => v.status !== 'pending') || videos.some(v => v.status === 'tagging')}
             className="w-full"
           >
             {isProcessing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Processing...
+              </>
+            ) : videos.some(v => v.status === 'tagging') ? (
+              <>
+                Complete tagging before processing
               </>
             ) : (
               <>
@@ -495,11 +541,22 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
 
         {/* Info text */}
         <div className="text-xs text-muted-foreground space-y-1">
+          <p>• Tag each video before processing</p>
           <p>• Videos will be processed one at a time</p>
           <p>• Each video must be under 100MB</p>
           <p>• Processing may take 1-2 minutes per video</p>
         </div>
+
+        <video ref={videoRef} style={{ display: 'none' }} />
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
       </CardContent>
+
+      <VideoTagModal 
+        open={showTagModal}
+        onOpenChange={setShowTagModal}
+        onSubmit={handleTagSubmit}
+        videoFileName={currentTaggingIndex !== null ? videos[currentTaggingIndex]?.file.name : undefined}
+      />
     </Card>
   );
 }
