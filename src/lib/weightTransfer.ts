@@ -90,6 +90,9 @@ function calculateVerticalMovement(frameData: FrameJointData[]): number | null {
   let maxY = -Infinity;
   
   for (const frame of frameData) {
+    // Safety check for joints
+    if (!frame.joints) continue;
+    
     const leftHip = frame.joints['left_hip'];
     const rightHip = frame.joints['right_hip'];
     
@@ -123,6 +126,9 @@ function calculateCOMTimingPattern(frameData: FrameJointData[]): { peak: number 
   for (let i = 1; i < frameData.length; i++) {
     const prevFrame = frameData[i - 1];
     const currFrame = frameData[i];
+    
+    // Safety check for joints
+    if (!prevFrame.joints || !currFrame.joints) continue;
     
     const prevLeftHip = prevFrame.joints['left_hip'];
     const prevRightHip = prevFrame.joints['right_hip'];
@@ -171,6 +177,9 @@ function calculateBackFootLift(frameData: FrameJointData[]): number | null {
   let baselineCount = 0;
   
   for (const frame of stanceFrames) {
+    // Safety check for joints
+    if (!frame.joints) continue;
+    
     const rearAnkle = frame.joints['right_ankle'] || frame.joints['left_ankle'];
     if (rearAnkle && rearAnkle.confidence > 0.5) {
       baselineY += rearAnkle.y;
@@ -186,6 +195,9 @@ function calculateBackFootLift(frameData: FrameJointData[]): number | null {
   
   for (const frame of frameData) {
     if (frame.phase === 'fire' || frame.phase === 'contact' || frame.phase === 'follow_through') {
+      // Safety check for joints
+      if (!frame.joints) continue;
+      
       const rearAnkle = frame.joints['right_ankle'] || frame.joints['left_ankle'];
       
       if (rearAnkle && rearAnkle.confidence > 0.5) {
@@ -221,6 +233,9 @@ function calculateCOMAcceleration(frameData: FrameJointData[]): { peak: number |
     const f1 = frameData[i - 2];
     const f2 = frameData[i - 1];
     const f3 = frameData[i];
+    
+    // Safety check for joints
+    if (!f1.joints || !f2.joints || !f3.joints) continue;
     
     const h1L = f1.joints['left_hip'];
     const h1R = f1.joints['right_hip'];
