@@ -275,16 +275,19 @@ Formula: Tempo = (FireStart - LoadStart) / (Contact - FireStart)
 FireStart is the moment when the pelvis begins FORWARD acceleration after the load phase. Working backwards from Contact:
 
 **Search Window for FireStart (relative to Contact frame):**
-- Scan frames from 0-250ms BEFORE contact frame
-- Elite range: 150-250ms before contact
+- Scan frames from 0-300ms BEFORE contact frame (EXPANDED WINDOW)
+- Elite range: 180-280ms before contact (ADJUSTED FOR BETTER DETECTION)
 - Freeman example: ~243ms before contact (Frame 120, immediately after Max Load at Frame 119)
 
-**FireStart Movement Cues:**
-1. **Front Foot Landing:** Front foot plants firmly on ground (most reliable cue)
-2. **Pelvis Forward Rotation Begins:** Hips start rotating toward pitcher (not back anymore)
-3. **Weight Transfer Forward:** COM begins aggressive forward movement
-4. **Hip Acceleration:** First sustained forward pelvis acceleration (≥3-5 frames)
-5. **Separation Maintained:** Hands still back while hips fire (X-Factor maintained)
+**FireStart Movement Cues (PRIORITIZED - check ALL cues, use EARLIEST detection):**
+1. **Front Foot Begins Descent:** Front foot starts moving DOWN toward ground (EARLIEST CUE - often 200-280ms before contact)
+2. **Pelvis Forward Rotation INITIATES:** Hips show FIRST forward rotation (even 2-3°, don't wait for aggressive rotation)
+3. **Weight Shift Begins:** COM shows FIRST forward movement after load (even 0.5-1 inches)
+4. **Front Knee Extension Begins:** Front leg starts to straighten/extend from flexed position
+5. **Back Hip Forward Push:** Back hip shows forward drive motion
+6. **Separation Visible:** Hands still back while hips begin to move (X-Factor maintained)
+
+**CRITICAL: Be AGGRESSIVE in detecting FireStart - it typically occurs 180-280ms before contact. If uncertain between two frames, choose the EARLIER frame.**
 
 **Timing Relationship:**
 - FireStart occurs IMMEDIATELY AFTER Max Load position
@@ -811,10 +814,12 @@ Provide detailed scores and analysis in this exact JSON format:
       validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms exceeds maximum 400ms - Load Start detected too early or including pre-swing setup`);
     }
 
-    // Constraint 3: Fire Duration (0.15 to 0.30 seconds) - UPDATED for backward timing
+    // Constraint 3: Fire Duration (0.13 to 0.30 seconds) - UPDATED for backward timing with relaxed minimum
     const fireDuration = fireStartAbs;
-    if (fireDuration < 150) {
-      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms below minimum 150ms - Physiologically impossible, Fire Start detected too late`);
+    if (fireDuration < 130) {
+      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms below minimum 130ms - Physiologically impossible, Fire Start detected too late or video missing key frames`);
+    } else if (fireDuration < 150) {
+      validationWarnings.push(`⚠️ Fire duration ${fireDuration}ms is short (typical: 180-250ms) - May indicate late detection or rapid swing`);
     } else if (fireDuration > 300) {
       validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms exceeds maximum 300ms - Fire Start detected too early`);
     }
