@@ -7,11 +7,11 @@ import { Link } from "react-router-dom";
 
 export default function Pricing() {
   const handleCheckout = (tier: 'challenge' | 'diy' | 'elite') => {
-    // These URLs will be set in your .env file after creating Whop products
+    // Real Whop checkout URLs
     const urls = {
-      challenge: import.meta.env.VITE_WHOP_CHALLENGE_URL || 'https://whop.com/the-hitting-skool/challenge-997/',
-      diy: import.meta.env.VITE_WHOP_DIY_URL || 'https://whop.com/the-hitting-skool/diy-annual-297/',
-      elite: import.meta.env.VITE_WHOP_ELITE_URL || 'https://whop.com/the-hitting-skool/elite-annual-997/',
+      challenge: 'https://whop.com/the-hitting-skool/297-b6/',
+      diy: 'https://whop.com/the-hitting-skool/diy-annual/',
+      elite: 'https://whop.com/the-hitting-skool/elite-90-day-transformation/',
     };
 
     // Open Whop checkout in same tab

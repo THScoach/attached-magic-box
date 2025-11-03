@@ -231,19 +231,25 @@ async function handlePaymentFailed(supabase: any, payload: any) {
 
 function mapPlanToTier(planId: string): string {
   // Map your Whop product IDs to membership tiers
-  // Update these with your actual Whop product IDs from dashboard
+  // Real product IDs from Whop dashboard
   const planMapping: Record<string, string> = {
-    // Challenge (7-Day Trial)
+    // Challenge (7-Day) - Real product ID
+    '297-b6': 'challenge',
     'prod_challenge': 'challenge',
     'prod_7day': 'challenge',
     
-    // DIY Platform
+    // DIY Platform - Real product ID
+    'diy-annual': 'diy',
     'prod_diy': 'diy',
     'prod_diy_annual': 'diy',
     
-    // Elite Transformation
+    // Elite Transformation - Real product ID
+    'elite-90-day-transformation': 'elite',
     'prod_elite': 'elite',
     'prod_elite_annual': 'elite',
+    
+    // Free tier - Real product ID
+    'hits-free': 'free',
     
     // Legacy IDs (keep for backwards compatibility)
     'prod_WfvSV2wW8AwTc': 'challenge',

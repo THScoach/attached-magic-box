@@ -3,8 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Check, ArrowLeft, Calendar } from "lucide-react";
 import { HitsLogo, HitsMonogram } from "@/components/HitsLogo";
+import { useTierAccess } from "@/hooks/useTierAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 export default function BookCall() {
+  const { canBook1on1 } = useTierAccess();
+
+  // Show upgrade prompt if user doesn't have Elite access
+  if (!canBook1on1) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full">
+          <UpgradePrompt context="book_call" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}

@@ -6,6 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, X } from "lucide-react";
 import { SwingAnalysis } from "@/types/swing";
 import { toast } from "sonner";
+import { useTierAccess } from "@/hooks/useTierAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 interface Message {
   role: "user" | "assistant";
@@ -18,6 +20,7 @@ interface CoachRickChatProps {
 }
 
 export function CoachRickChat({ analysis, onClose }: CoachRickChatProps) {
+  const { canAccessCoachRick } = useTierAccess();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -27,6 +30,17 @@ export function CoachRickChat({ analysis, onClose }: CoachRickChatProps) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Show upgrade prompt if user doesn't have access
+  if (!canAccessCoachRick) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <UpgradePrompt context="coach_rick" onClose={onClose} />
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (scrollRef.current) {
