@@ -14,6 +14,7 @@ import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { DetailedMetricsView } from "@/components/DetailedMetricsView";
 import { COMPathGraph } from "@/components/COMPathGraph";
 import { COMPhaseMetrics } from "@/components/COMPhaseMetrics";
+import { SwingAvatar3D } from "@/components/SwingAvatar3D";
 import { VideoKeyMomentOverlay } from "@/components/VideoKeyMomentOverlay";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -757,9 +758,11 @@ export default function AnalysisResult() {
           </TabsContent>
 
           <TabsContent value="com" className="mt-4 space-y-4">
-            {/* Video Player - Full Width on Mobile, Side-by-side on Desktop */}
-            <Card className="overflow-hidden">
-              <div className="aspect-video bg-black relative group">
+            {/* Video and 3D Avatar Side-by-Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Video Player */}
+              <Card className="overflow-hidden">
+                <div className="aspect-video bg-black relative group">
                 {analysis.videoUrl ? (
                   <>
                     <video
@@ -866,8 +869,26 @@ export default function AnalysisResult() {
             </div>
           </Card>
 
-          {/* COM Analysis Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* 3D Avatar */}
+              <Card className="overflow-hidden">
+                <div className="bg-gradient-to-br from-primary/5 to-primary/10 border-b px-4 py-2">
+                  <h3 className="font-semibold text-sm flex items-center gap-2">
+                    <span className="text-primary">●</span>
+                    3D Motion Capture
+                  </h3>
+                </div>
+                <div className="aspect-video">
+                  <SwingAvatar3D 
+                    poseData={jointData}
+                    currentTime={currentTime}
+                    duration={duration}
+                  />
+                </div>
+              </Card>
+            </div>
+
+        {/* COM Analysis Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* COM Path Graph with Interactive Features */}
             <COMPathGraph 
               analysis={analysis}
