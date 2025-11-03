@@ -804,14 +804,16 @@ Provide detailed scores and analysis in this exact JSON format:
       validationErrors.push(`CRITICAL: Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 exceeds maximum 5.0:1 - Unrealistic tempo indicates detection error`);
     }
 
-    // Constraint 2: Load Duration (0.10 to 0.40 seconds) - UPDATED for backward timing
+    // Constraint 2: Load Duration (0.10 to 0.50 seconds) - UPDATED for backward timing with relaxed maximum
     const loadDuration = loadStartAbs - fireStartAbs;
     if (loadDuration < 100) {
       validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms below minimum 100ms - Load Start detected too late or too close to Fire`);
     } else if (loadDuration < 150) {
       validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is short (typical: 150-300ms) - May indicate aggressive swing or partial video capture`);
+    } else if (loadDuration > 500) {
+      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms exceeds maximum 500ms - Load Start detected too early or including pre-swing setup`);
     } else if (loadDuration > 400) {
-      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms exceeds maximum 400ms - Load Start detected too early or including pre-swing setup`);
+      validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is longer than typical (150-300ms) - May include some pre-swing movement`);
     }
 
     // Constraint 3: Fire Duration (0.13 to 0.30 seconds) - UPDATED for backward timing with relaxed minimum
