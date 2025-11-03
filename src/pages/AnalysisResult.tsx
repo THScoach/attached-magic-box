@@ -46,6 +46,8 @@ export default function AnalysisResult() {
   const [duration, setDuration] = useState(0);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isBuffering, setIsBuffering] = useState(true);
+  const [pausedMoments, setPausedMoments] = useState<Set<string>>(new Set());
+  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const frameCallbackIdRef = useRef<number | null>(null);
   const FPS = 30; // Frames per second
@@ -457,9 +459,76 @@ export default function AnalysisResult() {
   };
 
   const handleTimeUpdate = () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !analysis) return;
     const time = videoRef.current.currentTime;
     setCurrentTime(time);
+
+    // Auto-pause at key moments if video is playing
+    if (isPlaying) {
+      const tolerance = 0.05; // 50ms tolerance
+      const keyMoments = [
+        { time: duration - Math.abs(analysis.loadStartTiming || 900) / 1000, label: "Load Start" },
+        { time: duration - Math.abs(analysis.fireStartTiming || 340) / 1000, label: "Fire Phase" },
+        { time: duration - Math.abs(analysis.pelvisTiming || 180) / 1000, label: "Pelvis Peak" },
+        { time: duration - Math.abs(analysis.torsoTiming || 120) / 1000, label: "Torso Peak" },
+        { time: duration - Math.abs(analysis.handsTiming || 60) / 1000, label: "Hands Peak" },
+        { time: duration, label: "Contact" }
+      ];
+
+      for (const moment of keyMoments) {
+        const momentKey = `${moment.label}-${moment.time.toFixed(2)}`;
+        if (Math.abs(time - moment.time) < tolerance && !pausedMoments.has(momentKey)) {
+          // Pause the video
+          videoRef.current.pause();
+          setIsPlaying(false);
+          
+          // Mark this moment as paused
+          setPausedMoments(prev => new Set(prev).add(momentKey));
+          
+          // Resume after 1.5 seconds
+          if (pauseTimeoutRef.current) {
+            clearTimeout(pauseTimeoutRef.current);
+          }
+          pauseTimeoutRef.current = setTimeout(() => {
+            if (videoRef.current) {
+              videoRef.current.play();
+              setIsPlaying(true);
+            }
+          }, 1500);
+          
+          break; // Only pause for one moment at a time
+        }
+      }
+    }
+  };
+
+  // Clear pause timeout and reset paused moments when video loops
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleEnded = () => {
+      setPausedMoments(new Set());
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
+    };
+
+    video.addEventListener('ended', handleEnded);
+    return () => {
+      video.removeEventListener('ended', handleEnded);
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Reset paused moments when seeking manually
+  const resetPausedMoments = () => {
+    setPausedMoments(new Set());
+    if (pauseTimeoutRef.current) {
+      clearTimeout(pauseTimeoutRef.current);
+    }
   };
 
   const handleLoadedMetadata = () => {
@@ -645,6 +714,14 @@ export default function AnalysisResult() {
                       duration={duration}
                       videoWidth={videoRef.current?.videoWidth || 1920}
                       videoHeight={videoRef.current?.videoHeight || 1080}
+                      onSeekToMoment={(time) => {
+                        if (videoRef.current) {
+                          resetPausedMoments();
+                          videoRef.current.currentTime = time;
+                          videoRef.current.pause();
+                          setIsPlaying(false);
+                        }
+                      }}
                     />
 
                     {/* Play/Pause Overlay */}

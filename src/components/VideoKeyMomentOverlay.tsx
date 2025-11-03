@@ -6,6 +6,8 @@ interface VideoKeyMomentOverlayProps {
   duration: number;
   videoWidth: number;
   videoHeight: number;
+  onSeekToMoment: (time: number) => void;
+  onPauseAtMoment?: (time: number) => void;
 }
 
 export function VideoKeyMomentOverlay({ 
@@ -13,7 +15,9 @@ export function VideoKeyMomentOverlay({
   currentTime, 
   duration, 
   videoWidth, 
-  videoHeight 
+  videoHeight,
+  onSeekToMoment,
+  onPauseAtMoment
 }: VideoKeyMomentOverlayProps) {
   // Convert ms timing to seconds for comparison with video currentTime
   const loadStartTime = duration - Math.abs(analysis.loadStartTiming || 900) / 1000;
@@ -130,41 +134,34 @@ export function VideoKeyMomentOverlay({
         </div>
       )}
 
-      {/* Bottom Timeline with Key Moments */}
-      <div className="absolute bottom-20 left-0 right-0 px-6">
-        <div className="relative h-2 bg-black/20 rounded-full">
+      {/* Key Moment Navigation Buttons */}
+      <div className="absolute bottom-4 left-0 right-0 px-4">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
           {keyMoments.map((moment, index) => {
-            const position = (moment.time / duration) * 100;
-            const isPast = currentTime > moment.time;
             const isActive = activeMoment?.time === moment.time;
+            const isPast = currentTime > moment.time;
             
             return (
-              <div
+              <button
                 key={index}
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 group"
-                style={{ left: `${position}%` }}
+                onClick={() => onSeekToMoment(moment.time)}
+                className="group relative px-3 py-1.5 rounded-full text-xs font-semibold text-white transition-all hover:scale-105 active:scale-95 pointer-events-auto"
+                style={{
+                  backgroundColor: isActive ? moment.color : isPast ? `${moment.color}80` : `${moment.color}40`,
+                  boxShadow: isActive ? `0 0 20px ${moment.color}` : 'none',
+                  border: `1px solid ${moment.color}`
+                }}
               >
-                {/* Marker dot */}
-                <div 
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    isActive ? 'scale-150 animate-pulse' : isPast ? 'scale-100' : 'scale-75'
-                  }`}
-                  style={{
-                    backgroundColor: moment.color,
-                    boxShadow: isActive ? `0 0 20px ${moment.color}` : 'none'
-                  }}
-                />
-                
-                {/* Label on hover */}
-                <div 
-                  className="absolute bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-1 rounded text-xs font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
-                  style={{
-                    backgroundColor: moment.color
-                  }}
-                >
-                  {moment.label}
-                </div>
-              </div>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-base">{moment.icon}</span>
+                  <span>{moment.label}</span>
+                  {moment.velocity && (
+                    <span className="text-[10px] opacity-80">
+                      {Math.round(moment.velocity)}°/s
+                    </span>
+                  )}
+                </span>
+              </button>
             );
           })}
         </div>
