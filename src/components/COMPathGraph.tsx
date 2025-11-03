@@ -153,6 +153,10 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
       ctx.beginPath();
       ctx.arc(startPos.x, startPos.y, 8, 0, Math.PI * 2);
       ctx.fill();
+      
+      // White background for start label
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillRect(startPos.x - 30, startPos.y + 8, 80, 16);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       ctx.font = 'bold 11px sans-serif';
       ctx.fillText('Start (Stance)', startPos.x - 25, startPos.y + 20);
@@ -168,36 +172,57 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
       ctx.shadowBlur = 0;
 
       // Draw phase labels
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
       ctx.font = 'bold 10px sans-serif';
       
       // Loading phase
       const loadPos = getCOMPosition(0.2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillRect(loadPos.x - 16, loadPos.y + 13, 32, 16);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       ctx.fillText('Load', loadPos.x - 12, loadPos.y + 25);
       
       // Weight shift phase  
       const shiftPos = getCOMPosition(0.5);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillRect(shiftPos.x - 16, shiftPos.y - 27, 32, 16);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       ctx.fillText('Shift', shiftPos.x - 12, shiftPos.y - 15);
       
       // Drive phase
       const drivePos = getCOMPosition(0.85);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillRect(drivePos.x - 19, drivePos.y - 27, 38, 16);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       ctx.fillText('Drive', drivePos.x - 15, drivePos.y - 15);
 
       // Draw axis labels
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
       ctx.font = '11px sans-serif';
+      
+      // Bottom axis label
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillRect(width / 2 - 65, height - 22, 150, 16);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       ctx.fillText('Forward Progress (inches)', width / 2 - 60, height - 10);
+      
+      // Left axis label (rotated)
       ctx.save();
       ctx.translate(15, height / 2 + 30);
       ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillRect(-45, -6, 90, 16);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       ctx.fillText('Vertical Position', 0, 0);
       ctx.restore();
 
       // Draw current distance traveled
       const currentDistance = Math.round(comDistance * progress);
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+      const distanceText = `${currentDistance}" forward`;
       ctx.font = 'bold 12px sans-serif';
-      ctx.fillText(`${currentDistance}" forward`, currentPos.x + 15, currentPos.y);
+      const distanceTextWidth = ctx.measureText(distanceText).width;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillRect(currentPos.x + 12, currentPos.y - 10, distanceTextWidth + 6, 16);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+      ctx.fillText(distanceText, currentPos.x + 15, currentPos.y);
 
       animationFrameId = requestAnimationFrame(draw);
     };
