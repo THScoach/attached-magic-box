@@ -22,6 +22,7 @@ export default function Analyze() {
   const { isCoach, isAdmin } = useUserRole();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [analysisStep, setAnalysisStep] = useState<string>('');
   const [isRecording, setIsRecording] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [actualFps, setActualFps] = useState<number>(0);
@@ -391,10 +392,13 @@ export default function Analyze() {
     }
 
     setIsAnalyzing(true);
-    setUploadProgress(10);
+    setUploadProgress(5);
+    setAnalysisStep('Preparing video...');
 
     try {
       // Step 1: Upload video(s) to storage with retry logic
+      setAnalysisStep('Uploading video to cloud storage...');
+      setUploadProgress(10);
       const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       
       console.log('Uploading file:', fileName, 'Size:', file.size, 'Type:', file.type);
@@ -451,6 +455,7 @@ export default function Analyze() {
       }
 
       setUploadProgress(30);
+      setAnalysisStep('Upload complete! Extracting video frames...');
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
@@ -459,13 +464,13 @@ export default function Analyze() {
 
       // Step 2: Extract key frames for AI analysis
       console.log('Starting frame extraction...');
-      toast.info("Extracting frames from video...");
       
       let frames: string[] = [];
       try {
         frames = await extractVideoFrames(file, 8);
         console.log(`Frame extraction complete: ${frames.length} frames extracted`);
         setUploadProgress(50);
+        setAnalysisStep('Frames extracted! Detecting body positions...');
       } catch (frameError) {
         console.error('Frame extraction failed:', frameError);
         toast.error("Failed to process video frames", {
@@ -477,7 +482,6 @@ export default function Analyze() {
 
       // Step 3: Pose detection with MediaPipe
       console.log('Starting pose detection...');
-      toast.info("Detecting body keypoints...");
       
       let poseData: any[] = [];
       try {
@@ -486,6 +490,7 @@ export default function Analyze() {
         });
         console.log(`Pose detection complete: ${poseData.length} frames with keypoints`);
         setUploadProgress(70);
+        setAnalysisStep('Body positions detected! Analyzing biomechanics...');
       } catch (poseError) {
         console.error('Pose detection failed:', poseError);
         console.log('Continuing without pose data...');
@@ -509,7 +514,8 @@ export default function Analyze() {
       });
 
       // Step 4: Analyze with AI
-      toast.info("Analyzing swing biomechanics...");
+      setUploadProgress(75);
+      setAnalysisStep('Running AI biomechanics analysis...');
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
         'analyze-swing',
         {
@@ -673,7 +679,8 @@ export default function Analyze() {
         return;
       }
 
-      setUploadProgress(100);
+      setUploadProgress(95);
+      setAnalysisStep('Analysis complete! Preparing results...');
 
       const analysis = {
         id: Date.now().toString(),
@@ -1286,15 +1293,21 @@ export default function Analyze() {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="space-y-3">
+                <div className="h-3 bg-muted rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-primary transition-all duration-300"
+                    className="h-full bg-primary transition-all duration-500 ease-out"
                     style={{ width: `${uploadProgress}%` }}
                   />
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {uploadProgress < 100 ? 'Uploading video...' : 'Processing analysis...'}
+                <div className="flex items-center justify-center gap-2">
+                  <div className="h-2 w-2 bg-primary rounded-full animate-pulse" />
+                  <p className="text-sm font-medium text-foreground">
+                    {analysisStep || 'Starting analysis...'}
+                  </p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {uploadProgress}% complete
                 </p>
               </div>
 
