@@ -3,16 +3,42 @@ import { Progress } from "@/components/ui/progress";
 import { SwingAnalysis } from "@/types/swing";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { TrendingUp, Target, Zap } from "lucide-react";
+import { 
+  calculateDirectionScore, 
+  calculateTimingScore, 
+  calculateEfficiencyScore,
+  calculateSwingMechanicsQuality 
+} from "@/lib/swingMechanicsQuality";
 
 interface BatSpeedQualityCardProps {
   analysis: SwingAnalysis;
 }
 
 export function BatSpeedQualityCard({ analysis }: BatSpeedQualityCardProps) {
-  const qualityScore = analysis.swingMechanicsQualityScore || 0;
-  const directionScore = analysis.directionScore || 0;
-  const timingScore = analysis.timingScore || 0;
-  const efficiencyScore = analysis.efficiencyScore || 0;
+  // Calculate scores using library functions
+  const attackAngle = analysis.attackAngle || 10;
+  const batPathPlane = analysis.batPathPlane || 10;
+  const connectionQuality = analysis.connectionQuality || 85;
+  
+  const tempoRatio = analysis.tempoRatio || 2.5;
+  const sequenceQuality = analysis.sequenceQuality || 85;
+  const accelerationPattern = analysis.accelerationPattern || 85;
+  
+  const hipShoulderSeparation = Math.abs(analysis.xFactor || 40);
+  const balanceScore = analysis.balanceScore || 85;
+  
+  const directionScore = calculateDirectionScore(attackAngle, batPathPlane, connectionQuality);
+  const timingScore = calculateTimingScore(tempoRatio, sequenceQuality, accelerationPattern);
+  const efficiencyScore = calculateEfficiencyScore(hipShoulderSeparation, connectionQuality, balanceScore);
+  
+  const mechanicsQuality = calculateSwingMechanicsQuality(
+    directionScore,
+    timingScore,
+    efficiencyScore,
+    analysis.batMaxVelocity
+  );
+  
+  const qualityScore = mechanicsQuality.overallScore;
   const predictedSpeed = analysis.batMaxVelocity || 72;
 
   // Determine quality level
@@ -60,7 +86,7 @@ export function BatSpeedQualityCard({ analysis }: BatSpeedQualityCardProps) {
             {quality.label} Quality
           </div>
           <div className="text-sm text-muted-foreground mt-2">
-            Predicted Bat Speed: {(predictedSpeed - 3).toFixed(0)}-{(predictedSpeed + 2).toFixed(0)} mph
+            Predicted Bat Speed: {mechanicsQuality.predictedBatSpeedRange}
           </div>
         </div>
 
@@ -124,30 +150,27 @@ export function BatSpeedQualityCard({ analysis }: BatSpeedQualityCardProps) {
           </div>
         </div>
 
-        {/* Key Insight */}
-        <div className="p-4 bg-primary/10 border-l-4 border-primary rounded">
-          <p className="text-sm">
-            {qualityScore >= 90 && (
-              <span>
-                <strong>Elite mechanics.</strong> Your body generates bat speed with exceptional quality. You don't need to swing faster—you're already using your mechanics incredibly well.
-              </span>
-            )}
-            {qualityScore >= 75 && qualityScore < 90 && (
-              <span>
-                <strong>Good mechanics.</strong> Your body creates solid bat speed. Focus on {directionScore < timingScore && directionScore < efficiencyScore ? "bat path alignment" : timingScore < directionScore && timingScore < efficiencyScore ? "timing and tempo" : "energy transfer"} to improve quality.
-              </span>
-            )}
-            {qualityScore >= 60 && qualityScore < 75 && (
-              <span>
-                <strong>Developing mechanics.</strong> You can hit the ball 8-12 mph harder by improving {directionScore < 70 ? "bat path direction, " : ""}{timingScore < 70 ? "timing, " : ""}{efficiencyScore < 70 ? "and energy transfer" : ""} without increasing raw velocity.
-              </span>
-            )}
-            {qualityScore < 60 && (
-              <span>
-                <strong>Focus on fundamentals.</strong> Improving mechanics quality can add 15-20 mph to your effective bat speed. Start with {directionScore < timingScore && directionScore < efficiencyScore ? "bat path work" : timingScore < directionScore && timingScore < efficiencyScore ? "tempo and timing drills" : "connection and balance drills"}.
-              </span>
-            )}
-          </p>
+        {/* Key Insights */}
+        <div className="space-y-4">
+          <div className="p-4 bg-primary/10 border-l-4 border-primary rounded">
+            <p className="text-sm font-medium mb-2">Direction</p>
+            <p className="text-sm text-muted-foreground">{mechanicsQuality.feedback.direction}</p>
+          </div>
+          
+          <div className="p-4 bg-primary/10 border-l-4 border-primary rounded">
+            <p className="text-sm font-medium mb-2">Timing</p>
+            <p className="text-sm text-muted-foreground">{mechanicsQuality.feedback.timing}</p>
+          </div>
+          
+          <div className="p-4 bg-primary/10 border-l-4 border-primary rounded">
+            <p className="text-sm font-medium mb-2">Efficiency</p>
+            <p className="text-sm text-muted-foreground">{mechanicsQuality.feedback.efficiency}</p>
+          </div>
+          
+          <div className="p-4 bg-muted border-l-4 border-foreground rounded">
+            <p className="text-sm font-bold mb-2">Bottom Line</p>
+            <p className="text-sm">{mechanicsQuality.feedback.bottomLine}</p>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -352,6 +352,42 @@ serve(async (req) => {
   </div>
 
   <div class="section">
+    <h3>Swing Mechanics Quality</h3>
+    ${analyses[analyses.length - 1].metrics?.swingMechanicsQualityScore ? `
+      <div class="pillar-card">
+        <h4>Overall Quality Score: ${analyses[analyses.length - 1].metrics.swingMechanicsQualityScore.toFixed(1)}/100</h4>
+        <p><strong>Level:</strong> ${
+          analyses[analyses.length - 1].metrics.swingMechanicsQualityScore >= 90 ? 'Elite' :
+          analyses[analyses.length - 1].metrics.swingMechanicsQualityScore >= 75 ? 'Good' :
+          analyses[analyses.length - 1].metrics.swingMechanicsQualityScore >= 60 ? 'Developing' : 'Needs Work'
+        }</p>
+        <p><strong>Predicted Bat Speed:</strong> ${
+          analyses[analyses.length - 1].metrics.batMaxVelocity 
+            ? `${Math.round(analyses[analyses.length - 1].metrics.batMaxVelocity - 2.5)}-${Math.round(analyses[analyses.length - 1].metrics.batMaxVelocity + 2.5)} mph`
+            : '70-75 mph'
+        }</p>
+      </div>
+      <div class="pillar-card">
+        <h4>Direction: ${analyses[analyses.length - 1].metrics.directionScore?.toFixed(1) || 'N/A'}/100</h4>
+        <p>How well momentum is directed toward the field (bat path, attack angle, connection)</p>
+      </div>
+      <div class="pillar-card">
+        <h4>Timing: ${analyses[analyses.length - 1].metrics.timingScore?.toFixed(1) || 'N/A'}/100</h4>
+        <p>When momentum peaks relative to contact (tempo ratio, kinematic sequence)</p>
+      </div>
+      <div class="pillar-card">
+        <h4>Efficiency: ${analyses[analyses.length - 1].metrics.efficiencyScore?.toFixed(1) || 'N/A'}/100</h4>
+        <p>How efficiently rotational energy transfers through the body (separation, connection, balance)</p>
+      </div>
+    ` : `
+      <div class="pillar-card">
+        <h4>Swing Quality Analysis</h4>
+        <p>Complete additional swing analyses to see your swing mechanics quality scores and predicted bat speed.</p>
+      </div>
+    `}
+  </div>
+
+  <div class="section">
     <h3>Next Steps</h3>
     <div class="pillar-card">
       <h4>Continue Training</h4>
