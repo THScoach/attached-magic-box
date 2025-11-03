@@ -19,8 +19,6 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
-
     const draw = () => {
       // Set canvas size
       const rect = canvas.getBoundingClientRect();
@@ -74,7 +72,7 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
       ctx.stroke();
 
       // Calculate COM path synced with video timing
-      const progress = Math.min(currentTime / duration, 1);
+      const progress = duration > 0 ? Math.min(currentTime / duration, 1) : 0;
       
       // Use actual COM distance from analysis (in inches) to scale the path
       const comDistance = analysis.comDistance || 45;
@@ -223,17 +221,9 @@ export function COMPathGraph({ analysis, currentTime, duration }: COMPathGraphPr
       ctx.fillRect(currentPos.x + 12, currentPos.y - 10, distanceTextWidth + 6, 16);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
       ctx.fillText(distanceText, currentPos.x + 15, currentPos.y);
-
-      animationFrameId = requestAnimationFrame(draw);
     };
 
     draw();
-
-    return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-    };
   }, [analysis, currentTime, duration]);
 
   return (
