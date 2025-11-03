@@ -527,7 +527,9 @@ export default function Analyze() {
             playerId: playerIdToUse,
             videoType: videoType || 'analysis',
             drillId: drillId,
-            drillName: drillName
+            drillName: drillName,
+            sourceFrameRate: 30,  // Browser recording is always 30fps
+            samplingFrameRate: 30  // Same as source for in-app recording
           }
         }
       );
@@ -661,7 +663,9 @@ export default function Analyze() {
             videoUrl: url1,
             sessionId: currentSessionId,
             playerId: selectedPlayerId,
-            videoType: videoType
+            videoType: videoType,
+            sourceFrameRate: 30,  // Browser recording is always 30fps
+            samplingFrameRate: 30  // Same as source for in-app recording
           }
         }
       );

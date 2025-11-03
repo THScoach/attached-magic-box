@@ -16,6 +16,7 @@ import { COMPathGraph } from "@/components/COMPathGraph";
 import { COMPhaseMetrics } from "@/components/COMPhaseMetrics";
 import { SwingAvatar3D } from "@/components/SwingAvatar3D";
 import { VideoKeyMomentOverlay } from "@/components/VideoKeyMomentOverlay";
+import { ReanalyzeButton } from "@/components/ReanalyzeButton";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
@@ -37,6 +38,7 @@ export default function AnalysisResult() {
   const { hasAccess: hasCoachRickAccess } = useCoachRickAccess();
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [playerName, setPlayerName] = useState<string>('');
+  const [analysisCreatedAt, setAnalysisCreatedAt] = useState<string>('');
   const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
   const [showCoachChat, setShowCoachChat] = useState(false);
@@ -81,6 +83,9 @@ export default function AnalysisResult() {
         .single();
 
       if (error) throw error;
+
+      // Store created_at for ReanalyzeButton
+      setAnalysisCreatedAt(data.created_at);
 
       // Set player name
       if (data.players) {
@@ -176,6 +181,9 @@ export default function AnalysisResult() {
         .single();
 
       if (error) throw error;
+
+      // Store created_at for ReanalyzeButton
+      setAnalysisCreatedAt(data.created_at);
 
       // Set player name
       if (data.players) {
@@ -669,16 +677,30 @@ export default function AnalysisResult() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
-        <h1 className="text-2xl font-bold mb-2">
-          {playerName ? `${playerName} - Swing Analysis` : 'Swing Analysis'}
-        </h1>
-        <p className="text-muted-foreground">
-          {new Date(analysis.analyzedAt).toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric', 
-            year: 'numeric' 
-          })}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold mb-2">
+              {playerName ? `${playerName} - Swing Analysis` : 'Swing Analysis'}
+            </h1>
+            <p className="text-muted-foreground">
+              {new Date(analysis.analyzedAt).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+              })}
+            </p>
+          </div>
+          {analysisId && analysisCreatedAt && (
+            <ReanalyzeButton 
+              analysisId={analysisId}
+              createdAt={analysisCreatedAt}
+              onReanalysisComplete={() => {
+                // Reload the latest analysis
+                loadLatestAnalysisFromDatabase();
+              }}
+            />
+          )}
+        </div>
       </div>
 
       <div className="px-6 py-6 space-y-6">
