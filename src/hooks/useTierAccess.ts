@@ -1,7 +1,7 @@
 import { useUserMembership, MembershipTier } from "./useUserMembership";
 import { useUserRole } from "./useUserRole";
 
-interface TierAccess {
+export interface TierAccess {
   canUseScheduler: boolean;
   canViewGrind: boolean;
   canJoinLive: boolean;
@@ -17,9 +17,12 @@ interface TierAccess {
   schedulerLevel: "none" | "weekly" | "full" | "full_plus";
   grindLevel: "none" | "basic" | "full";
   liveAccess: "none" | "replay_only" | "full" | "full_plus_feedback";
+  tier: MembershipTier;
+  loading: boolean;
+  isTeamMember: boolean;
 }
 
-const TIER_ACCESS_MAP: Record<MembershipTier, Omit<TierAccess, 'swingCount' | 'swingsRemaining' | 'isExpired' | 'daysRemaining' | 'canViewCoachDashboard'>> = {
+const TIER_ACCESS_MAP: Record<MembershipTier, Omit<TierAccess, 'swingCount' | 'swingsRemaining' | 'isExpired' | 'daysRemaining' | 'canViewCoachDashboard' | 'tier' | 'loading' | 'isTeamMember'>> = {
   free: {
     canUseScheduler: false,
     canViewGrind: false,
@@ -76,9 +79,9 @@ export function useTierAccess() {
 
   const loading = membershipLoading || roleLoading;
   const tier = membership?.tier || "free";
-  const swingCount = membership?.swing_count || 0;
+  const swingCount = membership?.swingCount || 0;
   const status = membership?.status || 'active';
-  const expiresAt = membership?.expires_at;
+  const expiresAt = membership?.expiresAt;
   
   // Teams members get elite-level access
   const isTeamMember = role === "athlete" && tier !== "free";
