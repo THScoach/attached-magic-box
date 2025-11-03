@@ -19,13 +19,35 @@ export function VideoKeyMomentOverlay({
   onSeekToMoment,
   onPauseAtMoment
 }: VideoKeyMomentOverlayProps) {
+  // Log timing values for debugging
+  console.log('🎯 Key Moment Timing Values:', {
+    loadStartTiming: analysis.loadStartTiming,
+    fireStartTiming: analysis.fireStartTiming,
+    pelvisTiming: analysis.pelvisTiming,
+    torsoTiming: analysis.torsoTiming,
+    handsTiming: analysis.handsTiming,
+    videoDuration: duration,
+    note: 'All timing values should be in milliseconds BEFORE contact'
+  });
+  
   // Convert ms timing to seconds for comparison with video currentTime
+  // Timing values are POSITIVE ms before contact, so we subtract from duration
   const loadStartTime = duration - Math.abs(analysis.loadStartTiming || 900) / 1000;
   const fireStartTime = duration - Math.abs(analysis.fireStartTiming || 340) / 1000;
   const pelvisPeakTime = duration - Math.abs(analysis.pelvisTiming || 180) / 1000;
   const torsoPeakTime = duration - Math.abs(analysis.torsoTiming || 120) / 1000;
   const handsPeakTime = duration - Math.abs(analysis.handsTiming || 60) / 1000;
   const contactTime = duration; // Contact is at end of video
+  
+  // Log calculated video timestamps
+  console.log('📍 Calculated Video Timestamps:', {
+    loadStartTime: `${loadStartTime.toFixed(3)}s (${Math.round((loadStartTime/duration)*100)}% through video)`,
+    fireStartTime: `${fireStartTime.toFixed(3)}s (${Math.round((fireStartTime/duration)*100)}% through video)`,
+    pelvisPeakTime: `${pelvisPeakTime.toFixed(3)}s`,
+    torsoPeakTime: `${torsoPeakTime.toFixed(3)}s`,
+    handsPeakTime: `${handsPeakTime.toFixed(3)}s`,
+    contactTime: `${contactTime.toFixed(3)}s (end of video)`
+  });
 
   // Define key moments with colors and labels
   const keyMoments = [
