@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { frames, frames2, dualCamera, keypoints, videoUrl, sessionId, playerId, videoType, drillId, drillName } = await req.json();
+    const { frames, frames2, dualCamera, keypoints, videoUrl, sessionId, playerId, videoType, drillId, drillName, sourceFrameRate, samplingFrameRate } = await req.json();
     
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
@@ -408,7 +408,9 @@ Use these five contrasting profiles to calibrate estimates across the full MLB s
 Be specific and use realistic values based on high-level players.${playerContext}`;
 
     const userPrompt = dualCamera && frames2
-      ? `Analyze this baseball/softball swing sequence using DUAL CAMERA 3D RECONSTRUCTION. I'm providing ${frames.length} key frames from Camera 1 (open/catcher side at 45°) and ${frames2.length} frames from Camera 2 (closed/dugout side at 45°).
+      ? `Analyze this baseball/softball swing sequence using DUAL CAMERA 3D RECONSTRUCTION. I'm providing ${frames.length} key frames from Camera 1 (open/catcher side at 45°) and ${frames2.length} frames from Camera 2 (closed/dugout side at 45°). 
+
+**VIDEO SPECS:** Original video captured at ${sourceFrameRate || 'unknown'}fps, frames sampled at ${samplingFrameRate || 30}fps for analysis (each frame = ${1000 / (samplingFrameRate || 30)}ms apart).
 
 **DUAL CAMERA ADVANTAGES:**
 You now have stereoscopic views that enable true 3D coordinate estimation. Use triangulation principles to:
@@ -456,7 +458,9 @@ Provide detailed scores and analysis in this exact JSON format:
   "primaryOpportunity": "<which pillar: ANCHOR, ENGINE, or WHIP>",
   "impactStatement": "<2-3 sentence specific insight. MUST address any biotensegrity violations or injury risk patterns detected. Frame as opportunity for BOTH performance improvement AND structural integrity/injury prevention.>"
 }`
-      : `Analyze this baseball/softball swing sequence. I'm providing ${frames.length} key frames from a high-speed video (300fps).
+      : `Analyze this baseball/softball swing sequence. I'm providing ${frames.length} key frames sampled from the video.
+
+**VIDEO SPECS:** Original video captured at ${sourceFrameRate || 30}fps, frames sampled at ${samplingFrameRate || 30}fps for analysis (each frame = ${1000 / (samplingFrameRate || 30)}ms apart).
     
 ${keypoints ? `I've also detected body keypoints for tracking movement. Focus on the kinematic sequence - the timing and velocity of:
 1. Pelvis rotation

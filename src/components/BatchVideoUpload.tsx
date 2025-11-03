@@ -270,7 +270,9 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
           drillId: video.drillId,
           drillName: video.drillName,
           keypoints: poseData,
-          frames: poseData.length
+          frames: poseData.length,
+          sourceFrameRate: video.frameRate || 30,  // Actual video frame rate
+          samplingFrameRate: 30  // Rate at which we sampled for pose detection
         }
       });
 
