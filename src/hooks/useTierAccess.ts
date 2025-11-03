@@ -129,6 +129,9 @@ export function useTierAccess() {
   // Override canAccessCoachRick - only DIY and Elite
   const canAccessCoachRick = ['diy', 'elite'].includes(tier) && status === 'active';
 
+  // Override canBook1on1 - only Elite
+  const canBook1on1 = tier === 'elite' && status === 'active';
+
   // Coaches get full access to coach dashboard
   const canViewCoachDashboard = role === "coach" || role === "admin";
 
@@ -136,6 +139,7 @@ export function useTierAccess() {
     ...access,
     canAnalyzeSwing,
     canAccessCoachRick,
+    canBook1on1,
     canViewCoachDashboard,
     tier: effectiveTier,
     swingCount,
