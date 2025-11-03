@@ -881,6 +881,8 @@ export type Database = {
           created_at: string
           drill_effectiveness_score: number | null
           drill_feedback: Json | null
+          drill_id: string | null
+          drill_name: string | null
           engine_score: number
           id: string
           metrics: Json
@@ -897,6 +899,8 @@ export type Database = {
           created_at?: string
           drill_effectiveness_score?: number | null
           drill_feedback?: Json | null
+          drill_id?: string | null
+          drill_name?: string | null
           engine_score: number
           id?: string
           metrics: Json
@@ -913,6 +917,8 @@ export type Database = {
           created_at?: string
           drill_effectiveness_score?: number | null
           drill_feedback?: Json | null
+          drill_id?: string | null
+          drill_name?: string | null
           engine_score?: number
           id?: string
           metrics?: Json
@@ -925,6 +931,20 @@ export type Database = {
           whip_score?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "swing_analyses_drill_id_fkey"
+            columns: ["drill_id"]
+            isOneToOne: false
+            referencedRelation: "drill_effectiveness"
+            referencedColumns: ["drill_id"]
+          },
+          {
+            foreignKeyName: "swing_analyses_drill_id_fkey"
+            columns: ["drill_id"]
+            isOneToOne: false
+            referencedRelation: "drills"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "swing_analyses_player_id_fkey"
             columns: ["player_id"]
@@ -1281,7 +1301,24 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      drill_effectiveness: {
+        Row: {
+          avg_anchor_score: number | null
+          avg_bat_speed: number | null
+          avg_engine_score: number | null
+          avg_fire_sequence: number | null
+          avg_overall_score: number | null
+          avg_whip_score: number | null
+          difficulty: number | null
+          drill_id: string | null
+          drill_name: string | null
+          first_used: string | null
+          last_used: string | null
+          pillar: string | null
+          total_uses: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_analyze_swing: { Args: { _user_id: string }; Returns: boolean }
