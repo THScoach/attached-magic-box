@@ -121,35 +121,7 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         .from('swing-videos')
         .getPublicUrl(fileName);
 
-      // Update status to analyzing
-      setVideos(prev => prev.map((v, i) => 
-        i === index ? { ...v, status: 'analyzing', progress: 50 } : v
-      ));
-
-      // Call analysis function with metadata
-      const { data: analysisData, error: analysisError } = await supabase.functions
-        .invoke('analyze-swing', {
-          body: {
-            videoUrl: publicUrl,
-            playerId: playerId,
-            userId: user.id,
-            videoType: 'practice',
-            videoMetadata: video.frameRate ? {
-              frameRate: video.frameRate,
-              width: video.width,
-              height: video.height,
-              duration: video.duration
-            } : undefined
-          }
-        });
-
-      if (analysisError) throw analysisError;
-
-      setVideos(prev => prev.map((v, i) => 
-        i === index ? { ...v, progress: 90 } : v
-      ));
-
-      // Save analysis to database
+      // Save to database with 'pending' status for server-side processing
       const { data: savedAnalysis, error: dbError } = await supabase
         .from('swing_analyses')
         .insert({
@@ -157,18 +129,27 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
           player_id: playerId,
           video_url: publicUrl,
           video_type: 'practice',
-          overall_score: analysisData.overallScore || 0,
-          anchor_score: analysisData.anchorScore || 0,
-          engine_score: analysisData.engineScore || 0,
-          whip_score: analysisData.whipScore || 0,
-          metrics: analysisData
+          overall_score: 0,
+          anchor_score: 0,
+          engine_score: 0,
+          whip_score: 0,
+          metrics: {
+            status: 'pending_analysis',
+            uploadedAt: new Date().toISOString(),
+            videoMetadata: video.frameRate ? {
+              frameRate: video.frameRate,
+              width: video.width,
+              height: video.height,
+              duration: video.duration
+            } : undefined
+          }
         })
         .select()
         .single();
 
       if (dbError) throw dbError;
 
-      // Mark as completed
+      // Mark as completed (uploaded, pending analysis)
       setVideos(prev => prev.map((v, i) => 
         i === index ? { 
           ...v, 
