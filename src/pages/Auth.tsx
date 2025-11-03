@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get('returnTo');
 
   useEffect(() => {
     // Check if user is already logged in and redirect based on role
@@ -35,6 +37,12 @@ export default function Auth() {
   const checkAuthAndRedirect = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    // Check for returnTo parameter first
+    if (returnTo) {
+      navigate(returnTo, { replace: true });
+      return;
+    }
 
     // Check user role and redirect accordingly
     const { data: roleData } = await supabase

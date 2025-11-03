@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Anchor, Zap, Settings, ChevronRight, FileText, ArrowRight } from "lucide-react";
 import { HitsLogo, HitsMonogram } from "@/components/HitsLogo";
 import { CoachRickAvatar } from "@/components/CoachRickAvatar";
@@ -10,9 +10,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export default function Landing() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [showDemo, setShowDemo] = useState(false);
 
   const handleDemoRequest = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,9 +21,11 @@ export default function Landing() {
       return;
     }
     
-    toast.success("Opening sample report!");
-    window.open("/demo-report", "_blank");
-    setShowDemo(true);
+    // Store in session storage for after auth
+    sessionStorage.setItem('leadCapture', JSON.stringify({ name, email }));
+    
+    // Redirect to auth with return URL
+    navigate('/auth?returnTo=/demo-report');
   };
   return (
     <div className="min-h-screen bg-black text-white">
@@ -223,15 +225,13 @@ export default function Landing() {
                       />
                     </div>
                     <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-lg font-bold">
-                      View Sample Report
+                      Continue to View Report
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
-                  </form>
-                  {showDemo && (
-                    <p className="text-xs text-center text-gray-400 mt-4">
-                      Ready to get started? <Link to="/auth" className="text-primary underline">Create your free account</Link>
+                    <p className="text-xs text-center text-gray-400">
+                      You'll be asked to sign up or log in
                     </p>
-                  )}
+                  </form>
                 </CardContent>
               </Card>
             </div>

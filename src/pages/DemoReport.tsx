@@ -1,4 +1,60 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
 export default function DemoReport() {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuthAndStoreLead = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast.error("Please sign up or log in to view the sample report");
+        navigate('/auth?returnTo=/demo-report');
+        return;
+      }
+
+      // Store lead capture data if available
+      const leadData = sessionStorage.getItem('leadCapture');
+      if (leadData) {
+        try {
+          const { name, email } = JSON.parse(leadData);
+          
+          await supabase.from('leads').insert({
+            user_id: session.user.id,
+            name,
+            email,
+            source: 'sample_report'
+          });
+          
+          sessionStorage.removeItem('leadCapture');
+        } catch (error) {
+          console.error('Error storing lead:', error);
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    checkAuthAndStoreLead();
+  }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh',
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+      }}>
+        <p>Loading sample report...</p>
+      </div>
+    );
+  }
   return (
     <div style={{ fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
       <style>{`
