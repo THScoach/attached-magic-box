@@ -16,6 +16,7 @@ interface BenchmarkMetric {
   mlbAverage: number;
   percentile: number;
   citation: string;
+  tooltip: string;
 }
 
 export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
@@ -55,7 +56,8 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [2.0, 2.6],
       mlbAverage: 2.43,
       percentile: calculatePercentile(analysis.tempoRatio || 0, 1.5, 2.6, 2.43),
-      citation: ""
+      citation: "",
+      tooltip: "How long you load vs. how long you fire. Think of it like pulling back a slingshot (load) then letting it snap forward (fire). Elite hitters load for about 2.5 seconds and fire in just 1 second - that's a 2.5:1 ratio."
     },
     {
       label: "Pelvis Max Velocity",
@@ -64,7 +66,8 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [550, 700],
       mlbAverage: 600,
       percentile: calculatePercentile(analysis.pelvisMaxVelocity || 0, 450, 700, 600),
-      citation: "Reboot Motion (2025)"
+      citation: "Reboot Motion (2025)",
+      tooltip: "How fast your hips rotate during the swing. Your hips are the engine that starts the power chain. The faster they spin, the more energy flows up through your body to the bat."
     },
     {
       label: "Torso Max Velocity",
@@ -73,7 +76,8 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [900, 1200],
       mlbAverage: 1050,
       percentile: calculatePercentile(analysis.torsoMaxVelocity || 0, 800, 1200, 1050),
-      citation: "Reboot Motion (2025)"
+      citation: "Reboot Motion (2025)",
+      tooltip: "How fast your chest and shoulders rotate. After your hips start turning, your torso whips around even faster - like the middle of a cracking whip. This speeds up the bat even more."
     },
     {
       label: "Bat Speed",
@@ -82,7 +86,8 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [70, 76],
       mlbAverage: 72,
       percentile: calculatePercentile(analysis.batMaxVelocity || 0, 65, 76, 72),
-      citation: "Welch et al. (1995)"
+      citation: "Welch et al. (1995)",
+      tooltip: "How fast the bat is moving when it hits the ball. Faster bat speed means the ball flies farther and harder. MLB players swing around 72 mph, while elite hitters reach 75+ mph."
     },
     {
       label: "X-Factor (Peak Separation)",
@@ -91,7 +96,8 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [25, 40],
       mlbAverage: 27,
       percentile: calculatePercentile(Math.abs(analysis.xFactor || 0), 20, 40, 27),
-      citation: "Reboot Motion (2025)"
+      citation: "Reboot Motion (2025)",
+      tooltip: "The twist between your shoulders and hips at the start of your swing. It's like winding up a spring - the more you twist, the more power you store. Elite hitters create 25-40 degrees of separation."
     },
     {
       label: "COM Max Velocity",
@@ -100,7 +106,8 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [1.0, 1.2],
       mlbAverage: 1.06,
       percentile: calculatePercentile(analysis.comMaxVelocity || 0, 0.6, 1.2, 1.06),
-      citation: "Reboot Motion (2025)"
+      citation: "Reboot Motion (2025)",
+      tooltip: "Center of Mass (COM) is the middle point of your body weight. COM Max Velocity measures how fast your body moves forward during the swing. Moving forward quickly helps transfer your weight and power into the ball."
     },
     {
       label: "Front Foot GRF",
@@ -109,7 +116,8 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [120, 130],
       mlbAverage: 123,
       percentile: calculatePercentile(analysis.frontFootGRF || 0, 100, 130, 123),
-      citation: "Welch et al. (1995)"
+      citation: "Welch et al. (1995)",
+      tooltip: "Ground Reaction Force (GRF) on your front foot - how hard you push into the ground. When you push down hard (123% of your body weight!), the ground pushes back and helps you rotate faster and hit harder."
     },
     {
       label: "COM Peak Timing",
@@ -118,7 +126,8 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
       eliteRange: [100, 190],
       mlbAverage: 110,
       percentile: 100 - calculatePercentile(Math.abs((analysis.comPeakTiming || 110) - 110), 0, 50, 20),
-      citation: "Fortenbaugh (2011)"
+      citation: "Fortenbaugh (2011)",
+      tooltip: "When your body reaches its fastest forward speed during the swing (measured in milliseconds before contact). Elite hitters peak around 100-120ms before hitting the ball - this timing lets them transfer maximum energy into the swing."
     }
   ];
 
@@ -142,6 +151,7 @@ export function ResearchBenchmarks({ analysis }: ResearchBenchmarksProps) {
                   <div className="flex items-center gap-2 mb-1">
                     {getTrendIcon(benchmark.percentile)}
                     <h4 className="font-medium">{benchmark.label}</h4>
+                    <InfoTooltip content={benchmark.tooltip} />
                   </div>
                   <div className="flex items-center gap-3 text-sm">
                     <span className={`text-2xl font-bold ${getPercentileColor(benchmark.percentile)}`}>
