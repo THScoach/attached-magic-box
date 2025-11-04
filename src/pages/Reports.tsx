@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoReportCard } from "@/components/VideoReportCard";
+import { ProgressReportGenerator } from "@/components/ProgressReportGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayerAnalyses } from "@/hooks/usePlayerAnalyses";
 import { useReportSchedules } from "@/hooks/useReportSchedules";
@@ -182,61 +183,16 @@ export default function Reports() {
         </Card>
 
         {selectedPlayerId && (
-          <Tabs defaultValue="quick" className="w-full">
+          <Tabs defaultValue="generate" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="quick">Quick</TabsTrigger>
+              <TabsTrigger value="generate">Generate</TabsTrigger>
               <TabsTrigger value="custom">Custom</TabsTrigger>
               <TabsTrigger value="schedule">Schedule</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="quick" className="space-y-4 mt-6">
-              <div className="grid gap-4">
-                <Card 
-                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer" 
-                  onClick={() => quickReport(7)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Clock className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">Last 7 Days</h3>
-                      <p className="text-sm text-muted-foreground">Quick weekly progress report</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card 
-                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer" 
-                  onClick={() => quickReport(30)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Calendar className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">Last 30 Days</h3>
-                      <p className="text-sm text-muted-foreground">Monthly progress overview</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card 
-                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer" 
-                  onClick={() => quickReport(90)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <FileText className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">Last 90 Days</h3>
-                      <p className="text-sm text-muted-foreground">Quarterly analysis</p>
-                    </div>
-                  </div>
-                </Card>
-              </div>
+            <TabsContent value="generate" className="mt-6">
+              <ProgressReportGenerator />
             </TabsContent>
 
             <TabsContent value="custom" className="space-y-4 mt-6">
