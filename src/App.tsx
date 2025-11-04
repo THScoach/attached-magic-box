@@ -32,6 +32,7 @@ import CoachAuth from "./pages/CoachAuth";
 import CoachDashboard from "./pages/CoachDashboard";
 import LiveCoaching from "./pages/LiveCoaching";
 import CoachRoster from "./pages/CoachRoster";
+import AthleteProfileDashboard from "./pages/AthleteProfileDashboard";
 import PlayerProfile from "./pages/PlayerProfile";
 import FreeOnboarding from "./pages/FreeOnboarding";
 import Pricing from "./pages/Pricing";
@@ -98,6 +99,16 @@ const App = () => {
                 <ProtectedRoute>
                   <RoleGuard allowedRoles={["coach"]}>
                     <CoachRoster />
+                  </RoleGuard>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/coach/athlete/:athleteId" 
+              element={
+                <ProtectedRoute>
+                  <RoleGuard allowedRoles={["coach"]}>
+                    <AthleteProfileDashboard />
                   </RoleGuard>
                 </ProtectedRoute>
               } 
