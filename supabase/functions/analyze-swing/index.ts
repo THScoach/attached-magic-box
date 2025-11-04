@@ -1202,6 +1202,52 @@ Provide detailed scores and analysis in this exact JSON format:
 
         console.log('4 Bs metrics saved successfully');
 
+        // Check for achievement milestones and create notifications
+        // Check for bat speed personal best
+        const { data: previousBatMetrics } = await supabaseAdmin
+          .from('bat_metrics')
+          .select('personal_best')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(2);
+        
+        if (previousBatMetrics && previousBatMetrics.length > 1) {
+          const currentBest = previousBatMetrics[0].personal_best;
+          const previousBest = previousBatMetrics[1].personal_best;
+          
+          if (currentBest > previousBest) {
+            await supabaseAdmin.from('notifications').insert({
+              user_id: userId,
+              player_id: playerId,
+              type: 'achievement',
+              title: '⚡ New Personal Best!',
+              message: `Bat speed: ${Math.round(currentBest)} mph! You just crushed your previous record!`
+            });
+          }
+        }
+        
+        // Check for high scores
+        if (overallScore >= 90) {
+          await supabaseAdmin.from('notifications').insert({
+            user_id: userId,
+            player_id: playerId,
+            type: 'achievement',
+            title: '🌟 Elite Swing!',
+            message: `You scored ${Math.round(overallScore)}! That's professional level mechanics!`
+          });
+        }
+        
+        // Check for perfect tempo ratio (close to 3:1)
+        if (analysis.tempoRatio && Math.abs(analysis.tempoRatio - 3.0) <= 0.3) {
+          await supabaseAdmin.from('notifications').insert({
+            user_id: userId,
+            player_id: playerId,
+            type: 'achievement',
+            title: '🎯 Perfect Tempo!',
+            message: `Tempo ratio: ${analysis.tempoRatio.toFixed(1)}:1 - You nailed the timing!`
+          });
+        }
+
         // Update session stats if session exists
         if (sessionId) {
           const { data: sessionAnalyses } = await supabaseAdmin

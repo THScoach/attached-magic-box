@@ -145,6 +145,30 @@ export function useGamificationData(playerId?: string) {
       if (error) {
         console.error("Error updating streak:", error);
       } else {
+        // Create notifications for streak milestones
+        if (newStreak === 7) {
+          await supabase.from('notifications').insert({
+            user_id: user.id,
+            type: 'achievement',
+            title: '🔥 Week Streak!',
+            message: 'You\'ve practiced 7 days in a row! Keep the momentum going!'
+          });
+        } else if (newStreak === 30) {
+          await supabase.from('notifications').insert({
+            user_id: user.id,
+            type: 'achievement',
+            title: '🔥 Month Streak!',
+            message: 'Incredible! 30 days of consistent practice. You\'re unstoppable!'
+          });
+        } else if (newStreak % 100 === 0) {
+          await supabase.from('notifications').insert({
+            user_id: user.id,
+            type: 'achievement',
+            title: '🔥 Century Streak!',
+            message: `Amazing! ${newStreak} days in a row! You\'re a legend!`
+          });
+        }
+        
         // Reload data
         await loadGamificationData();
       }
@@ -190,6 +214,14 @@ export function useGamificationData(playerId?: string) {
       if (error) {
         console.error("Error unlocking badge:", error);
       } else {
+        // Create notification for badge unlock
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          type: 'achievement',
+          title: `🏆 Badge Unlocked: ${badgeName}`,
+          message: badgeDescription
+        });
+        
         await loadGamificationData();
       }
     } catch (error) {
