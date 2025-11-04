@@ -20,6 +20,9 @@ import { useGamificationData } from "@/hooks/useGamificationData";
 import { useHistoricalMetrics } from "@/hooks/useHistoricalMetrics";
 import { MetricTrendChart } from "@/components/MetricTrendChart";
 import { BenchmarkComparison } from "@/components/BenchmarkComparison";
+import { GoalSettingModal } from "@/components/GoalSettingModal";
+import { GoalProgressCard } from "@/components/GoalProgressCard";
+import { useUserGoals } from "@/hooks/useUserGoals";
 import { Loader2 } from "lucide-react";
 
 export default function Progress() {
@@ -50,7 +53,10 @@ export default function Progress() {
   // Fetch historical trends
   const { metrics: historicalMetrics, loading: historicalLoading } = useHistoricalMetrics();
 
-  if (loading || gamificationLoading || historicalLoading) {
+  // Fetch user goals
+  const { goals, isLoading: goalsLoading } = useUserGoals();
+
+  if (loading || gamificationLoading || historicalLoading || goalsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -401,6 +407,32 @@ export default function Progress() {
               unit=":1"
             />
           </div>
+        </div>
+
+        {/* Goals Section */}
+        <div className="space-y-6 mt-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Your Goals</h2>
+              <p className="text-muted-foreground">Track your personal targets</p>
+            </div>
+          </div>
+
+          <GoalSettingModal />
+
+          {goals.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              {goals.map((goal) => (
+                <GoalProgressCard key={goal.id} goal={goal} />
+              ))}
+            </div>
+          ) : (
+            <Card className="p-8 text-center">
+              <p className="text-muted-foreground mb-4">
+                No goals set yet. Create your first goal to start tracking progress!
+              </p>
+            </Card>
+          )}
         </div>
 
         {/* Benchmark Comparisons Section */}

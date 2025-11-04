@@ -1544,6 +1544,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_goals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_value: number
+          deadline: string | null
+          id: string
+          metric_category: string
+          metric_name: string
+          player_id: string | null
+          status: string
+          target_value: number
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_value: number
+          deadline?: string | null
+          id?: string
+          metric_category: string
+          metric_name: string
+          player_id?: string | null
+          status?: string
+          target_value: number
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          deadline?: string | null
+          id?: string
+          metric_category?: string
+          metric_name?: string
+          player_id?: string | null
+          status?: string
+          target_value?: number
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_memberships: {
         Row: {
           cancelled_at: string | null
