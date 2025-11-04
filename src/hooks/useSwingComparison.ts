@@ -7,9 +7,10 @@ export interface SwingComparisonData {
   video_url: string;
   created_at: string;
   overall_score: number;
-  anchor_score: number;
-  engine_score: number;
-  whip_score: number;
+  bat_score: number;
+  body_score: number;
+  ball_score: number;
+  brain_score: number;
   bat_metrics?: {
     bat_speed: number;
     attack_angle: number;
@@ -21,6 +22,10 @@ export interface SwingComparisonData {
   };
   ball_metrics?: {
     exit_velocity: number;
+    launch_angle: number;
+  };
+  brain_metrics?: {
+    reaction_time: number;
   };
 }
 
@@ -40,9 +45,10 @@ export function useSwingComparison(playerId?: string) {
           video_url,
           created_at,
           overall_score,
-          anchor_score,
-          engine_score,
-          whip_score,
+          bat_score,
+          body_score,
+          ball_score,
+          brain_score,
           bat_metrics (
             bat_speed,
             attack_angle,
@@ -53,7 +59,11 @@ export function useSwingComparison(playerId?: string) {
             sequence_efficiency
           ),
           ball_metrics (
-            exit_velocity
+            exit_velocity,
+            launch_angle
+          ),
+          brain_metrics (
+            reaction_time
           )
         `)
         .eq('user_id', user.id)
@@ -73,6 +83,7 @@ export function useSwingComparison(playerId?: string) {
         bat_metrics: Array.isArray(swing.bat_metrics) ? swing.bat_metrics[0] : swing.bat_metrics,
         body_metrics: Array.isArray(swing.body_metrics) ? swing.body_metrics[0] : swing.body_metrics,
         ball_metrics: Array.isArray(swing.ball_metrics) ? swing.ball_metrics[0] : swing.ball_metrics,
+        brain_metrics: Array.isArray(swing.brain_metrics) ? swing.brain_metrics[0] : swing.brain_metrics,
       })) as SwingComparisonData[];
     },
   });
@@ -93,12 +104,15 @@ export function useSwingComparison(playerId?: string) {
         swingB,
         differences: {
           overall_score: swingB.overall_score - swingA.overall_score,
-          anchor_score: swingB.anchor_score - swingA.anchor_score,
-          engine_score: swingB.engine_score - swingA.engine_score,
-          whip_score: swingB.whip_score - swingA.whip_score,
+          bat_score: swingB.bat_score - swingA.bat_score,
+          body_score: swingB.body_score - swingA.body_score,
+          ball_score: swingB.ball_score - swingA.ball_score,
+          brain_score: swingB.brain_score - swingA.brain_score,
           bat_speed: (swingB.bat_metrics?.bat_speed || 0) - (swingA.bat_metrics?.bat_speed || 0),
           exit_velocity: (swingB.ball_metrics?.exit_velocity || 0) - (swingA.ball_metrics?.exit_velocity || 0),
+          launch_angle: (swingB.ball_metrics?.launch_angle || 0) - (swingA.ball_metrics?.launch_angle || 0),
           tempo_ratio: (swingB.body_metrics?.tempo_ratio || 0) - (swingA.body_metrics?.tempo_ratio || 0),
+          reaction_time: (swingB.brain_metrics?.reaction_time || 0) - (swingA.brain_metrics?.reaction_time || 0),
         },
       };
     },

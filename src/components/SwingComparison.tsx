@@ -376,22 +376,28 @@ export function SwingComparison({ playerId }: { playerId?: string }) {
                     difference={comparisonData.differences.overall_score}
                   />
                   <MetricRow
-                    label="ANCHOR Score"
-                    valueA={comparisonData.swingA.anchor_score}
-                    valueB={comparisonData.swingB.anchor_score}
-                    difference={comparisonData.differences.anchor_score}
+                    label="BAT Score"
+                    valueA={comparisonData.swingA.bat_score}
+                    valueB={comparisonData.swingB.bat_score}
+                    difference={comparisonData.differences.bat_score}
                   />
                   <MetricRow
-                    label="ENGINE Score"
-                    valueA={comparisonData.swingA.engine_score}
-                    valueB={comparisonData.swingB.engine_score}
-                    difference={comparisonData.differences.engine_score}
+                    label="BODY Score"
+                    valueA={comparisonData.swingA.body_score}
+                    valueB={comparisonData.swingB.body_score}
+                    difference={comparisonData.differences.body_score}
                   />
                   <MetricRow
-                    label="WHIP Score"
-                    valueA={comparisonData.swingA.whip_score}
-                    valueB={comparisonData.swingB.whip_score}
-                    difference={comparisonData.differences.whip_score}
+                    label="BALL Score"
+                    valueA={comparisonData.swingA.ball_score}
+                    valueB={comparisonData.swingB.ball_score}
+                    difference={comparisonData.differences.ball_score}
+                  />
+                  <MetricRow
+                    label="BRAIN Score"
+                    valueA={comparisonData.swingA.brain_score}
+                    valueB={comparisonData.swingB.brain_score}
+                    difference={comparisonData.differences.brain_score}
                   />
                 </div>
 
@@ -431,6 +437,29 @@ export function SwingComparison({ playerId }: { playerId?: string }) {
                       valueB={comparisonData.swingB.ball_metrics.exit_velocity}
                       difference={comparisonData.differences.exit_velocity}
                       unit=" mph"
+                    />
+                    {comparisonData.swingA.ball_metrics.launch_angle !== undefined && 
+                     comparisonData.swingB.ball_metrics.launch_angle !== undefined && (
+                      <MetricRow
+                        label="Launch Angle"
+                        valueA={comparisonData.swingA.ball_metrics.launch_angle}
+                        valueB={comparisonData.swingB.ball_metrics.launch_angle}
+                        difference={comparisonData.differences.launch_angle}
+                        unit="°"
+                      />
+                    )}
+                  </div>
+                )}
+
+                {comparisonData.swingA.brain_metrics && comparisonData.swingB.brain_metrics && (
+                  <div>
+                    <h3 className="font-semibold mb-4">Brain Metrics</h3>
+                    <MetricRow
+                      label="Reaction Time"
+                      valueA={comparisonData.swingA.brain_metrics.reaction_time}
+                      valueB={comparisonData.swingB.brain_metrics.reaction_time}
+                      difference={comparisonData.differences.reaction_time}
+                      unit=" ms"
                     />
                   </div>
                 )}
