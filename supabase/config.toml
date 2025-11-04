@@ -38,3 +38,16 @@ verify_jwt = false
 [functions.reanalyze-swing]
 verify_jwt = true
 
+[functions.generate-training-insights]
+verify_jwt = true
+
+[functions.generate-highlight-description]
+verify_jwt = true
+
+[functions.suggest-goals]
+verify_jwt = true
+
+[functions.transcribe-audio]
+verify_jwt = true
+
+

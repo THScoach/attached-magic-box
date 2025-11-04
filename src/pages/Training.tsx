@@ -5,6 +5,7 @@ import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PracticeJournal } from "@/components/PracticeJournal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Calendar, Trophy, Flame, Target, CheckCircle2 } from "lucide-react";
@@ -292,6 +293,9 @@ export default function Training() {
             </p>
           </Card>
         )}
+
+        {/* Practice Journal */}
+        <PracticeJournal />
       </div>
 
       <BottomNav />
