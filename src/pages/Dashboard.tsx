@@ -15,6 +15,7 @@ import { EquipmentOnboardingModal } from "@/components/EquipmentOnboardingModal"
 import { FreeSwingCounter } from "@/components/FreeSwingCounter";
 import { ProfileUpdatePrompt } from "@/components/ProfileUpdatePrompt";
 import { FourBsScorecard } from "@/components/FourBsScorecard";
+import { TeamChallenges } from "@/components/TeamChallenges";
 import { calculateBatGrade, calculateBodyGrade, calculateBallGrade, calculateBrainGrade, calculateOverallGrade } from "@/lib/gradingSystem";
 import { getBenchmarksForLevel } from "@/lib/benchmarks";
 import { useQuery } from "@tanstack/react-query";
@@ -348,6 +349,9 @@ export default function Dashboard() {
 
         {/* Weekly Schedule */}
         {tierAccess.canUseScheduler && <WeeklySchedule />}
+
+        {/* Team Challenges */}
+        <TeamChallenges />
       </div>
 
       <BottomNav />
