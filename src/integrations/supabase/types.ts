@@ -659,53 +659,77 @@ export type Database = {
       }
       profiles: {
         Row: {
+          batting_hand: string | null
           biggest_challenge: string | null
+          birth_date: string | null
           created_at: string | null
           current_level: string | null
           email: string
+          experience_level: string | null
           first_name: string
+          height_inches: number | null
           id: string
+          last_active_at: string | null
           last_name: string
           motivation: string | null
           onboarding_completed: boolean | null
           phone: string | null
+          position: string[] | null
           primary_goal: string | null
+          profile_last_updated: string | null
           referral_source: string | null
           updated_at: string | null
+          weight_lbs: number | null
           whop_user_id: string | null
           years_playing: number | null
         }
         Insert: {
+          batting_hand?: string | null
           biggest_challenge?: string | null
+          birth_date?: string | null
           created_at?: string | null
           current_level?: string | null
           email: string
+          experience_level?: string | null
           first_name: string
+          height_inches?: number | null
           id: string
+          last_active_at?: string | null
           last_name: string
           motivation?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
+          position?: string[] | null
           primary_goal?: string | null
+          profile_last_updated?: string | null
           referral_source?: string | null
           updated_at?: string | null
+          weight_lbs?: number | null
           whop_user_id?: string | null
           years_playing?: number | null
         }
         Update: {
+          batting_hand?: string | null
           biggest_challenge?: string | null
+          birth_date?: string | null
           created_at?: string | null
           current_level?: string | null
           email?: string
+          experience_level?: string | null
           first_name?: string
+          height_inches?: number | null
           id?: string
+          last_active_at?: string | null
           last_name?: string
           motivation?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
+          position?: string[] | null
           primary_goal?: string | null
+          profile_last_updated?: string | null
           referral_source?: string | null
           updated_at?: string | null
+          weight_lbs?: number | null
           whop_user_id?: string | null
           years_playing?: number | null
         }
