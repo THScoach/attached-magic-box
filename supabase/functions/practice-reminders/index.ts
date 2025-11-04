@@ -5,21 +5,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface CalendarItem {
+interface ProfileData {
+  first_name: string;
+  last_name: string;
+}
+
+interface CalendarItemData {
   id: string;
   user_id: string;
   player_id: string | null;
   title: string;
   scheduled_date: string;
   scheduled_time: string;
-  profiles: {
-    first_name: string;
-    last_name: string;
-  };
-  players: {
-    first_name: string;
-    last_name: string;
-  } | null;
+  profiles: ProfileData | ProfileData[] | null;
+  players: ProfileData | ProfileData[] | null;
 }
 
 Deno.serve(async (req) => {
@@ -51,7 +50,7 @@ Deno.serve(async (req) => {
         players!calendar_items_player_id_fkey(first_name, last_name)
       `)
       .eq('scheduled_date', tomorrowStr)
-      .eq('completed', false)
+      .is('completed_at', null)
       .eq('reminder_sent', false);
 
     if (fetchError) throw fetchError;
@@ -66,9 +65,10 @@ Deno.serve(async (req) => {
     }
 
     // Create notifications for each upcoming item
-    const notifications = upcomingItems.map((item: CalendarItem) => {
-      const playerName = item.players 
-        ? `${item.players.first_name} ${item.players.last_name}`
+    const notifications = upcomingItems.map((item: CalendarItemData) => {
+      const players = Array.isArray(item.players) ? item.players[0] : item.players;
+      const playerName = players
+        ? `${players.first_name} ${players.last_name}`
         : 'Your athlete';
       
       return {
@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     if (notifError) throw notifError;
 
     // Mark items as reminded
-    const itemIds = upcomingItems.map((item: CalendarItem) => item.id);
+    const itemIds = upcomingItems.map((item: CalendarItemData) => item.id);
     const { error: updateError } = await supabase
       .from('calendar_items')
       .update({ reminder_sent: true })
@@ -109,8 +109,9 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in practice-reminders:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
