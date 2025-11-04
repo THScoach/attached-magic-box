@@ -58,6 +58,43 @@ export interface SwingAnalysis {
   sequenceQuality?: number; // 0-100
   accelerationPattern?: number; // 0-100
   balanceScore?: number; // 0-100
+  
+  // Momentum & Biomechanics Metrics
+  biomechanicsMetrics?: {
+    batSpeed: number;
+    peakBatSpeed: number;
+    batSpeedAtImpact: number;
+    pelvisAngularVelocity: number;
+    torsoAngularVelocity: number;
+    shoulderAngularVelocity: number;
+    peakPelvisVelocity: number;
+    peakTorsoVelocity: number;
+    pelvisLinearMomentum: number;
+    torsoLinearMomentum: number;
+    totalLinearMomentum: number;
+    peakLinearMomentum: number;
+    pelvisRotationalMomentum: number;
+    torsoRotationalMomentum: number;
+    totalRotationalMomentum: number;
+    translationalKE: number;
+    rotationalKE: number;
+    totalKineticEnergy: number;
+    peakPower: number;
+    averagePower: number;
+    powerAtContact: number;
+    energyTransferEfficiency: number;
+    sequencingEfficiency: number;
+    momentumRetention: number;
+    frameByFrameMetrics?: Array<{
+      frame: number;
+      time: number;
+      batSpeed: number;
+      linearMomentum: number;
+      rotationalMomentum: number;
+      kineticEnergy: number;
+      power: number;
+    }>;
+  };
 }
 
 export interface VelocityData {

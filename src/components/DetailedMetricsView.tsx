@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { ResearchBenchmarks } from "@/components/ResearchBenchmarks";
 import { VelocityChart } from "@/components/VelocityChart";
 import { JointDataViewer } from "@/components/JointDataViewer";
+import { MomentumMetrics } from "@/components/MomentumMetrics";
 import { SwingAnalysis } from "@/types/swing";
 import type { FrameJointData } from "@/lib/poseAnalysis";
 
@@ -37,6 +38,9 @@ export function DetailedMetricsView({
         </SheetHeader>
 
         <div className="space-y-6 mt-6">
+          {/* Momentum & Biomechanics */}
+          <MomentumMetrics analysis={analysis} />
+          
           {/* Research-Validated Benchmarks */}
           <ResearchBenchmarks analysis={analysis} />
 
