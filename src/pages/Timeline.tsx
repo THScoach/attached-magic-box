@@ -4,6 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlayerSelector } from "@/components/PlayerSelector";
+import { GoalSettingModal } from "@/components/GoalSettingModal";
+import { GoalProgressCard } from "@/components/GoalProgressCard";
+import { useUserGoals } from "@/hooks/useUserGoals";
 import { ArrowLeft, Trophy, TrendingUp, Target, Calendar, Award, Zap, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -27,6 +30,7 @@ interface TimelineEvent {
 export default function Timeline() {
   const navigate = useNavigate();
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
+  const { goals, isLoading: goalsLoading } = useUserGoals(selectedPlayer || undefined);
 
   const { data: timelineData, isLoading } = useQuery({
     queryKey: ['player-timeline', selectedPlayer],
@@ -281,6 +285,41 @@ export default function Timeline() {
 
         {timelineData && (
           <>
+            {/* Goals Section */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      Active Goals
+                    </CardTitle>
+                    <CardDescription>Set and track your improvement targets</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {goalsLoading ? (
+                  <Skeleton className="h-24 w-full" />
+                ) : goals.filter(g => g.status === 'active').length > 0 ? (
+                  <>
+                    <div className="space-y-3">
+                      {goals.filter(g => g.status === 'active').map((goal) => (
+                        <GoalProgressCard key={goal.id} goal={goal} />
+                      ))}
+                    </div>
+                    <GoalSettingModal playerId={selectedPlayer || undefined} />
+                  </>
+                ) : (
+                  <div className="text-center py-6">
+                    <Target className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+                    <p className="text-muted-foreground mb-4">No active goals set</p>
+                    <GoalSettingModal playerId={selectedPlayer || undefined} />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
