@@ -36,6 +36,7 @@ import PlayerProfile from "./pages/PlayerProfile";
 import FreeOnboarding from "./pages/FreeOnboarding";
 import Pricing from "./pages/Pricing";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import Challenges from "./pages/Challenges";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -116,6 +117,7 @@ const App = () => {
             <Route path="/training" element={<ProtectedRoute><Training /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/live-coaching" element={<ProtectedRoute><LiveCoaching /></ProtectedRoute>} />
+            <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

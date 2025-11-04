@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, Trophy } from "lucide-react";
 import { TeamChallengeManager } from "@/components/admin/TeamChallengeManager";
 import { DrillEffectivenessPanel } from "@/components/admin/DrillEffectivenessPanel";
+import { ChallengeLeaderboard } from "@/components/ChallengeLeaderboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function CoachDashboard() {
@@ -245,8 +246,9 @@ export default function CoachDashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="challenges">
+          <TabsContent value="challenges" className="space-y-6">
             <TeamChallengeManager />
+            <ChallengeLeaderboard />
           </TabsContent>
 
           <TabsContent value="effectiveness">
