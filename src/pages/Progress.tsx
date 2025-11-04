@@ -25,6 +25,7 @@ import { GoalProgressCard } from "@/components/GoalProgressCard";
 import { ExportProgressReport } from "@/components/ExportProgressReport";
 import { PeerComparison } from "@/components/PeerComparison";
 import { GoalSuggestions } from "@/components/GoalSuggestions";
+import { TrainingInsightsPanel } from "@/components/TrainingInsightsPanel";
 import { useUserGoals } from "@/hooks/useUserGoals";
 import { Loader2 } from "lucide-react";
 
@@ -377,6 +378,9 @@ export default function Progress() {
             <h2 className="text-2xl font-bold mb-2">Historical Trends</h2>
             <p className="text-muted-foreground">Track your improvement over time</p>
           </div>
+
+          {/* Training Insights */}
+          <TrainingInsightsPanel />
 
           <div className="grid gap-6 md:grid-cols-2">
             <MetricTrendChart
