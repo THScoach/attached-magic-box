@@ -17,7 +17,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { playerId, userId, periodStart, periodEnd, reportType = 'manual' } = await req.json();
+    const { playerId, userId, periodStart, periodEnd, reportType = 'manual', emailDelivery = false } = await req.json();
 
     console.log('Generating automated report:', { playerId, userId, periodStart, periodEnd });
 
@@ -234,7 +234,8 @@ serve(async (req) => {
       improvement: improvement,
       avgBatSpeed: avgBatSpeed.toFixed(1),
       avgExitVelo: avgExitVelo.toFixed(1),
-      avgHardHitPct: avgHardHitPct.toFixed(0)
+      avgHardHitPct: avgHardHitPct.toFixed(0),
+      avgScore: avgOverallScore
     };
 
     const { data: reportRecord, error: recordError } = await supabaseClient
@@ -254,6 +255,38 @@ serve(async (req) => {
     if (recordError) throw recordError;
 
     console.log('Report generated successfully:', reportRecord.id);
+
+    // Send email if delivery is enabled
+    if (emailDelivery) {
+      console.log('Sending report email...');
+      try {
+        const emailResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-report-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+          },
+          body: JSON.stringify({
+            userId,
+            playerId,
+            reportUrl: publicUrl,
+            reportType,
+            periodStart,
+            periodEnd,
+            metrics: metricsData
+          })
+        });
+
+        if (!emailResponse.ok) {
+          console.error('Failed to send email:', await emailResponse.text());
+        } else {
+          console.log('Email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error sending email:', emailError);
+        // Don't fail the whole request if email fails
+      }
+    }
 
     return new Response(
       JSON.stringify({ 

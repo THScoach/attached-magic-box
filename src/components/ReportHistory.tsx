@@ -1,16 +1,27 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Calendar, TrendingUp } from "lucide-react";
+import { FileText, Download, Calendar, TrendingUp, Mail } from "lucide-react";
 import { useReportSchedules } from "@/hooks/useReportSchedules";
 import { format } from "date-fns";
+import { useState } from "react";
 
 interface ReportHistoryProps {
   userId: string;
 }
 
 export function ReportHistory({ userId }: ReportHistoryProps) {
-  const { reports, loading } = useReportSchedules(userId);
+  const { reports, loading, sendReportEmail } = useReportSchedules(userId);
+  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+
+  const handleSendEmail = async (reportId: string) => {
+    setSendingEmail(reportId);
+    try {
+      await sendReportEmail(reportId);
+    } finally {
+      setSendingEmail(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -73,14 +84,25 @@ export function ReportHistory({ userId }: ReportHistoryProps) {
               </div>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.open(report.report_url, '_blank')}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              View
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSendEmail(report.id)}
+                disabled={sendingEmail === report.id}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                {sendingEmail === report.id ? "Sending..." : "Email"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(report.report_url, '_blank')}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                View
+              </Button>
+            </div>
           </div>
         </Card>
       ))}

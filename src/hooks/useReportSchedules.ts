@@ -191,6 +191,46 @@ export function useReportSchedules(userId?: string) {
     }
   };
 
+  const sendReportEmail = async (reportId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Get report details
+      const report = reports.find(r => r.id === reportId);
+      if (!report) throw new Error('Report not found');
+
+      const { data, error } = await supabase.functions.invoke('send-report-email', {
+        body: {
+          userId: user.id,
+          playerId: report.player_id,
+          reportUrl: report.report_url,
+          reportType: report.report_type,
+          periodStart: report.period_start,
+          periodEnd: report.period_end,
+          metrics: report.metrics || { totalSwings: 0, avgScore: 0, improvement: 0 },
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email Sent!",
+        description: "Report has been sent to your email.",
+      });
+
+      return data;
+    } catch (error: any) {
+      console.error('Error sending email:', error);
+      toast({
+        title: "Failed to Send Email",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
   useEffect(() => {
     loadSchedules();
   }, [userId]);
@@ -203,6 +243,7 @@ export function useReportSchedules(userId?: string) {
     updateSchedule,
     deleteSchedule,
     generateReport,
+    sendReportEmail,
     refetch: loadSchedules
   };
 }
