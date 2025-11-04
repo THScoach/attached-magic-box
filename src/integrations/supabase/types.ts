@@ -573,6 +573,7 @@ export type Database = {
           organization: string | null
           position: string | null
           team_name: string | null
+          throws: string | null
           updated_at: string
           user_id: string
           weight: number | null
@@ -594,6 +595,7 @@ export type Database = {
           organization?: string | null
           position?: string | null
           team_name?: string | null
+          throws?: string | null
           updated_at?: string
           user_id: string
           weight?: number | null
@@ -615,6 +617,7 @@ export type Database = {
           organization?: string | null
           position?: string | null
           team_name?: string | null
+          throws?: string | null
           updated_at?: string
           user_id?: string
           weight?: number | null
