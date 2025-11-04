@@ -24,6 +24,7 @@ import { GoalSettingModal } from "@/components/GoalSettingModal";
 import { GoalProgressCard } from "@/components/GoalProgressCard";
 import { ExportProgressReport } from "@/components/ExportProgressReport";
 import { PeerComparison } from "@/components/PeerComparison";
+import { GoalSuggestions } from "@/components/GoalSuggestions";
 import { useUserGoals } from "@/hooks/useUserGoals";
 import { Loader2 } from "lucide-react";
 
@@ -432,7 +433,10 @@ export default function Progress() {
             </div>
           </div>
 
-          <GoalSettingModal />
+          <div className="grid gap-4 md:grid-cols-2">
+            <GoalSettingModal />
+            <GoalSuggestions />
+          </div>
 
           {goals.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
@@ -443,7 +447,7 @@ export default function Progress() {
           ) : (
             <Card className="p-8 text-center">
               <p className="text-muted-foreground mb-4">
-                No goals set yet. Create your first goal to start tracking progress!
+                No goals set yet. Create your first goal or get AI-powered suggestions!
               </p>
             </Card>
           )}
