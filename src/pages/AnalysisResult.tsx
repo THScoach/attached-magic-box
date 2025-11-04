@@ -19,6 +19,7 @@ import { SwingAvatar3D } from "@/components/SwingAvatar3D";
 import { VideoKeyMomentOverlay } from "@/components/VideoKeyMomentOverlay";
 import { ReanalyzeButton } from "@/components/ReanalyzeButton";
 import { VideoAnalysisWithMarkup } from "@/components/VideoAnalysisWithMarkup";
+import { PoseSkeletonOverlay } from "@/components/PoseSkeletonOverlay";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
@@ -52,8 +53,11 @@ export default function AnalysisResult() {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isBuffering, setIsBuffering] = useState(true);
   const [pausedMoments, setPausedMoments] = useState<Set<string>>(new Set());
+  const [showSkeleton, setShowSkeleton] = useState(false);
+  const [videoContainerSize, setVideoContainerSize] = useState({ width: 0, height: 0 });
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
   const frameCallbackIdRef = useRef<number | null>(null);
   const FPS = 30; // Frames per second
 
@@ -732,7 +736,7 @@ export default function AnalysisResult() {
           
           <TabsContent value="video" className="mt-4">
             <Card className="overflow-hidden">
-              <div className="aspect-video bg-black relative group">
+              <div ref={videoContainerRef} className="aspect-video bg-black relative group">
                 {analysis.videoUrl ? (
                   <>
                     <video
@@ -762,6 +766,16 @@ export default function AnalysisResult() {
                         </div>
                       </div>
                     )}
+
+                    {/* Pose Skeleton Overlay */}
+                    <PoseSkeletonOverlay
+                      jointData={jointData}
+                      currentFrame={currentFrame}
+                      videoWidth={videoRef.current?.videoWidth || 1920}
+                      videoHeight={videoRef.current?.videoHeight || 1080}
+                      isVisible={showSkeleton}
+                      onToggleVisibility={() => setShowSkeleton(!showSkeleton)}
+                    />
 
                     {/* Key Moment Overlays */}
                     <VideoKeyMomentOverlay
