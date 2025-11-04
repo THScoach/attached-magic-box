@@ -17,6 +17,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { useState, useEffect } from "react";
 import { useProgressMetrics } from "@/hooks/useProgressMetrics";
 import { useGamificationData } from "@/hooks/useGamificationData";
+import { useHistoricalMetrics } from "@/hooks/useHistoricalMetrics";
+import { MetricTrendChart } from "@/components/MetricTrendChart";
+import { Loader2 } from "lucide-react";
 
 export default function Progress() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,6 +45,17 @@ export default function Progress() {
     data: gamificationData,
     loading: gamificationLoading,
   } = useGamificationData();
+
+  // Fetch historical trends
+  const { metrics: historicalMetrics, loading: historicalLoading } = useHistoricalMetrics();
+
+  if (loading || gamificationLoading || historicalLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   // Sync carousel to tab changes
   useEffect(() => {
@@ -334,6 +348,59 @@ export default function Progress() {
             </CarouselContent>
           </Carousel>
         </Tabs>
+
+        {/* Historical Trends Section */}
+        <div className="space-y-6 mt-8">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Historical Trends</h2>
+            <p className="text-muted-foreground">Track your improvement over time</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <MetricTrendChart
+              title="Bat Speed"
+              data={historicalMetrics.batSpeed}
+              metricName="Bat Speed"
+              color="hsl(var(--chart-1))"
+              unit="mph"
+            />
+            <MetricTrendChart
+              title="Exit Velocity"
+              data={historicalMetrics.exitVelocity}
+              metricName="Exit Velocity"
+              color="hsl(var(--chart-2))"
+              unit="mph"
+            />
+            <MetricTrendChart
+              title="Sequence Efficiency"
+              data={historicalMetrics.sequenceEfficiency}
+              metricName="Sequence Efficiency"
+              color="hsl(var(--chart-3))"
+              unit="%"
+            />
+            <MetricTrendChart
+              title="Reaction Time"
+              data={historicalMetrics.reactionTime}
+              metricName="Reaction Time"
+              color="hsl(var(--chart-4))"
+              unit="ms"
+            />
+            <MetricTrendChart
+              title="Attack Angle"
+              data={historicalMetrics.attackAngle}
+              metricName="Attack Angle"
+              color="hsl(var(--chart-5))"
+              unit="°"
+            />
+            <MetricTrendChart
+              title="Tempo Ratio"
+              data={historicalMetrics.tempoRatio}
+              metricName="Tempo Ratio"
+              color="hsl(var(--primary))"
+              unit=":1"
+            />
+          </div>
+        </div>
       </div>
 
       <BottomNav />
