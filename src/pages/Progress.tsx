@@ -15,6 +15,7 @@ import { calculateGrade } from "@/lib/gradingSystem";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, CarouselApi } from "@/components/ui/carousel";
 import { useState, useEffect } from "react";
+import { useProgressMetrics } from "@/hooks/useProgressMetrics";
 
 export default function Progress() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,6 +24,17 @@ export default function Progress() {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 
   const tabs = ['overview', 'bat', 'body', 'ball', 'brain', 'gamification'];
+
+  // Fetch real metrics data
+  const {
+    batMetrics,
+    bodyMetrics,
+    ballMetrics,
+    brainMetrics,
+    stats,
+    progressData,
+    loading,
+  } = useProgressMetrics();
 
   // Sync carousel to tab changes
   useEffect(() => {
@@ -49,8 +61,8 @@ export default function Progress() {
     };
   }, [carouselApi, setSearchParams]);
 
-  // Sample data for BAT metrics
-  const sampleBatMetrics = {
+  // Use real data or fallback to sample data if no data exists yet
+  const displayBatMetrics = batMetrics || {
     batSpeed: 72,
     attackAngle: 12,
     timeInZone: 0.15,
@@ -59,11 +71,9 @@ export default function Progress() {
     attackAngleGrade: calculateGrade(90),
     timeInZoneGrade: calculateGrade(85),
     personalBest: 74,
-    lastWeekSpeed: 69,
   };
 
-  // Sample data for BODY metrics
-  const sampleBodyMetrics = {
+  const displayBodyMetrics = bodyMetrics || {
     legsPeakVelocity: 700,
     corePeakVelocity: 900,
     armsPeakVelocity: 1050,
@@ -81,12 +91,10 @@ export default function Progress() {
     isCorrectSequence: true,
   };
 
-  // Sample data for BALL metrics
-  const sampleBallMetrics = {
+  const displayBallMetrics = ballMetrics || {
     exitVelocity: 92,
     level: 'highSchool',
     exitVelocityGrade: calculateGrade(92),
-    exitVelocityImprovement: 5,
     flyBallPercentage: 35,
     lineDrivePercentage: 50,
     groundBallPercentage: 15,
@@ -97,11 +105,9 @@ export default function Progress() {
     hardHitGrade: calculateGrade(95),
   };
 
-  // Sample data for BRAIN metrics
-  const sampleBrainMetrics = {
+  const displayBrainMetrics = brainMetrics || {
     reactionTime: 165,
     reactionTimeGrade: calculateGrade(85),
-    averageReactionTime: 170,
     goodSwingsPercentage: 75,
     goodTakesPercentage: 68,
     chaseRate: 28,
@@ -112,8 +118,7 @@ export default function Progress() {
     consistencyRating: 78,
   };
 
-  // Mock progress data
-  const progressData = [
+  const displayProgressData = progressData.length > 0 ? progressData : [
     { date: 'Oct 1', hits: 68, anchor: 75, engine: 65, whip: 64 },
     { date: 'Oct 5', hits: 70, anchor: 78, engine: 67, whip: 66 },
     { date: 'Oct 10', hits: 72, anchor: 80, engine: 68, whip: 68 },
@@ -122,10 +127,10 @@ export default function Progress() {
     { date: 'Oct 25', hits: 75, anchor: 85, engine: 72, whip: 68 },
   ];
 
-  const stats = {
-    totalSwings: 47,
-    avgHitsScore: 75,
-    improvement: 7,
+  const displayStats = stats || {
+    totalSwings: 0,
+    avgHitsScore: 0,
+    improvement: 0,
     bestPillar: 'ANCHOR',
     focusArea: 'ENGINE'
   };
@@ -166,19 +171,21 @@ export default function Progress() {
         <div className="grid grid-cols-2 gap-3">
           <Card className="p-4">
             <p className="text-sm text-muted-foreground mb-1">Total Swings</p>
-            <p className="text-3xl font-bold">{stats.totalSwings}</p>
+            <p className="text-3xl font-bold">{displayStats.totalSwings}</p>
           </Card>
           <Card className="p-4">
             <p className="text-sm text-muted-foreground mb-1">Avg H.I.T.S.</p>
-            <p className="text-3xl font-bold text-primary">{stats.avgHitsScore}</p>
+            <p className="text-3xl font-bold text-primary">{displayStats.avgHitsScore}</p>
           </Card>
           <Card className="p-4">
             <p className="text-sm text-muted-foreground mb-1">Improvement</p>
-            <p className="text-3xl font-bold text-green-500">+{stats.improvement}</p>
+            <p className="text-3xl font-bold text-green-500">
+              {displayStats.improvement > 0 ? '+' : ''}{displayStats.improvement}
+            </p>
           </Card>
           <Card className="p-4">
             <p className="text-sm text-muted-foreground mb-1">Focus Area</p>
-            <p className="text-xl font-bold text-engine">{stats.focusArea}</p>
+            <p className="text-xl font-bold text-engine">{displayStats.focusArea}</p>
           </Card>
         </div>
 
@@ -195,7 +202,7 @@ export default function Progress() {
           </div>
           
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={progressData}>
+            <LineChart data={displayProgressData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="date" className="text-xs" />
               <YAxis className="text-xs" domain={[50, 100]} />
@@ -277,25 +284,25 @@ export default function Progress() {
 
               <CarouselItem>
           <TabsContent value="bat" className="mt-0">
-            <BatMetricsView {...sampleBatMetrics} />
+            <BatMetricsView {...displayBatMetrics} />
           </TabsContent>
               </CarouselItem>
 
               <CarouselItem>
           <TabsContent value="body" className="mt-0">
-            <BodyMetricsView {...sampleBodyMetrics} />
+            <BodyMetricsView {...displayBodyMetrics} />
           </TabsContent>
               </CarouselItem>
 
               <CarouselItem>
           <TabsContent value="ball" className="mt-0">
-            <BallMetricsView {...sampleBallMetrics} />
+            <BallMetricsView {...displayBallMetrics} />
           </TabsContent>
               </CarouselItem>
 
               <CarouselItem>
           <TabsContent value="brain" className="mt-0">
-            <BrainMetricsView {...sampleBrainMetrics} />
+            <BrainMetricsView {...displayBrainMetrics} />
           </TabsContent>
               </CarouselItem>
 

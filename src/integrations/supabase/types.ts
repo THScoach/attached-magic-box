@@ -1663,27 +1663,6 @@ export type Database = {
         }
         Relationships: []
       }
-      progress_trends: {
-        Row: {
-          avg_anchor: number | null
-          avg_engine: number | null
-          avg_hits_score: number | null
-          avg_whip: number | null
-          date: string | null
-          player_id: string | null
-          swing_count: number | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "swing_analyses_player_id_fkey"
-            columns: ["player_id"]
-            isOneToOne: false
-            referencedRelation: "players"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Functions: {
       can_analyze_swing: { Args: { _user_id: string }; Returns: boolean }
