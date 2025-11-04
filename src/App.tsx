@@ -37,6 +37,7 @@ import FreeOnboarding from "./pages/FreeOnboarding";
 import Pricing from "./pages/Pricing";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import Challenges from "./pages/Challenges";
+import VideoLibrary from "./pages/VideoLibrary";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -111,13 +112,14 @@ const App = () => {
             <Route path="/player/:playerId/analysis/:analysisId" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
             <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
             <Route path="/comparison" element={<ProtectedRoute><Comparison /></ProtectedRoute>} />
-          <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-          <Route path="/demo-report" element={<DemoReport />} />
+            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+            <Route path="/demo-report" element={<DemoReport />} />
             <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />
             <Route path="/training" element={<ProtectedRoute><Training /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/live-coaching" element={<ProtectedRoute><LiveCoaching /></ProtectedRoute>} />
             <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
+            <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

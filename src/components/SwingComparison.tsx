@@ -438,16 +438,6 @@ export function SwingComparison({ playerId }: { playerId?: string }) {
                       difference={comparisonData.differences.exit_velocity}
                       unit=" mph"
                     />
-                    {comparisonData.swingA.ball_metrics.launch_angle !== undefined && 
-                     comparisonData.swingB.ball_metrics.launch_angle !== undefined && (
-                      <MetricRow
-                        label="Launch Angle"
-                        valueA={comparisonData.swingA.ball_metrics.launch_angle}
-                        valueB={comparisonData.swingB.ball_metrics.launch_angle}
-                        difference={comparisonData.differences.launch_angle}
-                        unit="°"
-                      />
-                    )}
                   </div>
                 )}
 

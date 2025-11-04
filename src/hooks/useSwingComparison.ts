@@ -22,7 +22,7 @@ export interface SwingComparisonData {
   };
   ball_metrics?: {
     exit_velocity: number;
-    launch_angle: number;
+    launch_angle?: number;
   };
   brain_metrics?: {
     reaction_time: number;
@@ -59,8 +59,7 @@ export function useSwingComparison(playerId?: string) {
             sequence_efficiency
           ),
           ball_metrics (
-            exit_velocity,
-            launch_angle
+            exit_velocity
           ),
           brain_metrics (
             reaction_time
@@ -110,7 +109,6 @@ export function useSwingComparison(playerId?: string) {
           brain_score: swingB.brain_score - swingA.brain_score,
           bat_speed: (swingB.bat_metrics?.bat_speed || 0) - (swingA.bat_metrics?.bat_speed || 0),
           exit_velocity: (swingB.ball_metrics?.exit_velocity || 0) - (swingA.ball_metrics?.exit_velocity || 0),
-          launch_angle: (swingB.ball_metrics?.launch_angle || 0) - (swingA.ball_metrics?.launch_angle || 0),
           tempo_ratio: (swingB.body_metrics?.tempo_ratio || 0) - (swingA.body_metrics?.tempo_ratio || 0),
           reaction_time: (swingB.brain_metrics?.reaction_time || 0) - (swingA.brain_metrics?.reaction_time || 0),
         },
