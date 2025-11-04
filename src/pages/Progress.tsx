@@ -7,6 +7,10 @@ import { BatMetricsView } from "@/components/BatMetricsView";
 import { BodyMetricsView } from "@/components/BodyMetricsView";
 import { BallMetricsView } from "@/components/BallMetricsView";
 import { BrainMetricsView } from "@/components/BrainMetricsView";
+import { AchievementBadges } from "@/components/AchievementBadges";
+import { StreakTracker } from "@/components/StreakTracker";
+import { XPLevelSystem } from "@/components/XPLevelSystem";
+import { Leaderboard } from "@/components/Leaderboard";
 import { calculateGrade } from "@/lib/gradingSystem";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -107,12 +111,13 @@ export default function Progress() {
 
       <div className="px-6 py-6 space-y-6">
         <Tabs defaultValue={initialCategory} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="bat">🏏</TabsTrigger>
-            <TabsTrigger value="body">💪</TabsTrigger>
-            <TabsTrigger value="ball">⚾</TabsTrigger>
-            <TabsTrigger value="brain">🧠</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6 mb-6">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Stats</TabsTrigger>
+            <TabsTrigger value="bat" className="text-xs sm:text-sm">🏏</TabsTrigger>
+            <TabsTrigger value="body" className="text-xs sm:text-sm">💪</TabsTrigger>
+            <TabsTrigger value="ball" className="text-xs sm:text-sm">⚾</TabsTrigger>
+            <TabsTrigger value="brain" className="text-xs sm:text-sm">🧠</TabsTrigger>
+            <TabsTrigger value="gamification" className="text-xs sm:text-sm">🏆</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -242,6 +247,22 @@ export default function Progress() {
 
           <TabsContent value="brain">
             <BrainMetricsView {...sampleBrainMetrics} />
+          </TabsContent>
+
+          <TabsContent value="gamification" className="space-y-6">
+            <XPLevelSystem 
+              currentXP={2850}
+              currentLevel={8}
+            />
+            
+            <StreakTracker 
+              currentStreak={5}
+              longestStreak={12}
+            />
+            
+            <AchievementBadges />
+            
+            <Leaderboard />
           </TabsContent>
         </Tabs>
       </div>
