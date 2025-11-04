@@ -983,6 +983,72 @@ export type Database = {
           },
         ]
       }
+      parent_coach_messages: {
+        Row: {
+          athlete_id: string
+          coach_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message_content: string
+          parent_user_id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          athlete_id: string
+          coach_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message_content: string
+          parent_user_id: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          athlete_id?: string
+          coach_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message_content?: string
+          parent_user_id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      parent_guardians: {
+        Row: {
+          athlete_id: string
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          parent_user_id: string
+          relationship: string
+          updated_at: string
+        }
+        Insert: {
+          athlete_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          parent_user_id: string
+          relationship: string
+          updated_at?: string
+        }
+        Update: {
+          athlete_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          parent_user_id?: string
+          relationship?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       players: {
         Row: {
           avatar_url: string | null

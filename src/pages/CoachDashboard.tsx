@@ -25,6 +25,7 @@ import { AthleteComparison } from "@/components/admin/AthleteComparison";
 import { TeamLeaderboards } from "@/components/admin/TeamLeaderboards";
 import { CoachingNotesPanel } from "@/components/admin/CoachingNotesPanel";
 import { BulkTeamActions } from "@/components/admin/BulkTeamActions";
+import { ParentGuardianManager } from "@/components/admin/ParentGuardianManager";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -257,6 +258,11 @@ export default function CoachDashboard() {
           </TabsContent>
 
           <TabsContent value="athletes" className="space-y-6">
+            <Alert>
+              <AlertDescription>
+                Parents can access athlete progress via /parent-portal after being added by a coach
+              </AlertDescription>
+            </Alert>
             {athletes.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
@@ -272,11 +278,16 @@ export default function CoachDashboard() {
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {athletes.map((athlete) => (
-                    <AthleteProgressOverview
-                      key={athlete.athlete_id}
-                      athleteId={athlete.athlete_id}
-                      athleteEmail={athlete.athlete_email}
-                    />
+                    <div key={athlete.athlete_id} className="space-y-4">
+                      <AthleteProgressOverview
+                        athleteId={athlete.athlete_id}
+                        athleteEmail={athlete.athlete_email}
+                      />
+                      <ParentGuardianManager
+                        athleteId={athlete.athlete_id}
+                        athleteEmail={athlete.athlete_email}
+                      />
+                    </div>
                   ))}
                 </div>
               </>
