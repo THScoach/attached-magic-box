@@ -23,6 +23,7 @@ import { BenchmarkComparison } from "@/components/BenchmarkComparison";
 import { GoalSettingModal } from "@/components/GoalSettingModal";
 import { GoalProgressCard } from "@/components/GoalProgressCard";
 import { ExportProgressReport } from "@/components/ExportProgressReport";
+import { PeerComparison } from "@/components/PeerComparison";
 import { useUserGoals } from "@/hooks/useUserGoals";
 import { Loader2 } from "lucide-react";
 
@@ -446,6 +447,16 @@ export default function Progress() {
               </p>
             </Card>
           )}
+        </div>
+
+        {/* Peer Rankings Section */}
+        <div className="space-y-6 mt-8">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Community Rankings</h2>
+            <p className="text-muted-foreground">See how you compare with other players</p>
+          </div>
+
+          <PeerComparison />
         </div>
 
         {/* Benchmark Comparisons Section */}
