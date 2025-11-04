@@ -1432,7 +1432,11 @@ export type Database = {
         Row: {
           anchor_score: number
           attack_angle: number | null
+          ball_score: number | null
           bat_path_plane: number | null
+          bat_score: number | null
+          body_score: number | null
+          brain_score: number | null
           connection_quality: number | null
           created_at: string
           direction_score: number | null
@@ -1457,7 +1461,11 @@ export type Database = {
         Insert: {
           anchor_score: number
           attack_angle?: number | null
+          ball_score?: number | null
           bat_path_plane?: number | null
+          bat_score?: number | null
+          body_score?: number | null
+          brain_score?: number | null
           connection_quality?: number | null
           created_at?: string
           direction_score?: number | null
@@ -1482,7 +1490,11 @@ export type Database = {
         Update: {
           anchor_score?: number
           attack_angle?: number | null
+          ball_score?: number | null
           bat_path_plane?: number | null
+          bat_score?: number | null
+          body_score?: number | null
+          brain_score?: number | null
           connection_quality?: number | null
           created_at?: string
           direction_score?: number | null
