@@ -1,10 +1,36 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Check, ChevronRight, ArrowRight } from "lucide-react";
 import { HitsLogo, HitsMonogram } from "@/components/HitsLogo";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Programs() {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setIsAuthenticated(!!user);
+    setLoading(false);
+  };
+
+  const handleCheckoutClick = (whopUrl: string) => {
+    if (isAuthenticated) {
+      // User is logged in, redirect to Whop checkout
+      window.location.href = whopUrl;
+    } else {
+      // User not logged in, save URL and redirect to auth
+      localStorage.setItem('pendingCheckoutUrl', whopUrl);
+      navigate('/auth');
+    }
+  };
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -103,10 +129,13 @@ export default function Programs() {
                       Prove the system works with daily coaching and feedback
                     </CardDescription>
                   </div>
-                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <a href="https://whop.com/the-hitting-skool/297-b6/" target="_blank" rel="noopener noreferrer">
-                      Start Challenge <ArrowRight className="ml-2 h-5 w-5" />
-                    </a>
+                  <Button 
+                    size="lg" 
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
+                    onClick={() => handleCheckoutClick('https://whop.com/the-hitting-skool/297-b6/')}
+                    disabled={loading}
+                  >
+                    Start Challenge <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
               </CardHeader>
@@ -155,10 +184,13 @@ export default function Programs() {
                       Full platform access with unlimited AI-powered analysis
                     </CardDescription>
                   </div>
-                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <a href="https://whop.com/the-hitting-skool/diy-annual/" target="_blank" rel="noopener noreferrer">
-                      Join DIY <ArrowRight className="ml-2 h-5 w-5" />
-                    </a>
+                  <Button 
+                    size="lg" 
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
+                    onClick={() => handleCheckoutClick('https://whop.com/the-hitting-skool/diy-annual/')}
+                    disabled={loading}
+                  >
+                    Join DIY <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
               </CardHeader>
@@ -214,10 +246,13 @@ export default function Programs() {
                       Premium coaching with monthly 1-on-1 calls and custom programming
                     </CardDescription>
                   </div>
-                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <a href="https://whop.com/the-hitting-skool/elite-90-day-transformation/" target="_blank" rel="noopener noreferrer">
-                      Join Elite <ArrowRight className="ml-2 h-5 w-5" />
-                    </a>
+                  <Button 
+                    size="lg" 
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
+                    onClick={() => handleCheckoutClick('https://whop.com/the-hitting-skool/elite-90-day-transformation/')}
+                    disabled={loading}
+                  >
+                    Join Elite <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
               </CardHeader>
