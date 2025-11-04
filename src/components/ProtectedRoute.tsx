@@ -23,9 +23,12 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
       // Update authentication state for all events
       setIsAuthenticated(!!session);
       
-      // Only navigate to auth page on explicit sign out, not on token refresh or other events
+      // Clear local storage on sign out
       if (event === 'SIGNED_OUT' && !session) {
-        console.log('[ProtectedRoute] User signed out, redirecting to /auth');
+        console.log('[ProtectedRoute] User signed out, clearing data and redirecting');
+        localStorage.removeItem('athleteInfo');
+        localStorage.removeItem('onboardingComplete');
+        localStorage.removeItem('pendingCheckoutUrl');
         navigate("/auth", { replace: true });
       }
     });

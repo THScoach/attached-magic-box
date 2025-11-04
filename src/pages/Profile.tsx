@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/BottomNav";
 import { MembershipCard } from "@/components/MembershipCard";
-import { User, Settings, HelpCircle, LogOut, Trophy, Target } from "lucide-react";
+import { User, Settings, HelpCircle, LogOut, Trophy, Target, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useNavigate } from "react-router-dom";
@@ -11,11 +12,35 @@ import { supabase } from "@/integrations/supabase/client";
 export default function Profile() {
   const { isAdmin } = useUserRole();
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    toast.success("Signed out successfully");
-    navigate("/auth");
+    setIsLoggingOut(true);
+    try {
+      // Clear any local storage items
+      localStorage.removeItem('athleteInfo');
+      localStorage.removeItem('onboardingComplete');
+      localStorage.removeItem('pendingCheckoutUrl');
+      
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        toast.error("Failed to sign out. Please try again.");
+        setIsLoggingOut(false);
+        return;
+      }
+      
+      toast.success("Signed out successfully");
+      
+      // Force redirect to auth page
+      window.location.href = "/auth";
+    } catch (error) {
+      console.error('Unexpected sign out error:', error);
+      toast.error("An error occurred during sign out");
+      setIsLoggingOut(false);
+    }
   };
   
   const user = {
@@ -132,9 +157,19 @@ export default function Profile() {
             variant="outline" 
             className="w-full justify-start text-destructive"
             onClick={handleSignOut}
+            disabled={isLoggingOut}
           >
-            <LogOut className="mr-2 h-4 w-4" />
-            Log Out
+            {isLoggingOut ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing Out...
+              </>
+            ) : (
+              <>
+                <LogOut className="mr-2 h-4 w-4" />
+                Log Out
+              </>
+            )}
           </Button>
         </Card>
       </div>

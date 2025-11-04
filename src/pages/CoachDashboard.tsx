@@ -51,9 +51,28 @@ export default function CoachDashboard() {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    toast.success("Signed out successfully");
-    navigate("/coach-auth");
+    try {
+      // Clear local storage
+      localStorage.removeItem('athleteInfo');
+      localStorage.removeItem('onboardingComplete');
+      localStorage.removeItem('pendingCheckoutUrl');
+      
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        toast.error("Failed to sign out. Please try again.");
+        return;
+      }
+      
+      toast.success("Signed out successfully");
+      
+      // Force redirect to coach auth page
+      window.location.href = "/coach-auth";
+    } catch (error) {
+      console.error('Unexpected sign out error:', error);
+      toast.error("An error occurred during sign out");
+    }
   };
 
   if (loading || rosterLoading) {
