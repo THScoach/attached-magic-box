@@ -22,6 +22,7 @@ import { AthleteProgressOverview } from "@/components/admin/AthleteProgressOverv
 import { TeamAnalyticsDashboard } from "@/components/admin/TeamAnalyticsDashboard";
 import { AthleteReportScheduler } from "@/components/admin/AthleteReportScheduler";
 import { AthleteComparison } from "@/components/admin/AthleteComparison";
+import { TeamLeaderboards } from "@/components/admin/TeamLeaderboards";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -174,33 +175,47 @@ export default function CoachDashboard() {
 
         {/* AI Training Input */}
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 gap-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
             <TabsTrigger value="analytics" className="text-xs">
-              <TrendingUp className="h-4 w-4 mr-1" />
-              Analytics
+              <TrendingUp className="h-4 w-4 lg:mr-1" />
+              <span className="hidden lg:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="leaderboards" className="text-xs">
+              <Trophy className="h-4 w-4 lg:mr-1" />
+              <span className="hidden lg:inline">Leaders</span>
             </TabsTrigger>
             <TabsTrigger value="compare" className="text-xs">
-              <Users className="h-4 w-4 mr-1" />
-              Compare
+              <Users className="h-4 w-4 lg:mr-1" />
+              <span className="hidden lg:inline">Compare</span>
             </TabsTrigger>
             <TabsTrigger value="athletes" className="text-xs">
-              <Users className="h-4 w-4 mr-1" />
-              Progress
+              <Users className="h-4 w-4 lg:mr-1" />
+              <span className="hidden lg:inline">Progress</span>
             </TabsTrigger>
             <TabsTrigger value="reports" className="text-xs">
-              <Calendar className="h-4 w-4 mr-1" />
-              Reports
+              <Calendar className="h-4 w-4 lg:mr-1" />
+              <span className="hidden lg:inline">Reports</span>
             </TabsTrigger>
-            <TabsTrigger value="overview" className="text-xs">Manage</TabsTrigger>
+            <TabsTrigger value="overview" className="text-xs">
+              <span className="hidden lg:inline">Manage</span>
+              <span className="lg:hidden">Mgmt</span>
+            </TabsTrigger>
             <TabsTrigger value="challenges" className="text-xs">
-              <Trophy className="h-4 w-4 mr-1" />
-              Challenges
+              <Trophy className="h-4 w-4 lg:mr-1" />
+              <span className="hidden lg:inline">Challenges</span>
             </TabsTrigger>
-            <TabsTrigger value="effectiveness" className="text-xs">Drills</TabsTrigger>
+            <TabsTrigger value="effectiveness" className="text-xs">
+              <span className="hidden lg:inline">Drills</span>
+              <span className="lg:hidden">Dr</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics" className="space-y-6">
             <TeamAnalyticsDashboard athleteIds={athletes.map(a => a.athlete_id)} />
+          </TabsContent>
+
+          <TabsContent value="leaderboards" className="space-y-6">
+            <TeamLeaderboards athletes={athletes.map(a => ({ athlete_id: a.athlete_id, athlete_email: a.athlete_email }))} />
           </TabsContent>
 
           <TabsContent value="compare" className="space-y-6">
