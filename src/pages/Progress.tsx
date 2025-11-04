@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router-dom";
 import { BatMetricsView } from "@/components/BatMetricsView";
+import { BodyMetricsView } from "@/components/BodyMetricsView";
 import { calculateGrade } from "@/lib/gradingSystem";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -22,6 +23,25 @@ export default function Progress() {
     timeInZoneGrade: calculateGrade(85),
     personalBest: 74,
     lastWeekSpeed: 69,
+  };
+
+  // Sample data for BODY metrics
+  const sampleBodyMetrics = {
+    legsPeakVelocity: 700,
+    corePeakVelocity: 900,
+    armsPeakVelocity: 1050,
+    batPeakVelocity: 2400,
+    sequenceEfficiency: 87,
+    sequenceGrade: calculateGrade(87),
+    legsPower: 65,
+    corePower: 25,
+    armsPower: 10,
+    powerGrade: calculateGrade(82),
+    loadTime: 0.35,
+    launchTime: 0.20,
+    tempoRatio: 1.75,
+    tempoGrade: calculateGrade(90),
+    isCorrectSequence: true,
   };
 
   // Mock progress data
@@ -180,10 +200,7 @@ export default function Progress() {
           </TabsContent>
 
           <TabsContent value="body">
-            <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-4">💪 BODY Metrics</h2>
-              <p className="text-muted-foreground">Coming in Phase 3...</p>
-            </Card>
+            <BodyMetricsView {...sampleBodyMetrics} />
           </TabsContent>
 
           <TabsContent value="ball">
