@@ -14,6 +14,266 @@ export type Database = {
   }
   public: {
     Tables: {
+      ball_metrics: {
+        Row: {
+          analysis_id: string | null
+          created_at: string
+          exit_velocity: number
+          exit_velocity_grade: number | null
+          fly_ball_percentage: number | null
+          ground_ball_percentage: number | null
+          hard_hit_count: number | null
+          hard_hit_grade: number | null
+          hard_hit_percentage: number | null
+          id: string
+          launch_angle_grade: number | null
+          level: string | null
+          line_drive_percentage: number | null
+          player_id: string | null
+          total_swings: number | null
+          user_id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          created_at?: string
+          exit_velocity: number
+          exit_velocity_grade?: number | null
+          fly_ball_percentage?: number | null
+          ground_ball_percentage?: number | null
+          hard_hit_count?: number | null
+          hard_hit_grade?: number | null
+          hard_hit_percentage?: number | null
+          id?: string
+          launch_angle_grade?: number | null
+          level?: string | null
+          line_drive_percentage?: number | null
+          player_id?: string | null
+          total_swings?: number | null
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string | null
+          created_at?: string
+          exit_velocity?: number
+          exit_velocity_grade?: number | null
+          fly_ball_percentage?: number | null
+          ground_ball_percentage?: number | null
+          hard_hit_count?: number | null
+          hard_hit_grade?: number | null
+          hard_hit_percentage?: number | null
+          id?: string
+          launch_angle_grade?: number | null
+          level?: string | null
+          line_drive_percentage?: number | null
+          player_id?: string | null
+          total_swings?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ball_metrics_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bat_metrics: {
+        Row: {
+          analysis_id: string | null
+          attack_angle: number
+          attack_angle_grade: number | null
+          bat_speed: number
+          bat_speed_grade: number | null
+          created_at: string
+          id: string
+          level: string | null
+          personal_best: number | null
+          player_id: string | null
+          time_in_zone: number
+          time_in_zone_grade: number | null
+          user_id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          attack_angle: number
+          attack_angle_grade?: number | null
+          bat_speed: number
+          bat_speed_grade?: number | null
+          created_at?: string
+          id?: string
+          level?: string | null
+          personal_best?: number | null
+          player_id?: string | null
+          time_in_zone: number
+          time_in_zone_grade?: number | null
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string | null
+          attack_angle?: number
+          attack_angle_grade?: number | null
+          bat_speed?: number
+          bat_speed_grade?: number | null
+          created_at?: string
+          id?: string
+          level?: string | null
+          personal_best?: number | null
+          player_id?: string | null
+          time_in_zone?: number
+          time_in_zone_grade?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bat_metrics_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      body_metrics: {
+        Row: {
+          analysis_id: string | null
+          arms_peak_velocity: number
+          arms_power: number
+          bat_peak_velocity: number
+          core_peak_velocity: number
+          core_power: number
+          created_at: string
+          id: string
+          is_correct_sequence: boolean | null
+          launch_time: number
+          legs_peak_velocity: number
+          legs_power: number
+          load_time: number
+          player_id: string | null
+          power_grade: number | null
+          sequence_efficiency: number
+          sequence_grade: number | null
+          tempo_grade: number | null
+          tempo_ratio: number
+          user_id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          arms_peak_velocity: number
+          arms_power: number
+          bat_peak_velocity: number
+          core_peak_velocity: number
+          core_power: number
+          created_at?: string
+          id?: string
+          is_correct_sequence?: boolean | null
+          launch_time: number
+          legs_peak_velocity: number
+          legs_power: number
+          load_time: number
+          player_id?: string | null
+          power_grade?: number | null
+          sequence_efficiency: number
+          sequence_grade?: number | null
+          tempo_grade?: number | null
+          tempo_ratio: number
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string | null
+          arms_peak_velocity?: number
+          arms_power?: number
+          bat_peak_velocity?: number
+          core_peak_velocity?: number
+          core_power?: number
+          created_at?: string
+          id?: string
+          is_correct_sequence?: boolean | null
+          launch_time?: number
+          legs_peak_velocity?: number
+          legs_power?: number
+          load_time?: number
+          player_id?: string | null
+          power_grade?: number | null
+          sequence_efficiency?: number
+          sequence_grade?: number | null
+          tempo_grade?: number | null
+          tempo_ratio?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "body_metrics_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brain_metrics: {
+        Row: {
+          analysis_id: string | null
+          chase_rate: number | null
+          consistency_rating: number | null
+          created_at: string
+          focus_grade: number | null
+          focus_score: number | null
+          good_swings_percentage: number | null
+          good_takes_percentage: number | null
+          id: string
+          player_id: string | null
+          reaction_time: number
+          reaction_time_grade: number | null
+          swing_decision_grade: number | null
+          total_pitches: number | null
+          user_id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          chase_rate?: number | null
+          consistency_rating?: number | null
+          created_at?: string
+          focus_grade?: number | null
+          focus_score?: number | null
+          good_swings_percentage?: number | null
+          good_takes_percentage?: number | null
+          id?: string
+          player_id?: string | null
+          reaction_time: number
+          reaction_time_grade?: number | null
+          swing_decision_grade?: number | null
+          total_pitches?: number | null
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string | null
+          chase_rate?: number | null
+          consistency_rating?: number | null
+          created_at?: string
+          focus_grade?: number | null
+          focus_score?: number | null
+          good_swings_percentage?: number | null
+          good_takes_percentage?: number | null
+          id?: string
+          player_id?: string | null
+          reaction_time?: number
+          reaction_time_grade?: number | null
+          swing_decision_grade?: number | null
+          total_pitches?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brain_metrics_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_items: {
         Row: {
           coach_id: string | null
@@ -1253,6 +1513,7 @@ export type Database = {
           id: string
           last_checkin_date: string | null
           longest_streak: number
+          practice_days: Json | null
           total_checkins: number
           updated_at: string
           user_id: string
@@ -1264,6 +1525,7 @@ export type Database = {
           id?: string
           last_checkin_date?: string | null
           longest_streak?: number
+          practice_days?: Json | null
           total_checkins?: number
           updated_at?: string
           user_id: string
@@ -1275,6 +1537,7 @@ export type Database = {
           id?: string
           last_checkin_date?: string | null
           longest_streak?: number
+          practice_days?: Json | null
           total_checkins?: number
           updated_at?: string
           user_id?: string
@@ -1399,6 +1662,27 @@ export type Database = {
           total_uses: number | null
         }
         Relationships: []
+      }
+      progress_trends: {
+        Row: {
+          avg_anchor: number | null
+          avg_engine: number | null
+          avg_hits_score: number | null
+          avg_whip: number | null
+          date: string | null
+          player_id: string | null
+          swing_count: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swing_analyses_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
