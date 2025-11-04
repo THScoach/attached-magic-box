@@ -231,6 +231,26 @@ export default function CoachDashboard() {
             <AthleteReportScheduler athletes={athletes.map(a => ({ athlete_id: a.athlete_id, athlete_email: a.athlete_email }))} />
           </TabsContent>
 
+          <TabsContent value="notes" className="space-y-6">
+            <div className="grid gap-6">
+              {athletes.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <p className="text-muted-foreground">No athletes on your roster yet</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                athletes.map((athlete) => (
+                  <CoachingNotesPanel
+                    key={athlete.athlete_id}
+                    athleteId={athlete.athlete_id}
+                    athleteEmail={athlete.athlete_email}
+                  />
+                ))
+              )}
+            </div>
+          </TabsContent>
+
           <TabsContent value="athletes" className="space-y-6">
             {athletes.length === 0 ? (
               <Card>

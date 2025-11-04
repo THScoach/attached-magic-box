@@ -4,155 +4,163 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pin, Trash2, Edit2, Check, X } from "lucide-react";
+import { Plus, Pin, Trash2, Edit2, X } from "lucide-react";
 import { format } from "date-fns";
-
-interface CoachingNote {
-  id: string;
-  coach_id: string;
-  athlete_id: string;
-  player_id: string | null;
-  analysis_id: string | null;
-  note_content: string;
-  note_type: string;
-  is_pinned: boolean;
-  created_at: string;
-  updated_at: string;
-}
 
 interface CoachingNotesPanelProps {
   athleteId: string;
   athleteEmail: string;
+  analysisId?: string;
 }
 
-const NOTE_TYPES = [
-  { value: "general", label: "General" },
-  { value: "swing_analysis", label: "Swing Analysis" },
-  { value: "progress", label: "Progress" },
-  { value: "concern", label: "Concern" },
-  { value: "strength", label: "Strength" },
-  { value: "goal", label: "Goal" },
-];
+type NoteType = 'general' | 'swing_analysis' | 'progress' | 'concern' | 'strength' | 'goal';
 
-export function CoachingNotesPanel({ athleteId, athleteEmail }: CoachingNotesPanelProps) {
-  const [newNote, setNewNote] = useState("");
-  const [noteType, setNoteType] = useState("general");
+interface CoachingNote {
+  id: string;
+  note_content: string;
+  note_type: NoteType;
+  is_pinned: boolean;
+  created_at: string;
+  updated_at: string;
+  analysis_id: string | null;
+}
+
+const noteTypeColors: Record<NoteType, string> = {
+  general: "bg-muted",
+  swing_analysis: "bg-primary/10 text-primary",
+  progress: "bg-green-500/10 text-green-700 dark:text-green-400",
+  concern: "bg-destructive/10 text-destructive",
+  strength: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
+  goal: "bg-purple-500/10 text-purple-700 dark:text-purple-400",
+};
+
+const noteTypeLabels: Record<NoteType, string> = {
+  general: "General",
+  swing_analysis: "Swing Analysis",
+  progress: "Progress",
+  concern: "Concern",
+  strength: "Strength",
+  goal: "Goal",
+};
+
+export function CoachingNotesPanel({ athleteId, athleteEmail, analysisId }: CoachingNotesPanelProps) {
+  const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editContent, setEditContent] = useState("");
+  const [noteContent, setNoteContent] = useState("");
+  const [noteType, setNoteType] = useState<NoteType>("general");
   const queryClient = useQueryClient();
 
-  const { data: notes = [], isLoading } = useQuery({
-    queryKey: ["coaching-notes", athleteId],
+  const { data: notes, isLoading } = useQuery({
+    queryKey: ['coaching-notes', athleteId, analysisId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("coaching_notes")
-        .select("*")
-        .eq("athlete_id", athleteId)
-        .order("is_pinned", { ascending: false })
-        .order("created_at", { ascending: false });
+      let query = supabase
+        .from('coaching_notes')
+        .select('*')
+        .eq('athlete_id', athleteId)
+        .order('is_pinned', { ascending: false })
+        .order('created_at', { ascending: false });
 
+      if (analysisId) {
+        query = query.eq('analysis_id', analysisId);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data as CoachingNote[];
     },
   });
 
-  const createNote = useMutation({
-    mutationFn: async (note: { content: string; type: string }) => {
+  const addNoteMutation = useMutation({
+    mutationFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-      
-      const { error } = await supabase.from("coaching_notes").insert([{
+
+      const { error } = await supabase.from('coaching_notes').insert({
         coach_id: user.id,
         athlete_id: athleteId,
-        note_content: note.content,
-        note_type: note.type,
-      }]);
+        note_content: noteContent,
+        note_type: noteType,
+        analysis_id: analysisId || null,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["coaching-notes", athleteId] });
-      setNewNote("");
+      queryClient.invalidateQueries({ queryKey: ['coaching-notes', athleteId] });
+      setNoteContent("");
+      setNoteType("general");
+      setIsAdding(false);
       toast.success("Note added");
     },
     onError: () => toast.error("Failed to add note"),
   });
 
-  const updateNote = useMutation({
-    mutationFn: async ({ id, content }: { id: string; content: string }) => {
+  const updateNoteMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<CoachingNote> }) => {
       const { error } = await supabase
-        .from("coaching_notes")
-        .update({ note_content: content })
-        .eq("id", id);
+        .from('coaching_notes')
+        .update(updates)
+        .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["coaching-notes", athleteId] });
+      queryClient.invalidateQueries({ queryKey: ['coaching-notes', athleteId] });
       setEditingId(null);
+      setNoteContent("");
       toast.success("Note updated");
     },
     onError: () => toast.error("Failed to update note"),
   });
 
-  const togglePin = useMutation({
-    mutationFn: async ({ id, isPinned }: { id: string; isPinned: boolean }) => {
-      const { error } = await supabase
-        .from("coaching_notes")
-        .update({ is_pinned: !isPinned })
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["coaching-notes", athleteId] });
-      toast.success("Note updated");
-    },
-  });
-
-  const deleteNote = useMutation({
+  const deleteNoteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("coaching_notes").delete().eq("id", id);
+      const { error } = await supabase
+        .from('coaching_notes')
+        .delete()
+        .eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["coaching-notes", athleteId] });
+      queryClient.invalidateQueries({ queryKey: ['coaching-notes', athleteId] });
       toast.success("Note deleted");
     },
     onError: () => toast.error("Failed to delete note"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newNote.trim()) return;
-    createNote.mutate({ content: newNote, type: noteType });
+  const handleSave = () => {
+    if (!noteContent.trim()) return;
+    
+    if (editingId) {
+      updateNoteMutation.mutate({
+        id: editingId,
+        updates: { note_content: noteContent, note_type: noteType },
+      });
+    } else {
+      addNoteMutation.mutate();
+    }
   };
 
   const startEdit = (note: CoachingNote) => {
     setEditingId(note.id);
-    setEditContent(note.note_content);
+    setNoteContent(note.note_content);
+    setNoteType(note.note_type);
+    setIsAdding(true);
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setEditContent("");
+    setNoteContent("");
+    setNoteType("general");
+    setIsAdding(false);
   };
 
-  const saveEdit = (id: string) => {
-    if (!editContent.trim()) return;
-    updateNote.mutate({ id, content: editContent });
-  };
-
-  const getTypeColor = (type: string) => {
-    const colors: Record<string, string> = {
-      general: "bg-muted",
-      swing_analysis: "bg-primary/20",
-      progress: "bg-green-500/20",
-      concern: "bg-destructive/20",
-      strength: "bg-blue-500/20",
-      goal: "bg-purple-500/20",
-    };
-    return colors[type] || "bg-muted";
+  const togglePin = (note: CoachingNote) => {
+    updateNoteMutation.mutate({
+      id: note.id,
+      updates: { is_pinned: !note.is_pinned },
+    });
   };
 
   if (isLoading) {
@@ -162,117 +170,110 @@ export function CoachingNotesPanel({ athleteId, athleteEmail }: CoachingNotesPan
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Coaching Notes</CardTitle>
-        <CardDescription>Private notes for {athleteEmail}</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Coaching Notes</CardTitle>
+            <CardDescription>Private notes for {athleteEmail}</CardDescription>
+          </div>
+          {!isAdding && (
+            <Button size="sm" onClick={() => setIsAdding(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Note
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Add Note Form */}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="flex gap-2">
-            <Select value={noteType} onValueChange={setNoteType}>
-              <SelectTrigger className="w-40">
+        {isAdding && (
+          <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
+            <Select value={noteType} onValueChange={(v) => setNoteType(v as NoteType)}>
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {NOTE_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
+                {Object.entries(noteTypeLabels).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Textarea
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Add a coaching note..."
-              className="flex-1 min-h-[60px]"
+              value={noteContent}
+              onChange={(e) => setNoteContent(e.target.value)}
+              placeholder="Write your coaching note..."
+              rows={4}
             />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSave}>
+                {editingId ? "Update" : "Save"}
+              </Button>
+              <Button size="sm" variant="outline" onClick={cancelEdit}>
+                <X className="h-4 w-4 mr-1" />
+                Cancel
+              </Button>
+            </div>
           </div>
-          <Button type="submit" disabled={!newNote.trim() || createNote.isPending}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Note
-          </Button>
-        </form>
+        )}
 
-        {/* Notes List */}
-        <div className="space-y-3">
-          {notes.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              No notes yet. Add your first coaching observation above.
-            </p>
-          ) : (
-            notes.map((note) => (
+        {notes && notes.length > 0 ? (
+          <div className="space-y-3">
+            {notes.map((note) => (
               <div
                 key={note.id}
-                className={`p-4 rounded-lg border ${note.is_pinned ? "border-primary" : ""}`}
+                className="p-4 border rounded-lg space-y-2 hover:bg-muted/50 transition-colors"
               >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <Badge className={getTypeColor(note.note_type)}>
-                      {NOTE_TYPES.find((t) => t.value === note.note_type)?.label}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="outline" className={noteTypeColors[note.note_type]}>
+                      {noteTypeLabels[note.note_type]}
                     </Badge>
-                    {note.is_pinned && <Pin className="h-4 w-4 text-primary" />}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => togglePin.mutate({ id: note.id, isPinned: note.is_pinned })}
-                    >
-                      <Pin className={`h-4 w-4 ${note.is_pinned ? "fill-current" : ""}`} />
-                    </Button>
-                    {editingId === note.id ? (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => saveEdit(note.id)}
-                        >
-                          <Check className="h-4 w-4 text-green-600" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={cancelEdit}>
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => startEdit(note)}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => deleteNote.mutate(note.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </>
+                    {note.is_pinned && (
+                      <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">
+                        <Pin className="h-3 w-3 mr-1" />
+                        Pinned
+                      </Badge>
                     )}
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(note.created_at), 'MMM d, yyyy')}
+                    </span>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => togglePin(note)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Pin className={`h-4 w-4 ${note.is_pinned ? 'fill-current' : ''}`} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => startEdit(note)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => deleteNoteMutation.mutate(note.id)}
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-
-                {editingId === note.id ? (
-                  <Textarea
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    className="min-h-[80px]"
-                  />
-                ) : (
-                  <p className="text-sm whitespace-pre-wrap">{note.note_content}</p>
-                )}
-
-                <div className="text-xs text-muted-foreground mt-2">
-                  {format(new Date(note.created_at), "MMM d, yyyy 'at' h:mm a")}
-                  {note.updated_at !== note.created_at && " (edited)"}
-                </div>
+                <p className="text-sm whitespace-pre-wrap">{note.note_content}</p>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-8">
+            No notes yet. Add your first coaching note above.
+          </p>
+        )}
       </CardContent>
     </Card>
   );
