@@ -459,6 +459,60 @@ export type Database = {
           },
         ]
       }
+      coaching_notes: {
+        Row: {
+          analysis_id: string | null
+          athlete_id: string
+          coach_id: string
+          created_at: string | null
+          id: string
+          is_pinned: boolean | null
+          note_content: string
+          note_type: string
+          player_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          analysis_id?: string | null
+          athlete_id: string
+          coach_id: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          note_content: string
+          note_type?: string
+          player_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          analysis_id?: string | null
+          athlete_id?: string
+          coach_id?: string
+          created_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          note_content?: string
+          note_type?: string
+          player_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coaching_notes_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coaching_notes_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_library: {
         Row: {
           category: string | null

@@ -23,6 +23,7 @@ import { TeamAnalyticsDashboard } from "@/components/admin/TeamAnalyticsDashboar
 import { AthleteReportScheduler } from "@/components/admin/AthleteReportScheduler";
 import { AthleteComparison } from "@/components/admin/AthleteComparison";
 import { TeamLeaderboards } from "@/components/admin/TeamLeaderboards";
+import { CoachingNotesPanel } from "@/components/admin/CoachingNotesPanel";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -175,7 +176,7 @@ export default function CoachDashboard() {
 
         {/* AI Training Input */}
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 gap-1">
             <TabsTrigger value="analytics" className="text-xs">
               <TrendingUp className="h-4 w-4 lg:mr-1" />
               <span className="hidden lg:inline">Analytics</span>
@@ -207,6 +208,10 @@ export default function CoachDashboard() {
             <TabsTrigger value="effectiveness" className="text-xs">
               <span className="hidden lg:inline">Drills</span>
               <span className="lg:hidden">Dr</span>
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="text-xs">
+              <span className="hidden lg:inline">Notes</span>
+              <span className="lg:hidden">Nt</span>
             </TabsTrigger>
           </TabsList>
 
@@ -324,6 +329,26 @@ export default function CoachDashboard() {
 
           <TabsContent value="effectiveness">
             <DrillEffectivenessPanel />
+          </TabsContent>
+
+          <TabsContent value="notes" className="space-y-6">
+            {athletes.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground">No athletes on your roster yet</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-6">
+                {athletes.map((athlete) => (
+                  <CoachingNotesPanel
+                    key={athlete.athlete_id}
+                    athleteId={athlete.athlete_id}
+                    athleteEmail={athlete.athlete_email}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 
