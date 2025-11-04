@@ -19,6 +19,7 @@ import { useProgressMetrics } from "@/hooks/useProgressMetrics";
 import { useGamificationData } from "@/hooks/useGamificationData";
 import { useHistoricalMetrics } from "@/hooks/useHistoricalMetrics";
 import { MetricTrendChart } from "@/components/MetricTrendChart";
+import { BenchmarkComparison } from "@/components/BenchmarkComparison";
 import { Loader2 } from "lucide-react";
 
 export default function Progress() {
@@ -398,6 +399,84 @@ export default function Progress() {
               metricName="Tempo Ratio"
               color="hsl(var(--primary))"
               unit=":1"
+            />
+          </div>
+        </div>
+
+        {/* Benchmark Comparisons Section */}
+        <div className="space-y-6 mt-8">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Benchmark Comparisons</h2>
+            <p className="text-muted-foreground">See how you stack up against different skill levels</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <BenchmarkComparison
+              metricName="Bat Speed"
+              userValue={displayBatMetrics.batSpeed}
+              unit="mph"
+              benchmarks={{
+                youth: 50,
+                highSchool: 65,
+                college: 75,
+                pro: 85,
+              }}
+            />
+            <BenchmarkComparison
+              metricName="Exit Velocity"
+              userValue={displayBallMetrics.exitVelocity}
+              unit="mph"
+              benchmarks={{
+                youth: 60,
+                highSchool: 75,
+                college: 90,
+                pro: 100,
+              }}
+            />
+            <BenchmarkComparison
+              metricName="Reaction Time"
+              userValue={displayBrainMetrics.reactionTime}
+              unit="ms"
+              benchmarks={{
+                youth: 250,
+                highSchool: 220,
+                college: 200,
+                pro: 180,
+              }}
+              higherIsBetter={false}
+            />
+            <BenchmarkComparison
+              metricName="Attack Angle"
+              userValue={displayBatMetrics.attackAngle}
+              unit="°"
+              benchmarks={{
+                youth: 8,
+                highSchool: 12,
+                college: 15,
+                pro: 18,
+              }}
+            />
+            <BenchmarkComparison
+              metricName="Sequence Efficiency"
+              userValue={displayBodyMetrics.sequenceEfficiency}
+              unit="%"
+              benchmarks={{
+                youth: 70,
+                highSchool: 80,
+                college: 87,
+                pro: 92,
+              }}
+            />
+            <BenchmarkComparison
+              metricName="Tempo Ratio"
+              userValue={displayBodyMetrics.tempoRatio}
+              unit=":1"
+              benchmarks={{
+                youth: 2.0,
+                highSchool: 2.5,
+                college: 2.8,
+                pro: 3.0,
+              }}
             />
           </div>
         </div>
