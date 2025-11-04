@@ -26,9 +26,18 @@ export default function Drills() {
   const [filter, setFilter] = useState<"ALL" | "ANCHOR" | "ENGINE" | "WHIP">("ALL");
   const [drills, setDrills] = useState<Drill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string>("");
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(() => {
     return sessionStorage.getItem('selectedPlayerId');
   });
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setUserId(user.id);
+    };
+    loadUser();
+  }, []);
 
   useEffect(() => {
     if (selectedPlayerId) {
@@ -97,7 +106,7 @@ export default function Drills() {
           </TabsList>
 
           <TabsContent value="recommended" className="space-y-4 mt-6">
-            <DrillRecommendations playerId={selectedPlayerId} limit={6} />
+            <DrillRecommendations userId={userId} playerId={selectedPlayerId || undefined} />
           </TabsContent>
 
           <TabsContent value="all" className="space-y-4 mt-6">
