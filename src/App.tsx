@@ -19,6 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import Analyze from "./pages/Analyze";
 import AnalysisResult from "./pages/AnalysisResult";
 import Progress from "./pages/Progress";
+import Comparison from "./pages/Comparison";
 import Reports from "@/pages/Reports";
 import DemoReport from "@/pages/DemoReport";
 import Drills from "./pages/Drills";
@@ -108,6 +109,7 @@ const App = () => {
             <Route path="/player/:playerId" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
             <Route path="/player/:playerId/analysis/:analysisId" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
             <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+            <Route path="/comparison" element={<ProtectedRoute><Comparison /></ProtectedRoute>} />
           <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
           <Route path="/demo-report" element={<DemoReport />} />
             <Route path="/drills" element={<ProtectedRoute><Drills /></ProtectedRoute>} />

@@ -436,9 +436,14 @@ export default function Progress() {
 
         {/* Highlight Reel Section */}
         <div className="space-y-6 mt-8">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Highlight Reel</h2>
-            <p className="text-muted-foreground">Your best swings all in one place</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Highlight Reel</h2>
+              <p className="text-muted-foreground">Your best swings all in one place</p>
+            </div>
+            <Button variant="outline" onClick={() => window.location.href = '/comparison'}>
+              Compare Swings
+            </Button>
           </div>
 
           <HighlightReel />
