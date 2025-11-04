@@ -1,13 +1,30 @@
+export type LetterGrade = 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D' | 'F';
+
 export interface SwingAnalysis {
   id: string;
   videoUrl: string;
   thumbnailUrl?: string;
   analyzedAt: Date;
+  
+  // 4 B's Category Grades
+  ballGrade?: LetterGrade;
+  batGrade?: LetterGrade;
+  bodyGrade?: LetterGrade;
+  brainGrade?: LetterGrade;
+  overallGrade?: LetterGrade;
+  
+  // 4 B's Category Percentages
+  ballScore?: number;
+  batScore?: number;
+  bodyScore?: number;
+  brainScore?: number;
+  overallScore?: number;
+  
+  // Legacy HITS scores
   hitsScore: number;
   anchorScore: number;
   engineScore: number;
   whipScore: number;
-  tempoRatio: number;
   loadStartTiming?: number; // ms before contact when loading begins
   fireStartTiming?: number; // ms before contact when fire phase begins
   pelvisTiming?: number;
@@ -47,17 +64,45 @@ export interface SwingAnalysis {
   exitVelocity?: number; // mph
   launchAngle?: number; // degrees
   projectedDistance?: number; // feet
-  // Bat Speed Quality Framework
+  // BAT Metrics (🏏)
+  batSpeed?: number; // mph
+  attackAngle?: number; // degrees
+  timeInZone?: number; // seconds
+  batPathLength?: number; // inches
+  barrelControl?: number; // 0-100%
+  
+  // Bat Speed Quality Framework (legacy)
   directionScore?: number; // 0-100
   timingScore?: number; // 0-100
   efficiencyScore?: number; // 0-100
   swingMechanicsQualityScore?: number; // 0-100
-  attackAngle?: number; // degrees
   batPathPlane?: number; // degrees  
   connectionQuality?: number; // 0-100
   sequenceQuality?: number; // 0-100
   accelerationPattern?: number; // 0-100
   balanceScore?: number; // 0-100
+  
+  // BODY Metrics (💪)
+  sequenceEfficiency?: number; // 0-100%
+  isCorrectSequence?: boolean;
+  tempoRatio?: number; // e.g., 1.8 (load:launch)
+  lowerBodyPower?: number; // percentage
+  corePower?: number; // percentage
+  upperBodyPower?: number; // percentage
+  handSpeed?: number; // mph
+  
+  // BALL Metrics (⚾)
+  hardHitPercentage?: number; // 0-100%
+  lineDrivePercentage?: number; // 0-100%
+  groundBallPercentage?: number; // 0-100%
+  flyBallPercentage?: number; // 0-100%
+  distance?: number; // feet (projected distance)
+  
+  // BRAIN Metrics (🧠)
+  reactionTime?: number; // seconds
+  decisionAccuracy?: number; // 0-100%
+  chaseRate?: number; // 0-100%
+  focusScore?: number; // 0-100%
   
   // Momentum & Biomechanics Metrics
   biomechanicsMetrics?: {

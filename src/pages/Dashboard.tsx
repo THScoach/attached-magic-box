@@ -14,6 +14,10 @@ import { CoachRickChatBubble } from "@/components/CoachRickChatBubble";
 import { EquipmentOnboardingModal } from "@/components/EquipmentOnboardingModal";
 import { FreeSwingCounter } from "@/components/FreeSwingCounter";
 import { ProfileUpdatePrompt } from "@/components/ProfileUpdatePrompt";
+import { FourBsScorecard } from "@/components/FourBsScorecard";
+import { calculateBatGrade, calculateBodyGrade, calculateBallGrade, calculateBrainGrade, calculateOverallGrade } from "@/lib/gradingSystem";
+import { getBenchmarksForLevel } from "@/lib/benchmarks";
+import { useQuery } from "@tanstack/react-query";
 import { User, TrendingUp, Target, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -37,6 +41,42 @@ export default function Dashboard() {
     longestStreak: 0,
     totalCompleted: 0,
     totalAssigned: 0
+  });
+
+  // Fetch user profile for experience level
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('experience_level, current_level')
+        .eq('id', user.id)
+        .single();
+      
+      return data;
+    },
+  });
+  
+  // Fetch latest swing analysis
+  const { data: latestAnalysis } = useQuery({
+    queryKey: ['latest-analysis'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      
+      const { data } = await supabase
+        .from('swing_analyses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      return data;
+    },
   });
 
   useEffect(() => {
@@ -131,6 +171,83 @@ export default function Dashboard() {
     }
   };
 
+  // Calculate 4 B's grades from latest analysis
+  const calculateScores = () => {
+    if (!latestAnalysis) return null;
+    
+    const level = profile?.experience_level || 'highSchool';
+    const benchmarks = getBenchmarksForLevel(level);
+    
+    // Extract metrics from the database safely
+    const metricsData = latestAnalysis.metrics as any || {};
+    const biomechanicsData = metricsData.biomechanicsMetrics || {};
+    
+    const metrics = {
+      batSpeed: biomechanicsData.batSpeed || biomechanicsData.peakBatSpeed || 72,
+      attackAngle: latestAnalysis.attack_angle || 12,
+      timeInZone: metricsData.timeInZone || 0.15,
+      pelvisPeakVelocity: biomechanicsData.peakPelvisVelocity || 700,
+      torsoPeakVelocity: biomechanicsData.peakTorsoVelocity || 900,
+      sequenceEfficiency: biomechanicsData.sequencingEfficiency || latestAnalysis.engine_score,
+      tempoRatio: metricsData.tempoRatio || 1.8,
+      exitVelocity: metricsData.exitVelocity || 85,
+      launchAngle: metricsData.launchAngle || 15,
+      hardHitPercentage: metricsData.hardHitPercentage || 65,
+      reactionTime: metricsData.reactionTime || 0.42,
+      decisionAccuracy: metricsData.decisionAccuracy || 85,
+    };
+    
+    const batGrade = calculateBatGrade(metrics, level, { [level]: benchmarks });
+    const bodyGrade = calculateBodyGrade(metrics, level, { [level]: benchmarks });
+    const ballGrade = calculateBallGrade(metrics, level, { [level]: benchmarks });
+    const brainGrade = calculateBrainGrade(metrics, level, { [level]: benchmarks });
+    
+    const tier = membership?.tier || 'free';
+    const overallGrade = calculateOverallGrade(ballGrade, batGrade, bodyGrade, brainGrade, tier);
+    
+    return {
+      overall: overallGrade.grade,
+      ball: {
+        grade: ballGrade.grade,
+        percentage: ballGrade.percentage,
+        metrics: [
+          { label: 'Exit Velocity', value: `${metrics.exitVelocity || '--'} mph`, status: (metrics.exitVelocity || 0) > 85 ? 'good' : 'warning' as 'good' | 'warning' },
+          { label: 'Launch Angle', value: `${metrics.launchAngle ? `+${metrics.launchAngle}°` : '--'}`, status: 'good' as 'good' },
+          { label: 'Hard Hit %', value: `${metrics.hardHitPercentage || '--'}%`, status: 'good' as 'good' },
+        ],
+      },
+      bat: {
+        grade: batGrade.grade,
+        percentage: batGrade.percentage,
+        metrics: [
+          { label: 'Bat Speed', value: `${metrics.batSpeed || '--'} mph`, status: (metrics.batSpeed || 0) > 70 ? 'good' : 'warning' as 'good' | 'warning' },
+          { label: 'Attack Angle', value: `${metrics.attackAngle ? `+${metrics.attackAngle}°` : '--'}`, status: 'good' as 'good' },
+          { label: 'Time in Zone', value: `${metrics.timeInZone.toFixed(2)}s`, status: 'good' as 'good' },
+        ],
+      },
+      body: {
+        grade: bodyGrade.grade,
+        percentage: bodyGrade.percentage,
+        metrics: [
+          { label: 'Sequence', value: `${Math.round(metrics.sequenceEfficiency || 0)}%`, status: (metrics.sequenceEfficiency || 0) > 80 ? 'good' : 'warning' as 'good' | 'warning' },
+          { label: 'Tempo', value: `${(metrics.tempoRatio || 0).toFixed(1)}:1`, status: 'good' as 'good' },
+          { label: 'Power Source', value: 'Legs 65%', status: 'good' as 'good' },
+        ],
+      },
+      brain: {
+        grade: brainGrade.grade,
+        percentage: brainGrade.percentage,
+        metrics: [
+          { label: 'Reaction Time', value: `${(metrics.reactionTime || 0).toFixed(2)}s`, status: 'good' as 'good' },
+          { label: 'Decision Rate', value: `${metrics.decisionAccuracy || '--'}%`, status: 'good' as 'good' },
+          { label: 'Focus Score', value: 'Coming soon', status: 'warning' as 'warning' },
+        ],
+      },
+    };
+  };
+  
+  const scores = calculateScores();
+
   // Mock user data
   const storedAthleteInfo = localStorage.getItem('athleteInfo');
   const athleteInfo = storedAthleteInfo ? JSON.parse(storedAthleteInfo) : null;
@@ -158,6 +275,19 @@ export default function Dashboard() {
             </Button>
           </div>
         </div>
+
+        {/* 4 B's Scorecard */}
+        {scores && (
+          <FourBsScorecard
+            overallGrade={scores.overall}
+            ballScore={scores.ball}
+            batScore={scores.bat}
+            bodyScore={scores.body}
+            brainScore={scores.brain}
+            showBall={membership?.tier !== 'free'}
+            showBrain={membership?.tier === 'diy' || membership?.tier === 'elite'}
+          />
+        )}
 
         {/* Key Metrics Row */}
         <div className="grid gap-4 md:grid-cols-4">
