@@ -6,6 +6,7 @@ import { useSearchParams } from "react-router-dom";
 import { BatMetricsView } from "@/components/BatMetricsView";
 import { BodyMetricsView } from "@/components/BodyMetricsView";
 import { BallMetricsView } from "@/components/BallMetricsView";
+import { BrainMetricsView } from "@/components/BrainMetricsView";
 import { calculateGrade } from "@/lib/gradingSystem";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -59,6 +60,21 @@ export default function Progress() {
     totalSwings: 20,
     hardHitCount: 13,
     hardHitGrade: calculateGrade(95),
+  };
+
+  // Sample data for BRAIN metrics
+  const sampleBrainMetrics = {
+    reactionTime: 165,
+    reactionTimeGrade: calculateGrade(85),
+    averageReactionTime: 170,
+    goodSwingsPercentage: 75,
+    goodTakesPercentage: 68,
+    chaseRate: 28,
+    swingDecisionGrade: calculateGrade(88),
+    totalPitches: 100,
+    focusScore: 82,
+    focusGrade: calculateGrade(82),
+    consistencyRating: 78,
   };
 
   // Mock progress data
@@ -225,10 +241,7 @@ export default function Progress() {
           </TabsContent>
 
           <TabsContent value="brain">
-            <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-4">🧠 BRAIN Metrics</h2>
-              <p className="text-muted-foreground">Coming in Phase 5...</p>
-            </Card>
+            <BrainMetricsView {...sampleBrainMetrics} />
           </TabsContent>
         </Tabs>
       </div>
