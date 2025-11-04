@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Play, Pause, RotateCcw, ArrowRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Play, Pause, RotateCcw, ArrowRight, TrendingUp, TrendingDown, Minus, Pencil } from "lucide-react";
 import { useSwingComparison } from "@/hooks/useSwingComparison";
+import { VideoMarkupCanvas } from "@/components/VideoMarkupCanvas";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +73,7 @@ export function SwingComparison({ playerId }: { playerId?: string }) {
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [showMarkup, setShowMarkup] = useState(false);
   const videoRefA = useRef<HTMLVideoElement>(null);
   const videoRefB = useRef<HTMLVideoElement>(null);
 
@@ -203,66 +206,154 @@ export function SwingComparison({ playerId }: { playerId?: string }) {
         <>
           <Card>
             <CardHeader>
-              <CardTitle>Video Comparison</CardTitle>
-              <CardDescription>Synchronized playback of both swings</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Video Comparison</CardTitle>
+                  <CardDescription>Synchronized playback of both swings</CardDescription>
+                </div>
+                <Button
+                  variant={showMarkup ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowMarkup(!showMarkup)}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  {showMarkup ? "Hide" : "Show"} Markup Tools
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary">Baseline</Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {format(new Date(comparisonData.swingA.created_at), 'MMM d, yyyy')}
-                    </span>
-                  </div>
-                  <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-                    <video
-                      ref={videoRefA}
-                      src={comparisonData.swingA.video_url}
-                      className="w-full h-full"
-                      playsInline
-                      onEnded={() => setIsPlaying(false)}
-                    />
-                  </div>
-                </div>
+              <Tabs defaultValue="playback" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="playback">Playback</TabsTrigger>
+                  <TabsTrigger value="markup">Annotate</TabsTrigger>
+                </TabsList>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge>Comparison</Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {format(new Date(comparisonData.swingB.created_at), 'MMM d, yyyy')}
-                    </span>
-                  </div>
-                  <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-                    <video
-                      ref={videoRefB}
-                      src={comparisonData.swingB.video_url}
-                      className="w-full h-full"
-                      playsInline
-                      onEnded={() => setIsPlaying(false)}
-                    />
-                  </div>
-                </div>
-              </div>
+                <TabsContent value="playback" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="secondary">Baseline</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(comparisonData.swingA.created_at), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                      <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+                        <video
+                          ref={videoRefA}
+                          src={comparisonData.swingA.video_url}
+                          className="w-full h-full"
+                          playsInline
+                          onEnded={() => setIsPlaying(false)}
+                        />
+                      </div>
+                    </div>
 
-              <div className="flex items-center justify-center gap-4">
-                <Button variant="outline" size="icon" onClick={handleRestart}>
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
-                <Button size="lg" onClick={togglePlayPause}>
-                  {isPlaying ? (
-                    <>
-                      <Pause className="h-5 w-5 mr-2" />
-                      Pause
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-5 w-5 mr-2" />
-                      Play
-                    </>
-                  )}
-                </Button>
-              </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge>Comparison</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(comparisonData.swingB.created_at), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                      <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+                        <video
+                          ref={videoRefB}
+                          src={comparisonData.swingB.video_url}
+                          className="w-full h-full"
+                          playsInline
+                          onEnded={() => setIsPlaying(false)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-4">
+                    <Button variant="outline" size="icon" onClick={handleRestart}>
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                    <Button size="lg" onClick={togglePlayPause}>
+                      {isPlaying ? (
+                        <>
+                          <Pause className="h-5 w-5 mr-2" />
+                          Pause
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-5 w-5 mr-2" />
+                          Play
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="markup" className="space-y-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Badge variant="secondary">Baseline Swing</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(comparisonData.swingA.created_at), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <video
+                          ref={videoRefA}
+                          src={comparisonData.swingA.video_url}
+                          className="w-full rounded-lg"
+                          playsInline
+                          controls={false}
+                        />
+                      </div>
+                      <VideoMarkupCanvas
+                        videoRef={videoRefA}
+                        videoUrl={comparisonData.swingA.video_url}
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Badge>Comparison Swing</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(comparisonData.swingB.created_at), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <video
+                          ref={videoRefB}
+                          src={comparisonData.swingB.video_url}
+                          className="w-full rounded-lg"
+                          playsInline
+                          controls={false}
+                        />
+                      </div>
+                      <VideoMarkupCanvas
+                        videoRef={videoRefB}
+                        videoUrl={comparisonData.swingB.video_url}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-4 pt-4 border-t">
+                    <Button variant="outline" size="icon" onClick={handleRestart}>
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                    <Button size="lg" onClick={togglePlayPause}>
+                      {isPlaying ? (
+                        <>
+                          <Pause className="h-5 w-5 mr-2" />
+                          Pause
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-5 w-5 mr-2" />
+                          Play
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
