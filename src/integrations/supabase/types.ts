@@ -884,6 +884,75 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_journal: {
+        Row: {
+          content: string
+          created_at: string
+          energy_level: number | null
+          entry_type: string
+          focus_level: number | null
+          id: string
+          mood: string | null
+          player_id: string | null
+          related_analysis_id: string | null
+          session_date: string
+          tags: string[] | null
+          title: string | null
+          updated_at: string
+          user_id: string
+          voice_recorded: boolean | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          energy_level?: number | null
+          entry_type?: string
+          focus_level?: number | null
+          id?: string
+          mood?: string | null
+          player_id?: string | null
+          related_analysis_id?: string | null
+          session_date?: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          voice_recorded?: boolean | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          energy_level?: number | null
+          entry_type?: string
+          focus_level?: number | null
+          id?: string
+          mood?: string | null
+          player_id?: string | null
+          related_analysis_id?: string | null
+          session_date?: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          voice_recorded?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_journal_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_journal_related_analysis_id_fkey"
+            columns: ["related_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       practice_sessions: {
         Row: {
           created_at: string
