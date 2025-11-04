@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router-dom";
 import { BatMetricsView } from "@/components/BatMetricsView";
 import { BodyMetricsView } from "@/components/BodyMetricsView";
+import { BallMetricsView } from "@/components/BallMetricsView";
 import { calculateGrade } from "@/lib/gradingSystem";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -42,6 +43,22 @@ export default function Progress() {
     tempoRatio: 1.75,
     tempoGrade: calculateGrade(90),
     isCorrectSequence: true,
+  };
+
+  // Sample data for BALL metrics
+  const sampleBallMetrics = {
+    exitVelocity: 92,
+    level: 'highSchool',
+    exitVelocityGrade: calculateGrade(92),
+    exitVelocityImprovement: 5,
+    flyBallPercentage: 35,
+    lineDrivePercentage: 50,
+    groundBallPercentage: 15,
+    launchAngleGrade: calculateGrade(95),
+    hardHitPercentage: 65,
+    totalSwings: 20,
+    hardHitCount: 13,
+    hardHitGrade: calculateGrade(95),
   };
 
   // Mock progress data
@@ -204,10 +221,7 @@ export default function Progress() {
           </TabsContent>
 
           <TabsContent value="ball">
-            <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-4">⚾ BALL Metrics</h2>
-              <p className="text-muted-foreground">Coming in Phase 4...</p>
-            </Card>
+            <BallMetricsView {...sampleBallMetrics} />
           </TabsContent>
 
           <TabsContent value="brain">
