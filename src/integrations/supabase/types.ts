@@ -328,6 +328,63 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_participants: {
+        Row: {
+          baseline_score: number | null
+          challenge_id: string
+          current_rank: number | null
+          current_score: number | null
+          id: string
+          joined_at: string
+          last_activity: string | null
+          player_id: string | null
+          swings_completed: number | null
+          team_name: string | null
+          user_id: string
+        }
+        Insert: {
+          baseline_score?: number | null
+          challenge_id: string
+          current_rank?: number | null
+          current_score?: number | null
+          id?: string
+          joined_at?: string
+          last_activity?: string | null
+          player_id?: string | null
+          swings_completed?: number | null
+          team_name?: string | null
+          user_id: string
+        }
+        Update: {
+          baseline_score?: number | null
+          challenge_id?: string
+          current_rank?: number | null
+          current_score?: number | null
+          id?: string
+          joined_at?: string
+          last_activity?: string | null
+          player_id?: string | null
+          swings_completed?: number | null
+          team_name?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_participants_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "team_challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_participants_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coach_message_preferences: {
         Row: {
           created_at: string | null
@@ -1464,6 +1521,57 @@ export type Database = {
           },
         ]
       }
+      team_challenges: {
+        Row: {
+          challenge_type: string
+          coach_id: string
+          created_at: string
+          description: string | null
+          end_date: string
+          id: string
+          is_public: boolean | null
+          metric_target: string | null
+          prizes: Json | null
+          rules: string | null
+          start_date: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          challenge_type: string
+          coach_id: string
+          created_at?: string
+          description?: string | null
+          end_date: string
+          id?: string
+          is_public?: boolean | null
+          metric_target?: string | null
+          prizes?: Json | null
+          rules?: string | null
+          start_date: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          challenge_type?: string
+          coach_id?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          is_public?: boolean | null
+          metric_target?: string | null
+          prizes?: Json | null
+          rules?: string | null
+          start_date?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       team_rosters: {
         Row: {
           assigned_at: string | null
@@ -1762,6 +1870,39 @@ export type Database = {
       }
     }
     Views: {
+      challenge_leaderboard: {
+        Row: {
+          baseline_score: number | null
+          challenge_id: string | null
+          current_score: number | null
+          first_name: string | null
+          improvement_percentage: number | null
+          last_name: string | null
+          player_id: string | null
+          rank: number | null
+          swings_completed: number | null
+          team_name: string | null
+          user_first_name: string | null
+          user_id: string | null
+          user_last_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_participants_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "team_challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_participants_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drill_effectiveness: {
         Row: {
           avg_anchor_score: number | null
@@ -1802,6 +1943,11 @@ export type Database = {
         Returns: boolean
       }
       increment_swing_count: { Args: { _user_id: string }; Returns: number }
+      update_challenge_participant_score: {
+        Args: { _challenge_id: string; _player_id?: string; _user_id: string }
+        Returns: undefined
+      }
+      update_challenge_status: { Args: never; Returns: undefined }
       update_grit_score: {
         Args: { _player_id?: string; _user_id: string }
         Returns: undefined
