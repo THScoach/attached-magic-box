@@ -104,7 +104,7 @@ export default function Programs() {
                     </CardDescription>
                   </div>
                   <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <a href="https://whop.com/checkout/prod_WrNjrLDLhfPzl" target="_blank" rel="noopener noreferrer">
+                    <a href="https://whop.com/checkout/prod_WrNjrLDLhfPzl/" target="_blank" rel="noopener noreferrer">
                       Start Challenge <ArrowRight className="ml-2 h-5 w-5" />
                     </a>
                   </Button>
@@ -156,7 +156,7 @@ export default function Programs() {
                     </CardDescription>
                   </div>
                   <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <a href="https://whop.com/checkout/prod_WrNjqSUEhfPzk" target="_blank" rel="noopener noreferrer">
+                    <a href="https://whop.com/checkout/prod_WrNjqSUEhfPzk/" target="_blank" rel="noopener noreferrer">
                       Join DIY <ArrowRight className="ml-2 h-5 w-5" />
                     </a>
                   </Button>
@@ -215,7 +215,7 @@ export default function Programs() {
                     </CardDescription>
                   </div>
                   <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <a href="https://whop.com/checkout/prod_WrNjpVYShfPzj" target="_blank" rel="noopener noreferrer">
+                    <a href="https://whop.com/checkout/prod_WrNjpVYShfPzj/" target="_blank" rel="noopener noreferrer">
                       Join Elite <ArrowRight className="ml-2 h-5 w-5" />
                     </a>
                   </Button>
