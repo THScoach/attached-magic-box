@@ -19,6 +19,7 @@ import { DrillEffectivenessPanel } from "@/components/admin/DrillEffectivenessPa
 import { ChallengeLeaderboard } from "@/components/ChallengeLeaderboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AthleteProgressOverview } from "@/components/admin/AthleteProgressOverview";
+import { TeamAnalyticsDashboard } from "@/components/admin/TeamAnalyticsDashboard";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -170,8 +171,12 @@ export default function CoachDashboard() {
         </div>
 
         {/* AI Training Input */}
-        <Tabs defaultValue="athletes" className="space-y-6">
+        <Tabs defaultValue="analytics" className="space-y-6">
           <TabsList>
+            <TabsTrigger value="analytics">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Team Analytics
+            </TabsTrigger>
             <TabsTrigger value="athletes">
               <Users className="h-4 w-4 mr-2" />
               Athlete Progress
@@ -186,6 +191,10 @@ export default function CoachDashboard() {
               Drill Analytics
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <TeamAnalyticsDashboard athleteIds={athletes.map(a => a.athlete_id)} />
+          </TabsContent>
 
           <TabsContent value="athletes" className="space-y-6">
             {athletes.length === 0 ? (
