@@ -13,10 +13,41 @@ import { XPLevelSystem } from "@/components/XPLevelSystem";
 import { Leaderboard } from "@/components/Leaderboard";
 import { calculateGrade } from "@/lib/gradingSystem";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, CarouselApi } from "@/components/ui/carousel";
+import { useState, useEffect } from "react";
 
 export default function Progress() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialCategory = searchParams.get('category') || 'overview';
+  const [activeTab, setActiveTab] = useState(initialCategory);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+
+  const tabs = ['overview', 'bat', 'body', 'ball', 'brain', 'gamification'];
+
+  // Sync carousel to tab changes
+  useEffect(() => {
+    if (!carouselApi) return;
+    const index = tabs.indexOf(activeTab);
+    if (index !== -1) {
+      carouselApi.scrollTo(index);
+    }
+  }, [activeTab, carouselApi]);
+
+  // Sync tab to carousel changes
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const onSelect = () => {
+      const index = carouselApi.selectedScrollSnap();
+      setActiveTab(tabs[index]);
+      setSearchParams({ category: tabs[index] });
+    };
+
+    carouselApi.on("select", onSelect);
+    return () => {
+      carouselApi.off("select", onSelect);
+    };
+  }, [carouselApi, setSearchParams]);
 
   // Sample data for BAT metrics
   const sampleBatMetrics = {
@@ -110,7 +141,7 @@ export default function Progress() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        <Tabs defaultValue={initialCategory} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-6 mb-6">
             <TabsTrigger value="overview" className="text-xs sm:text-sm">Stats</TabsTrigger>
             <TabsTrigger value="bat" className="text-xs sm:text-sm">🏏</TabsTrigger>
@@ -120,7 +151,17 @@ export default function Progress() {
             <TabsTrigger value="gamification" className="text-xs sm:text-sm">🏆</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
+          <Carousel 
+            setApi={setCarouselApi}
+            className="w-full"
+            opts={{
+              align: "start",
+              loop: false,
+            }}
+          >
+            <CarouselContent>
+              <CarouselItem>
+                <TabsContent value="overview" className="space-y-6 mt-0">
         {/* Stats Overview */}
         <div className="grid grid-cols-2 gap-3">
           <Card className="p-4">
@@ -232,24 +273,34 @@ export default function Progress() {
               Record New Swing
             </Button>
           </TabsContent>
+              </CarouselItem>
 
-          <TabsContent value="bat">
+              <CarouselItem>
+          <TabsContent value="bat" className="mt-0">
             <BatMetricsView {...sampleBatMetrics} />
           </TabsContent>
+              </CarouselItem>
 
-          <TabsContent value="body">
+              <CarouselItem>
+          <TabsContent value="body" className="mt-0">
             <BodyMetricsView {...sampleBodyMetrics} />
           </TabsContent>
+              </CarouselItem>
 
-          <TabsContent value="ball">
+              <CarouselItem>
+          <TabsContent value="ball" className="mt-0">
             <BallMetricsView {...sampleBallMetrics} />
           </TabsContent>
+              </CarouselItem>
 
-          <TabsContent value="brain">
+              <CarouselItem>
+          <TabsContent value="brain" className="mt-0">
             <BrainMetricsView {...sampleBrainMetrics} />
           </TabsContent>
+              </CarouselItem>
 
-          <TabsContent value="gamification" className="space-y-6">
+              <CarouselItem>
+          <TabsContent value="gamification" className="space-y-6 mt-0">
             <XPLevelSystem 
               currentXP={2850}
               currentLevel={8}
@@ -264,6 +315,9 @@ export default function Progress() {
             
             <Leaderboard />
           </TabsContent>
+              </CarouselItem>
+            </CarouselContent>
+          </Carousel>
         </Tabs>
       </div>
 
