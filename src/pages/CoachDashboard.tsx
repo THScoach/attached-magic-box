@@ -18,6 +18,7 @@ import { TeamChallengeManager } from "@/components/admin/TeamChallengeManager";
 import { DrillEffectivenessPanel } from "@/components/admin/DrillEffectivenessPanel";
 import { ChallengeLeaderboard } from "@/components/ChallengeLeaderboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AthleteProgressOverview } from "@/components/admin/AthleteProgressOverview";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -169,9 +170,13 @@ export default function CoachDashboard() {
         </div>
 
         {/* AI Training Input */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue="athletes" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="athletes">
+              <Users className="h-4 w-4 mr-2" />
+              Athlete Progress
+            </TabsTrigger>
+            <TabsTrigger value="overview">Management</TabsTrigger>
             <TabsTrigger value="challenges">
               <Trophy className="h-4 w-4 mr-2" />
               Challenges
@@ -181,6 +186,33 @@ export default function CoachDashboard() {
               Drill Analytics
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="athletes" className="space-y-6">
+            {athletes.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                  <p className="text-muted-foreground mb-4">No athletes on your roster yet</p>
+                  <Button onClick={() => setShowAddModal(true)}>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add Your First Athlete
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {athletes.map((athlete) => (
+                    <AthleteProgressOverview
+                      key={athlete.athlete_id}
+                      athleteId={athlete.athlete_id}
+                      athleteEmail={athlete.athlete_email}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
             <CoachAITrainingInput />
