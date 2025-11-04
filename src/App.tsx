@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthGuard } from "./components/AuthGuard";
 import { RoleGuard } from "./components/RoleGuard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { CelebrationProvider } from "./components/CelebrationProvider";
 import { useEffect } from "react";
 import Landing from "./pages/Landing";
 import Programs from "./pages/Programs";
@@ -49,6 +50,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <CelebrationProvider />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/" element={<Landing />} />

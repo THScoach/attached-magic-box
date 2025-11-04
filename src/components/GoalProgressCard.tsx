@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Target, Trash2, CheckCircle2 } from "lucide-react";
 import { UserGoal, useUserGoals } from "@/hooks/useUserGoals";
+import { useCelebration } from "@/hooks/useCelebration";
 import { format } from "date-fns";
 
 interface GoalProgressCardProps {
@@ -12,6 +13,7 @@ interface GoalProgressCardProps {
 
 export function GoalProgressCard({ goal }: GoalProgressCardProps) {
   const { updateGoal, deleteGoal } = useUserGoals();
+  const { celebrate } = useCelebration();
 
   const progress = Math.min((goal.current_value / goal.target_value) * 100, 100);
   const isCompleted = progress >= 100;
@@ -31,6 +33,15 @@ export function GoalProgressCard({ goal }: GoalProgressCardProps) {
         status: 'completed',
         completed_at: new Date().toISOString(),
       },
+    });
+    
+    // Trigger celebration
+    celebrate({
+      type: "goal",
+      title: "Goal Achieved! 🎉",
+      message: `You crushed your ${goal.metric_name} goal!`,
+      metric: goal.metric_name,
+      value: goal.target_value,
     });
   };
 

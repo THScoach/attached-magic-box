@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useCelebration } from "./useCelebration";
 
 interface GamificationData {
   currentXP: number;
@@ -23,6 +24,7 @@ interface GamificationData {
 export function useGamificationData(playerId?: string) {
   const [data, setData] = useState<GamificationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { celebrate } = useCelebration();
 
   useEffect(() => {
     loadGamificationData();
@@ -145,13 +147,20 @@ export function useGamificationData(playerId?: string) {
       if (error) {
         console.error("Error updating streak:", error);
       } else {
-        // Create notifications for streak milestones
+        // Create notifications and celebrations for streak milestones
         if (newStreak === 7) {
           await supabase.from('notifications').insert({
             user_id: user.id,
             type: 'achievement',
             title: '🔥 Week Streak!',
             message: 'You\'ve practiced 7 days in a row! Keep the momentum going!'
+          });
+          celebrate({
+            type: "streak",
+            title: "7 Day Streak! 🔥",
+            message: "You've practiced 7 days in a row! Keep the momentum going!",
+            metric: "Practice Streak",
+            value: 7,
           });
         } else if (newStreak === 30) {
           await supabase.from('notifications').insert({
@@ -160,12 +169,26 @@ export function useGamificationData(playerId?: string) {
             title: '🔥 Month Streak!',
             message: 'Incredible! 30 days of consistent practice. You\'re unstoppable!'
           });
+          celebrate({
+            type: "streak",
+            title: "30 Day Streak! 🔥",
+            message: "Incredible! 30 days of consistent practice. You're unstoppable!",
+            metric: "Practice Streak",
+            value: 30,
+          });
         } else if (newStreak % 100 === 0) {
           await supabase.from('notifications').insert({
             user_id: user.id,
             type: 'achievement',
             title: '🔥 Century Streak!',
             message: `Amazing! ${newStreak} days in a row! You\'re a legend!`
+          });
+          celebrate({
+            type: "streak",
+            title: `${newStreak} Day Streak! 🔥`,
+            message: `Amazing! ${newStreak} days in a row! You're a legend!`,
+            metric: "Practice Streak",
+            value: newStreak,
           });
         }
         
@@ -214,12 +237,19 @@ export function useGamificationData(playerId?: string) {
       if (error) {
         console.error("Error unlocking badge:", error);
       } else {
-        // Create notification for badge unlock
+        // Create notification and celebration for badge unlock
         await supabase.from('notifications').insert({
           user_id: user.id,
           type: 'achievement',
           title: `🏆 Badge Unlocked: ${badgeName}`,
           message: badgeDescription
+        });
+        
+        celebrate({
+          type: "badge",
+          title: `Badge Unlocked! 🏆`,
+          message: badgeDescription,
+          metric: badgeName,
         });
         
         await loadGamificationData();
