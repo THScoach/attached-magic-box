@@ -285,6 +285,7 @@ export type Database = {
           item_type: string
           metadata: Json | null
           player_id: string | null
+          reminder_sent: boolean | null
           scheduled_date: string
           scheduled_time: string | null
           status: string | null
@@ -302,6 +303,7 @@ export type Database = {
           item_type: string
           metadata?: Json | null
           player_id?: string | null
+          reminder_sent?: boolean | null
           scheduled_date: string
           scheduled_time?: string | null
           status?: string | null
@@ -319,6 +321,7 @@ export type Database = {
           item_type?: string
           metadata?: Json | null
           player_id?: string | null
+          reminder_sent?: boolean | null
           scheduled_date?: string
           scheduled_time?: string | null
           status?: string | null
@@ -1115,6 +1118,7 @@ export type Database = {
           onboarding_completed: boolean | null
           phone: string | null
           position: string[] | null
+          practice_reminders_enabled: boolean | null
           primary_goal: string | null
           profile_last_updated: string | null
           referral_source: string | null
@@ -1140,6 +1144,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           phone?: string | null
           position?: string[] | null
+          practice_reminders_enabled?: boolean | null
           primary_goal?: string | null
           profile_last_updated?: string | null
           referral_source?: string | null
@@ -1165,6 +1170,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           phone?: string | null
           position?: string[] | null
+          practice_reminders_enabled?: boolean | null
           primary_goal?: string | null
           profile_last_updated?: string | null
           referral_source?: string | null
