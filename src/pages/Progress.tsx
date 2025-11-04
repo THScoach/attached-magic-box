@@ -1,9 +1,29 @@
 import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams } from "react-router-dom";
+import { BatMetricsView } from "@/components/BatMetricsView";
+import { calculateGrade } from "@/lib/gradingSystem";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function Progress() {
+  const [searchParams] = useSearchParams();
+  const initialCategory = searchParams.get('category') || 'overview';
+
+  // Sample data for BAT metrics
+  const sampleBatMetrics = {
+    batSpeed: 72,
+    attackAngle: 12,
+    timeInZone: 0.15,
+    level: 'highSchool',
+    batSpeedGrade: calculateGrade(75),
+    attackAngleGrade: calculateGrade(90),
+    timeInZoneGrade: calculateGrade(85),
+    personalBest: 74,
+    lastWeekSpeed: 69,
+  };
+
   // Mock progress data
   const progressData = [
     { date: 'Oct 1', hits: 68, anchor: 75, engine: 65, whip: 64 },
@@ -33,6 +53,16 @@ export default function Progress() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
+        <Tabs defaultValue={initialCategory} className="w-full">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="bat">🏏</TabsTrigger>
+            <TabsTrigger value="body">💪</TabsTrigger>
+            <TabsTrigger value="ball">⚾</TabsTrigger>
+            <TabsTrigger value="brain">🧠</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
         {/* Stats Overview */}
         <div className="grid grid-cols-2 gap-3">
           <Card className="p-4">
@@ -135,14 +165,41 @@ export default function Progress() {
           </ul>
         </Card>
 
-        {/* Action Button */}
-        <Button 
-          size="lg"
-          className="w-full"
-          onClick={() => window.location.href = '/analyze'}
-        >
-          Record New Swing
-        </Button>
+            {/* Action Button */}
+            <Button 
+              size="lg"
+              className="w-full"
+              onClick={() => window.location.href = '/analyze'}
+            >
+              Record New Swing
+            </Button>
+          </TabsContent>
+
+          <TabsContent value="bat">
+            <BatMetricsView {...sampleBatMetrics} />
+          </TabsContent>
+
+          <TabsContent value="body">
+            <Card className="p-6">
+              <h2 className="text-2xl font-bold mb-4">💪 BODY Metrics</h2>
+              <p className="text-muted-foreground">Coming in Phase 3...</p>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="ball">
+            <Card className="p-6">
+              <h2 className="text-2xl font-bold mb-4">⚾ BALL Metrics</h2>
+              <p className="text-muted-foreground">Coming in Phase 4...</p>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="brain">
+            <Card className="p-6">
+              <h2 className="text-2xl font-bold mb-4">🧠 BRAIN Metrics</h2>
+              <p className="text-muted-foreground">Coming in Phase 5...</p>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <BottomNav />

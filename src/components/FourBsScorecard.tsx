@@ -74,7 +74,7 @@ export function FourBsScorecard({
         <Progress value={score.percentage} className="h-2 mb-3" />
 
         <Link
-          to={link}
+          to={`${link}?category=${title.toLowerCase().split(' ')[0]}`}
           className="flex items-center justify-between text-sm text-primary hover:underline"
         >
           <span>View Details</span>
