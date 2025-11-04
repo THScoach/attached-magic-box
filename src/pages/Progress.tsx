@@ -16,6 +16,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, CarouselApi } from "@/components/ui/carousel";
 import { useState, useEffect } from "react";
 import { useProgressMetrics } from "@/hooks/useProgressMetrics";
+import { useGamificationData } from "@/hooks/useGamificationData";
 
 export default function Progress() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -35,6 +36,12 @@ export default function Progress() {
     progressData,
     loading,
   } = useProgressMetrics();
+
+  // Fetch real gamification data
+  const {
+    data: gamificationData,
+    loading: gamificationLoading,
+  } = useGamificationData();
 
   // Sync carousel to tab changes
   useEffect(() => {
@@ -309,13 +316,14 @@ export default function Progress() {
               <CarouselItem>
           <TabsContent value="gamification" className="space-y-6 mt-0">
             <XPLevelSystem 
-              currentXP={2850}
-              currentLevel={8}
+              currentXP={gamificationData?.currentXP || 0}
+              currentLevel={gamificationData?.currentLevel || 1}
             />
             
             <StreakTracker 
-              currentStreak={5}
-              longestStreak={12}
+              currentStreak={gamificationData?.currentStreak || 0}
+              longestStreak={gamificationData?.longestStreak || 0}
+              lastPracticeDays={gamificationData?.practiceDays || []}
             />
             
             <AchievementBadges />
