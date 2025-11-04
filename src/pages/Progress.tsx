@@ -22,6 +22,7 @@ import { MetricTrendChart } from "@/components/MetricTrendChart";
 import { BenchmarkComparison } from "@/components/BenchmarkComparison";
 import { GoalSettingModal } from "@/components/GoalSettingModal";
 import { GoalProgressCard } from "@/components/GoalProgressCard";
+import { ExportProgressReport } from "@/components/ExportProgressReport";
 import { useUserGoals } from "@/hooks/useUserGoals";
 import { Loader2 } from "lucide-react";
 
@@ -167,7 +168,9 @@ export default function Progress() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
-        <h1 className="text-2xl font-bold mb-2">Your Progress</h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-2xl font-bold">Your Progress</h1>
+        </div>
         <p className="text-muted-foreground">
           Track your improvement over time
         </p>
@@ -299,14 +302,24 @@ export default function Progress() {
           </ul>
         </Card>
 
-            {/* Action Button */}
-            <Button 
-              size="lg"
-              className="w-full"
-              onClick={() => window.location.href = '/analyze'}
-            >
-              Record New Swing
-            </Button>
+            {/* Action Buttons */}
+            <div className="grid grid-cols-1 gap-3">
+              <ExportProgressReport
+                stats={displayStats}
+                batMetrics={displayBatMetrics}
+                bodyMetrics={displayBodyMetrics}
+                ballMetrics={displayBallMetrics}
+                brainMetrics={displayBrainMetrics}
+                goals={goals}
+              />
+              <Button 
+                size="lg"
+                className="w-full"
+                onClick={() => window.location.href = '/analyze'}
+              >
+                Record New Swing
+              </Button>
+            </div>
           </TabsContent>
               </CarouselItem>
 
