@@ -640,6 +640,60 @@ export type Database = {
           },
         ]
       }
+      generated_reports: {
+        Row: {
+          created_at: string | null
+          id: string
+          metrics: Json | null
+          period_end: string
+          period_start: string
+          player_id: string | null
+          report_type: string
+          report_url: string
+          schedule_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metrics?: Json | null
+          period_end: string
+          period_start: string
+          player_id?: string | null
+          report_type: string
+          report_url: string
+          schedule_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metrics?: Json | null
+          period_end?: string
+          period_start?: string
+          player_id?: string | null
+          report_type?: string
+          report_url?: string
+          schedule_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_reports_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_reports_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "report_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grit_scores: {
         Row: {
           created_at: string | null
@@ -1220,6 +1274,53 @@ export type Database = {
             columns: ["promo_code_id"]
             isOneToOne: false
             referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_schedules: {
+        Row: {
+          created_at: string | null
+          email_delivery: boolean | null
+          frequency: string
+          id: string
+          is_active: boolean | null
+          last_generated_at: string | null
+          next_generation_date: string
+          player_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_delivery?: boolean | null
+          frequency: string
+          id?: string
+          is_active?: boolean | null
+          last_generated_at?: string | null
+          next_generation_date: string
+          player_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_delivery?: boolean | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          last_generated_at?: string | null
+          next_generation_date?: string
+          player_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_schedules_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

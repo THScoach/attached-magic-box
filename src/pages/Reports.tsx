@@ -3,13 +3,18 @@ import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoReportCard } from "@/components/VideoReportCard";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayerAnalyses } from "@/hooks/usePlayerAnalyses";
+import { useReportSchedules } from "@/hooks/useReportSchedules";
 import { PlayerSelector } from "@/components/PlayerSelector";
+import { ReportScheduleManager } from "@/components/ReportScheduleManager";
+import { ReportHistory } from "@/components/ReportHistory";
 import { toast } from "sonner";
-import { FileDown, Share2, CheckCircle2 } from "lucide-react";
+import { FileDown, Share2, CheckCircle2, Calendar, Clock, FileText, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { subDays } from "date-fns";
 
 export default function Reports() {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(() => {
@@ -21,8 +26,18 @@ export default function Reports() {
   const [progressStep, setProgressStep] = useState("");
   const [reportUrl, setReportUrl] = useState<string | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [userId, setUserId] = useState<string>("");
 
   const { analyses, loading } = usePlayerAnalyses(selectedPlayerId);
+  const { generateReport: generateQuickReport } = useReportSchedules(userId);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setUserId(user.id);
+    };
+    loadUser();
+  }, []);
 
   useEffect(() => {
     if (selectedPlayerId) {
@@ -42,7 +57,7 @@ export default function Reports() {
     setSelectedAnalyses([]);
   };
 
-  const generateReport = async () => {
+  const generateCustomReport = async () => {
     if (selectedAnalyses.length === 0) {
       toast.error("Please select at least one video");
       return;
@@ -53,17 +68,14 @@ export default function Reports() {
     setProgressStep("Preparing report...");
 
     try {
-      // Step 1: Extract key frames (33%)
       setProgressStep("Extracting key frames");
       setProgress(33);
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Step 2: Analyzing biomechanics (66%)
       setProgressStep("Analyzing biomechanics");
       setProgress(66);
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Step 3: Generate PDF (100%)
       setProgressStep("Generating PDF");
       setProgress(90);
 
@@ -84,6 +96,35 @@ export default function Reports() {
     } catch (error: any) {
       console.error('Report generation error:', error);
       toast.error("Failed to generate report: " + (error.message || "Unknown error"));
+    } finally {
+      setIsGenerating(false);
+      setProgress(0);
+      setProgressStep("");
+    }
+  };
+
+  const quickReport = async (days: number) => {
+    if (!userId || !selectedPlayerId) return;
+    
+    setIsGenerating(true);
+    setProgress(50);
+    setProgressStep("Generating report...");
+    
+    try {
+      const endDate = new Date();
+      const startDate = subDays(endDate, days);
+      
+      const data = await generateQuickReport(
+        selectedPlayerId,
+        startDate.toISOString(),
+        endDate.toISOString()
+      );
+
+      if (data) {
+        setReportUrl(data.reportUrl);
+        setShowSuccessDialog(true);
+        setProgress(100);
+      }
     } finally {
       setIsGenerating(false);
       setProgress(0);
@@ -125,16 +166,14 @@ export default function Reports() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
-        <h1 className="text-2xl font-bold mb-2">Swing Reports</h1>
+        <h1 className="text-2xl font-bold mb-2">Progress Reports</h1>
         <p className="text-muted-foreground">
-          Select videos to generate comparison reports
+          Generate comprehensive swing analysis reports
         </p>
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        {/* Player Selector */}
         <Card className="p-4">
           <PlayerSelector
             selectedPlayerId={selectedPlayerId}
@@ -142,63 +181,131 @@ export default function Reports() {
           />
         </Card>
 
-        {/* Action Buttons - Sticky */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 -mx-6 px-6 py-3 border-b">
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={clearSelection}
-              disabled={selectedCount === 0 || isGenerating}
-              className="flex-1"
-            >
-              {selectedCount > 0 ? `${selectedCount} Selected` : 'Select Videos'}
-            </Button>
-            <Button
-              onClick={generateReport}
-              disabled={selectedCount === 0 || isGenerating}
-              className="flex-1"
-            >
-              {isGenerating ? 'Generating...' : 'Generate Report'}
-            </Button>
-          </div>
-          {selectedCount === 0 && (
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              Select at least one video to generate report
-            </p>
-          )}
-        </div>
+        {selectedPlayerId && (
+          <Tabs defaultValue="quick" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="quick">Quick</TabsTrigger>
+              <TabsTrigger value="custom">Custom</TabsTrigger>
+              <TabsTrigger value="schedule">Schedule</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+            </TabsList>
 
-        {/* Video List */}
-        {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <Card key={i} className="p-4 h-32 animate-pulse bg-muted" />
-            ))}
-          </div>
-        ) : analyses.length === 0 ? (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">
-              {selectedPlayerId 
-                ? "No swing analyses found for this player"
-                : "Select a player to view their swing analyses"
-              }
-            </p>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {analyses.map(analysis => (
-              <VideoReportCard
-                key={analysis.id}
-                analysisId={analysis.id}
-                videoUrl={analysis.video_url}
-                createdAt={analysis.created_at}
-                overallScore={analysis.overall_score}
-                tempoRatio={analysis.metrics?.tempoRatio}
-                isSelected={selectedAnalyses.includes(analysis.id)}
-                onToggle={toggleAnalysis}
-              />
-            ))}
-          </div>
+            <TabsContent value="quick" className="space-y-4 mt-6">
+              <div className="grid gap-4">
+                <Card 
+                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer" 
+                  onClick={() => quickReport(7)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Clock className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Last 7 Days</h3>
+                      <p className="text-sm text-muted-foreground">Quick weekly progress report</p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card 
+                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer" 
+                  onClick={() => quickReport(30)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Calendar className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Last 30 Days</h3>
+                      <p className="text-sm text-muted-foreground">Monthly progress overview</p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card 
+                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer" 
+                  onClick={() => quickReport(90)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <FileText className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Last 90 Days</h3>
+                      <p className="text-sm text-muted-foreground">Quarterly analysis</p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="custom" className="space-y-4 mt-6">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-muted-foreground">
+                  {selectedCount > 0 ? `${selectedCount} selected` : 'Select videos'}
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={clearSelection}
+                    disabled={selectedCount === 0 || isGenerating}
+                    size="sm"
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    onClick={generateCustomReport}
+                    disabled={selectedCount === 0 || isGenerating}
+                    size="sm"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      'Generate'
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <Card key={i} className="p-4 h-32 animate-pulse bg-muted" />
+                  ))}
+                </div>
+              ) : analyses.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">No swing analyses found</p>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {analyses.map(analysis => (
+                    <VideoReportCard
+                      key={analysis.id}
+                      analysisId={analysis.id}
+                      videoUrl={analysis.video_url}
+                      createdAt={analysis.created_at}
+                      overallScore={analysis.overall_score}
+                      tempoRatio={analysis.metrics?.tempoRatio}
+                      isSelected={selectedAnalyses.includes(analysis.id)}
+                      onToggle={toggleAnalysis}
+                    />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="schedule" className="mt-6">
+              <ReportScheduleManager userId={userId} playerId={selectedPlayerId} />
+            </TabsContent>
+
+            <TabsContent value="history" className="mt-6">
+              <ReportHistory userId={userId} />
+            </TabsContent>
+          </Tabs>
         )}
       </div>
 
