@@ -27,6 +27,7 @@ import { PeerComparison } from "@/components/PeerComparison";
 import { GoalSuggestions } from "@/components/GoalSuggestions";
 import { TrainingInsightsPanel } from "@/components/TrainingInsightsPanel";
 import { HighlightReel } from "@/components/HighlightReel";
+import { QuickShareButton } from "@/components/QuickShareButton";
 import { useUserGoals } from "@/hooks/useUserGoals";
 import { Loader2 } from "lucide-react";
 
@@ -174,6 +175,10 @@ export default function Progress() {
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-bold">Your Progress</h1>
+          <QuickShareButton
+            score={displayStats.avgHitsScore}
+            improvement={displayStats.improvement}
+          />
         </div>
         <p className="text-muted-foreground">
           Track your improvement over time

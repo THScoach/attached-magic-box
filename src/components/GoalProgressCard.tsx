@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Target, Trash2, CheckCircle2 } from "lucide-react";
 import { UserGoal, useUserGoals } from "@/hooks/useUserGoals";
 import { useCelebration } from "@/hooks/useCelebration";
+import { ShareAchievement } from "@/components/ShareAchievement";
 import { format } from "date-fns";
 
 interface GoalProgressCardProps {
@@ -96,10 +97,27 @@ export function GoalProgressCard({ goal }: GoalProgressCardProps) {
       <div className="flex items-center justify-between mt-3">
         <div className="flex gap-2">
           {goal.status === 'completed' && (
-            <Badge variant="default" className="bg-green-500">
-              <CheckCircle2 className="h-3 w-3 mr-1" />
-              Completed
-            </Badge>
+            <>
+              <Badge variant="default" className="bg-green-500">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Completed
+              </Badge>
+              <ShareAchievement
+                type="goal"
+                data={{
+                  title: `${goal.metric_name} Goal Completed!`,
+                  metric: goal.metric_name,
+                  value: goal.target_value,
+                  unit: goal.unit,
+                  date: format(new Date(), 'MMMM d, yyyy'),
+                }}
+                trigger={
+                  <Button size="sm" variant="ghost" className="h-7 text-xs">
+                    Share 🎉
+                  </Button>
+                }
+              />
+            </>
           )}
           {isOverdue && (
             <Badge variant="destructive">Overdue</Badge>

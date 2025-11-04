@@ -7,6 +7,7 @@ import { Film, Download, Share2, Sparkles, Play, TrendingUp, Loader2 } from "luc
 import { useHighlightReel, HighlightSwing } from "@/hooks/useHighlightReel";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ShareAchievement } from "@/components/ShareAchievement";
 import { format } from "date-fns";
 
 interface HighlightReelProps {
@@ -239,14 +240,23 @@ export function HighlightReel({ playerId }: HighlightReelProps) {
 
               {/* Actions */}
               <div className="flex gap-3">
-                <Button
-                  onClick={() => handleShare(selectedHighlight)}
-                  className="flex-1"
-                  variant="outline"
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
-                </Button>
+                <ShareAchievement
+                  type="highlight"
+                  data={{
+                    title: description || "Elite Swing Performance",
+                    score: selectedHighlight.overall_score,
+                    metric: selectedHighlight.bat_speed ? "Bat Speed" : undefined,
+                    value: selectedHighlight.bat_speed,
+                    unit: selectedHighlight.bat_speed ? "mph" : undefined,
+                    date: format(new Date(selectedHighlight.created_at), 'MMMM d, yyyy'),
+                  }}
+                  trigger={
+                    <Button className="flex-1" variant="outline">
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Share
+                    </Button>
+                  }
+                />
                 <Button
                   onClick={() => {
                     const link = document.createElement('a');
