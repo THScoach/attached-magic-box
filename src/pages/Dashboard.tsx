@@ -13,6 +13,7 @@ import { GrindScoreCard } from "@/components/GrindScoreCard";
 import { CoachRickChatBubble } from "@/components/CoachRickChatBubble";
 import { EquipmentOnboardingModal } from "@/components/EquipmentOnboardingModal";
 import { FreeSwingCounter } from "@/components/FreeSwingCounter";
+import { ProfileUpdatePrompt } from "@/components/ProfileUpdatePrompt";
 import { User, TrendingUp, Target, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -221,6 +222,7 @@ export default function Dashboard() {
 
       <BottomNav />
       <CoachRickChatBubble />
+      <ProfileUpdatePrompt />
       <EquipmentOnboardingModal
         open={showOnboarding}
         onComplete={() => setShowOnboarding(false)}

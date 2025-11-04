@@ -1,410 +1,470 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Progress } from "@/components/ui/progress";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Upload, User, BarChart3, ChevronRight, Camera, CalendarIcon } from "lucide-react";
-import { toast } from "sonner";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CalendarIcon, Loader2, TrendingUp, Target, Trophy } from "lucide-react";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import hitsLogo from "@/assets/hits-logo-modern.png";
-import { useUserRole } from "@/hooks/useUserRole";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { role, loading: roleLoading, isCoach, isAdmin } = useUserRole();
-  const [step, setStep] = useState(1);
-  const [athleteInfo, setAthleteInfo] = useState({
-    name: "",
+  const { role, loading: roleLoading } = useUserRole();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [profileData, setProfileData] = useState({
+    fullName: "",
     birthDate: undefined as Date | undefined,
-    position: "",
-    handedness: "",
+    heightFeet: "",
+    heightInches: "",
+    weight: "",
+    battingHand: "",
+    positions: [] as string[],
+    experienceLevel: "",
+    primaryGoal: "",
   });
-  const [videos, setVideos] = useState<File[]>([]);
 
-  // Redirect coaches/admins immediately
   useEffect(() => {
-    if (!roleLoading && (isCoach || isAdmin)) {
-      localStorage.setItem('onboardingComplete', 'true');
-      if (isCoach) {
-        navigate('/coach-dashboard');
-      } else if (isAdmin) {
-        navigate('/admin');
-      }
+    // Redirect coaches and admins away from onboarding
+    if (!roleLoading && (role === "coach" || role === "admin")) {
+      navigate("/coach-dashboard", { replace: true });
     }
-  }, [roleLoading, isCoach, isAdmin, navigate]);
+  }, [role, roleLoading, navigate]);
 
-  const progress = (step / 4) * 100;
+  useEffect(() => {
+    // Check if user already completed onboarding
+    const checkOnboarding = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_completed")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.onboarding_completed) {
+        navigate("/dashboard", { replace: true });
+      }
+    };
+
+    if (!roleLoading && role === "athlete") {
+      checkOnboarding();
+    }
+  }, [roleLoading, role, navigate]);
+
+  const progress = (currentStep / 3) * 100;
 
   const handleNext = () => {
-    if (step === 1) {
-      setStep(2);
-    } else if (step === 2) {
-      if (!athleteInfo.name) {
-        toast.error("Please enter your name");
+    // Validation for Step 1
+    if (currentStep === 1) {
+      if (!profileData.fullName.trim()) {
+        toast.error("Please enter your full name");
         return;
       }
-      setStep(3);
-    } else if (step === 3) {
-      if (videos.length === 0) {
-        toast.error("Please upload at least one swing video");
+      if (!profileData.birthDate) {
+        toast.error("Please select your birth date");
         return;
       }
-      // Store athlete info
-      localStorage.setItem('athleteInfo', JSON.stringify(athleteInfo));
-      localStorage.setItem('onboardingComplete', 'true');
-      setStep(4);
-    } else if (step === 4) {
-      // Redirect to analyze page with onboarding flag
-      navigate('/analyze?from=onboarding');
+      if (!profileData.heightFeet || !profileData.heightInches) {
+        toast.error("Please enter your height");
+        return;
+      }
+      const feet = parseInt(profileData.heightFeet);
+      const inches = parseInt(profileData.heightInches);
+      if (feet < 4 || feet > 7 || inches < 0 || inches > 11) {
+        toast.error("Please enter a valid height (4'0\" - 7'0\")");
+        return;
+      }
+      if (!profileData.weight) {
+        toast.error("Please enter your weight");
+        return;
+      }
+      const weight = parseInt(profileData.weight);
+      if (weight < 50 || weight > 400) {
+        toast.error("Please enter a valid weight (50-400 lbs)");
+        return;
+      }
+    }
+
+    // Validation for Step 2
+    if (currentStep === 2) {
+      if (!profileData.battingHand) {
+        toast.error("Please select your batting hand");
+        return;
+      }
+      if (!profileData.experienceLevel) {
+        toast.error("Please select your experience level");
+        return;
+      }
+    }
+
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (videos.length + files.length > 5) {
-      toast.error("Maximum 5 videos allowed");
-      return;
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
     }
-    setVideos([...videos, ...files]);
-    toast.success(`${files.length} video(s) added`);
   };
 
-  const removeVideo = (index: number) => {
-    setVideos(videos.filter((_, i) => i !== index));
+  const updateField = (field: string, value: any) => {
+    setProfileData({ ...profileData, [field]: value });
+  };
+
+  const togglePosition = (position: string) => {
+    const positions = profileData.positions.includes(position)
+      ? profileData.positions.filter(p => p !== position)
+      : [...profileData.positions, position];
+    updateField("positions", positions);
+  };
+
+  const handleComplete = async () => {
+    setIsSubmitting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Not authenticated");
+        return;
+      }
+
+      // Calculate total height in inches
+      const totalHeightInches = parseInt(profileData.heightFeet) * 12 + parseInt(profileData.heightInches);
+
+      // Update profile
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          first_name: profileData.fullName.split(" ")[0] || profileData.fullName,
+          last_name: profileData.fullName.split(" ").slice(1).join(" ") || "",
+          birth_date: profileData.birthDate?.toISOString().split('T')[0],
+          height_inches: totalHeightInches,
+          weight_lbs: parseInt(profileData.weight),
+          batting_hand: profileData.battingHand,
+          position: profileData.positions,
+          experience_level: profileData.experienceLevel,
+          primary_goal: profileData.primaryGoal || null,
+          onboarding_completed: true,
+          profile_last_updated: new Date().toISOString(),
+        })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      toast.success("Profile complete! Let's analyze your swing.");
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      console.error("Error completing onboarding:", error);
+      toast.error("Failed to save profile. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (roleLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 flex items-center justify-center">
-        <Card className="p-8">
-          <p>Loading...</p>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 flex items-center justify-center p-6">
-      <Card className="w-full max-w-2xl p-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <img 
-            src={hitsLogo} 
-            alt="HITS Logo" 
-            className="w-20 h-20 mx-auto mb-4"
-          />
-          <h1 className="text-3xl font-bold mb-2">Welcome to HITS</h1>
-          <p className="text-muted-foreground">
-            Let's get you set up in 4 simple steps
-          </p>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium">Step {step} of 4</span>
-            <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        <Card className="p-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Welcome to H.I.T.S. Analyzer</h1>
+            <p className="text-muted-foreground">
+              Let's set up your athlete profile for personalized swing analysis
+            </p>
           </div>
-          <Progress value={progress} className="h-2" />
-        </div>
 
-        {/* Step 1: Welcome Message */}
-        {step === 1 && (
-          <div className="space-y-6">
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center">
-                <div className="p-4 rounded-full bg-primary/10">
-                  <User className="h-12 w-12 text-primary" />
-                </div>
-              </div>
-              
-              <h2 className="text-2xl font-bold">Welcome to H.I.T.S. Analyzer!</h2>
-              
-              {/* Video Placeholder */}
-              <Card className="p-8 bg-zinc-900 border-zinc-700">
-                <div className="aspect-video bg-zinc-800 rounded-lg flex items-center justify-center">
-                  <div className="text-center space-y-2">
-                    <div className="text-4xl">🎥</div>
-                    <p className="text-sm text-muted-foreground">Welcome Video</p>
-                    <p className="text-xs text-muted-foreground">(Video will be placed here)</p>
-                  </div>
-                </div>
-              </Card>
-              
-              <div className="text-left space-y-4 max-w-xl mx-auto">
-                <p className="text-foreground leading-relaxed">
-                  I'm excited to have you here! The H.I.T.S. Analyzer is built on cutting-edge biomechanics 
-                  research to help you understand and improve your swing like never before.
-                </p>
-                
-                <Card className="p-4 bg-primary/5 border-primary/20">
-                  <h3 className="font-bold mb-3">What You'll Get:</h3>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                      <span><strong>54+ Biomechanical Metrics</strong> - Deep analysis of every aspect of your swing</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                      <span><strong>The Three Pillars</strong> - ANCHOR (stability), ENGINE (tempo), and WHIP (release)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                      <span><strong>Personalized Drills</strong> - Targeted exercises to fix your #1 opportunity</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                      <span><strong>Coach Rick AI</strong> - Get instant answers to your swing questions</span>
-                    </li>
-                  </ul>
-                </Card>
-                
-                <p className="text-muted-foreground text-sm italic">
-                  - From The Hitting Skool Team
+          <Progress value={progress} className="mb-8" />
+
+          {/* Step 1: Personal Information */}
+          {currentStep === 1 && (
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold flex items-center gap-2">
+                  <TrendingUp className="h-6 w-6 text-primary" />
+                  Personal Information
+                </h2>
+                <p className="text-muted-foreground">
+                  This helps us provide accurate momentum-based calculations
                 </p>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* Step 2: Athlete Info */}
-        {step === 2 && (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <User className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold">Tell us about yourself</h2>
-                <p className="text-sm text-muted-foreground">
-                  Basic information to personalize your experience
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  placeholder="Enter your full name"
-                  value={athleteInfo.name}
-                  onChange={(e) => setAthleteInfo({ ...athleteInfo, name: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <Label htmlFor="birthDate">Birth Date</Label>
+                  <Label htmlFor="fullName">Full Name *</Label>
+                  <Input
+                    id="fullName"
+                    placeholder="Enter your full name"
+                    value={profileData.fullName}
+                    onChange={(e) => updateField("fullName", e.target.value)}
+                    className="mt-1.5"
+                  />
+                </div>
+
+                <div>
+                  <Label>Birth Date *</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !athleteInfo.birthDate && "text-muted-foreground"
+                          "w-full justify-start text-left font-normal mt-1.5",
+                          !profileData.birthDate && "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {athleteInfo.birthDate ? (
-                          format(athleteInfo.birthDate, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
+                        {profileData.birthDate ? format(profileData.birthDate, "PPP") : "Select birth date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={athleteInfo.birthDate}
-                        onSelect={(date) => setAthleteInfo({ ...athleteInfo, birthDate: date })}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
+                        selected={profileData.birthDate}
+                        onSelect={(date) => updateField("birthDate", date)}
+                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                         captionLayout="dropdown-buttons"
                         fromYear={1950}
                         toYear={new Date().getFullYear()}
                         initialFocus
-                        className={cn("p-3 pointer-events-auto")}
+                        className="pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="heightFeet">Height (feet) *</Label>
+                    <Input
+                      id="heightFeet"
+                      type="number"
+                      placeholder="5"
+                      min="4"
+                      max="7"
+                      value={profileData.heightFeet}
+                      onChange={(e) => updateField("heightFeet", e.target.value)}
+                      className="mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="heightInches">Height (inches) *</Label>
+                    <Input
+                      id="heightInches"
+                      type="number"
+                      placeholder="10"
+                      min="0"
+                      max="11"
+                      value={profileData.heightInches}
+                      onChange={(e) => updateField("heightInches", e.target.value)}
+                      className="mt-1.5"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <Label htmlFor="position">Position</Label>
+                  <Label htmlFor="weight">Weight (lbs) *</Label>
                   <Input
-                    id="position"
-                    placeholder="e.g., Shortstop"
-                    value={athleteInfo.position}
-                    onChange={(e) => setAthleteInfo({ ...athleteInfo, position: e.target.value })}
+                    id="weight"
+                    type="number"
+                    placeholder="150"
+                    min="50"
+                    max="400"
+                    value={profileData.weight}
+                    onChange={(e) => updateField("weight", e.target.value)}
+                    className="mt-1.5"
                   />
                 </div>
               </div>
-
-              <div>
-                <Label htmlFor="handedness">Batting Stance</Label>
-                <select
-                  id="handedness"
-                  className="w-full px-4 py-2 rounded-md border bg-background"
-                  value={athleteInfo.handedness}
-                  onChange={(e) => setAthleteInfo({ ...athleteInfo, handedness: e.target.value })}
-                >
-                  <option value="">Select...</option>
-                  <option value="right">Right-handed</option>
-                  <option value="left">Left-handed</option>
-                  <option value="switch">Switch hitter</option>
-                </select>
-              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Step 3: Upload Videos */}
-        {step === 3 && (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <Camera className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold">Upload Your Swings</h2>
-                <p className="text-sm text-muted-foreground">
-                  Upload up to 5 swing videos
+          {/* Step 2: Baseball Information */}
+          {currentStep === 2 && (
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold flex items-center gap-2">
+                  <Target className="h-6 w-6 text-primary" />
+                  Baseball Information
+                </h2>
+                <p className="text-muted-foreground">
+                  Help us understand your playing style
                 </p>
               </div>
-            </div>
 
-            <Card className="p-6 bg-blue-500/10 border-blue-500/20">
-              <p className="text-sm text-foreground">
-                <strong>💡 Pro Tip:</strong> We get more accurate data and better insights with more swings. 
-                Upload 3-5 videos for the best analysis!
-              </p>
-            </Card>
-
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-primary/30 rounded-lg p-8 text-center">
-                <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">
-                  Upload Videos ({videos.length}/5)
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Click to upload or drag and drop
-                </p>
-                <input
-                  type="file"
-                  accept="video/*"
-                  multiple
-                  onChange={handleVideoUpload}
-                  className="hidden"
-                  id="video-upload"
-                  disabled={videos.length >= 5}
-                />
-                <Button 
-                  onClick={() => document.getElementById('video-upload')?.click()}
-                  disabled={videos.length >= 5}
-                >
-                  Choose Videos
-                </Button>
-              </div>
-
-              {/* Video List */}
-              {videos.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Uploaded Videos:</h4>
-                  {videos.map((video, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                      <span className="text-sm truncate flex-1">{video.name}</span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => removeVideo(index)}
-                      >
-                        Remove
-                      </Button>
+              <div className="space-y-4">
+                <div>
+                  <Label>Batting Hand *</Label>
+                  <RadioGroup
+                    value={profileData.battingHand}
+                    onValueChange={(value) => updateField("battingHand", value)}
+                    className="mt-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="right" id="right" />
+                      <Label htmlFor="right" className="font-normal cursor-pointer">Right</Label>
                     </div>
-                  ))}
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="left" id="left" />
+                      <Label htmlFor="left" className="font-normal cursor-pointer">Left</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="switch" id="switch" />
+                      <Label htmlFor="switch" className="font-normal cursor-pointer">Switch</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
 
-        {/* Step 4: Ready to Analyze */}
-        {step === 4 && (
-          <div className="space-y-6 text-center">
-            <div className="flex items-center justify-center">
-              <div className="p-4 rounded-full bg-green-500/10">
-                <BarChart3 className="h-16 w-16 text-green-500" />
+                <div>
+                  <Label>Position(s)</Label>
+                  <p className="text-sm text-muted-foreground mb-2">Select all that apply</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      "Pitcher", "Catcher", "First Base", "Second Base",
+                      "Third Base", "Shortstop", "Outfield", "Designated Hitter"
+                    ].map((position) => (
+                      <div key={position} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={position}
+                          checked={profileData.positions.includes(position)}
+                          onCheckedChange={() => togglePosition(position)}
+                        />
+                        <Label htmlFor={position} className="font-normal cursor-pointer">
+                          {position}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="experienceLevel">Experience Level *</Label>
+                  <Select
+                    value={profileData.experienceLevel}
+                    onValueChange={(value) => updateField("experienceLevel", value)}
+                  >
+                    <SelectTrigger className="mt-1.5">
+                      <SelectValue placeholder="Select experience level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner (0-2 years)</SelectItem>
+                      <SelectItem value="intermediate">Intermediate (3-5 years)</SelectItem>
+                      <SelectItem value="advanced">Advanced (6-10 years)</SelectItem>
+                      <SelectItem value="elite">Elite (10+ years)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
+          )}
 
-            <div>
-              <h2 className="text-2xl font-bold mb-2">You're All Set!</h2>
-              <p className="text-muted-foreground">
-                Your profile is ready. Let's analyze your swings and see your H.I.T.S. scores!
-              </p>
-            </div>
-
-            <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-primary">3</div>
-                  <div className="text-xs text-muted-foreground">Pillars</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-primary">{videos.length}</div>
-                  <div className="text-xs text-muted-foreground">Videos</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-primary">54+</div>
-                  <div className="text-xs text-muted-foreground">Metrics</div>
-                </div>
+          {/* Step 3: Goals */}
+          {currentStep === 3 && (
+            <div className="space-y-6 animate-in fade-in duration-500">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold flex items-center gap-2">
+                  <Trophy className="h-6 w-6 text-primary" />
+                  Your Goals
+                </h2>
+                <p className="text-muted-foreground">
+                  What do you want to achieve with H.I.T.S.?
+                </p>
               </div>
-            </Card>
-          </div>
-        )}
 
-        {/* Navigation Buttons */}
-        <div className="flex gap-3 mt-8">
-          {step > 1 && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="primaryGoal">Primary Goal</Label>
+                  <Select
+                    value={profileData.primaryGoal}
+                    onValueChange={(value) => updateField("primaryGoal", value)}
+                  >
+                    <SelectTrigger className="mt-1.5">
+                      <SelectValue placeholder="Select your primary goal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="increase_bat_speed">Increase bat speed</SelectItem>
+                      <SelectItem value="improve_mechanics">Improve mechanics</SelectItem>
+                      <SelectItem value="fix_swing_issues">Fix swing issues</SelectItem>
+                      <SelectItem value="prepare_for_season">Prepare for season</SelectItem>
+                      <SelectItem value="general_improvement">General improvement</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Card className="bg-secondary/50 p-4 border-primary/20">
+                  <h3 className="font-semibold mb-2">Why height & weight matter:</h3>
+                  <ul className="space-y-1 text-sm text-muted-foreground">
+                    <li>• Required for momentum-based calculations</li>
+                    <li>• Used for biomechanics analysis</li>
+                    <li>• Helps personalize training recommendations</li>
+                    <li>• Critical for accurate bat speed and power metrics</li>
+                  </ul>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between mt-8">
             <Button
               variant="outline"
-              onClick={() => setStep(step - 1)}
-              className="flex-1"
+              onClick={handleBack}
+              disabled={currentStep === 1 || isSubmitting}
             >
               Back
             </Button>
-          )}
-            <Button
-              onClick={handleNext}
-              className="flex-1"
-            >
-              {step === 4 ? "Start Analyzing" : step === 1 ? "Get Started" : "Continue"}
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-        </div>
 
-        {/* Skip Option */}
-        {step < 4 && step > 1 && (
+            <div className="flex gap-2">
+              {currentStep < 3 && (
+                <Button onClick={handleNext}>
+                  Continue
+                </Button>
+              )}
+
+              {currentStep === 3 && (
+                <Button onClick={handleComplete} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Completing...
+                    </>
+                  ) : (
+                    "Complete Profile"
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+
           <div className="text-center mt-4">
-            <button
-              onClick={() => {
-                localStorage.setItem('onboardingComplete', 'true');
-                navigate('/');
-              }}
-              className="text-sm text-muted-foreground hover:text-foreground"
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/dashboard")}
+              className="text-muted-foreground"
+              disabled={isSubmitting}
             >
               Skip for now
-            </button>
+            </Button>
           </div>
-        )}
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
