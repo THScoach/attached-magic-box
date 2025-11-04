@@ -15,6 +15,7 @@ import { CoachRickChatBubble } from "@/components/CoachRickChatBubble";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, Trophy } from "lucide-react";
 import { TeamChallengeManager } from "@/components/admin/TeamChallengeManager";
+import { DrillEffectivenessPanel } from "@/components/admin/DrillEffectivenessPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function CoachDashboard() {
@@ -174,6 +175,10 @@ export default function CoachDashboard() {
               <Trophy className="h-4 w-4 mr-2" />
               Challenges
             </TabsTrigger>
+            <TabsTrigger value="effectiveness">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Drill Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -242,6 +247,10 @@ export default function CoachDashboard() {
 
           <TabsContent value="challenges">
             <TeamChallengeManager />
+          </TabsContent>
+
+          <TabsContent value="effectiveness">
+            <DrillEffectivenessPanel />
           </TabsContent>
         </Tabs>
 
