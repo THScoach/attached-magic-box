@@ -13,7 +13,9 @@ import { NotificationCenter } from "@/components/NotificationCenter";
 import { CoachAITrainingInput } from "@/components/admin/CoachAITrainingInput";
 import { CoachRickChatBubble } from "@/components/CoachRickChatBubble";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Trophy } from "lucide-react";
+import { TeamChallengeManager } from "@/components/admin/TeamChallengeManager";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -165,67 +167,83 @@ export default function CoachDashboard() {
         </div>
 
         {/* AI Training Input */}
-        <CoachAITrainingInput />
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="challenges">
+              <Trophy className="h-4 w-4 mr-2" />
+              Challenges
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Main Content */}
-        <div className="grid md:grid-cols-2 gap-6 mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Athletes</CardTitle>
-              <CardDescription>Manage your team members</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <Users className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
-                {athletes.length === 0 ? (
-                  <p className="text-muted-foreground mb-4">No athletes yet</p>
-                ) : (
-                  <p className="text-muted-foreground mb-4">{athletes.length} athletes on your roster</p>
-                )}
-                <div className="flex gap-2 justify-center">
-                  <Button 
-                    onClick={() => setShowAddModal(true)}
-                    disabled={stats.availableSeats <= 0}
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add Athlete
-                  </Button>
-                  {athletes.length > 0 && (
-                    <Button 
-                      variant="outline"
-                      onClick={() => navigate("/coach-roster")}
-                    >
-                      View Full Roster
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <TabsContent value="overview" className="space-y-6">
+            <CoachAITrainingInput />
 
-          <PromoCodeManager availableSeats={stats.availableSeats} />
-        </div>
+            {/* Main Content */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Athletes</CardTitle>
+                  <CardDescription>Manage your team members</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
+                    {athletes.length === 0 ? (
+                      <p className="text-muted-foreground mb-4">No athletes yet</p>
+                    ) : (
+                      <p className="text-muted-foreground mb-4">{athletes.length} athletes on your roster</p>
+                    )}
+                    <div className="flex gap-2 justify-center">
+                      <Button 
+                        onClick={() => setShowAddModal(true)}
+                        disabled={stats.availableSeats <= 0}
+                      >
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Add Athlete
+                      </Button>
+                      {athletes.length > 0 && (
+                        <Button 
+                          variant="outline"
+                          onClick={() => navigate("/coach-roster")}
+                        >
+                          View Full Roster
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* Purchase Section */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Purchase Team Seats</CardTitle>
-            <CardDescription>
-              Get discounted rates for bulk team access
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 border rounded-lg">
-                <div>
-                  <h3 className="font-bold">Team Package - 10 Seats</h3>
-                  <p className="text-sm text-muted-foreground">Discounted rate for coaching organizations</p>
-                </div>
-                <Button disabled>Coming Soon</Button>
-              </div>
+              <PromoCodeManager availableSeats={stats.availableSeats} />
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Purchase Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Purchase Team Seats</CardTitle>
+                <CardDescription>
+                  Get discounted rates for bulk team access
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-4 border rounded-lg">
+                    <div>
+                      <h3 className="font-bold">Team Package - 10 Seats</h3>
+                      <p className="text-sm text-muted-foreground">Discounted rate for coaching organizations</p>
+                    </div>
+                    <Button disabled>Coming Soon</Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="challenges">
+            <TeamChallengeManager />
+          </TabsContent>
+        </Tabs>
 
         <AddAthleteModal
           open={showAddModal}
