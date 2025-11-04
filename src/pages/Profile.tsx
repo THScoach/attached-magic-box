@@ -5,9 +5,18 @@ import { MembershipCard } from "@/components/MembershipCard";
 import { User, Settings, HelpCircle, LogOut, Trophy, Target } from "lucide-react";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Profile() {
   const { isAdmin } = useUserRole();
+  const navigate = useNavigate();
+  
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success("Signed out successfully");
+    navigate("/auth");
+  };
   
   const user = {
     name: "Alex Rodriguez",
@@ -103,19 +112,28 @@ export default function Profile() {
 
         {/* Sign Out */}
         <Card className="p-4 space-y-2">
-          <Button variant="outline" className="w-full justify-start">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => navigate('/privacy')}
+          >
             Privacy Policy
           </Button>
           {isAdmin && (
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => window.location.href = '/admin'}
+              onClick={() => navigate('/admin')}
             >
               Admin Dashboard
             </Button>
           )}
-          <Button variant="outline" className="w-full justify-start text-destructive">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start text-destructive"
+            onClick={handleSignOut}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
             Log Out
           </Button>
         </Card>
