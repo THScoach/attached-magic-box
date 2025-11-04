@@ -24,6 +24,7 @@ import { AthleteReportScheduler } from "@/components/admin/AthleteReportSchedule
 import { AthleteComparison } from "@/components/admin/AthleteComparison";
 import { TeamLeaderboards } from "@/components/admin/TeamLeaderboards";
 import { CoachingNotesPanel } from "@/components/admin/CoachingNotesPanel";
+import { BulkTeamActions } from "@/components/admin/BulkTeamActions";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -176,7 +177,7 @@ export default function CoachDashboard() {
 
         {/* AI Training Input */}
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 gap-1">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 gap-1">
             <TabsTrigger value="analytics" className="text-xs">
               <TrendingUp className="h-4 w-4 lg:mr-1" />
               <span className="hidden lg:inline">Analytics</span>
@@ -212,6 +213,10 @@ export default function CoachDashboard() {
             <TabsTrigger value="notes" className="text-xs">
               <span className="hidden lg:inline">Notes</span>
               <span className="lg:hidden">Nt</span>
+            </TabsTrigger>
+            <TabsTrigger value="bulk" className="text-xs">
+              <span className="hidden lg:inline">Bulk</span>
+              <span className="lg:hidden">Bk</span>
             </TabsTrigger>
           </TabsList>
 
@@ -369,6 +374,13 @@ export default function CoachDashboard() {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="bulk" className="space-y-6">
+            <BulkTeamActions athletes={athletes.map(a => ({
+              id: a.athlete_id,
+              email: a.athlete_email
+            }))} />
           </TabsContent>
         </Tabs>
 
