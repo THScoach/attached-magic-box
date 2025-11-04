@@ -18,6 +18,7 @@ import { COMPhaseMetrics } from "@/components/COMPhaseMetrics";
 import { SwingAvatar3D } from "@/components/SwingAvatar3D";
 import { VideoKeyMomentOverlay } from "@/components/VideoKeyMomentOverlay";
 import { ReanalyzeButton } from "@/components/ReanalyzeButton";
+import { VideoAnalysisWithMarkup } from "@/components/VideoAnalysisWithMarkup";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
@@ -723,9 +724,10 @@ export default function AnalysisResult() {
       <div className="px-6 py-6 space-y-6">
         {/* Video Player and 3D Motion Tabs */}
         <Tabs defaultValue="video" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="video">Video Analysis</TabsTrigger>
             <TabsTrigger value="motion">3D Motion</TabsTrigger>
+            <TabsTrigger value="markup">Markup Tools</TabsTrigger>
           </TabsList>
           
           <TabsContent value="video" className="mt-4">
@@ -985,6 +987,21 @@ export default function AnalysisResult() {
                 </div>
               </div>
             </Card>
+          </TabsContent>
+
+          {/* Markup Tools Tab */}
+          <TabsContent value="markup" className="mt-4">
+            {analysis.videoUrl ? (
+              <VideoAnalysisWithMarkup
+                videoUrl={analysis.videoUrl}
+                title="Video Markup & Analysis"
+                description="Draw lines, circles, and annotations to analyze your swing mechanics"
+              />
+            ) : (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">No video available for markup</p>
+              </Card>
+            )}
           </TabsContent>
 
         </Tabs>
