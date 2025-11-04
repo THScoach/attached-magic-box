@@ -26,6 +26,7 @@ import { ExportProgressReport } from "@/components/ExportProgressReport";
 import { PeerComparison } from "@/components/PeerComparison";
 import { GoalSuggestions } from "@/components/GoalSuggestions";
 import { TrainingInsightsPanel } from "@/components/TrainingInsightsPanel";
+import { HighlightReel } from "@/components/HighlightReel";
 import { useUserGoals } from "@/hooks/useUserGoals";
 import { Loader2 } from "lucide-react";
 
@@ -426,6 +427,16 @@ export default function Progress() {
               unit=":1"
             />
           </div>
+        </div>
+
+        {/* Highlight Reel Section */}
+        <div className="space-y-6 mt-8">
+          <div>
+            <h2 className="text-2xl font-bold mb-2">Highlight Reel</h2>
+            <p className="text-muted-foreground">Your best swings all in one place</p>
+          </div>
+
+          <HighlightReel />
         </div>
 
         {/* Goals Section */}
