@@ -122,9 +122,9 @@ export default function AdminOverview() {
   }
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-8 space-y-6 bg-background text-foreground">
       <div>
-        <h1 className="text-3xl font-bold">Admin Overview</h1>
+        <h1 className="text-3xl font-bold text-foreground">Admin Overview</h1>
         <p className="text-muted-foreground">Welcome to your coaching dashboard</p>
       </div>
 

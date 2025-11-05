@@ -86,20 +86,24 @@ const App = () => {
             {/* Admin Routes - New comprehensive admin dashboard */}
             <Route path="/admin" element={
               <ProtectedRoute>
-                <RoleGuard allowedRoles={["admin", "coach"]}>
-                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-                    <AdminLayout><AdminOverview /></AdminLayout>
-                  </Suspense>
-                </RoleGuard>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminOverview />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
               </ProtectedRoute>
             } />
             <Route path="/admin/players" element={
               <ProtectedRoute>
-                <RoleGuard allowedRoles={["admin", "coach"]}>
-                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-                    <AdminLayout><AdminPlayers /></AdminLayout>
-                  </Suspense>
-                </RoleGuard>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminPlayers />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
               </ProtectedRoute>
             } />
             

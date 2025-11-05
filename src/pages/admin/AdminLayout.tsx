@@ -13,7 +13,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -24,9 +24,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <AdminSidebar />
-      <main className="flex-1 overflow-auto bg-background">
+      <main className="flex-1 overflow-auto">
         {children}
       </main>
     </div>
