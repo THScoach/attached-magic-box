@@ -132,7 +132,15 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
     }
   };
 
-  const extractFramesAndPoseData = async (videoFile: File): Promise<any[]> => {
+  const extractFramesAndPoseData = async (videoFile: File, frameRate?: number): Promise<any[]> => {
+    // For high-speed videos (>120fps), skip pose detection to save time
+    // The edge function will handle analysis without frame-level pose data
+    if (frameRate && frameRate > 120) {
+      console.log(`Skipping pose detection for ${frameRate}fps video - too slow`);
+      toast.info("High-speed video detected - using fast analysis mode");
+      return [];
+    }
+
     return new Promise((resolve, reject) => {
       if (!videoRef.current || !canvasRef.current) {
         reject(new Error("Video or canvas ref not available"));
@@ -149,14 +157,37 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
 
       const poseFrames: any[] = [];
       let pose: Pose | null = null;
+      let framesToProcess = 0;
+      let framesProcessed = 0;
 
       // Create object URL for video
       const videoUrl = URL.createObjectURL(videoFile);
       videoElement.src = videoUrl;
 
+      // Set a timeout to prevent infinite loops
+      const timeout = setTimeout(() => {
+        URL.revokeObjectURL(videoUrl);
+        pose?.close();
+        if (poseFrames.length > 0) {
+          console.log(`Timeout reached - returning ${poseFrames.length} processed frames`);
+          resolve(poseFrames);
+        } else {
+          reject(new Error("Pose detection timeout"));
+        }
+      }, 30000); // 30 second timeout
+
       videoElement.onloadedmetadata = async () => {
         canvas.width = videoElement.videoWidth;
         canvas.height = videoElement.videoHeight;
+
+        // Calculate frames to process (max 45 frames)
+        const maxFrames = 45;
+        const videoDuration = videoElement.duration;
+        const fps = Math.min(30, frameRate || 30);
+        const totalFrames = Math.ceil(videoDuration * fps);
+        framesToProcess = Math.min(maxFrames, totalFrames);
+        
+        console.log(`Processing ${framesToProcess} frames for pose detection`);
 
         // Initialize MediaPipe Pose
         pose = new Pose({
@@ -164,11 +195,11 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         });
 
         pose.setOptions({
-          modelComplexity: 1,
-          smoothLandmarks: true,
+          modelComplexity: 0, // Use fastest model
+          smoothLandmarks: false, // Disable smoothing for speed
           enableSegmentation: false,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5
+          minDetectionConfidence: 0.3, // Lower confidence for speed
+          minTrackingConfidence: 0.3
         });
 
         pose.onResults((results) => {
@@ -178,20 +209,23 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
               landmarks: results.poseLandmarks
             });
           }
+          framesProcessed++;
         });
 
         await pose.initialize();
 
-        // Extract frames at 30fps intervals
-        const fps = 30;
-        const frameInterval = 1 / fps;
+        // Process frames with interval based on total frames
+        const frameInterval = videoDuration / framesToProcess;
         let currentTime = 0;
+        let frameIndex = 0;
 
         const processFrame = async () => {
-          if (currentTime >= videoElement.duration) {
+          if (frameIndex >= framesToProcess || currentTime >= videoElement.duration) {
             // Done processing
+            clearTimeout(timeout);
             URL.revokeObjectURL(videoUrl);
             pose?.close();
+            console.log(`Completed: ${poseFrames.length} frames processed`);
             resolve(poseFrames);
             return;
           }
@@ -205,13 +239,15 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
           });
 
           currentTime += frameInterval;
-          setTimeout(processFrame, 10);
+          frameIndex++;
+          setTimeout(processFrame, 5); // Reduced delay
         };
 
         processFrame();
       };
 
       videoElement.onerror = () => {
+        clearTimeout(timeout);
         URL.revokeObjectURL(videoUrl);
         reject(new Error("Failed to load video"));
       };
@@ -234,7 +270,7 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
       ));
 
       console.log(`Extracting pose data from ${video.file.name}...`);
-      const poseData = await extractFramesAndPoseData(video.file);
+      const poseData = await extractFramesAndPoseData(video.file, video.frameRate);
       console.log(`Extracted ${poseData.length} frames with pose data`);
 
       setVideos(prev => prev.map((v, i) => 
