@@ -47,6 +47,13 @@ import Timeline from "./pages/Timeline";
 import TierDemo from "./pages/TierDemo";
 import FourBsScorecard from "./pages/FourBsScorecard";
 import NotFound from "./pages/NotFound";
+import { lazy, Suspense } from "react";
+import { Loader2 } from "lucide-react";
+
+// Admin pages (lazy loaded for better performance)
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminPlayers = lazy(() => import("./pages/admin/AdminPlayers"));
 
 const queryClient = new QueryClient();
 
@@ -76,17 +83,30 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/coach-auth" element={<CoachAuth />} />
             
-            {/* Admin Routes */}
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute>
-                  <RoleGuard allowedRoles={["admin"]}>
-                    <Admin />
-                  </RoleGuard>
-                </ProtectedRoute>
-              } 
-            />
+            {/* Admin Routes - New comprehensive admin dashboard */}
+            <Route path="/admin" element={
+              <RoleGuard allowedRoles={["admin", "coach"]}>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+                  <AdminLayout><AdminOverview /></AdminLayout>
+                </Suspense>
+              </RoleGuard>
+            } />
+            <Route path="/admin/players" element={
+              <RoleGuard allowedRoles={["admin", "coach"]}>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+                  <AdminLayout><AdminPlayers /></AdminLayout>
+                </Suspense>
+              </RoleGuard>
+            } />
+            
+            {/* Old Admin Route - Keep for backwards compatibility */}
+            <Route path="/admin-old" element={
+              <ProtectedRoute>
+                <RoleGuard allowedRoles={["admin"]}>
+                  <Admin />
+                </RoleGuard>
+              </ProtectedRoute>
+            } />
             
             {/* Coach Routes */}
             <Route 
