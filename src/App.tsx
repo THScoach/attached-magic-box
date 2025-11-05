@@ -34,6 +34,7 @@ import LiveCoaching from "./pages/LiveCoaching";
 import CoachRoster from "./pages/CoachRoster";
 import AthleteProfileDashboard from "./pages/AthleteProfileDashboard";
 import ParentPortal from "./pages/ParentPortal";
+import VideoComparison from "./pages/VideoComparison";
 import PlayerProfile from "./pages/PlayerProfile";
 import FreeOnboarding from "./pages/FreeOnboarding";
 import Pricing from "./pages/Pricing";
@@ -117,6 +118,7 @@ const App = () => {
             
             {/* Parent Portal Route */}
             <Route path="/parent-portal" element={<ProtectedRoute><ParentPortal /></ProtectedRoute>} />
+            <Route path="/video-comparison" element={<ProtectedRoute><VideoComparison /></ProtectedRoute>} />
             
             {/* Athlete/General Protected Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { BatMetricsView } from "@/components/BatMetricsView";
 import { BodyMetricsView } from "@/components/BodyMetricsView";
 import { BallMetricsView } from "@/components/BallMetricsView";
@@ -33,6 +33,7 @@ import { Loader2 } from "lucide-react";
 
 export default function Progress() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialCategory = searchParams.get('category') || 'overview';
   const [activeTab, setActiveTab] = useState(initialCategory);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -441,7 +442,7 @@ export default function Progress() {
               <h2 className="text-2xl font-bold mb-2">Highlight Reel</h2>
               <p className="text-muted-foreground">Your best swings all in one place</p>
             </div>
-            <Button variant="outline" onClick={() => window.location.href = '/comparison'}>
+            <Button variant="outline" onClick={() => navigate('/video-comparison')}>
               Compare Swings
             </Button>
           </div>
