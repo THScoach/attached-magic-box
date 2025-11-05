@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      athlete_goals: {
+        Row: {
+          achievable_reasoning: string | null
+          ai_generated: boolean | null
+          baseline_analysis_id: string | null
+          celebration_shown: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          current_value: number
+          description: string | null
+          goal_type: string
+          id: string
+          measurable_criteria: string | null
+          milestone_checkpoints: Json | null
+          player_id: string | null
+          priority: string | null
+          progress_history: Json | null
+          relevant_context: string | null
+          specific_details: string | null
+          status: string
+          target_metric: string
+          target_value: number
+          time_bound_deadline: string | null
+          title: string
+          unit: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievable_reasoning?: string | null
+          ai_generated?: boolean | null
+          baseline_analysis_id?: string | null
+          celebration_shown?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_value: number
+          description?: string | null
+          goal_type: string
+          id?: string
+          measurable_criteria?: string | null
+          milestone_checkpoints?: Json | null
+          player_id?: string | null
+          priority?: string | null
+          progress_history?: Json | null
+          relevant_context?: string | null
+          specific_details?: string | null
+          status?: string
+          target_metric: string
+          target_value: number
+          time_bound_deadline?: string | null
+          title: string
+          unit?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievable_reasoning?: string | null
+          ai_generated?: boolean | null
+          baseline_analysis_id?: string | null
+          celebration_shown?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number
+          description?: string | null
+          goal_type?: string
+          id?: string
+          measurable_criteria?: string | null
+          milestone_checkpoints?: Json | null
+          player_id?: string | null
+          priority?: string | null
+          progress_history?: Json | null
+          relevant_context?: string | null
+          specific_details?: string | null
+          status?: string
+          target_metric?: string
+          target_value?: number
+          time_bound_deadline?: string | null
+          title?: string
+          unit?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athlete_goals_baseline_analysis_id_fkey"
+            columns: ["baseline_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ball_metrics: {
         Row: {
           analysis_id: string | null
@@ -794,6 +886,54 @@ export type Database = {
             columns: ["schedule_id"]
             isOneToOne: false
             referencedRelation: "report_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goal_progress_entries: {
+        Row: {
+          analysis_id: string | null
+          created_at: string | null
+          goal_id: string
+          id: string
+          is_milestone: boolean | null
+          notes: string | null
+          progress_percentage: number
+          recorded_value: number
+        }
+        Insert: {
+          analysis_id?: string | null
+          created_at?: string | null
+          goal_id: string
+          id?: string
+          is_milestone?: boolean | null
+          notes?: string | null
+          progress_percentage: number
+          recorded_value: number
+        }
+        Update: {
+          analysis_id?: string | null
+          created_at?: string | null
+          goal_id?: string
+          id?: string
+          is_milestone?: boolean | null
+          notes?: string | null
+          progress_percentage?: number
+          recorded_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_progress_entries_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_progress_entries_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "athlete_goals"
             referencedColumns: ["id"]
           },
         ]

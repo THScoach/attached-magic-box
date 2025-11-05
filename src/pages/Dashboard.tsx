@@ -19,7 +19,7 @@ import { TeamChallenges } from "@/components/TeamChallenges";
 import { calculateBatGrade, calculateBodyGrade, calculateBallGrade, calculateBrainGrade, calculateOverallGrade } from "@/lib/gradingSystem";
 import { getBenchmarksForLevel } from "@/lib/benchmarks";
 import { useQuery } from "@tanstack/react-query";
-import { User, TrendingUp, Target, Zap } from "lucide-react";
+import { User, TrendingUp, Target, Zap, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -303,6 +303,15 @@ export default function Dashboard() {
               {gritData.totalCompleted} / {gritData.totalAssigned}
             </p>
             <p className="text-xs text-muted-foreground mt-1">Completed</p>
+          </Card>
+
+          <Card className="p-4 cursor-pointer hover:bg-accent transition-colors" onClick={() => navigate('/goals')}>
+            <div className="flex items-center gap-2 mb-2">
+              <Trophy className="h-4 w-4 text-primary" />
+              <p className="text-sm text-muted-foreground">My Goals</p>
+            </div>
+            <p className="text-3xl font-bold text-primary">--</p>
+            <p className="text-xs text-muted-foreground mt-1">Set & track goals</p>
           </Card>
 
           <Card className="p-4">

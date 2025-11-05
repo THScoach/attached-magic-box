@@ -36,6 +36,7 @@ import AthleteProfileDashboard from "./pages/AthleteProfileDashboard";
 import ParentPortal from "./pages/ParentPortal";
 import VideoComparison from "./pages/VideoComparison";
 import TeamAnalytics from "./pages/TeamAnalytics";
+import Goals from "./pages/Goals";
 import PlayerProfile from "./pages/PlayerProfile";
 import FreeOnboarding from "./pages/FreeOnboarding";
 import Pricing from "./pages/Pricing";
@@ -150,6 +151,7 @@ const App = () => {
             <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
             <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
             <Route path="/timeline" element={<ProtectedRoute><Timeline /></ProtectedRoute>} />
+            <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
