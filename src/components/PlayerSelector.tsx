@@ -65,32 +65,19 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
       return;
     }
 
-    // Check if user is admin - they can see all players
-    const { data: userRoleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    
-    const isAdmin = userRoleData?.role === 'admin';
+    console.log('[PlayerSelector] Loading players for user:', user.id);
 
-    // Build query - admins see all players, others see only their own
-    let query = supabase
+    // Simply query all active players - RLS will handle access control
+    const { data, error } = await supabase
       .from('players')
       .select('*')
-      .eq('is_active', true);
-    
-    // If not admin, filter by user_id
-    if (!isAdmin) {
-      query = query.eq('user_id', user.id);
-    }
-    
-    const { data, error } = await query
+      .eq('is_active', true)
       .order('last_name')
       .order('first_name');
 
     if (error) {
       console.error('[PlayerSelector] Error loading players:', error);
+      toast.error('Failed to load players');
       setLoading(false);
       return;
     }
