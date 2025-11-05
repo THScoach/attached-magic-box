@@ -35,17 +35,30 @@ export default function AdminPlayers() {
 
   const loadPlayers = async () => {
     try {
+      // Load all active players for admins
       const { data: playersData, error } = await supabase
         .from("players")
         .select(`
           id,
           user_id,
           first_name,
-          last_name,
-          profiles!inner(email)
-        `);
+          last_name
+        `)
+        .eq('is_active', true)
+        .order('last_name')
+        .order('first_name');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading players:', error);
+        throw error;
+      }
+
+      // Get profiles separately to get emails
+      const userIds = playersData?.map(p => p.user_id) || [];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, email")
+        .in('id', userIds);
 
       // Get memberships
       const { data: memberships } = await supabase
@@ -64,6 +77,7 @@ export default function AdminPlayers() {
         .order("created_at", { ascending: false });
 
       const processedPlayers: Player[] = (playersData || []).map((player: any) => {
+        const profile = profiles?.find(p => p.id === player.user_id);
         const membership = memberships?.find(m => m.user_id === player.user_id);
         const playerActivity = activity?.find(a => a.user_id === player.user_id);
         const latestAnalysis = analyses?.find(a => a.user_id === player.user_id);
@@ -78,7 +92,7 @@ export default function AdminPlayers() {
           id: player.id,
           userId: player.user_id,
           name: `${player.first_name} ${player.last_name}`,
-          email: player.profiles?.email || "",
+          email: profile?.email || "",
           tier: membership?.tier || "free",
           grade: latestAnalysis ? getLetterGrade(latestAnalysis.overall_score) : "-",
           lastActive: playerActivity?.last_swing_upload
