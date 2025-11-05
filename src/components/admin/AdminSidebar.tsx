@@ -8,7 +8,8 @@ import {
   Settings,
   TestTube,
   Home,
-  LogOut
+  LogOut,
+  UserCog
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export function AdminSidebar() {
   const navItems = [
     { icon: Home, label: "Overview", path: "/admin" },
     { icon: Users, label: "Players", path: "/admin/players" },
+    { icon: UserCog, label: "Team Roster", path: "/admin/roster" },
     { icon: FileVideo, label: "All Analyses", path: "/admin/analyses" },
     { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
     { icon: GitCompare, label: "Comparisons", path: "/admin/comparisons" },
