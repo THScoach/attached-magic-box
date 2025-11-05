@@ -2447,6 +2447,14 @@ export type Database = {
         Returns: boolean
       }
       increment_swing_count: { Args: { _user_id: string }; Returns: number }
+      is_coach_of_challenge: {
+        Args: { _challenge_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_user_in_challenge: {
+        Args: { _challenge_id: string; _user_id: string }
+        Returns: boolean
+      }
       update_challenge_participant_score: {
         Args: { _challenge_id: string; _player_id?: string; _user_id: string }
         Returns: undefined
