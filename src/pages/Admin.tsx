@@ -5,7 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AthleteListManager } from "@/components/admin/AthleteListManager";
 import { TeamsManager } from "@/components/admin/TeamsManager";
 import { AnalyzePlayerModal } from "@/components/AnalyzePlayerModal";
-import { ShieldAlert, Users, UserCheck, TrendingUp, Activity, Target, Camera } from "lucide-react";
+import { CoachRickTrainingDashboard } from "@/components/admin/CoachRickTrainingDashboard";
+import { ShieldAlert, Users, UserCheck, TrendingUp, Activity, Target, Camera, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -159,7 +160,7 @@ export default function Admin() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="players">
               <Users className="h-4 w-4 mr-2" />
               Players
@@ -167,6 +168,10 @@ export default function Admin() {
             <TabsTrigger value="teams">
               <UserCheck className="h-4 w-4 mr-2" />
               Teams
+            </TabsTrigger>
+            <TabsTrigger value="ai-training">
+              <Brain className="h-4 w-4 mr-2" />
+              AI Training
             </TabsTrigger>
           </TabsList>
 
@@ -176,6 +181,10 @@ export default function Admin() {
 
           <TabsContent value="teams">
             <TeamsManager />
+          </TabsContent>
+
+          <TabsContent value="ai-training">
+            <CoachRickTrainingDashboard />
           </TabsContent>
         </Tabs>
       </div>
