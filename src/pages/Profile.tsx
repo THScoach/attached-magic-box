@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BottomNav } from "@/components/BottomNav";
 import { MembershipCard } from "@/components/MembershipCard";
+import { SubscriptionStatusCard } from "@/components/SubscriptionStatusCard";
 import { User, Settings, HelpCircle, LogOut, Trophy, Target, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -90,6 +91,9 @@ export default function Profile() {
 
         {/* Membership */}
         <MembershipCard />
+        
+        {/* Subscription Status */}
+        <SubscriptionStatusCard />
 
         {/* Menu Options */}
         <section className="space-y-2">
