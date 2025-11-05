@@ -3,7 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight, Lock, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import { MembershipTier, getBCategoryInfo, BCategory, calculateBGrade, hasMetricAccess, METRIC_DEFINITIONS } from "@/lib/fourBsFramework";
+import { MembershipTier, getBCategoryInfo, BCategory, calculateBGrade, hasMetricAccess, METRIC_DEFINITIONS, categoryHasData } from "@/lib/fourBsFramework";
 import { TierUpgradePrompt } from "./TierUpgradePrompt";
 import { cn } from "@/lib/utils";
 
@@ -32,14 +32,17 @@ export function FourBsScorecard({
     ball: calculateBGrade('ball', metrics, userTier),
   };
 
-  // Calculate overall grade (average of available categories)
-  const availableGrades = categories
-    .filter((cat) => {
-      // Check if user has access to at least one metric in this category
-      const categoryMetrics = METRIC_DEFINITIONS.filter((m) => m.category === cat);
-      return categoryMetrics.some((m) => hasMetricAccess(userTier, m));
-    })
-    .map((cat) => categoryGrades[cat]);
+  // Calculate overall grade - only include categories with actual data
+  const categoriesWithData = categories.filter((cat) => {
+    if (bypassTierRestrictions) {
+      // For admin view, check if data exists
+      return categoryHasData(cat, metrics, 'elite');
+    }
+    // For normal users, check both tier access AND if data exists
+    return categoryHasData(cat, metrics, userTier);
+  });
+
+  const availableGrades = categoriesWithData.map((cat) => categoryGrades[cat]).filter(g => g > 0);
   
   const overallGrade = availableGrades.length > 0
     ? Math.round(availableGrades.reduce((sum, g) => sum + g, 0) / availableGrades.length)
@@ -64,9 +67,16 @@ export function FourBsScorecard({
   const renderCategory = (category: BCategory) => {
     const info = getBCategoryInfo(category);
     const grade = categoryGrades[category];
+    
+    // Check if we have actual data for this category
+    const hasData = bypassTierRestrictions 
+      ? categoryHasData(category, metrics, 'elite')
+      : categoryHasData(category, metrics, userTier);
+    
     const hasAccess = bypassTierRestrictions || METRIC_DEFINITIONS.filter((m) => m.category === category).some((m) => hasMetricAccess(userTier, m));
 
-    if (!hasAccess) {
+    // If no data and no access, show locked state
+    if (!hasData && !hasAccess) {
       // Category is completely locked
       return (
         <Card key={category} className="relative overflow-hidden">
@@ -90,6 +100,29 @@ export function FourBsScorecard({
               </div>
             </div>
             <Progress value={85} className="h-2 opacity-50" />
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // If has access but no data, show "No Data" state
+    if (hasAccess && !hasData) {
+      return (
+        <Card key={category} className="relative overflow-hidden opacity-60">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{info.icon}</span>
+                <div>
+                  <h3 className="font-semibold">{info.name}</h3>
+                  <p className="text-xs text-muted-foreground">{info.description}</p>
+                </div>
+              </div>
+              <div className="text-sm font-medium text-muted-foreground">
+                No Data
+              </div>
+            </div>
+            <Progress value={0} className="h-2" />
           </CardContent>
         </Card>
       );

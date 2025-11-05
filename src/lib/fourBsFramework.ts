@@ -435,6 +435,7 @@ export function getLockedMetrics(
 
 /**
  * Calculate overall grade for a B category
+ * Returns 0 if no data is available for the category
  */
 export function calculateBGrade(
   category: BCategory,
@@ -450,7 +451,7 @@ export function calculateBGrade(
 
   availableMetrics.forEach((metric) => {
     const value = metrics[metric.id];
-    if (value !== undefined && value !== null) {
+    if (value !== undefined && value !== null && !isNaN(value)) {
       // Normalize to 0-100 scale based on metric type
       const normalizedScore = normalizeMetricValue(metric, value);
       totalScore += normalizedScore;
@@ -459,6 +460,21 @@ export function calculateBGrade(
   });
 
   return count > 0 ? Math.round(totalScore / count) : 0;
+}
+
+/**
+ * Check if a category has any actual data available
+ */
+export function categoryHasData(
+  category: BCategory,
+  metrics: Record<string, number>,
+  userTier: MembershipTier
+): boolean {
+  const availableMetrics = getAvailableMetrics(userTier, category);
+  return availableMetrics.some((metric) => {
+    const value = metrics[metric.id];
+    return value !== undefined && value !== null && !isNaN(value);
+  });
 }
 
 /**
