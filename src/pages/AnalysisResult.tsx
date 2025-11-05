@@ -93,10 +93,21 @@ export default function AnalysisResult() {
         return;
       }
 
-      const { data, error } = await supabase
+      // Check if we have a selected player from the upload
+      const selectedPlayerId = sessionStorage.getItem('selectedPlayerId');
+      
+      // Build query - filter by player_id if available
+      let query = supabase
         .from('swing_analyses')
         .select('*, players(first_name, last_name)')
-        .eq('user_id', user.id)
+        .eq('user_id', user.id);
+      
+      // If we have a selectedPlayerId, filter by it to get the correct player's latest analysis
+      if (selectedPlayerId) {
+        query = query.eq('player_id', selectedPlayerId);
+      }
+      
+      const { data, error } = await query
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
