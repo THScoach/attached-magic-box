@@ -58,13 +58,10 @@ export default function AdminPlayerDetail() {
   const loadPlayerData = async () => {
     setLoading(true);
     
-    // Load player info with user email
+    // Load player info
     const { data: playerData, error: playerError } = await supabase
       .from("players")
-      .select(`
-        *,
-        profiles!inner(email)
-      `)
+      .select("*")
       .eq("id", id)
       .maybeSingle();
 
@@ -79,10 +76,17 @@ export default function AdminPlayerDetail() {
       return;
     }
 
-    // Flatten the data structure
+    // Load user profile to get email
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", playerData.user_id)
+      .single();
+
+    // Combine player and profile data
     const playerWithEmail = {
       ...playerData,
-      email: (playerData as any).profiles?.email || ''
+      email: profileData?.email || ''
     };
 
     setPlayer(playerWithEmail);
