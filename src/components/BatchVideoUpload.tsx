@@ -36,10 +36,12 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
   const navigate = useNavigate();
   const [videos, setVideos] = useState<VideoUploadStatus[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
   const [currentTaggingIndex, setCurrentTaggingIndex] = useState<number | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cancelRef = useRef<boolean>(false);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -133,6 +135,11 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
   };
 
   const extractFramesAndPoseData = async (videoFile: File, frameRate?: number): Promise<any[]> => {
+    // Check for cancellation
+    if (cancelRef.current) {
+      throw new Error("Processing cancelled by user");
+    }
+
     // For high-speed videos (>120fps), skip pose detection to save time
     // The edge function will handle analysis without frame-level pose data
     if (frameRate && frameRate > 120) {
@@ -220,6 +227,15 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         let frameIndex = 0;
 
         const processFrame = async () => {
+          // Check for cancellation
+          if (cancelRef.current) {
+            clearTimeout(timeout);
+            URL.revokeObjectURL(videoUrl);
+            pose?.close();
+            reject(new Error("Processing cancelled by user"));
+            return;
+          }
+
           if (frameIndex >= framesToProcess || currentTime >= videoElement.duration) {
             // Done processing
             clearTimeout(timeout);
@@ -254,8 +270,13 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
     });
   };
 
-  const processVideo = async (video: VideoUploadStatus, index: number): Promise<void> => {
+  const processVideo = async (video: VideoUploadStatus, index: number): Promise<boolean> => {
     try {
+      // Check for cancellation
+      if (cancelRef.current) {
+        throw new Error("Processing cancelled by user");
+      }
+
       // Update status to uploading
       setVideos(prev => prev.map((v, i) => 
         i === index ? { ...v, status: 'uploading', progress: 10 } : v
@@ -330,7 +351,23 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         } : v
       ));
 
+      return true; // Success
+
     } catch (error: any) {
+      // Check if it was a user cancellation
+      if (error.message === "Processing cancelled by user" || cancelRef.current) {
+        console.log(`Processing cancelled for ${video.file.name}`);
+        setVideos(prev => prev.map((v, i) => 
+          i === index ? { 
+            ...v, 
+            status: 'pending',
+            progress: 0,
+            error: 'Cancelled'
+          } : v
+        ));
+        return false; // Cancelled
+      }
+
       console.error(`Error processing ${video.file.name}:`, error);
       setVideos(prev => prev.map((v, i) => 
         i === index ? { 
@@ -339,7 +376,14 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
           error: error.message || 'Failed to process video'
         } : v
       ));
+      return false; // Error
     }
+  };
+
+  const handleCancelProcessing = () => {
+    setIsCancelling(true);
+    cancelRef.current = true;
+    toast.info("Cancelling upload...");
   };
 
   const handleStartProcessing = async () => {
@@ -354,24 +398,43 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
     }
 
     setIsProcessing(true);
+    setIsCancelling(false);
+    cancelRef.current = false;
     toast.info(`Starting batch processing of ${videos.length} video${videos.length > 1 ? 's' : ''}...`);
 
     // Process videos one at a time
+    let completed = 0;
+    let cancelled = false;
+    
     for (let i = 0; i < videos.length; i++) {
       if (videos[i].status === 'pending') {
-        await processVideo(videos[i], i);
+        const success = await processVideo(videos[i], i);
+        
+        if (!success && cancelRef.current) {
+          cancelled = true;
+          break;
+        }
+        
+        if (success) {
+          completed++;
+        }
       }
     }
 
     setIsProcessing(false);
+    setIsCancelling(false);
+    cancelRef.current = false;
     
-    const completed = videos.filter(v => v.status === 'completed').length;
-    const errors = videos.filter(v => v.status === 'error').length;
-    
-    if (errors === 0) {
-      toast.success(`All ${completed} video${completed > 1 ? 's' : ''} processed successfully!`);
+    if (cancelled) {
+      toast.warning(`Processing cancelled. ${completed} video${completed !== 1 ? 's' : ''} completed before cancellation.`);
     } else {
-      toast.warning(`Processed ${completed} video${completed > 1 ? 's' : ''} with ${errors} error${errors > 1 ? 's' : ''}`);
+      const errors = videos.filter(v => v.status === 'error').length;
+      
+      if (errors === 0) {
+        toast.success(`All ${completed} video${completed > 1 ? 's' : ''} processed successfully!`);
+      } else {
+        toast.warning(`Processed ${completed} video${completed > 1 ? 's' : ''} with ${errors} error${errors > 1 ? 's' : ''}`);
+      }
     }
 
     onUploadComplete?.();
@@ -552,29 +615,38 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
           </div>
         )}
 
-        {/* Process button */}
+        {/* Process/Cancel buttons */}
         {videos.length > 0 && (
-          <Button
-            onClick={handleStartProcessing}
-            disabled={isProcessing || videos.every(v => v.status !== 'pending') || videos.some(v => v.status === 'tagging')}
-            className="w-full"
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : videos.some(v => v.status === 'tagging') ? (
-              <>
-                Complete tagging before processing
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-4 w-4" />
-                Process {videos.filter(v => v.status === 'pending').length} Video{videos.filter(v => v.status === 'pending').length > 1 ? 's' : ''}
-              </>
+          <div className="flex gap-2">
+            {!isProcessing && (
+              <Button
+                onClick={handleStartProcessing}
+                disabled={videos.every(v => v.status !== 'pending') || videos.some(v => v.status === 'tagging')}
+                className="flex-1"
+              >
+                {videos.some(v => v.status === 'tagging') ? (
+                  <>Complete tagging before processing</>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Process {videos.filter(v => v.status === 'pending').length} Video{videos.filter(v => v.status === 'pending').length > 1 ? 's' : ''}
+                  </>
+                )}
+              </Button>
             )}
-          </Button>
+            
+            {isProcessing && (
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={handleCancelProcessing}
+                disabled={isCancelling}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                {isCancelling ? 'Cancelling...' : 'Cancel Processing'}
+              </Button>
+            )}
+          </div>
         )}
 
         {/* Info text */}
