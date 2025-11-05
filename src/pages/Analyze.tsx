@@ -912,16 +912,42 @@ export default function Analyze() {
               </div>
             </Card>
 
-            {/* Batch Upload Section */}
+            {/* Unified Upload Section */}
             {selectedPlayerId && (
               <BatchVideoUpload 
                 playerId={selectedPlayerId}
                 playerName={selectedPlayerName || undefined}
                 onUploadComplete={() => {
                   // Refresh any necessary data
-                  console.log('Batch upload completed');
+                  console.log('Upload completed');
                 }}
               />
+            )}
+
+            {/* Show player selection prompt if no player selected */}
+            {!selectedPlayerId && (
+              <Card className="p-8 border-2 border-yellow-500/50 border-dashed">
+                <div className="text-center space-y-4">
+                  <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500">
+                      ⚠️ Please select a player above before uploading
+                    </p>
+                  </div>
+                  
+                  <div className="flex justify-center">
+                    <div className="p-4 rounded-full bg-primary/10">
+                      <Camera className="h-12 w-12 text-primary" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-bold text-lg mb-2">Ready to Analyze</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Select a player above to start uploading and analyzing swing videos
+                    </p>
+                  </div>
+                </div>
+              </Card>
             )}
 
             {/* Dual Camera Mode Toggle */}
@@ -960,7 +986,7 @@ export default function Analyze() {
               </div>
             </Card>
 
-            {dualCameraMode ? (
+            {dualCameraMode && (
               /* Dual Camera Upload UI */
               <div className="space-y-4">
                 <Card className="p-6">
@@ -1058,92 +1084,6 @@ export default function Analyze() {
                   </ul>
                 </Card>
               </div>
-            ) : (
-              /* Single Camera Upload UI */
-              <>
-            <Card className={`p-8 border-2 ${!selectedPlayerId ? 'border-yellow-500/50 border-dashed' : 'border-dashed'}`}>
-              <div className="text-center space-y-4">
-                {!selectedPlayerId && (
-                  <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                    <p className="text-sm font-medium text-yellow-600 dark:text-yellow-500">
-                      ⚠️ Please select a player above before uploading
-                    </p>
-                  </div>
-                )}
-                
-                <div className="flex justify-center">
-                  <div className="p-4 rounded-full bg-primary/10">
-                    <Camera className="h-12 w-12 text-primary" />
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="font-bold text-lg mb-2">Upload Your Swing</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Support for MP4, MOV files up to 100MB. Any frame rate supported (30-480fps).
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  <Button 
-                    size="lg" 
-                    className="w-full"
-                    disabled={!selectedPlayerId}
-                    onClick={() => {
-                      console.log('Upload button clicked. Selected player:', selectedPlayerId);
-                      if (!selectedPlayerId) {
-                        toast.error("Please select a player first");
-                        return;
-                      }
-                      document.getElementById('video-upload')?.click();
-                    }}
-                  >
-                    <Upload className="h-5 w-5 mr-2" />
-                    Choose Video File {selectedPlayerId && '✓'}
-                  </Button>
-                  
-                  <input
-                    id="video-upload"
-                    type="file"
-                    accept="video/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  
-                  <Button 
-                    size="lg" 
-                    variant="outline"
-                    className="w-full"
-                    disabled={!selectedPlayerId}
-                    onClick={() => {
-                      console.log('Record button clicked. Selected player:', selectedPlayerId);
-                      if (!selectedPlayerId) {
-                        toast.error("Please select a player first");
-                        return;
-                      }
-                      handleStartCamera();
-                    }}
-                  >
-                    <Camera className="h-5 w-5 mr-2" />
-                    Record Now (120fps) {selectedPlayerId && '✓'}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-
-            {/* Tips */}
-            <Card className="p-6 bg-muted/50">
-              <h3 className="font-bold mb-3">Tips for Best Results</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Film from the side (perpendicular to the swing path)</li>
-                <li>• Ensure your full body is visible in the frame</li>
-                <li>• Use good lighting for clear visibility</li>
-                <li>• Capture at least 2-3 seconds before and after contact</li>
-                <li>• Keep the camera stable (use a tripod if possible)</li>
-                <li>• For best results: 120fps or higher (300-480fps supported)</li>
-              </ul>
-            </Card>
-            </>
             )}
           </>
         ) : recordedVideoFile && recordedVideoUrl ? (
