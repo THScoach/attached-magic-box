@@ -22,6 +22,7 @@ import { VideoAnalysisWithMarkup } from "@/components/VideoAnalysisWithMarkup";
 import { PoseSkeletonOverlay } from "@/components/PoseSkeletonOverlay";
 import { SwingPhaseTimeline } from "@/components/SwingPhaseTimeline";
 import { DrillRecommendations } from "@/components/DrillRecommendations";
+import { AIDrillRecommendations } from "@/components/AIDrillRecommendations";
 import { detectSwingPhases, type PhaseDetectionResult } from "@/lib/swingPhaseDetection";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -59,6 +60,7 @@ export default function AnalysisResult() {
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [videoContainerSize, setVideoContainerSize] = useState({ width: 0, height: 0 });
   const [phaseDetection, setPhaseDetection] = useState<PhaseDetectionResult | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -66,6 +68,13 @@ export default function AnalysisResult() {
   const FPS = 30; // Frames per second
 
   useEffect(() => {
+    // Get current user ID
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setCurrentUserId(user.id);
+    };
+    getCurrentUser();
+
     // If accessing via player profile route with analysisId, load from database
     if (analysisId) {
       loadAnalysisFromDatabase(analysisId);
@@ -1153,26 +1162,37 @@ export default function AnalysisResult() {
         </Card>
 
         {/* Recommended Drills */}
-        <section>
+        <section className="space-y-4">
           <button
             onClick={() => setShowDrills(!showDrills)}
-            className="flex items-center justify-between w-full mb-3"
+            className="flex items-center justify-between w-full"
           >
-            <h2 className="text-lg font-bold">Recommended Drills</h2>
+            <h2 className="text-lg font-bold">Training Recommendations</h2>
             {showDrills ? <ChevronUp /> : <ChevronDown />}
           </button>
           
           {showDrills && (
-            <div className="grid gap-4">
-              {recommendedDrills.map(drill => (
-                <DrillCard 
-                  key={drill.id} 
-                  drill={drill}
-                  onViewDrill={(id) => {
-                    toast.info("Drill details coming soon!");
-                  }}
-                />
-              ))}
+            <div className="space-y-4">
+              {/* AI-Powered Recommendations */}
+              <AIDrillRecommendations 
+                analysisId={analysis.id}
+                userId={currentUserId}
+                playerId={undefined}
+              />
+
+              {/* Traditional Recommendations */}
+              <div className="grid gap-4">
+                <h3 className="text-md font-semibold text-muted-foreground">Additional Drills</h3>
+                {recommendedDrills.map(drill => (
+                  <DrillCard 
+                    key={drill.id} 
+                    drill={drill}
+                    onViewDrill={(id) => {
+                      toast.info("Drill details coming soon!");
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </section>
