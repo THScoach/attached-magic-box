@@ -1,49 +1,54 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useUserRole } from "@/hooks/useUserRole";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useUserRole } from "@/hooks/useUserRole";
-import { Progress } from "@/components/ui/progress";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { CalendarIcon, Loader2, TrendingUp, Target, Trophy } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, ChevronRight, ChevronLeft, User, Activity, Target } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const { role, loading: roleLoading } = useUserRole();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const totalSteps = 5;
+
+  // Form state
   const [profileData, setProfileData] = useState({
-    fullName: "",
-    birthDate: undefined as Date | undefined,
-    heightFeet: "",
-    heightInches: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    age: "",
+    height: "",
     weight: "",
-    battingHand: "",
-    positions: [] as string[],
-    experienceLevel: "",
-    primaryGoal: "",
+    battingHand: "right",
+    throwingHand: "right",
+    position: "",
+    experienceLevel: "intermediate",
+    goals: "",
   });
 
   useEffect(() => {
-    // Redirect coaches and admins away from onboarding
+    // Redirect non-athletes
     if (!roleLoading && (role === "coach" || role === "admin")) {
-      navigate("/coach-dashboard", { replace: true });
+      navigate("/coach-dashboard");
+      return;
     }
+
+    // Check if already completed onboarding
+    checkOnboardingStatus();
   }, [role, roleLoading, navigate]);
 
-  useEffect(() => {
-    // Check if user already completed onboarding
-    const checkOnboarding = async () => {
+  const checkOnboardingStatus = async () => {
+    if (roleLoading) return;
+
+    try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -54,62 +59,37 @@ export default function Onboarding() {
         .single();
 
       if (profile?.onboarding_completed) {
-        navigate("/dashboard", { replace: true });
+        navigate("/dashboard");
       }
-    };
-
-    if (!roleLoading && role === "athlete") {
-      checkOnboarding();
+    } catch (error) {
+      console.error("Error checking onboarding:", error);
     }
-  }, [roleLoading, role, navigate]);
+  };
 
-  const progress = (currentStep / 3) * 100;
+  const progress = (currentStep / totalSteps) * 100;
 
   const handleNext = () => {
-    // Validation for Step 1
-    if (currentStep === 1) {
-      if (!profileData.fullName.trim()) {
-        toast.error("Please enter your full name");
-        return;
-      }
-      if (!profileData.birthDate) {
-        toast.error("Please select your birth date");
-        return;
-      }
-      if (!profileData.heightFeet || !profileData.heightInches) {
-        toast.error("Please enter your height");
-        return;
-      }
-      const feet = parseInt(profileData.heightFeet);
-      const inches = parseInt(profileData.heightInches);
-      if (feet < 4 || feet > 7 || inches < 0 || inches > 11) {
-        toast.error("Please enter a valid height (4'0\" - 7'0\")");
-        return;
-      }
-      if (!profileData.weight) {
-        toast.error("Please enter your weight");
-        return;
-      }
-      const weight = parseInt(profileData.weight);
-      if (weight < 50 || weight > 400) {
-        toast.error("Please enter a valid weight (50-400 lbs)");
-        return;
-      }
-    }
-
-    // Validation for Step 2
+    // Validation for each step
     if (currentStep === 2) {
-      if (!profileData.battingHand) {
-        toast.error("Please select your batting hand");
+      if (!profileData.firstName || !profileData.lastName || !profileData.email) {
+        toast.error("Please fill out all required fields");
         return;
       }
-      if (!profileData.experienceLevel) {
-        toast.error("Please select your experience level");
+    }
+    if (currentStep === 3) {
+      if (!profileData.age || !profileData.height || !profileData.weight) {
+        toast.error("Please fill out all required fields");
+        return;
+      }
+    }
+    if (currentStep === 4) {
+      if (!profileData.position) {
+        toast.error("Please select your primary position");
         return;
       }
     }
 
-    if (currentStep < 3) {
+    if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -120,51 +100,52 @@ export default function Onboarding() {
     }
   };
 
-  const updateField = (field: string, value: any) => {
-    setProfileData({ ...profileData, [field]: value });
-  };
-
-  const togglePosition = (position: string) => {
-    const positions = profileData.positions.includes(position)
-      ? profileData.positions.filter(p => p !== position)
-      : [...profileData.positions, position];
-    updateField("positions", positions);
-  };
-
   const handleComplete = async () => {
     setIsSubmitting(true);
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("Not authenticated");
-        return;
-      }
+      if (!user) throw new Error("No user found");
 
-      // Calculate total height in inches
-      const totalHeightInches = parseInt(profileData.heightFeet) * 12 + parseInt(profileData.heightInches);
+      // Calculate birth year from age
+      const currentYear = new Date().getFullYear();
+      const birthYear = currentYear - parseInt(profileData.age);
+      const birthDate = `${birthYear}-01-01`;
 
       // Update profile
-      const { error } = await supabase
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({
-          first_name: profileData.fullName.split(" ")[0] || profileData.fullName,
-          last_name: profileData.fullName.split(" ").slice(1).join(" ") || "",
-          birth_date: profileData.birthDate?.toISOString().split('T')[0],
-          height_inches: totalHeightInches,
-          weight_lbs: parseInt(profileData.weight),
-          batting_hand: profileData.battingHand,
-          position: profileData.positions,
-          experience_level: profileData.experienceLevel,
-          primary_goal: profileData.primaryGoal || null,
+          first_name: profileData.firstName,
+          last_name: profileData.lastName,
           onboarding_completed: true,
-          profile_last_updated: new Date().toISOString(),
         })
         .eq("id", user.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
-      toast.success("Profile complete! Let's analyze your swing.");
-      navigate("/dashboard", { replace: true });
+      // Create or update player
+      const { error: playerError } = await supabase
+        .from("players")
+        .upsert({
+          user_id: user.id,
+          first_name: profileData.firstName,
+          last_name: profileData.lastName,
+          birth_date: birthDate,
+          height: parseFloat(profileData.height),
+          weight: parseFloat(profileData.weight),
+          handedness: profileData.battingHand,
+          throws: profileData.throwingHand,
+          position: profileData.position,
+        });
+
+      if (playerError) throw playerError;
+
+      toast.success("Welcome to HITS! 🎉", {
+        description: "Your profile has been created successfully.",
+      });
+
+      navigate("/dashboard");
     } catch (error) {
       console.error("Error completing onboarding:", error);
       toast.error("Failed to save profile. Please try again.");
@@ -182,288 +163,391 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background p-4 py-8">
       <div className="max-w-2xl mx-auto">
-        <Card className="p-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Welcome to H.I.T.S. Analyzer</h1>
-            <p className="text-muted-foreground">
-              Let's set up your athlete profile for personalized swing analysis
-            </p>
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
+            <span className="text-sm text-muted-foreground">{Math.round(progress)}% Complete</span>
           </div>
+          <Progress value={progress} className="h-2" />
+        </div>
 
-          <Progress value={progress} className="mb-8" />
-
-          {/* Step 1: Personal Information */}
+        <Card>
+          {/* Step 1: Welcome Video */}
           {currentStep === 1 && (
-            <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold flex items-center gap-2">
-                  <TrendingUp className="h-6 w-6 text-primary" />
-                  Personal Information
-                </h2>
-                <p className="text-muted-foreground">
-                  This helps us provide accurate momentum-based calculations
-                </p>
-              </div>
+            <>
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl mb-4">Welcome to HITS! 🎉</CardTitle>
+                <CardDescription className="text-base">
+                  Watch this quick message from Coach Rick
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Video Player */}
+                <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                  <video
+                    controls
+                    className="w-full h-full"
+                    poster="/videos/coach-rick-thumbnail.jpg"
+                  >
+                    <source src="/videos/coach-rick-welcome.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
 
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="fullName">Full Name *</Label>
+                {/* Welcome Text */}
+                <div className="text-center space-y-2">
+                  <p className="text-lg">
+                    Your subscription is active and you're ready to transform your swing!
+                  </p>
+                  <p className="text-muted-foreground">
+                    Let's set up your profile so we can personalize your training experience.
+                  </p>
+                </div>
+
+                {/* CTA Button */}
+                <Button
+                  onClick={handleNext}
+                  className="w-full"
+                  size="lg"
+                >
+                  Let's Get Started
+                  <ChevronRight className="ml-2 w-5 h-5" />
+                </Button>
+              </CardContent>
+            </>
+          )}
+
+          {/* Step 2: Basic Info */}
+          {currentStep === 2 && (
+            <>
+              <CardHeader>
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <User className="w-5 h-5" />
+                  <span className="text-sm font-medium">Basic Information</span>
+                </div>
+                <CardTitle className="text-2xl">Tell us about yourself</CardTitle>
+                <CardDescription>
+                  We'll use this to personalize your experience
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input
+                      id="firstName"
+                      placeholder="John"
+                      value={profileData.firstName}
+                      onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Input
+                      id="lastName"
+                      placeholder="Smith"
+                      value={profileData.lastName}
+                      onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address *</Label>
                   <Input
-                    id="fullName"
-                    placeholder="Enter your full name"
-                    value={profileData.fullName}
-                    onChange={(e) => updateField("fullName", e.target.value)}
-                    className="mt-1.5"
+                    id="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={profileData.email}
+                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                   />
                 </div>
 
-                <div>
-                  <Label>Birth Date *</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal mt-1.5",
-                          !profileData.birthDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {profileData.birthDate ? format(profileData.birthDate, "PPP") : "Select birth date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={profileData.birthDate}
-                        onSelect={(date) => updateField("birthDate", date)}
-                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                        captionLayout="dropdown-buttons"
-                        fromYear={1950}
-                        toYear={new Date().getFullYear()}
-                        initialFocus
-                        className="pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                <div className="flex gap-3 mt-6">
+                  <Button
+                    onClick={handleBack}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <ChevronLeft className="mr-2 w-4 h-4" />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleNext}
+                    className="flex-1"
+                  >
+                    Next
+                    <ChevronRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </>
+          )}
+
+          {/* Step 3: Physical Stats */}
+          {currentStep === 3 && (
+            <>
+              <CardHeader>
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <Activity className="w-5 h-5" />
+                  <span className="text-sm font-medium">Physical Stats</span>
+                </div>
+                <CardTitle className="text-2xl">Your measurements</CardTitle>
+                <CardDescription>
+                  This helps us calculate momentum and power metrics
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="age">Age *</Label>
+                  <Input
+                    id="age"
+                    type="number"
+                    placeholder="16"
+                    min="8"
+                    max="99"
+                    value={profileData.age}
+                    onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
+                    autoFocus
+                  />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="heightFeet">Height (feet) *</Label>
-                    <Input
-                      id="heightFeet"
-                      type="number"
-                      placeholder="5"
-                      min="4"
-                      max="7"
-                      value={profileData.heightFeet}
-                      onChange={(e) => updateField("heightFeet", e.target.value)}
-                      className="mt-1.5"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="heightInches">Height (inches) *</Label>
-                    <Input
-                      id="heightInches"
-                      type="number"
-                      placeholder="10"
-                      min="0"
-                      max="11"
-                      value={profileData.heightInches}
-                      onChange={(e) => updateField("heightInches", e.target.value)}
-                      className="mt-1.5"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="height">Height (inches) *</Label>
+                  <Input
+                    id="height"
+                    type="number"
+                    placeholder="72"
+                    min="48"
+                    max="96"
+                    value={profileData.height}
+                    onChange={(e) => setProfileData({ ...profileData, height: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    💡 Tip: 6'0" = 72 inches, 5'10" = 70 inches
+                  </p>
                 </div>
 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="weight">Weight (lbs) *</Label>
                   <Input
                     id="weight"
                     type="number"
-                    placeholder="150"
+                    placeholder="180"
                     min="50"
                     max="400"
                     value={profileData.weight}
-                    onChange={(e) => updateField("weight", e.target.value)}
-                    className="mt-1.5"
+                    onChange={(e) => setProfileData({ ...profileData, weight: e.target.value })}
                   />
                 </div>
-              </div>
-            </div>
+
+                <div className="flex gap-3 mt-6">
+                  <Button
+                    onClick={handleBack}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <ChevronLeft className="mr-2 w-4 h-4" />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleNext}
+                    className="flex-1"
+                  >
+                    Next
+                    <ChevronRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </>
           )}
 
-          {/* Step 2: Baseball Information */}
-          {currentStep === 2 && (
-            <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold flex items-center gap-2">
-                  <Target className="h-6 w-6 text-primary" />
-                  Baseball Information
-                </h2>
-                <p className="text-muted-foreground">
-                  Help us understand your playing style
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <Label>Batting Hand *</Label>
-                  <RadioGroup
-                    value={profileData.battingHand}
-                    onValueChange={(value) => updateField("battingHand", value)}
-                    className="mt-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="right" id="right" />
-                      <Label htmlFor="right" className="font-normal cursor-pointer">Right</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="left" id="left" />
-                      <Label htmlFor="left" className="font-normal cursor-pointer">Left</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="switch" id="switch" />
-                      <Label htmlFor="switch" className="font-normal cursor-pointer">Switch</Label>
-                    </div>
-                  </RadioGroup>
+          {/* Step 4: Baseball Details */}
+          {currentStep === 4 && (
+            <>
+              <CardHeader>
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <Activity className="w-5 h-5" />
+                  <span className="text-sm font-medium">Baseball Details</span>
                 </div>
+                <CardTitle className="text-2xl">Your playing style</CardTitle>
+                <CardDescription>
+                  Tell us how you play the game
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="battingHand">Batting Hand</Label>
+                    <Select
+                      value={profileData.battingHand}
+                      onValueChange={(value) => setProfileData({ ...profileData, battingHand: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="right">Right</SelectItem>
+                        <SelectItem value="left">Left</SelectItem>
+                        <SelectItem value="switch">Switch</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div>
-                  <Label>Position(s)</Label>
-                  <p className="text-sm text-muted-foreground mb-2">Select all that apply</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      "Pitcher", "Catcher", "First Base", "Second Base",
-                      "Third Base", "Shortstop", "Outfield", "Designated Hitter"
-                    ].map((position) => (
-                      <div key={position} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={position}
-                          checked={profileData.positions.includes(position)}
-                          onCheckedChange={() => togglePosition(position)}
-                        />
-                        <Label htmlFor={position} className="font-normal cursor-pointer">
-                          {position}
-                        </Label>
-                      </div>
-                    ))}
+                  <div className="space-y-2">
+                    <Label htmlFor="throwingHand">Throwing Hand</Label>
+                    <Select
+                      value={profileData.throwingHand}
+                      onValueChange={(value) => setProfileData({ ...profileData, throwingHand: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="right">Right</SelectItem>
+                        <SelectItem value="left">Left</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="experienceLevel">Experience Level *</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="position">Primary Position *</Label>
+                  <Select
+                    value={profileData.position}
+                    onValueChange={(value) => setProfileData({ ...profileData, position: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your position" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="catcher">Catcher</SelectItem>
+                      <SelectItem value="first-base">First Base</SelectItem>
+                      <SelectItem value="second-base">Second Base</SelectItem>
+                      <SelectItem value="third-base">Third Base</SelectItem>
+                      <SelectItem value="shortstop">Shortstop</SelectItem>
+                      <SelectItem value="outfield">Outfield</SelectItem>
+                      <SelectItem value="pitcher">Pitcher</SelectItem>
+                      <SelectItem value="dh">Designated Hitter</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <Button
+                    onClick={handleBack}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <ChevronLeft className="mr-2 w-4 h-4" />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleNext}
+                    className="flex-1"
+                  >
+                    Next
+                    <ChevronRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </>
+          )}
+
+          {/* Step 5: Experience & Goals */}
+          {currentStep === 5 && (
+            <>
+              <CardHeader>
+                <div className="flex items-center gap-2 text-primary mb-2">
+                  <Target className="w-5 h-5" />
+                  <span className="text-sm font-medium">Experience & Goals</span>
+                </div>
+                <CardTitle className="text-2xl">Almost done!</CardTitle>
+                <CardDescription>
+                  Help us tailor your training program
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="experienceLevel">Experience Level</Label>
                   <Select
                     value={profileData.experienceLevel}
-                    onValueChange={(value) => updateField("experienceLevel", value)}
+                    onValueChange={(value) => setProfileData({ ...profileData, experienceLevel: value })}
                   >
-                    <SelectTrigger className="mt-1.5">
-                      <SelectValue placeholder="Select experience level" />
+                    <SelectTrigger>
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="beginner">Beginner (0-2 years)</SelectItem>
                       <SelectItem value="intermediate">Intermediate (3-5 years)</SelectItem>
-                      <SelectItem value="advanced">Advanced (6-10 years)</SelectItem>
-                      <SelectItem value="elite">Elite (10+ years)</SelectItem>
+                      <SelectItem value="advanced">Advanced (6+ years)</SelectItem>
+                      <SelectItem value="elite">Elite (College/Pro)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* Step 3: Goals */}
-          {currentStep === 3 && (
-            <div className="space-y-6 animate-in fade-in duration-500">
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold flex items-center gap-2">
-                  <Trophy className="h-6 w-6 text-primary" />
-                  Your Goals
-                </h2>
-                <p className="text-muted-foreground">
-                  What do you want to achieve with H.I.T.S.?
-                </p>
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="goals">Training Goals (Optional)</Label>
+                  <Textarea
+                    id="goals"
+                    className="min-h-[120px]"
+                    placeholder="What do you want to improve? (e.g., increase bat speed, fix swing mechanics, improve consistency)"
+                    value={profileData.goals}
+                    onChange={(e) => setProfileData({ ...profileData, goals: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    💡 The more specific you are, the better we can help!
+                  </p>
+                </div>
 
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="primaryGoal">Primary Goal</Label>
-                  <Select
-                    value={profileData.primaryGoal}
-                    onValueChange={(value) => updateField("primaryGoal", value)}
+                <div className="flex gap-3 mt-6">
+                  <Button
+                    onClick={handleBack}
+                    variant="outline"
+                    className="flex-1"
                   >
-                    <SelectTrigger className="mt-1.5">
-                      <SelectValue placeholder="Select your primary goal" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="increase_bat_speed">Increase bat speed</SelectItem>
-                      <SelectItem value="improve_mechanics">Improve mechanics</SelectItem>
-                      <SelectItem value="fix_swing_issues">Fix swing issues</SelectItem>
-                      <SelectItem value="prepare_for_season">Prepare for season</SelectItem>
-                      <SelectItem value="general_improvement">General improvement</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <ChevronLeft className="mr-2 w-4 h-4" />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleComplete}
+                    disabled={isSubmitting}
+                    className="flex-1"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Complete Setup"
+                    )}
+                  </Button>
                 </div>
-
-                <Card className="bg-secondary/50 p-4 border-primary/20">
-                  <h3 className="font-semibold mb-2">Why height & weight matter:</h3>
-                  <ul className="space-y-1 text-sm text-muted-foreground">
-                    <li>• Required for momentum-based calculations</li>
-                    <li>• Used for biomechanics analysis</li>
-                    <li>• Helps personalize training recommendations</li>
-                    <li>• Critical for accurate bat speed and power metrics</li>
-                  </ul>
-                </Card>
-              </div>
-            </div>
+              </CardContent>
+            </>
           )}
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={currentStep === 1 || isSubmitting}
-            >
-              Back
-            </Button>
-
-            <div className="flex gap-2">
-              {currentStep < 3 && (
-                <Button onClick={handleNext}>
-                  Continue
-                </Button>
-              )}
-
-              {currentStep === 3 && (
-                <Button onClick={handleComplete} disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Completing...
-                    </>
-                  ) : (
-                    "Complete Profile"
-                  )}
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="text-center mt-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate("/dashboard")}
-              className="text-muted-foreground"
-              disabled={isSubmitting}
-            >
-              Skip for now
-            </Button>
-          </div>
         </Card>
+
+        {/* Step Indicators */}
+        <div className="flex justify-center gap-2 mt-6">
+          {Array.from({ length: totalSteps }).map((_, index) => (
+            <div
+              key={index}
+              className={`w-2 h-2 rounded-full transition-colors ${
+                index + 1 === currentStep
+                  ? 'bg-primary'
+                  : index + 1 < currentStep
+                  ? 'bg-primary/50'
+                  : 'bg-muted'
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
