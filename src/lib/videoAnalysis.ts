@@ -332,19 +332,36 @@ export async function detectPoseInFrames(
         await pose.send({ image: video });
         
         currentFrame++;
-        if (onProgress) {
-          onProgress(Math.min((currentFrame / 120) * 100, 100)); // Assume ~120 frames
+        if (onProgress && video.duration) {
+          // Calculate progress based on video playback position
+          const progress = Math.min((video.currentTime / video.duration) * 100, 100);
+          onProgress(progress);
         }
       };
       
       video.onloadedmetadata = () => {
+        const duration = video.duration;
         console.log('Video loaded for pose detection:', {
-          duration: video.duration,
+          duration,
           width: video.videoWidth,
-          height: video.videoHeight
+          height: video.videoHeight,
+          sourceFrameRate
         });
         
-        // Process frames every 33ms (approximately 30fps)
+        // Calculate optimal sampling rate - cap at 120 total frames for performance
+        // For high FPS videos, we'll skip frames intelligently
+        const maxFramesToProcess = 120;
+        const targetSamplingFps = 30; // We want about 30 samples per second
+        const estimatedTotalFrames = duration * (sourceFrameRate || 30);
+        
+        // If video would have too many frames, increase interval to skip frames
+        const samplingInterval = estimatedTotalFrames > maxFramesToProcess 
+          ? Math.ceil((duration * 1000) / maxFramesToProcess) // milliseconds between samples
+          : 33; // default 33ms = ~30fps
+        
+        console.log(`Processing strategy: ${Math.ceil((duration * 1000) / samplingInterval)} frames at ${samplingInterval}ms intervals`);
+        
+        // Process frames at calculated interval
         const intervalId = setInterval(() => {
           if (video.ended || video.currentTime >= video.duration) {
             clearInterval(intervalId);
@@ -357,7 +374,7 @@ export async function detectPoseInFrames(
           }
           
           processFrame();
-        }, 33);
+        }, samplingInterval);
         
         video.play();
       };
