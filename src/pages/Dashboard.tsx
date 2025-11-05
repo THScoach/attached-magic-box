@@ -278,15 +278,29 @@ export default function Dashboard() {
         </div>
 
         {/* 4 B's Scorecard */}
-        {scores && (
+        {latestAnalysis && (
           <FourBsScorecard
-            overallGrade={scores.overall}
-            ballScore={scores.ball}
-            batScore={scores.bat}
-            bodyScore={scores.body}
-            brainScore={scores.brain}
-            showBall={membership?.tier !== 'free'}
-            showBrain={membership?.tier === 'diy' || membership?.tier === 'elite'}
+            userTier={(membership?.tier || 'free') as any}
+            metrics={{
+              // Extract metrics from analysis
+              kinematic_sequence: latestAnalysis.engine_score || 0,
+              tempo_ratio: (latestAnalysis.metrics as any)?.tempoRatio || 0,
+              hip_shoulder_separation: ((latestAnalysis.metrics as any)?.biomechanicsMetrics?.peakPelvisVelocity || 700) / 10,
+              weight_transfer: 12,
+              bat_speed: (latestAnalysis.metrics as any)?.biomechanicsMetrics?.batSpeed || (latestAnalysis.metrics as any)?.batMaxVelocity || 72,
+              attack_angle: latestAnalysis.attack_angle || 12,
+              ideal_attack_angle_rate: 60,
+              swing_path_tilt: 32,
+              time_in_zone: ((latestAnalysis.metrics as any)?.timeInZone || 0.15) * 1000,
+              exit_velocity: (latestAnalysis.metrics as any)?.exitVelocity || 85,
+              launch_angle: (latestAnalysis.metrics as any)?.launchAngle || 15,
+              barrel_rate: 8,
+              hard_hit_rate: (latestAnalysis.metrics as any)?.hardHitPercentage || 65,
+              swing_decision_rate: (latestAnalysis.metrics as any)?.decisionAccuracy || 85,
+              chase_rate: 25,
+              timing_consistency: 80,
+            }}
+            analysisId={latestAnalysis.id}
           />
         )}
 

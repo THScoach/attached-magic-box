@@ -1,105 +1,204 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ChevronRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Lock, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import { LetterGrade, getGradeColor, getGradeIcon } from "@/lib/gradingSystem";
-
-interface CategoryScore {
-  grade: LetterGrade;
-  percentage: number;
-  metrics: {
-    label: string;
-    value: string;
-    status: 'good' | 'warning' | 'bad';
-  }[];
-}
+import { MembershipTier, getBCategoryInfo, BCategory, calculateBGrade, hasMetricAccess, METRIC_DEFINITIONS } from "@/lib/fourBsFramework";
+import { TierUpgradePrompt } from "./TierUpgradePrompt";
+import { cn } from "@/lib/utils";
 
 interface FourBsScorecardProps {
-  overallGrade: LetterGrade;
-  ballScore?: CategoryScore;
-  batScore: CategoryScore;
-  bodyScore: CategoryScore;
-  brainScore?: CategoryScore;
-  showBall?: boolean;
-  showBrain?: boolean;
+  userTier: MembershipTier;
+  metrics: Record<string, number>;
+  analysisId?: string;
+  compact?: boolean;
 }
 
 export function FourBsScorecard({
-  overallGrade,
-  ballScore,
-  batScore,
-  bodyScore,
-  brainScore,
-  showBall = false,
-  showBrain = false,
+  userTier,
+  metrics,
+  analysisId,
+  compact = false,
 }: FourBsScorecardProps) {
-  const renderCategory = (
-    emoji: string,
-    title: string,
-    score: CategoryScore | undefined,
-    link: string
-  ) => {
-    if (!score) return null;
+  const categories: BCategory[] = ['brain', 'body', 'bat', 'ball'];
+  
+  // Calculate grades for each B
+  const categoryGrades: Record<BCategory, number> = {
+    brain: calculateBGrade('brain', metrics, userTier),
+    body: calculateBGrade('body', metrics, userTier),
+    bat: calculateBGrade('bat', metrics, userTier),
+    ball: calculateBGrade('ball', metrics, userTier),
+  };
 
-    return (
-      <Card className="p-4 hover:shadow-lg transition-shadow">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">{emoji}</span>
-            <h3 className="font-semibold text-lg">{title}</h3>
-          </div>
-          <div className={`text-3xl font-bold ${getGradeColor(score.grade)}`}>
-            {score.grade}
-          </div>
-        </div>
+  // Calculate overall grade (average of available categories)
+  const availableGrades = categories
+    .filter((cat) => {
+      // Check if user has access to at least one metric in this category
+      const categoryMetrics = METRIC_DEFINITIONS.filter((m) => m.category === cat);
+      return categoryMetrics.some((m) => hasMetricAccess(userTier, m));
+    })
+    .map((cat) => categoryGrades[cat]);
+  
+  const overallGrade = availableGrades.length > 0
+    ? Math.round(availableGrades.reduce((sum, g) => sum + g, 0) / availableGrades.length)
+    : 0;
 
-        <div className="space-y-2 mb-3">
-          {score.metrics.map((metric, idx) => (
-            <div key={idx} className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{metric.label}:</span>
+  const getGradeColor = (grade: number): string => {
+    if (grade >= 90) return 'text-green-600';
+    if (grade >= 80) return 'text-blue-600';
+    if (grade >= 70) return 'text-yellow-600';
+    if (grade >= 60) return 'text-orange-600';
+    return 'text-red-600';
+  };
+
+  const getGradeLetter = (grade: number): string => {
+    if (grade >= 90) return 'A';
+    if (grade >= 80) return 'B';
+    if (grade >= 70) return 'C';
+    if (grade >= 60) return 'D';
+    return 'F';
+  };
+
+  const renderCategory = (category: BCategory) => {
+    const info = getBCategoryInfo(category);
+    const grade = categoryGrades[category];
+    const hasAccess = METRIC_DEFINITIONS.filter((m) => m.category === category).some((m) => hasMetricAccess(userTier, m));
+
+    if (!hasAccess) {
+      // Category is completely locked
+      return (
+        <Card key={category} className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/60 backdrop-blur-sm z-10 flex items-center justify-center">
+            <div className="text-center">
+              <Lock className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-sm font-semibold">Upgrade to Unlock</p>
+            </div>
+          </div>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="font-medium">{metric.value}</span>
-                <span className={
-                  metric.status === 'good' ? 'text-green-500' :
-                  metric.status === 'warning' ? 'text-yellow-500' :
-                  'text-red-500'
-                }>
-                  {getGradeIcon(metric.status === 'good' ? 'A' : metric.status === 'warning' ? 'B' : 'D')}
-                </span>
+                <span className="text-2xl">{info.icon}</span>
+                <div>
+                  <h3 className="font-semibold">{info.name}</h3>
+                  <p className="text-xs text-muted-foreground">{info.description}</p>
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-muted-foreground blur-sm select-none">
+                85
               </div>
             </div>
-          ))}
-        </div>
+            <Progress value={85} className="h-2 opacity-50" />
+          </CardContent>
+        </Card>
+      );
+    }
 
-        <Progress value={score.percentage} className="h-2 mb-3" />
+    return (
+      <Link
+        key={category}
+        to={analysisId ? `/result/${analysisId}?category=${category}` : `/progress?category=${category}`}
+      >
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-3xl">{info.icon}</span>
+                <div>
+                  <h3 className="font-bold text-lg">{info.name}</h3>
+                  <p className="text-xs text-muted-foreground">{info.description}</p>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className={cn("text-4xl font-bold", getGradeColor(grade))}>
+                  {getGradeLetter(grade)}
+                </div>
+                <div className="text-xs text-muted-foreground">{grade}/100</div>
+              </div>
+            </div>
 
-        <Link
-          to={`${link}?category=${title.toLowerCase().split(' ')[0]}`}
-          className="flex items-center justify-between text-sm text-primary hover:underline"
-        >
-          <span>View Details</span>
-          <ChevronRight className="h-4 w-4" />
-        </Link>
-      </Card>
+            <Progress value={grade} className="h-2 mb-2" />
+
+            <div className="flex items-center justify-between text-xs text-primary">
+              <span>View Details</span>
+              <ChevronRight className="h-4 w-4" />
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
     );
   };
 
+  if (compact) {
+    return (
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold text-lg">The 4 B's Score</h3>
+          <div className={cn("text-3xl font-bold", getGradeColor(overallGrade))}>
+            {getGradeLetter(overallGrade)}
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {categories.map((cat) => {
+            const info = getBCategoryInfo(cat);
+            const grade = categoryGrades[cat];
+            const hasAccess = METRIC_DEFINITIONS.filter((m) => m.category === cat).some((m) => hasMetricAccess(userTier, m));
+            
+            return (
+              <div key={cat} className="text-center p-2 rounded-lg bg-muted/30">
+                <div className="text-2xl mb-1">{info.icon}</div>
+                <div className={cn("text-xl font-bold", hasAccess ? getGradeColor(grade) : "text-muted-foreground")}>
+                  {hasAccess ? getGradeLetter(grade) : <Lock className="h-4 w-4 mx-auto" />}
+                </div>
+                <div className="text-xs text-muted-foreground">{info.name}</div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <Card className="p-6 bg-gradient-to-r from-primary/10 to-primary/5">
-        <h2 className="text-2xl font-bold mb-2">THE 4 B's SCORECARD</h2>
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">Overall Grade:</span>
-          <span className={`text-4xl font-bold ${getGradeColor(overallGrade)}`}>
-            {overallGrade}
-          </span>
+      {/* Overall Score Header */}
+      <Card className="p-6 bg-gradient-to-br from-primary/20 via-primary/10 to-background">
+        <CardHeader className="p-0 pb-4">
+          <CardTitle className="text-2xl">THE 4 B's SCORECARD</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            🧠 BRAIN makes the decision → 💪 BODY executes the movement → 🏏 BAT delivers the tool → ⚾ BALL creates the result
+          </p>
+        </CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground mb-1">Overall Grade</p>
+            <div className="flex items-center gap-3">
+              <span className={cn("text-5xl font-bold", getGradeColor(overallGrade))}>
+                {getGradeLetter(overallGrade)}
+              </span>
+              <div>
+                <Progress value={overallGrade} className="w-32 h-3 mb-1" />
+                <p className="text-xs text-muted-foreground">{overallGrade}/100</p>
+              </div>
+            </div>
+          </div>
+          <Badge variant="secondary" className="text-sm">
+            {userTier.charAt(0).toUpperCase() + userTier.slice(1)} Tier
+          </Badge>
         </div>
       </Card>
 
-      {showBall && renderCategory("⚾", "BALL (Output)", ballScore, "/progress")}
-      {renderCategory("🏏", "BAT (Tool)", batScore, "/progress")}
-      {renderCategory("💪", "BODY (Mechanics)", bodyScore, "/progress")}
-      {showBrain && renderCategory("🧠", "BRAIN (Mental)", brainScore, "/progress")}
+      {/* Category Cards - Order: BRAIN → BODY → BAT → BALL */}
+      <div className="grid gap-4">
+        {categories.map((cat) => renderCategory(cat))}
+      </div>
+
+      {/* Upgrade Prompt if there are locked categories */}
+      {categories.some((cat) => !METRIC_DEFINITIONS.filter((m) => m.category === cat).some((m) => hasMetricAccess(userTier, m))) && (
+        <TierUpgradePrompt
+          currentTier={userTier}
+          lockedMetrics={METRIC_DEFINITIONS.filter((m) => !hasMetricAccess(userTier, m)).map((m) => m.name)}
+        />
+      )}
     </div>
   );
 }
