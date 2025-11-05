@@ -6,7 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { WeeklySchedule } from "@/components/WeeklySchedule";
 import { LiveCoachingBanner } from "@/components/LiveCoachingBanner";
 import { RedeemPromoCode } from "@/components/RedeemPromoCode";
-import { NotificationCenter } from "@/components/NotificationCenter";
+import { RealtimeNotificationCenter } from "@/components/RealtimeNotificationCenter";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 import { FocusTodayCard } from "@/components/dashboard/FocusTodayCard";
 import { GrindScoreCard } from "@/components/GrindScoreCard";
@@ -270,7 +270,7 @@ export default function Dashboard() {
                 swingsLimit={10}
               />
             )}
-            <NotificationCenter />
+            <RealtimeNotificationCenter />
             <Button variant="ghost" size="icon" onClick={() => navigate("/profile")}>
               <User className="h-5 w-5" />
             </Button>

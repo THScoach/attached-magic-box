@@ -939,6 +939,48 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          browser_notifications: boolean | null
+          created_at: string
+          email_notifications: boolean | null
+          id: string
+          notify_on_achievements: boolean | null
+          notify_on_messages: boolean | null
+          notify_on_reports: boolean | null
+          notify_on_schedule: boolean | null
+          sound_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          browser_notifications?: boolean | null
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          notify_on_achievements?: boolean | null
+          notify_on_messages?: boolean | null
+          notify_on_reports?: boolean | null
+          notify_on_schedule?: boolean | null
+          sound_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          browser_notifications?: boolean | null
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          notify_on_achievements?: boolean | null
+          notify_on_messages?: boolean | null
+          notify_on_reports?: boolean | null
+          notify_on_schedule?: boolean | null
+          sound_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string

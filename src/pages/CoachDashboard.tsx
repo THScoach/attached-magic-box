@@ -9,7 +9,7 @@ import { useCoachRoster } from "@/hooks/useCoachRoster";
 import { AddAthleteModal } from "@/components/AddAthleteModal";
 import { useTierAccess } from "@/hooks/useTierAccess";
 import { PromoCodeManager } from "@/components/PromoCodeManager";
-import { NotificationCenter } from "@/components/NotificationCenter";
+import { RealtimeNotificationCenter } from "@/components/RealtimeNotificationCenter";
 import { CoachAITrainingInput } from "@/components/admin/CoachAITrainingInput";
 import { CoachRickChatBubble } from "@/components/CoachRickChatBubble";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -114,7 +114,7 @@ export default function CoachDashboard() {
             <p className="text-muted-foreground">{organizationName}</p>
           </div>
           <div className="flex items-center gap-2">
-            <NotificationCenter />
+            <RealtimeNotificationCenter />
             <Button variant="outline" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out
