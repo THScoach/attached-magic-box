@@ -132,7 +132,7 @@ export default function Programs() {
                   <Button 
                     size="lg" 
                     className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
-                    onClick={() => handleCheckoutClick('https://whop.com/the-hitting-skool/297-b6/')}
+                    onClick={() => handleCheckoutClick(import.meta.env.VITE_WHOP_CHALLENGE_URL)}
                     disabled={loading}
                   >
                     Start Challenge <ArrowRight className="ml-2 h-5 w-5" />
@@ -187,7 +187,7 @@ export default function Programs() {
                   <Button 
                     size="lg" 
                     className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
-                    onClick={() => handleCheckoutClick('https://whop.com/the-hitting-skool/diy-annual/')}
+                    onClick={() => handleCheckoutClick(import.meta.env.VITE_WHOP_DIY_URL)}
                     disabled={loading}
                   >
                     Join DIY <ArrowRight className="ml-2 h-5 w-5" />
@@ -249,7 +249,7 @@ export default function Programs() {
                   <Button 
                     size="lg" 
                     className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
-                    onClick={() => handleCheckoutClick('https://whop.com/the-hitting-skool/elite-90-day-transformation/')}
+                    onClick={() => handleCheckoutClick(import.meta.env.VITE_WHOP_ELITE_URL)}
                     disabled={loading}
                   >
                     Join Elite <ArrowRight className="ml-2 h-5 w-5" />
