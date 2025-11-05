@@ -596,6 +596,53 @@ export type Database = {
           },
         ]
       }
+      drill_recommendations: {
+        Row: {
+          ai_generated: boolean | null
+          analysis_id: string | null
+          created_at: string | null
+          focus_areas: string[] | null
+          id: string
+          player_id: string | null
+          recommendations: Json
+          training_plan_summary: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          analysis_id?: string | null
+          created_at?: string | null
+          focus_areas?: string[] | null
+          id?: string
+          player_id?: string | null
+          recommendations: Json
+          training_plan_summary?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_generated?: boolean | null
+          analysis_id?: string | null
+          created_at?: string | null
+          focus_areas?: string[] | null
+          id?: string
+          player_id?: string | null
+          recommendations?: Json
+          training_plan_summary?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drill_recommendations_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "swing_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drills: {
         Row: {
           created_at: string
