@@ -80,8 +80,7 @@ export function useWeeklyTasks() {
         .eq('user_id', user.id)
         .gte('scheduled_date', startOfWeek.toISOString().split('T')[0])
         .lte('scheduled_date', endOfWeek.toISOString().split('T')[0])
-        .order('scheduled_date')
-        .order('due_time');
+        .order('scheduled_date');
 
       if (error) {
         console.error('Error loading weekly tasks:', error);
