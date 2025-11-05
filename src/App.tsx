@@ -55,6 +55,12 @@ const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminPlayers = lazy(() => import("./pages/admin/AdminPlayers"));
 const AdminPlayerDetail = lazy(() => import("./pages/admin/AdminPlayerDetail"));
+const AdminAnalyses = lazy(() => import("./pages/admin/AdminAnalyses"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminComparisons = lazy(() => import("./pages/admin/AdminComparisons"));
+const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminTest = lazy(() => import("./pages/admin/AdminTest"));
 
 const queryClient = new QueryClient();
 
@@ -113,6 +119,72 @@ const App = () => {
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
                       <AdminPlayerDetail />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/analyses" element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminAnalyses />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/analytics" element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminAnalytics />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/comparisons" element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminComparisons />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/reports" element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminReports />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/settings" element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminSettings />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/test" element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminTest />
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
