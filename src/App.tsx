@@ -54,6 +54,7 @@ import { Loader2 } from "lucide-react";
 const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminPlayers = lazy(() => import("./pages/admin/AdminPlayers"));
+const AdminPlayerDetail = lazy(() => import("./pages/admin/AdminPlayerDetail"));
 
 const queryClient = new QueryClient();
 
@@ -101,6 +102,17 @@ const App = () => {
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
                       <AdminPlayers />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/players/:id" element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminPlayerDetail />
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
