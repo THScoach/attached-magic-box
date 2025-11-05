@@ -35,11 +35,14 @@ export default function AdminOverview() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get total players
-      const { count: playersCount } = await supabase
-        .from("players")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id);
+      // Get total players from team roster
+      const { data: rosterPlayers } = await supabase
+        .from("team_rosters")
+        .select("athlete_id", { count: "exact" })
+        .eq("coach_id", user.id)
+        .eq("is_active", true);
+      
+      const playersCount = rosterPlayers?.length || 0;
 
       // Get total analyses
       const { count: analysesCount } = await supabase
