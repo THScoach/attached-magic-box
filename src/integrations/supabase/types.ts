@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          created_at: string | null
+          email_notifications: Json | null
+          id: string
+          organization_logo_url: string | null
+          organization_name: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_notifications?: Json | null
+          id?: string
+          organization_logo_url?: string | null
+          organization_name?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_notifications?: Json | null
+          id?: string
+          organization_logo_url?: string | null
+          organization_name?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       athlete_goals: {
         Row: {
           achievable_reasoning: string | null
