@@ -85,18 +85,22 @@ const App = () => {
             
             {/* Admin Routes - New comprehensive admin dashboard */}
             <Route path="/admin" element={
-              <RoleGuard allowedRoles={["admin", "coach"]}>
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-                  <AdminLayout><AdminOverview /></AdminLayout>
-                </Suspense>
-              </RoleGuard>
+              <ProtectedRoute>
+                <RoleGuard allowedRoles={["admin", "coach"]}>
+                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+                    <AdminLayout><AdminOverview /></AdminLayout>
+                  </Suspense>
+                </RoleGuard>
+              </ProtectedRoute>
             } />
             <Route path="/admin/players" element={
-              <RoleGuard allowedRoles={["admin", "coach"]}>
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-                  <AdminLayout><AdminPlayers /></AdminLayout>
-                </Suspense>
-              </RoleGuard>
+              <ProtectedRoute>
+                <RoleGuard allowedRoles={["admin", "coach"]}>
+                  <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+                    <AdminLayout><AdminPlayers /></AdminLayout>
+                  </Suspense>
+                </RoleGuard>
+              </ProtectedRoute>
             } />
             
             {/* Old Admin Route - Keep for backwards compatibility */}
