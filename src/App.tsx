@@ -44,6 +44,7 @@ import CheckoutSuccess from "./pages/CheckoutSuccess";
 import Challenges from "./pages/Challenges";
 import VideoLibrary from "./pages/VideoLibrary";
 import Timeline from "./pages/Timeline";
+import TierDemo from "./pages/TierDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -152,6 +153,7 @@ const App = () => {
             <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
             <Route path="/timeline" element={<ProtectedRoute><Timeline /></ProtectedRoute>} />
             <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+            <Route path="/tier-demo" element={<TierDemo />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
