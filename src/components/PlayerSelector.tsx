@@ -59,46 +59,77 @@ export function PlayerSelector({ selectedPlayerId, onSelectPlayer, limit }: Play
 
   const loadPlayers = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    console.log('[PlayerSelector] Loading players for user:', user.id);
-
-    // Simply query all active players - RLS will handle access control
-    const { data, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('is_active', true)
-      .order('last_name')
-      .order('first_name');
-
-    if (error) {
-      console.error('[PlayerSelector] Error loading players:', error);
-      toast.error('Failed to load players');
-      setLoading(false);
-      return;
-    }
-
-    console.log('[PlayerSelector] Loaded players:', data?.length, 'Current selectedPlayerId:', selectedPlayerId);
-    setPlayers(data || []);
-    setLoading(false);
-    
-    // Check if the selectedPlayerId exists in the loaded players
-    if (selectedPlayerId && data) {
-      const playerExists = data.some(p => p.id === selectedPlayerId);
-      console.log('[PlayerSelector] Selected player exists in list:', playerExists);
-      if (!playerExists) {
-        console.warn('[PlayerSelector] Selected player ID not found in players list!');
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('[PlayerSelector] No user found');
+        setLoading(false);
+        return;
       }
-    }
-    
-    // Auto-select if only one player and no player pre-selected
-    if (data && data.length === 1 && !selectedPlayerId) {
-      console.log('[PlayerSelector] Auto-selecting single player:', data[0].id);
-      onSelectPlayer(data[0].id);
+
+      console.log('[PlayerSelector] Loading players for user:', user.id);
+
+      // Check if user is admin/coach - they can see all players
+      const { data: userRoleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (roleError) {
+        console.error('[PlayerSelector] Error checking role:', roleError);
+      }
+
+      const isAdminOrCoach = userRoleData?.role === 'admin' || userRoleData?.role === 'coach';
+      console.log('[PlayerSelector] User role:', userRoleData?.role, 'isAdminOrCoach:', isAdminOrCoach);
+
+      // Build query - admins/coaches see all players, others see only their own
+      let query = supabase
+        .from('players')
+        .select('*')
+        .eq('is_active', true);
+      
+      // If not admin/coach, filter by user_id
+      if (!isAdminOrCoach) {
+        console.log('[PlayerSelector] Filtering by user_id');
+        query = query.eq('user_id', user.id);
+      } else {
+        console.log('[PlayerSelector] Admin/Coach - loading all players');
+      }
+      
+      const { data, error } = await query
+        .order('last_name')
+        .order('first_name');
+
+      if (error) {
+        console.error('[PlayerSelector] Error loading players:', error);
+        toast.error('Failed to load players: ' + error.message);
+        setLoading(false);
+        return;
+      }
+
+      console.log('[PlayerSelector] Successfully loaded players:', data?.length, data);
+      setPlayers(data || []);
+      setLoading(false);
+      
+      // Check if the selectedPlayerId exists in the loaded players
+      if (selectedPlayerId && data) {
+        const playerExists = data.some(p => p.id === selectedPlayerId);
+        console.log('[PlayerSelector] Selected player exists in list:', playerExists);
+        if (!playerExists) {
+          console.warn('[PlayerSelector] Selected player ID not found in players list!');
+        }
+      }
+      
+      // Auto-select if only one player and no player pre-selected
+      if (data && data.length === 1 && !selectedPlayerId) {
+        console.log('[PlayerSelector] Auto-selecting single player:', data[0].id);
+        onSelectPlayer(data[0].id);
+      }
+    } catch (err) {
+      console.error('[PlayerSelector] Unexpected error:', err);
+      toast.error('An unexpected error occurred');
+      setLoading(false);
     }
   };
 
