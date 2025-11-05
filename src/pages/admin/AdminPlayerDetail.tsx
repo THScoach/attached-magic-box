@@ -267,7 +267,8 @@ export default function AdminPlayerDetail() {
                 brain_score: latestAnalysis.brain_score,
                 overall_score: latestAnalysis.overall_score
               }}
-              analysisId={latestAnalysis.id} 
+              analysisId={latestAnalysis.id}
+              bypassTierRestrictions={true}
             />
           ) : (
             <Card>

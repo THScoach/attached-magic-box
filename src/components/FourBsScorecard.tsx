@@ -12,6 +12,7 @@ interface FourBsScorecardProps {
   metrics: Record<string, number>;
   analysisId?: string;
   compact?: boolean;
+  bypassTierRestrictions?: boolean;
 }
 
 export function FourBsScorecard({
@@ -19,6 +20,7 @@ export function FourBsScorecard({
   metrics,
   analysisId,
   compact = false,
+  bypassTierRestrictions = false,
 }: FourBsScorecardProps) {
   const categories: BCategory[] = ['brain', 'body', 'bat', 'ball'];
   
@@ -62,7 +64,7 @@ export function FourBsScorecard({
   const renderCategory = (category: BCategory) => {
     const info = getBCategoryInfo(category);
     const grade = categoryGrades[category];
-    const hasAccess = METRIC_DEFINITIONS.filter((m) => m.category === category).some((m) => hasMetricAccess(userTier, m));
+    const hasAccess = bypassTierRestrictions || METRIC_DEFINITIONS.filter((m) => m.category === category).some((m) => hasMetricAccess(userTier, m));
 
     if (!hasAccess) {
       // Category is completely locked
