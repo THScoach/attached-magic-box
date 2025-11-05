@@ -1,35 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Link, useNavigate } from "react-router-dom";
-import { Check, ChevronRight, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Check, ArrowRight, ChevronRight } from "lucide-react";
 import { HitsLogo, HitsMonogram } from "@/components/HitsLogo";
-import { supabase } from "@/integrations/supabase/client";
 
 export default function Programs() {
-  const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setIsAuthenticated(!!user);
-    setLoading(false);
-  };
+  const [loading] = useState(false);
 
   const handleCheckoutClick = (whopUrl: string) => {
-    if (isAuthenticated) {
-      // User is logged in, redirect to Whop checkout
-      window.location.href = whopUrl;
-    } else {
-      // User not logged in, save URL and redirect to auth
-      localStorage.setItem('pendingCheckoutUrl', whopUrl);
-      navigate('/auth');
-    }
+    // Direct redirect to Whop checkout - Whop handles authentication
+    window.location.href = whopUrl;
   };
   return (
     <div className="min-h-screen bg-black text-white">
