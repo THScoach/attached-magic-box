@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { BottomNav } from "@/components/BottomNav";
 import { PlayerSelector } from "@/components/PlayerSelector";
 import { SyncRecording } from "@/components/SyncRecording";
-import { BatchVideoUpload } from "@/components/BatchVideoUpload";
 import { VideoTagModal } from "@/components/VideoTagModal";
 import { Upload, Camera, Loader2, X, Circle, Square, SwitchCamera, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -628,7 +627,10 @@ export default function Analyze() {
         setSessionStats({ total: newTotal, avg: newAvg });
       }
       
-      toast.success("Analysis complete!");
+      toast.success("✅ Analysis Complete!", {
+        description: "View your 4 B's scorecard and detailed breakdown",
+        duration: 5000,
+      });
       navigate('/result/latest');
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -911,18 +913,6 @@ export default function Analyze() {
                 )}
               </div>
             </Card>
-
-            {/* Unified Upload Section */}
-            {selectedPlayerId && (
-              <BatchVideoUpload 
-                playerId={selectedPlayerId}
-                playerName={selectedPlayerName || undefined}
-                onUploadComplete={() => {
-                  // Refresh any necessary data
-                  console.log('Upload completed');
-                }}
-              />
-            )}
 
             {/* Show player selection prompt if no player selected */}
             {!selectedPlayerId && (

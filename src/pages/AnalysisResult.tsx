@@ -772,8 +772,60 @@ export default function AnalysisResult() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
+        {/* Overall H.I.T.S. Grade - PROMINENTLY AT TOP */}
+        <Card className="p-6 bg-gradient-to-br from-primary/20 via-primary/10 to-background border-2 border-primary/30">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold mb-1">Your H.I.T.S. Score</h2>
+              <p className="text-sm text-muted-foreground">Complete swing analysis breakdown</p>
+            </div>
+            <Button 
+              onClick={() => navigate('/4bs')}
+              variant="outline"
+              size="sm"
+            >
+              View 4 B's Dashboard →
+            </Button>
+          </div>
+          <div className="text-center mb-4">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <p className="text-sm text-muted-foreground">Overall Score</p>
+              <InfoTooltip content="Your overall hitting performance score (0-100). Combines BRAIN (decision), BODY (execution), BAT (tool), and BALL (result). Higher scores mean better swing efficiency." />
+            </div>
+            <div className="text-7xl font-bold text-primary mb-1">{analysis.hitsScore}</div>
+            <p className="text-muted-foreground text-sm">Out of 100 points</p>
+          </div>
+        </Card>
+
+        {/* Quick Navigation Buttons */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button 
+            variant="outline"
+            className="h-auto py-4"
+            onClick={() => document.getElementById('video-section')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <Play className="h-4 w-4 mr-2" />
+            <div className="text-left">
+              <div className="font-bold">Video Analysis</div>
+              <div className="text-xs opacity-70">Watch breakdown</div>
+            </div>
+          </Button>
+          <Button 
+            variant="outline"
+            className="h-auto py-4"
+            onClick={() => document.getElementById('drills-section')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <Target className="h-4 w-4 mr-2" />
+            <div className="text-left">
+              <div className="font-bold">Training Drills</div>
+              <div className="text-xs opacity-70">Improve your swing</div>
+            </div>
+          </Button>
+        </div>
+
         {/* Video Player and 3D Motion Tabs */}
-        <Tabs defaultValue="video" className="w-full">
+        <div id="video-section">
+          <Tabs defaultValue="video" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="video">Video Analysis</TabsTrigger>
             <TabsTrigger value="motion">3D Motion</TabsTrigger>
@@ -1064,7 +1116,8 @@ export default function AnalysisResult() {
             )}
           </TabsContent>
 
-        </Tabs>
+          </Tabs>
+        </div>
 
         {/* Swing Phase Detection Timeline */}
         {phaseDetection && (
@@ -1077,17 +1130,6 @@ export default function AnalysisResult() {
             onSeekToPhase={seekToFrame}
           />
         )}
-
-        {/* Overall H.I.T.S. Score */}
-        <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <p className="text-sm text-muted-foreground">Overall H.I.T.S. Score</p>
-              <InfoTooltip content="Your overall hitting performance score (0-100). Combines timing, power, and mechanics. Higher scores mean better swing efficiency and more consistent hard contact." />
-            </div>
-            <div className="text-6xl font-bold text-primary mb-2">{analysis.hitsScore}</div>
-          </div>
-        </Card>
 
         {/* Enhanced Tempo Ratio Display */}
         <TempoRatioCard 

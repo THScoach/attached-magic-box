@@ -19,7 +19,7 @@ import { TeamChallenges } from "@/components/TeamChallenges";
 import { calculateBatGrade, calculateBodyGrade, calculateBallGrade, calculateBrainGrade, calculateOverallGrade } from "@/lib/gradingSystem";
 import { getBenchmarksForLevel } from "@/lib/benchmarks";
 import { useQuery } from "@tanstack/react-query";
-import { User, TrendingUp, Target, Zap, Trophy } from "lucide-react";
+import { User, TrendingUp, Target, Zap, Trophy, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -261,7 +261,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-1">Welcome back, {userName}</h1>
-            <p className="text-muted-foreground">Let's build on yesterday's work</p>
+            <p className="text-muted-foreground">Track your progress with the 4 B's framework</p>
           </div>
           <div className="flex items-center gap-2">
             {!isCoach && !isAdmin && membership?.tier === 'free' && (
@@ -277,31 +277,75 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Quick Actions - Upload First */}
+        {!latestAnalysis && (
+          <Card className="p-6 bg-gradient-to-br from-primary/20 via-primary/10 to-background border-2 border-primary/30">
+            <div className="text-center space-y-4">
+              <div className="inline-block p-4 bg-primary/20 rounded-full">
+                <Camera className="h-12 w-12 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2">Upload Your First Swing!</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Get your comprehensive 4 B's analysis (BRAIN • BODY • BAT • BALL)
+                </p>
+              </div>
+              <Button 
+                size="lg" 
+                className="gap-2"
+                onClick={() => navigate('/analyze')}
+              >
+                <Camera className="h-5 w-5" />
+                Analyze Your Swing
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* 4 B's Scorecard */}
         {latestAnalysis && (
-          <FourBsScorecard
-            userTier={(membership?.tier || 'free') as any}
-            metrics={{
-              // Extract metrics from analysis
-              kinematic_sequence: latestAnalysis.engine_score || 0,
-              tempo_ratio: (latestAnalysis.metrics as any)?.tempoRatio || 0,
-              hip_shoulder_separation: ((latestAnalysis.metrics as any)?.biomechanicsMetrics?.peakPelvisVelocity || 700) / 10,
-              weight_transfer: 12,
-              bat_speed: (latestAnalysis.metrics as any)?.biomechanicsMetrics?.batSpeed || (latestAnalysis.metrics as any)?.batMaxVelocity || 72,
-              attack_angle: latestAnalysis.attack_angle || 12,
-              ideal_attack_angle_rate: 60,
-              swing_path_tilt: 32,
-              time_in_zone: ((latestAnalysis.metrics as any)?.timeInZone || 0.15) * 1000,
-              exit_velocity: (latestAnalysis.metrics as any)?.exitVelocity || 85,
-              launch_angle: (latestAnalysis.metrics as any)?.launchAngle || 15,
-              barrel_rate: 8,
-              hard_hit_rate: (latestAnalysis.metrics as any)?.hardHitPercentage || 65,
-              swing_decision_rate: (latestAnalysis.metrics as any)?.decisionAccuracy || 85,
-              chase_rate: 25,
-              timing_consistency: 80,
-            }}
-            analysisId={latestAnalysis.id}
-          />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Your 4 B's Scorecard</h2>
+                <p className="text-sm text-muted-foreground">
+                  BRAIN makes the decision → BODY executes → BAT delivers → BALL creates results
+                </p>
+              </div>
+              <Button 
+                onClick={() => navigate('/analyze')}
+                className="gap-2"
+              >
+                <Camera className="h-4 w-4" />
+                New Analysis
+              </Button>
+            </div>
+            
+            <FourBsScorecard
+              userTier={(membership?.tier || 'free') as any}
+              metrics={{
+                // Extract metrics from analysis
+                kinematic_sequence: latestAnalysis.engine_score || 0,
+                tempo_ratio: (latestAnalysis.metrics as any)?.tempoRatio || 0,
+                hip_shoulder_separation: ((latestAnalysis.metrics as any)?.biomechanicsMetrics?.peakPelvisVelocity || 700) / 10,
+                weight_transfer: 12,
+                bat_speed: (latestAnalysis.metrics as any)?.biomechanicsMetrics?.batSpeed || (latestAnalysis.metrics as any)?.batMaxVelocity || 72,
+                attack_angle: latestAnalysis.attack_angle || 12,
+                ideal_attack_angle_rate: 60,
+                swing_path_tilt: 32,
+                time_in_zone: ((latestAnalysis.metrics as any)?.timeInZone || 0.15) * 1000,
+                exit_velocity: (latestAnalysis.metrics as any)?.exitVelocity || 85,
+                launch_angle: (latestAnalysis.metrics as any)?.launchAngle || 15,
+                barrel_rate: 8,
+                hard_hit_rate: (latestAnalysis.metrics as any)?.hardHitPercentage || 65,
+                swing_decision_rate: (latestAnalysis.metrics as any)?.decisionAccuracy || 85,
+                chase_rate: 25,
+                timing_consistency: 80,
+              }}
+              analysisId={latestAnalysis.id}
+              compact={false}
+            />
+          </div>
         )}
 
         {/* Key Metrics Row */}

@@ -105,6 +105,20 @@ export default function Profile() {
             </div>
           </Button>
 
+          {isAdmin && (
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-3 h-auto py-4"
+              onClick={() => navigate('/tier-demo')}
+            >
+              <Trophy className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <div className="font-bold">Test Tiers</div>
+                <div className="text-xs opacity-70">Demo tier-based features</div>
+              </div>
+            </Button>
+          )}
+
           <Button
             variant="outline"
             className="w-full justify-start gap-3 h-auto py-4"
