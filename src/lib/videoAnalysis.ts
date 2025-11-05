@@ -50,83 +50,17 @@ export async function extractVideoMetadata(videoFile: File): Promise<VideoMetada
         const height = video.videoHeight;
         const duration = video.duration;
         
-        // PRIORITY: Check for iOS slow-motion indicators
-        // iOS slow-mo files are often named IMG_XXXX.mov and are 240fps but report as 30fps
+        // Quick detection: Skip detailed frame rate analysis for performance
+        // Just use basic heuristics
         if (isLikelyiOSSlowMo) {
-          console.log('Detected likely iOS slow-motion video - assuming 240fps capture rate');
+          console.log('iOS slow-motion video detected - assuming 240fps');
           cleanup();
           resolve({ width, height, duration, frameRate: 240 });
           return;
         }
         
-        // Method 1: Try to get frame rate from video track (works well for some videos)
-        if ('captureStream' in video || 'mozCaptureStream' in video) {
-          try {
-            const stream = (video as any).captureStream?.() || (video as any).mozCaptureStream?.();
-            if (stream) {
-              const videoTracks = stream.getVideoTracks();
-              if (videoTracks.length > 0) {
-                const settings = videoTracks[0].getSettings();
-                if (settings.frameRate) {
-                  frameRate = settings.frameRate;
-                  console.log(`Frame rate detected from track: ${frameRate}fps`);
-                  cleanup();
-                  resolve({ width, height, duration, frameRate });
-                  return;
-                }
-              }
-            }
-          } catch (e) {
-            console.log('Video track method not available, trying alternative methods');
-          }
-        }
-        
-        // Method 2: Use requestVideoFrameCallback (Chrome/Edge)
-        if ('requestVideoFrameCallback' in video) {
-          let sampleCount = 0;
-          const maxSamples = 30;
-          
-          const measureFrameRate = () => {
-            (video as any).requestVideoFrameCallback((now: number, metadata: any) => {
-              if (metadata && metadata.mediaTime !== undefined) {
-                if (lastTime !== -1) {
-                  const deltaTime = metadata.mediaTime - lastTime;
-                  if (deltaTime > 0) {
-                    frameTimes.push(1 / deltaTime);
-                  }
-                }
-                lastTime = metadata.mediaTime;
-                sampleCount++;
-                
-                if (sampleCount < maxSamples && !video.ended) {
-                  measureFrameRate();
-                } else {
-                  // Calculate average frame rate from samples
-                  if (frameTimes.length > 0) {
-                    frameRate = frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
-                    console.log(`Frame rate calculated from ${frameTimes.length} samples: ${frameRate.toFixed(2)}fps`);
-                  }
-                  cleanup();
-                  resolve({ width, height, duration, frameRate: Math.round(frameRate) });
-                }
-              }
-            });
-          };
-          
-          video.play().then(() => {
-            measureFrameRate();
-          }).catch(() => {
-            // Fallback if play fails
-            cleanup();
-            resolve({ width, height, duration, frameRate: 30 });
-          });
-          
-          return;
-        }
-        
-        // Method 3: Estimate from duration (least accurate)
-        // This is just a fallback - most modern browsers support one of the above methods
-        console.log('Using fallback frame rate estimation');
+        // For non-slow-mo videos, assume standard 30fps to avoid detection delay
+        console.log('Standard video - assuming 30fps for quick processing');
         cleanup();
         resolve({ width, height, duration, frameRate: 30 });
         
@@ -348,18 +282,18 @@ export async function detectPoseInFrames(
           sourceFrameRate
         });
         
-        // Calculate optimal sampling rate - cap at 120 total frames for performance
-        // For high FPS videos, we'll skip frames intelligently
-        const maxFramesToProcess = 120;
-        const targetSamplingFps = 30; // We want about 30 samples per second
+        // Aggressive optimization: cap at 45 frames max for high-speed videos
+        // This provides enough data for analysis while keeping processing fast
+        const maxFramesToProcess = sourceFrameRate && sourceFrameRate > 60 ? 45 : 90;
         const estimatedTotalFrames = duration * (sourceFrameRate || 30);
         
-        // If video would have too many frames, increase interval to skip frames
-        const samplingInterval = estimatedTotalFrames > maxFramesToProcess 
-          ? Math.ceil((duration * 1000) / maxFramesToProcess) // milliseconds between samples
-          : 33; // default 33ms = ~30fps
+        // Calculate sampling interval to hit our target frame count
+        const samplingInterval = Math.max(
+          Math.ceil((duration * 1000) / maxFramesToProcess),
+          50 // minimum 50ms between samples for stability
+        );
         
-        console.log(`Processing strategy: ${Math.ceil((duration * 1000) / samplingInterval)} frames at ${samplingInterval}ms intervals`);
+        console.log(`High-speed video optimization: ${maxFramesToProcess} frames at ${samplingInterval}ms intervals`);
         
         // Process frames at calculated interval
         const intervalId = setInterval(() => {
