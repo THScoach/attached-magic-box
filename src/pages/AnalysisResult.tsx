@@ -20,6 +20,9 @@ import { VideoKeyMomentOverlay } from "@/components/VideoKeyMomentOverlay";
 import { ReanalyzeButton } from "@/components/ReanalyzeButton";
 import { VideoAnalysisWithMarkup } from "@/components/VideoAnalysisWithMarkup";
 import { PoseSkeletonOverlay } from "@/components/PoseSkeletonOverlay";
+import { SwingPhaseTimeline } from "@/components/SwingPhaseTimeline";
+import { DrillRecommendations } from "@/components/DrillRecommendations";
+import { detectSwingPhases, type PhaseDetectionResult } from "@/lib/swingPhaseDetection";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
@@ -55,6 +58,7 @@ export default function AnalysisResult() {
   const [pausedMoments, setPausedMoments] = useState<Set<string>>(new Set());
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [videoContainerSize, setVideoContainerSize] = useState({ width: 0, height: 0 });
+  const [phaseDetection, setPhaseDetection] = useState<PhaseDetectionResult | null>(null);
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -264,9 +268,22 @@ export default function AnalysisResult() {
       if (metrics.poseData && Array.isArray(metrics.poseData)) {
         console.log(`Loaded ${metrics.poseData.length} frames of joint data from database`);
         setJointData(metrics.poseData);
+        
+        // Run phase detection on pose data
+        try {
+          const poseResults = metrics.poseData.map((frame: any) => ({
+            poseLandmarks: frame.landmarks
+          }));
+          const detection = detectSwingPhases(poseResults, 30);
+          setPhaseDetection(detection);
+          console.log('Phase detection complete:', detection);
+        } catch (error) {
+          console.error('Phase detection error:', error);
+        }
       } else {
         console.log('No joint data available in database for this analysis');
         setJointData([]);
+        setPhaseDetection(null);
       }
     } catch (error) {
       console.error('Error loading analysis:', error);
@@ -618,6 +635,15 @@ export default function AnalysisResult() {
       videoRef.current.playbackRate = rate;
     }
     toast.info(`Playback speed: ${rate}x`);
+  };
+
+  const seekToFrame = (frame: number) => {
+    if (videoRef.current) {
+      const time = frame / FPS;
+      videoRef.current.currentTime = time;
+      setCurrentTime(time);
+      setCurrentFrame(frame);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -1020,6 +1046,17 @@ export default function AnalysisResult() {
 
         </Tabs>
 
+        {/* Swing Phase Detection Timeline */}
+        {phaseDetection && (
+          <SwingPhaseTimeline
+            phases={phaseDetection.phases}
+            totalDuration={phaseDetection.totalDuration}
+            loadToFireRatio={phaseDetection.loadToFireRatio}
+            quality={phaseDetection.quality}
+            currentTime={currentTime}
+            onSeekToPhase={seekToFrame}
+          />
+        )}
 
         {/* Overall H.I.T.S. Score */}
         <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5">
