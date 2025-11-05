@@ -30,6 +30,9 @@ interface VideoUploadStatus {
   videoType?: string;
   drillId?: string;
   drillName?: string;
+  currentStep?: string;
+  estimatedTimeRemaining?: number;
+  processingWarning?: string;
 }
 
 export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: BatchVideoUploadProps) {
@@ -82,6 +85,15 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         const file = validFiles[i];
         try {
           const metadata = await extractVideoMetadata(file);
+          
+          // Generate warning for high frame rate videos
+          let warning = undefined;
+          if (metadata.frameRate > 240) {
+            warning = "⚠️ Very high frame rate (>240fps). Processing may take 3-5 minutes. Consider recording at 120-240fps for faster processing.";
+          } else if (metadata.frameRate > 120) {
+            warning = "⚠️ High frame rate detected. Processing may take 2-3 minutes.";
+          }
+          
           setVideos(prev => prev.map((v, idx) => 
             idx === startIndex + i 
               ? { 
@@ -90,7 +102,8 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
                   width: metadata.width,
                   height: metadata.height,
                   duration: metadata.duration,
-                  isExtractingMetadata: false
+                  isExtractingMetadata: false,
+                  processingWarning: warning
                 }
               : v
           ));
@@ -134,17 +147,20 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
     }
   };
 
-  const extractFramesAndPoseData = async (videoFile: File, frameRate?: number): Promise<any[]> => {
+  const extractFramesAndPoseData = async (
+    videoFile: File, 
+    frameRate?: number,
+    onProgressUpdate?: (progress: number, step: string) => void
+  ): Promise<any[]> => {
     // Check for cancellation
     if (cancelRef.current) {
       throw new Error("Processing cancelled by user");
     }
 
     // For high-speed videos (>120fps), skip pose detection to save time
-    // The edge function will handle analysis without frame-level pose data
     if (frameRate && frameRate > 120) {
-      console.log(`Skipping pose detection for ${frameRate}fps video - too slow`);
-      toast.info("High-speed video detected - using fast analysis mode");
+      console.log(`Skipping pose detection for ${frameRate}fps video - using fast mode`);
+      onProgressUpdate?.(100, "Fast analysis mode (no pose detection)");
       return [];
     }
 
@@ -171,30 +187,35 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
       const videoUrl = URL.createObjectURL(videoFile);
       videoElement.src = videoUrl;
 
-      // Set a timeout to prevent infinite loops
+      // Extended timeout for high FPS videos
+      const timeoutDuration = frameRate && frameRate > 60 ? 180000 : 90000; // 3 min or 1.5 min
       const timeout = setTimeout(() => {
         URL.revokeObjectURL(videoUrl);
         pose?.close();
-        if (poseFrames.length > 0) {
-          console.log(`Timeout reached - returning ${poseFrames.length} processed frames`);
-          resolve(poseFrames);
-        } else {
-          reject(new Error("Pose detection timeout"));
-        }
-      }, 30000); // 30 second timeout
+        reject(new Error(`Processing timeout after ${timeoutDuration / 1000} seconds. Video may be too complex. Try recording at 60fps or less.`));
+      }, timeoutDuration);
 
       videoElement.onloadedmetadata = async () => {
         canvas.width = videoElement.videoWidth;
         canvas.height = videoElement.videoHeight;
 
-        // Calculate frames to process (max 45 frames)
-        const maxFrames = 45;
         const videoDuration = videoElement.duration;
-        const fps = Math.min(30, frameRate || 30);
-        const totalFrames = Math.ceil(videoDuration * fps);
-        framesToProcess = Math.min(maxFrames, totalFrames);
         
-        console.log(`Processing ${framesToProcess} frames for pose detection`);
+        // Smart frame sampling based on video characteristics
+        let maxFrames = 45;
+        let samplingFps = 30;
+        
+        // Adjust based on frame rate
+        if (frameRate && frameRate > 60) {
+          maxFrames = 30; // Fewer frames for high FPS
+          samplingFps = 20; // Lower sampling rate
+        }
+        
+        const totalPossibleFrames = Math.ceil(videoDuration * (frameRate || 30));
+        framesToProcess = Math.min(maxFrames, Math.ceil(videoDuration * samplingFps));
+        
+        onProgressUpdate?.(10, `Initializing pose detection (${framesToProcess} frames)...`);
+        console.log(`Processing ${framesToProcess} frames (${frameRate || 30}fps video, ${videoDuration.toFixed(1)}s duration)`);
 
         // Initialize MediaPipe Pose
         pose = new Pose({
@@ -203,9 +224,9 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
 
         pose.setOptions({
           modelComplexity: 0, // Use fastest model
-          smoothLandmarks: false, // Disable smoothing for speed
+          smoothLandmarks: false,
           enableSegmentation: false,
-          minDetectionConfidence: 0.3, // Lower confidence for speed
+          minDetectionConfidence: 0.3,
           minTrackingConfidence: 0.3
         });
 
@@ -217,9 +238,21 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
             });
           }
           framesProcessed++;
+          
+          // Update progress
+          const progressPercent = Math.round((framesProcessed / framesToProcess) * 100);
+          const estimatedTimePerFrame = 0.15; // seconds
+          const remainingFrames = framesToProcess - framesProcessed;
+          const estimatedTimeRemaining = Math.ceil(remainingFrames * estimatedTimePerFrame);
+          
+          onProgressUpdate?.(
+            10 + (progressPercent * 0.6), // 10-70% of total progress
+            `Analyzing frame ${framesProcessed}/${framesToProcess}... ${estimatedTimeRemaining}s remaining`
+          );
         });
 
         await pose.initialize();
+        onProgressUpdate?.(15, "Pose detector ready, starting frame analysis...");
 
         // Process frames with interval based on total frames
         const frameInterval = videoDuration / framesToProcess;
@@ -271,31 +304,52 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
   };
 
   const processVideo = async (video: VideoUploadStatus, index: number): Promise<boolean> => {
+    const startTime = Date.now();
+    
     try {
       // Check for cancellation
       if (cancelRef.current) {
         throw new Error("Processing cancelled by user");
       }
 
-      // Update status to uploading
-      setVideos(prev => prev.map((v, i) => 
-        i === index ? { ...v, status: 'uploading', progress: 10 } : v
-      ));
+      // Helper to update progress and step
+      const updateProgress = (progress: number, step: string, estimatedTime?: number) => {
+        setVideos(prev => prev.map((v, i) => 
+          i === index ? { 
+            ...v, 
+            progress, 
+            currentStep: step,
+            estimatedTimeRemaining: estimatedTime
+          } : v
+        ));
+      };
 
+      // Update status to uploading
+      updateProgress(5, "Preparing video...");
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       // Extract pose data from video
+      updateProgress(10, "Starting pose detection...");
       setVideos(prev => prev.map((v, i) => 
-        i === index ? { ...v, status: 'analyzing', progress: 20 } : v
+        i === index ? { ...v, status: 'analyzing' } : v
       ));
 
-      console.log(`Extracting pose data from ${video.file.name}...`);
-      const poseData = await extractFramesAndPoseData(video.file, video.frameRate);
+      console.log(`Extracting pose data from ${video.file.name} (${video.frameRate}fps)...`);
+      
+      const poseData = await extractFramesAndPoseData(
+        video.file, 
+        video.frameRate,
+        (progress, step) => updateProgress(progress, step)
+      );
+      
       console.log(`Extracted ${poseData.length} frames with pose data`);
+      updateProgress(75, "Uploading video to storage...");
 
+      // Update to uploading status
       setVideos(prev => prev.map((v, i) => 
-        i === index ? { ...v, progress: 50 } : v
+        i === index ? { ...v, status: 'uploading' } : v
       ));
 
       // Upload video to storage
@@ -309,16 +363,14 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
 
       if (uploadError) throw uploadError;
 
-      setVideos(prev => prev.map((v, i) => 
-        i === index ? { ...v, progress: 60 } : v
-      ));
+      updateProgress(85, "Video uploaded, analyzing swing mechanics...");
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('swing-videos')
         .getPublicUrl(fileName);
 
-      // Send to analyze-swing edge function with pose data and tag metadata
+      // Send to analyze-swing edge function
       const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-swing', {
         body: {
           videoUrl: publicUrl,
@@ -328,30 +380,32 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
           drillName: video.drillName,
           keypoints: poseData,
           frames: poseData.length,
-          sourceFrameRate: video.frameRate || 30,  // Actual video frame rate
-          samplingFrameRate: 30  // Rate at which we sampled for pose detection
+          sourceFrameRate: video.frameRate || 30,
+          samplingFrameRate: 30
         }
       });
 
       if (analysisError) throw analysisError;
 
-      setVideos(prev => prev.map((v, i) => 
-        i === index ? { ...v, progress: 90 } : v
-      ));
+      updateProgress(95, "Finalizing analysis...");
+      
+      const totalTime = Math.round((Date.now() - startTime) / 1000);
+      console.log(`Video processed in ${totalTime} seconds`);
 
-      // Mark as completed with the analysis ID
-      toast.success(`${video.file.name} uploaded successfully`);
+      // Mark as completed
+      toast.success(`${video.file.name} processed in ${totalTime}s`);
       
       setVideos(prev => prev.map((v, i) => 
         i === index ? { 
           ...v, 
           status: 'completed', 
           progress: 100,
+          currentStep: `Complete (${totalTime}s)`,
           analysisId: analysisData.analysisId 
         } : v
       ));
 
-      return true; // Success
+      return true;
 
     } catch (error: any) {
       // Check if it was a user cancellation
@@ -362,21 +416,32 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
             ...v, 
             status: 'pending',
             progress: 0,
+            currentStep: undefined,
             error: 'Cancelled'
           } : v
         ));
-        return false; // Cancelled
+        return false;
       }
 
       console.error(`Error processing ${video.file.name}:`, error);
+      
+      // Show helpful error message
+      let errorMessage = error.message || 'Failed to process video';
+      if (errorMessage.includes('timeout')) {
+        errorMessage += ' Try recording at 60fps or less for faster processing.';
+      }
+      
+      toast.error(`Failed: ${video.file.name} - ${errorMessage}`);
+      
       setVideos(prev => prev.map((v, i) => 
         i === index ? { 
           ...v, 
           status: 'error', 
-          error: error.message || 'Failed to process video'
+          currentStep: undefined,
+          error: errorMessage
         } : v
       ));
-      return false; // Error
+      return false;
     }
   };
 
@@ -576,6 +641,20 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
                           <span>•</span>
                           <span>{getStatusText(video.status)}</span>
                         </div>
+                        
+                        {/* Current processing step */}
+                        {video.currentStep && (
+                          <p className="text-xs text-primary font-medium mt-1">
+                            {video.currentStep}
+                          </p>
+                        )}
+                        
+                        {/* Processing warning */}
+                        {video.processingWarning && video.status === 'pending' && (
+                          <p className="text-xs text-yellow-600 font-medium mt-1">
+                            {video.processingWarning}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -654,7 +733,8 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
           <p>• Tag each video before processing</p>
           <p>• Videos will be processed one at a time</p>
           <p>• Each video must be under 100MB</p>
-          <p>• Processing may take 1-2 minutes per video</p>
+          <p>• Processing time: 30-60s (30-60fps) or 2-3min (120-240fps)</p>
+          <p className="text-yellow-600 font-medium">• For fastest results: Record at 60fps or less</p>
         </div>
 
         <video ref={videoRef} style={{ display: 'none' }} />
