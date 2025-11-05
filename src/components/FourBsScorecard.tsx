@@ -227,8 +227,8 @@ export function FourBsScorecard({
         {categories.map((cat) => renderCategory(cat))}
       </div>
 
-      {/* Upgrade Prompt if there are locked categories */}
-      {categories.some((cat) => !METRIC_DEFINITIONS.filter((m) => m.category === cat).some((m) => hasMetricAccess(userTier, m))) && (
+      {/* Upgrade Prompt if there are locked categories (only show for non-admin views) */}
+      {!bypassTierRestrictions && categories.some((cat) => !METRIC_DEFINITIONS.filter((m) => m.category === cat).some((m) => hasMetricAccess(userTier, m))) && (
         <TierUpgradePrompt
           currentTier={userTier}
           lockedMetrics={METRIC_DEFINITIONS.filter((m) => !hasMetricAccess(userTier, m)).map((m) => m.name)}
