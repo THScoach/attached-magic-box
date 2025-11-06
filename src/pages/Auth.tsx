@@ -105,8 +105,8 @@ export default function Auth() {
         }
         
         toast.success("Account created! Completing your profile...");
-        // Redirect to free onboarding to collect additional info
-        navigate('/free-onboarding');
+        // Redirect to onboarding to collect additional info
+        navigate('/onboarding');
         setLoading(false);
       } else {
         const { error } = await supabase.auth.signInWithPassword({

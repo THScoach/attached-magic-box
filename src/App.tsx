@@ -261,7 +261,8 @@ const App = () => {
             {/* Athlete/General Protected Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-            <Route path="/free-onboarding" element={<ProtectedRoute><FreeOnboarding /></ProtectedRoute>} />
+            {/* Legacy free onboarding - redirect to main onboarding */}
+            <Route path="/free-onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/analyze" element={<ProtectedRoute><Analyze /></ProtectedRoute>} />
             <Route path="/result/:id" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
             <Route path="/player/:playerId" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />

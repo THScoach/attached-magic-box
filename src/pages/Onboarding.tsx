@@ -185,16 +185,20 @@ export default function Onboarding() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Video Player */}
-                <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                  <video
-                    controls
-                    className="w-full h-full"
-                    poster="/videos/coach-rick-thumbnail.jpg"
-                  >
-                    <source src="/videos/coach-rick-welcome.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
+                {/* Video Player - Temporarily showing Coach Rick image until video is uploaded */}
+                <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg overflow-hidden flex items-center justify-center">
+                  <div className="text-center space-y-4 p-8">
+                    <div className="w-24 h-24 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-12 h-12 text-primary" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-bold text-foreground">Coach Rick Says:</h3>
+                      <p className="text-muted-foreground max-w-md mx-auto">
+                        "Welcome to HITS! I'm excited to help you transform your swing using cutting-edge biomechanics. 
+                        Let's get your profile set up so we can start personalizing your training."
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Welcome Text */}
