@@ -2279,6 +2279,7 @@ export type Database = {
           created_at: string
           expires_at: string | null
           id: string
+          membershipio_id: string | null
           started_at: string
           status: string
           swing_count: number | null
@@ -2293,6 +2294,7 @@ export type Database = {
           created_at?: string
           expires_at?: string | null
           id?: string
+          membershipio_id?: string | null
           started_at?: string
           status?: string
           swing_count?: number | null
@@ -2307,6 +2309,7 @@ export type Database = {
           created_at?: string
           expires_at?: string | null
           id?: string
+          membershipio_id?: string | null
           started_at?: string
           status?: string
           swing_count?: number | null
