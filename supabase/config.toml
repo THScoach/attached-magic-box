@@ -1,5 +1,8 @@
 project_id = "goiwiofbmszghvyvhyll"
 
+[functions.membershipio-webhook]
+verify_jwt = false
+
 [functions.coach-rick-chat]
 verify_jwt = false
 
