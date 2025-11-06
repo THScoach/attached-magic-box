@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useWhopAuth } from "@/contexts/WhopContext";
 import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
@@ -10,48 +10,17 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteProps) {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, isLoading } = useWhopAuth();
 
   useEffect(() => {
-    checkAuth();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('[ProtectedRoute] Auth event:', event, 'Has session:', !!session);
-      
-      // Update authentication state for all events
-      setIsAuthenticated(!!session);
-      
-      // Clear local storage on sign out
-      if (event === 'SIGNED_OUT' && !session) {
-        console.log('[ProtectedRoute] User signed out, clearing data and redirecting');
-        localStorage.removeItem('athleteInfo');
-        localStorage.removeItem('onboardingComplete');
-        
-        navigate("/auth", { replace: true });
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate, requireAuth]);
-
-  const checkAuth = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-      
-      if (requireAuth && !session) {
-        navigate("/auth", { replace: true });
-      }
-    } catch (error) {
-      console.error("Error checking auth:", error);
-    } finally {
-      setLoading(false);
+    if (!isLoading && requireAuth && !isAuthenticated) {
+      // In Whop, users must authenticate through Whop's platform
+      console.log('[ProtectedRoute] User not authenticated in Whop');
+      navigate("/", { replace: true });
     }
-  };
+  }, [isLoading, isAuthenticated, requireAuth, navigate]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -60,7 +29,16 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
   }
 
   if (requireAuth && !isAuthenticated) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 text-center">
+        <div>
+          <h2 className="text-2xl font-bold mb-2">Access via Whop</h2>
+          <p className="text-muted-foreground">
+            Please access HITS through your Whop membership portal.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;
