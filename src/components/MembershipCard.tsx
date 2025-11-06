@@ -49,10 +49,6 @@ export function MembershipCard() {
   const config = tierConfig[membership?.tier || "free"];
   const Icon = config.icon;
 
-  const handleUpgrade = () => {
-    // Open 7-Day Challenge checkout for free users
-    window.open("https://whop.com/the-hitting-skool/297-b6/", "_blank");
-  };
 
   return (
     <Card>
@@ -66,7 +62,7 @@ export function MembershipCard() {
         </div>
         <CardDescription>
           {membership?.tier === "free" 
-            ? `${membership.swingCount || 0}/2 swings used - Upgrade to unlock more`
+            ? `${membership.swingCount || 0}/10 swings used`
             : membership?.tier === "challenge"
             ? "Full access for 7 days"
             : "You have unlimited access"}
@@ -82,11 +78,6 @@ export function MembershipCard() {
           </ul>
         </div>
         
-        {membership?.tier === "free" && !isCoach && !isAdmin && (
-          <Button onClick={handleUpgrade} className="w-full">
-            Upgrade Now
-          </Button>
-        )}
 
         {membership?.expiresAt && (
           <p className="text-xs text-muted-foreground">

@@ -1259,12 +1259,8 @@ export default function AnalysisResult() {
               if (hasCoachRickAccess) {
                 setShowCoachChat(true);
               } else {
-                toast.error("Upgrade Required", {
-                  description: "Chat with Coach Rick is available in Challenge, DIY, and Elite tiers",
-                  action: {
-                    label: "Upgrade",
-                    onClick: () => window.open("https://whop.com/your-product", "_blank")
-                  }
+                toast.error("Premium Feature", {
+                  description: "Chat with Coach Rick is available with DIY and Elite memberships. Contact support for access."
                 });
               }
             }}

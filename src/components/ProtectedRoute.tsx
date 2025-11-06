@@ -28,7 +28,7 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
         console.log('[ProtectedRoute] User signed out, clearing data and redirecting');
         localStorage.removeItem('athleteInfo');
         localStorage.removeItem('onboardingComplete');
-        localStorage.removeItem('pendingCheckoutUrl');
+        
         navigate("/auth", { replace: true });
       }
     });

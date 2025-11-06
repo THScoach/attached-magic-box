@@ -38,14 +38,6 @@ export default function Auth() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Check for pending checkout URL (from Programs page)
-    const pendingCheckoutUrl = localStorage.getItem('pendingCheckoutUrl');
-    if (pendingCheckoutUrl) {
-      localStorage.removeItem('pendingCheckoutUrl');
-      window.location.href = pendingCheckoutUrl;
-      return;
-    }
-
     // Check for returnTo parameter first
     if (returnTo) {
       navigate(returnTo, { replace: true });

@@ -39,8 +39,6 @@ import TeamAnalytics from "./pages/TeamAnalytics";
 import PlayerProfile from "./pages/PlayerProfile";
 import Goals from "./pages/Goals";
 import FreeOnboarding from "./pages/FreeOnboarding";
-import Pricing from "./pages/Pricing";
-import CheckoutSuccess from "./pages/CheckoutSuccess";
 import Challenges from "./pages/Challenges";
 import VideoLibrary from "./pages/VideoLibrary";
 import Timeline from "./pages/Timeline";
@@ -86,8 +84,6 @@ const App = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/request-demo" element={<RequestDemo />} />
             <Route path="/book-call" element={<BookCall />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/checkout-success" element={<ProtectedRoute><CheckoutSuccess /></ProtectedRoute>} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/coach-auth" element={<CoachAuth />} />
             

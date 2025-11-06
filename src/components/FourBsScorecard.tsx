@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronRight, Lock, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { MembershipTier, getBCategoryInfo, BCategory, calculateBGrade, hasMetricAccess, METRIC_DEFINITIONS, categoryHasData } from "@/lib/fourBsFramework";
-import { TierUpgradePrompt } from "./TierUpgradePrompt";
+
 import { cn } from "@/lib/utils";
 
 interface FourBsScorecardProps {
@@ -83,7 +83,7 @@ export function FourBsScorecard({
           <div className="absolute inset-0 bg-gradient-to-br from-muted/80 to-muted/60 backdrop-blur-sm z-10 flex items-center justify-center">
             <div className="text-center">
               <Lock className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm font-semibold">Upgrade to Unlock</p>
+              <p className="text-sm font-semibold">Premium Feature</p>
             </div>
           </div>
           <CardContent className="p-4">
@@ -227,13 +227,6 @@ export function FourBsScorecard({
         {categories.map((cat) => renderCategory(cat))}
       </div>
 
-      {/* Upgrade Prompt if there are locked categories (only show for non-admin views) */}
-      {!bypassTierRestrictions && categories.some((cat) => !METRIC_DEFINITIONS.filter((m) => m.category === cat).some((m) => hasMetricAccess(userTier, m))) && (
-        <TierUpgradePrompt
-          currentTier={userTier}
-          lockedMetrics={METRIC_DEFINITIONS.filter((m) => !hasMetricAccess(userTier, m)).map((m) => m.name)}
-        />
-      )}
     </div>
   );
 }

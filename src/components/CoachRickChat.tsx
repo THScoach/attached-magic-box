@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -7,7 +7,7 @@ import { Send, X } from "lucide-react";
 import { SwingAnalysis } from "@/types/swing";
 import { toast } from "sonner";
 import { useTierAccess } from "@/hooks/useTierAccess";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
+
 
 interface Message {
   role: "user" | "assistant";
@@ -31,13 +31,22 @@ export function CoachRickChat({ analysis, onClose }: CoachRickChatProps) {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Show upgrade prompt if user doesn't have access
+  // Restrict access if user doesn't have permission
   if (!canAccessCoachRick) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-        <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <UpgradePrompt context="coach_rick" onClose={onClose} />
-        </div>
+        <Card className="max-w-2xl w-full">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold">Coach Rick AI Access Required</h2>
+              <p className="text-muted-foreground">
+                Coach Rick AI is available with DIY and Elite memberships. 
+                Contact support to upgrade your membership.
+              </p>
+              <Button onClick={onClose}>Close</Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

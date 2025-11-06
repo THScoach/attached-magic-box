@@ -67,7 +67,6 @@ export default function CoachDashboard() {
       // Clear local storage
       localStorage.removeItem('athleteInfo');
       localStorage.removeItem('onboardingComplete');
-      localStorage.removeItem('pendingCheckoutUrl');
       
       const { error } = await supabase.auth.signOut();
       

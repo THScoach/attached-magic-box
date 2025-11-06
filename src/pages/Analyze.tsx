@@ -15,14 +15,13 @@ import { CameraRecorder } from "@/lib/cameraRecording";
 import { useUserMembership } from "@/hooks/useUserMembership";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useTierAccess } from "@/hooks/useTierAccess";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
+
 
 export default function Analyze() {
   const navigate = useNavigate();
   const { membership, loading: membershipLoading } = useUserMembership();
   const { isCoach, isAdmin } = useUserRole();
   const { canAnalyzeSwing, swingsRemaining, tier } = useTierAccess();
-  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisStep, setAnalysisStep] = useState<string>('');
@@ -315,13 +314,12 @@ export default function Analyze() {
   ) => {
     // Check swing limit using tier access system - but not for coaches/admins
     if (!isCoach && !isAdmin && !canAnalyzeSwing) {
-      setShowUpgradePrompt(true);
       toast.error("Swing limit reached", {
         description: tier === 'free'
-          ? "You've used all 10 free swings. Upgrade to continue!"
+          ? "You've used all 10 free swings. Contact support for more access."
           : tier === 'challenge'
-          ? "Your 7-day challenge has expired. Upgrade to continue!"
-          : "Please upgrade to continue analyzing swings.",
+          ? "Your 7-day challenge has expired. Contact support to continue."
+          : "Please contact support for more access.",
       });
       return;
     }
@@ -1318,17 +1316,6 @@ export default function Analyze() {
         videoFileName={pendingVideoFile?.name}
       />
 
-      {/* Upgrade Prompt Dialog */}
-      {showUpgradePrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <UpgradePrompt 
-              context="swing_limit" 
-              onClose={() => setShowUpgradePrompt(false)} 
-            />
-          </div>
-        </div>
-      )}
 
       <BottomNav />
     </div>

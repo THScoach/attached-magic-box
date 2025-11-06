@@ -83,7 +83,7 @@ export function MetricCard({
           <div className="text-center py-4">
             <div className="text-4xl mb-2 blur-sm select-none">85</div>
             <p className="text-xs text-muted-foreground">
-              Upgrade to {metric.requiredTier} to unlock
+              {metric.requiredTier.charAt(0).toUpperCase() + metric.requiredTier.slice(1)} tier required
             </p>
           </div>
         ) : (
