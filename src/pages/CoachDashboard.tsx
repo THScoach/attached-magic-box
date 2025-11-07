@@ -26,6 +26,7 @@ import { CoachingNotesPanel } from "@/components/admin/CoachingNotesPanel";
 import { BulkTeamActions } from "@/components/admin/BulkTeamActions";
 import { ParentGuardianManager } from "@/components/admin/ParentGuardianManager";
 import { WhopIntegrationPanel } from "@/components/admin/WhopIntegrationPanel";
+import { WhopSetupGuide } from "@/components/admin/WhopSetupGuide";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -398,6 +399,7 @@ export default function CoachDashboard() {
 
           <TabsContent value="whop" className="space-y-6">
             <WhopIntegrationPanel />
+            <WhopSetupGuide />
           </TabsContent>
         </Tabs>
 
