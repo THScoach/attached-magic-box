@@ -46,6 +46,7 @@ import Timeline from "./pages/Timeline";
 import TierDemo from "./pages/TierDemo";
 import FourBsScorecard from "./pages/FourBsScorecard";
 import NotFound from "./pages/NotFound";
+import WhopAuth from "./pages/WhopAuth";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -87,7 +88,9 @@ const App = () => {
             {/* Coach authentication - separate from Whop athlete flow */}
             <Route path="/coach-auth" element={<CoachAuth />} />
             
-            {/* Athlete auth via Whop only */}
+            {/* Athlete auth via Whop */}
+            <Route path="/whop-auth" element={<WhopAuth />} />
+            <Route path="/auth" element={<Auth />} />
             
             {/* Admin Routes - New comprehensive admin dashboard */}
             <Route path="/admin" element={
