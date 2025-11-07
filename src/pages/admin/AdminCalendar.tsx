@@ -8,9 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Calendar as CalendarIcon, Video, X, Send, Edit } from "lucide-react";
+import { Loader2, Calendar as CalendarIcon, Video, X, Send, Edit, Users, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
+import { useNavigate } from "react-router-dom";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ScheduledMeeting {
   id: string;
@@ -26,6 +28,7 @@ interface ScheduledMeeting {
 }
 
 export default function AdminCalendar() {
+  const navigate = useNavigate();
   const [zoomLink, setZoomLink] = useState("");
   const [zoomPassword, setZoomPassword] = useState("");
   const [reminderMessage, setReminderMessage] = useState("");
@@ -33,10 +36,33 @@ export default function AdminCalendar() {
   const [loading, setLoading] = useState(false);
   const [upcomingMeetings, setUpcomingMeetings] = useState<ScheduledMeeting[]>([]);
   const [loadingMeetings, setLoadingMeetings] = useState(true);
+  const [rosterCount, setRosterCount] = useState(0);
+  const [loadingRoster, setLoadingRoster] = useState(true);
 
   useEffect(() => {
     loadUpcomingMeetings();
+    checkRosterStatus();
   }, []);
+
+  const checkRosterStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { count, error } = await supabase
+        .from("team_rosters")
+        .select("*", { count: 'exact', head: true })
+        .eq("coach_id", user.id)
+        .eq("is_active", true);
+
+      if (error) throw error;
+      setRosterCount(count || 0);
+    } catch (error) {
+      console.error("Error checking roster:", error);
+    } finally {
+      setLoadingRoster(false);
+    }
+  };
 
   const loadUpcomingMeetings = async () => {
     try {
@@ -290,6 +316,25 @@ export default function AdminCalendar() {
         </div>
       </div>
 
+      {!loadingRoster && rosterCount === 0 && (
+        <Alert className="border-warning">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            <span>
+              You need to add athletes to your roster before scheduling meetings.
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate("/admin/roster")}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Go to Team Roster
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Tabs defaultValue="zoom" className="space-y-6">
         <TabsList>
           <TabsTrigger value="zoom">
@@ -330,7 +375,7 @@ export default function AdminCalendar() {
                   disabled={loading}
                 />
               </div>
-              <Button onClick={scheduleRecurringMeetings} disabled={loading}>
+              <Button onClick={scheduleRecurringMeetings} disabled={loading || rosterCount === 0}>
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -343,6 +388,11 @@ export default function AdminCalendar() {
                   </>
                 )}
               </Button>
+              {rosterCount > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Will schedule meetings for {rosterCount} athlete{rosterCount !== 1 ? 's' : ''}
+                </p>
+              )}
             </div>
           </Card>
 
