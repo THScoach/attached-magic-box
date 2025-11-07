@@ -83,11 +83,11 @@ const App = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/request-demo" element={<RequestDemo />} />
             <Route path="/book-call" element={<BookCall />} />
-            {/* Auth routes removed - Whop handles authentication */}
-            {/* <Route path="/auth" element={<Auth />} /> */}
-            {/* <Route path="/coach-auth" element={<CoachAuth />} /> */}
             
-            {/* Note: Admin/Coach routes preserved but won't work in Whop (no role system) */}
+            {/* Coach authentication - separate from Whop athlete flow */}
+            <Route path="/coach-auth" element={<CoachAuth />} />
+            
+            {/* Athlete auth via Whop only */}
             
             {/* Admin Routes - New comprehensive admin dashboard */}
             <Route path="/admin" element={
