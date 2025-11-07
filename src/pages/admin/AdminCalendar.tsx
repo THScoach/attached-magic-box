@@ -49,11 +49,26 @@ export default function AdminCalendar() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { count, error } = await supabase
+      // Check if user is admin
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+
+      const isAdmin = roleData?.role === "admin";
+
+      // Admins can schedule for all athletes, coaches for their roster only
+      let query = supabase
         .from("team_rosters")
         .select("*", { count: 'exact', head: true })
-        .eq("coach_id", user.id)
         .eq("is_active", true);
+
+      if (!isAdmin) {
+        query = query.eq("coach_id", user.id);
+      }
+
+      const { count, error } = await query;
 
       if (error) throw error;
       setRosterCount(count || 0);
@@ -105,17 +120,31 @@ export default function AdminCalendar() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Get athletes from coach's roster
-      const { data: rosterData, error: studentsError } = await supabase
+      // Check if user is admin
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+
+      const isAdmin = roleData?.role === "admin";
+
+      // Get athletes - admins get all, coaches get their roster
+      let query = supabase
         .from("team_rosters")
         .select("athlete_id")
-        .eq("coach_id", user.id)
         .eq("is_active", true);
 
+      if (!isAdmin) {
+        query = query.eq("coach_id", user.id);
+      }
+
+      const { data: rosterData, error: studentsError } = await query;
+
       if (studentsError) throw studentsError;
-      
+
       if (!rosterData || rosterData.length === 0) {
-        toast.error("No athletes found in your roster. Please add athletes first.");
+        toast.error("No athletes found. Please add athletes first.");
         return;
       }
 
@@ -195,16 +224,30 @@ export default function AdminCalendar() {
         return;
       }
 
-      // Get athletes from coach's roster
-      const { data: rosterData, error: studentsError } = await supabase
-        .from("team_rosters")
-        .select("athlete_id")
-        .eq("coach_id", user.id)
-        .eq("is_active", true);
+    // Check if user is admin
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
 
-      if (studentsError) throw studentsError;
-      
-      const students = rosterData?.map(r => ({ id: r.athlete_id })) || [];
+    const isAdmin = roleData?.role === "admin";
+
+    // Get athletes - admins get all, coaches get their roster
+    let query = supabase
+      .from("team_rosters")
+      .select("athlete_id")
+      .eq("is_active", true);
+
+    if (!isAdmin) {
+      query = query.eq("coach_id", user.id);
+    }
+
+    const { data: rosterData, error: studentsError } = await query;
+
+    if (studentsError) throw studentsError;
+
+    const students = rosterData?.map(r => ({ id: r.athlete_id })) || [];
 
       // Send notifications
       const metadata = nextMeeting.metadata as ScheduledMeeting['metadata'];
@@ -270,16 +313,30 @@ export default function AdminCalendar() {
 
       if (updateError) throw updateError;
 
-      // Get athletes from coach's roster
-      const { data: rosterData, error: studentsError } = await supabase
-        .from("team_rosters")
-        .select("athlete_id")
-        .eq("coach_id", user.id)
-        .eq("is_active", true);
+    // Check if user is admin
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
 
-      if (studentsError) throw studentsError;
-      
-      const students = rosterData?.map(r => ({ id: r.athlete_id })) || [];
+    const isAdmin = roleData?.role === "admin";
+
+    // Get athletes - admins get all, coaches get their roster
+    let query = supabase
+      .from("team_rosters")
+      .select("athlete_id")
+      .eq("is_active", true);
+
+    if (!isAdmin) {
+      query = query.eq("coach_id", user.id);
+    }
+
+    const { data: rosterData, error: studentsError } = await query;
+
+    if (studentsError) throw studentsError;
+
+    const students = rosterData?.map(r => ({ id: r.athlete_id })) || [];
 
       // Send cancellation notifications
       const notifications = (students || []).map(student => ({
