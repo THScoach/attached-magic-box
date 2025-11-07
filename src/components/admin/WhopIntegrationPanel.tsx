@@ -4,15 +4,42 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Copy, CheckCircle2, AlertCircle, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { Copy, CheckCircle2, AlertCircle, ExternalLink, RefreshCw, Activity } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { formatDistanceToNow } from "date-fns";
 
 export function WhopIntegrationPanel() {
   const [copied, setCopied] = useState<string | null>(null);
+  const [recentAthletes, setRecentAthletes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   
   const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
   const webhookUrl = `https://${projectId}.supabase.co/functions/v1/whop-webhook`;
+
+  useEffect(() => {
+    loadRecentWhopAthletes();
+  }, []);
+
+  const loadRecentWhopAthletes = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, whop_user_id, whop_username, created_at')
+        .not('whop_user_id', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      setRecentAthletes(data || []);
+    } catch (error) {
+      console.error('Error loading Whop athletes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -165,6 +192,84 @@ export function WhopIntegrationPanel() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                <Activity className="h-4 w-4 text-green-500" />
+              </div>
+              Webhook Status
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={loadRecentWhopAthletes}
+              disabled={loading}
+            >
+              {loading ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </Button>
+          </CardTitle>
+          <CardDescription>
+            Recent athletes synced from Whop
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {recentAthletes.length === 0 ? (
+            <div className="text-center py-8">
+              <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">
+                No Whop athletes synced yet
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Athletes will appear here once they subscribe via Whop and the webhook syncs their data
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentAthletes.map((athlete) => (
+                <div
+                  key={athlete.id}
+                  className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/50"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium">
+                        {athlete.whop_username || athlete.email}
+                      </p>
+                      <Badge variant="secondary" className="text-xs">
+                        Whop
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-mono">
+                      {athlete.whop_user_id}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(athlete.created_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {recentAthletes.length > 0 && (
+            <Alert className="bg-green-500/5 border-green-500/20">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              <AlertDescription className="text-sm">
+                ✓ Webhook is working! {recentAthletes.length} athlete{recentAthletes.length !== 1 ? 's' : ''} synced from Whop
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
