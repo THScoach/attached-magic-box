@@ -2,9 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight, Lock, TrendingUp, BookOpen } from "lucide-react";
-import { Link } from "react-router-dom";
 import { MembershipTier, getBCategoryInfo, BCategory, calculateBGrade, hasMetricAccess, METRIC_DEFINITIONS, categoryHasData, isEducationalOnly } from "@/lib/fourBsFramework";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface FourBsScorecardProps {
@@ -23,6 +23,7 @@ export function FourBsScorecard({
   bypassTierRestrictions = false,
 }: FourBsScorecardProps) {
   const categories: BCategory[] = ['brain', 'body', 'bat', 'ball'];
+  const [selectedCategory, setSelectedCategory] = useState<BCategory | null>(null);
   
   // Calculate grades for each B
   const categoryGrades: Record<BCategory, number> = {
@@ -64,6 +65,31 @@ export function FourBsScorecard({
     return 'F';
   };
 
+  const getCategoryExplanation = (category: BCategory): { title: string; content: string } => {
+    switch (category) {
+      case 'brain':
+        return {
+          title: "🧠 BRAIN - Decision Making",
+          content: "The BRAIN represents pitch selection and swing decisions. This is about reading the pitch, deciding whether to swing, and selecting the right approach. Currently, this is an educational category focused on teaching decision-making concepts. Metrics for tracking pitch selection and swing decisions are coming in future updates."
+        };
+      case 'body':
+        return {
+          title: "💪 BODY - Movement Mechanics",
+          content: "The BODY grade measures how well your body executes the swing. This includes weight transfer, rotation sequencing, balance, and overall movement quality. The grade is calculated from video analysis using computer vision to track your body mechanics through each phase of the swing. Key metrics include center of mass movement, hip-shoulder separation, and kinematic sequencing."
+        };
+      case 'bat':
+        return {
+          title: "🏏 BAT - Tool Delivery",
+          content: "The BAT grade evaluates how effectively you deliver the bat through the hitting zone. This includes bat speed, bat path efficiency, attack angle, and time in the hitting zone. Metrics can come from video analysis or bat sensors (Blast Motion, Diamond Kinetics, etc.). A high BAT grade means you're creating optimal conditions for hard contact."
+        };
+      case 'ball':
+        return {
+          title: "⚾ BALL - Result Quality",
+          content: "The BALL grade measures the quality of contact and ball flight. This includes exit velocity, launch angle, and batted ball outcomes. Data comes from sensors like HitTrax, Rapsodo, TrackMan, or other ball-tracking technology. The BALL grade shows the ultimate result - how hard and how well you're hitting the baseball."
+        };
+    }
+  };
+
   const renderCategory = (category: BCategory) => {
     const info = getBCategoryInfo(category);
     const grade = categoryGrades[category];
@@ -81,7 +107,11 @@ export function FourBsScorecard({
     // If educational-only category (BRAIN), show special card
     if (educationalOnly) {
       return (
-        <Card key={category} className="hover:shadow-lg transition-shadow border-2 border-dashed border-primary/30">
+        <Card 
+          key={category} 
+          className="hover:shadow-lg transition-shadow border-2 border-dashed border-primary/30 cursor-pointer"
+          onClick={() => setSelectedCategory(category)}
+        >
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -182,37 +212,36 @@ export function FourBsScorecard({
     }
 
     return (
-      <Link
-        key={category}
-        to={analysisId ? `/result/${analysisId}?category=${category}` : `/progress?category=${category}`}
+      <Card 
+        key={category} 
+        className="hover:shadow-lg transition-shadow cursor-pointer"
+        onClick={() => setSelectedCategory(category)}
       >
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-3xl">{info.icon}</span>
-                <div>
-                  <h3 className="font-bold text-lg">{info.name}</h3>
-                  <p className="text-xs text-muted-foreground">{info.description}</p>
-                </div>
-              </div>
-              <div className="text-center">
-                <div className={cn("text-4xl font-bold", getGradeColor(grade))}>
-                  {getGradeLetter(grade)}
-                </div>
-                <div className="text-xs text-muted-foreground">{grade}/100</div>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-3xl">{info.icon}</span>
+              <div>
+                <h3 className="font-bold text-lg">{info.name}</h3>
+                <p className="text-xs text-muted-foreground">{info.description}</p>
               </div>
             </div>
-
-            <Progress value={grade} className="h-2 mb-2" />
-
-            <div className="flex items-center justify-between text-xs text-primary">
-              <span>View Details</span>
-              <ChevronRight className="h-4 w-4" />
+            <div className="text-center">
+              <div className={cn("text-4xl font-bold", getGradeColor(grade))}>
+                {getGradeLetter(grade)}
+              </div>
+              <div className="text-xs text-muted-foreground">{grade}/100</div>
             </div>
-          </CardContent>
-        </Card>
-      </Link>
+          </div>
+
+          <Progress value={grade} className="h-2 mb-2" />
+
+          <div className="flex items-center justify-between text-xs text-primary">
+            <span>View Details</span>
+            <ChevronRight className="h-4 w-4" />
+          </div>
+        </CardContent>
+      </Card>
     );
   };
 
@@ -280,6 +309,19 @@ export function FourBsScorecard({
         {categories.map((cat) => renderCategory(cat))}
       </div>
 
+      {/* Category Explanation Dialog */}
+      <Dialog open={selectedCategory !== null} onOpenChange={() => setSelectedCategory(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              {selectedCategory && getCategoryExplanation(selectedCategory).title}
+            </DialogTitle>
+            <DialogDescription className="text-base pt-4 text-foreground">
+              {selectedCategory && getCategoryExplanation(selectedCategory).content}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
