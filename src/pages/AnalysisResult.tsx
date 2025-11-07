@@ -16,7 +16,6 @@ import { DetailedMetricsView } from "@/components/DetailedMetricsView";
 import { COMPathGraph } from "@/components/COMPathGraph";
 import { COMPhaseMetrics } from "@/components/COMPhaseMetrics";
 import { SwingAvatar3D } from "@/components/SwingAvatar3D";
-import { VideoKeyMomentOverlay } from "@/components/VideoKeyMomentOverlay";
 import { ReanalyzeButton } from "@/components/ReanalyzeButton";
 import { VideoAnalysisWithMarkup } from "@/components/VideoAnalysisWithMarkup";
 import { PoseSkeletonOverlay } from "@/components/PoseSkeletonOverlay";
@@ -873,23 +872,6 @@ export default function AnalysisResult() {
                       videoHeight={videoRef.current?.videoHeight || 1080}
                       isVisible={showSkeleton}
                       onToggleVisibility={() => setShowSkeleton(!showSkeleton)}
-                    />
-
-                    {/* Key Moment Overlays */}
-                    <VideoKeyMomentOverlay
-                      analysis={analysis}
-                      currentTime={currentTime}
-                      duration={duration}
-                      videoWidth={videoRef.current?.videoWidth || 1920}
-                      videoHeight={videoRef.current?.videoHeight || 1080}
-                      onSeekToMoment={(time) => {
-                        if (videoRef.current) {
-                          resetPausedMoments();
-                          videoRef.current.currentTime = time;
-                          videoRef.current.pause();
-                          setIsPlaying(false);
-                        }
-                      }}
                     />
 
                     {/* Play/Pause Overlay */}
