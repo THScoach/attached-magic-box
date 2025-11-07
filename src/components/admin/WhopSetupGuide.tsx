@@ -141,10 +141,10 @@ export function WhopSetupGuide() {
                     <div>
                       <p className="font-medium">Select Events</p>
                       <div className="flex flex-wrap gap-2 mt-1">
-                        <Badge variant="secondary" className="text-xs">membership.went_valid</Badge>
-                        <Badge variant="secondary" className="text-xs">membership.went_invalid</Badge>
-                        <Badge variant="secondary" className="text-xs">membership.updated</Badge>
+                        <Badge variant="secondary" className="text-xs">membership_went_valid</Badge>
+                        <Badge variant="secondary" className="text-xs">membership_went_invalid</Badge>
                       </div>
+                      <p className="text-xs text-muted-foreground mt-1">Use API version V5 (without "app_" prefix)</p>
                     </div>
                   </li>
                   

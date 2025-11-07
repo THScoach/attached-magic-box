@@ -128,7 +128,7 @@ export function WhopIntegrationPanel() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="font-mono text-xs">
-                  membership.went_valid
+                  membership_went_valid
                 </Badge>
                 <span className="text-xs text-muted-foreground">
                   When a membership is activated
@@ -136,21 +136,16 @@ export function WhopIntegrationPanel() {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="font-mono text-xs">
-                  membership.went_invalid
+                  membership_went_invalid
                 </Badge>
                 <span className="text-xs text-muted-foreground">
                   When a membership expires or is cancelled
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="font-mono text-xs">
-                  membership.updated
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  When membership details change
-                </span>
-              </div>
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Note: Select the events without the "app_" prefix in Whop V5
+            </p>
           </div>
 
           <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-3">
@@ -161,10 +156,11 @@ export function WhopIntegrationPanel() {
             <ol className="text-sm space-y-2 list-decimal list-inside text-muted-foreground">
               <li>Log in to your Whop dashboard</li>
               <li>Navigate to Settings → Webhooks</li>
-              <li>Click "Add Webhook"</li>
+              <li>Click "Add Webhook" or edit existing webhook</li>
               <li>Paste the Webhook URL above</li>
               <li>Enter your webhook secret</li>
-              <li>Select the three events listed above</li>
+              <li>Select API version V5 (latest)</li>
+              <li>Select the two events listed above</li>
               <li>Save and test the webhook</li>
             </ol>
           </div>
