@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LetterGrade, getGradeColor } from "@/lib/gradingSystem";
+import { MetricSourceBadge } from "./MetricSourceBadge";
 
 interface ExitVelocityRocketProps {
   exitVelocity: number; // mph
@@ -45,9 +46,12 @@ export function ExitVelocityRocket({
 
   return (
     <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-2xl">🚀</span>
-        <h3 className="font-semibold text-lg">EXIT VELOCITY</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🚀</span>
+          <h3 className="font-semibold text-lg">EXIT VELOCITY</h3>
+        </div>
+        <MetricSourceBadge source="estimated" />
       </div>
 
       {/* Speedometer Gauge */}

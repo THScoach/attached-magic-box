@@ -1,6 +1,7 @@
 import { ExitVelocityRocket } from "./ExitVelocityRocket";
 import { LaunchAngleSprayChart } from "./LaunchAngleSprayChart";
 import { HardHitTarget } from "./HardHitTarget";
+import { MetricsDisclaimer } from "./MetricsDisclaimer";
 import { LetterGrade } from "@/lib/gradingSystem";
 
 interface BallMetricsViewProps {
@@ -38,6 +39,8 @@ export function BallMetricsView({
         <span className="text-3xl">⚾</span>
         <h2 className="text-2xl font-bold">BALL (Output)</h2>
       </div>
+
+      <MetricsDisclaimer type="ball" />
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         <ExitVelocityRocket

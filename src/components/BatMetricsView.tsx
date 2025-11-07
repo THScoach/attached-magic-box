@@ -1,6 +1,7 @@
 import { BatSpeedSpeedometer } from "./BatSpeedSpeedometer";
 import { AttackAngleLaunchRamp } from "./AttackAngleLaunchRamp";
 import { TimeInZoneTarget } from "./TimeInZoneTarget";
+import { MetricsDisclaimer } from "./MetricsDisclaimer";
 import { LetterGrade } from "@/lib/gradingSystem";
 
 interface BatMetricsViewProps {
@@ -32,6 +33,8 @@ export function BatMetricsView({
         <span className="text-3xl">🏏</span>
         <h2 className="text-2xl font-bold">BAT (Tool)</h2>
       </div>
+
+      <MetricsDisclaimer type="bat" />
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         <BatSpeedSpeedometer

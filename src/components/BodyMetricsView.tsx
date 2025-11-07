@@ -1,6 +1,7 @@
 import { KinematicSequenceRelayRace } from "./KinematicSequenceRelayRace";
 import { PowerDistributionBattery } from "./PowerDistributionBattery";
 import { TempoMetronome } from "./TempoMetronome";
+import { MetricsDisclaimer } from "./MetricsDisclaimer";
 import { LetterGrade } from "@/lib/gradingSystem";
 
 interface BodyMetricsViewProps {
@@ -44,6 +45,8 @@ export function BodyMetricsView({
         <span className="text-3xl">💪</span>
         <h2 className="text-2xl font-bold">BODY (Mechanics)</h2>
       </div>
+
+      <MetricsDisclaimer type="body" />
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         <div className="lg:col-span-2">
