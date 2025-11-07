@@ -21,7 +21,7 @@ import { WhopSyncBanner } from "@/components/WhopSyncBanner";
 import { calculateBatGrade, calculateBodyGrade, calculateBallGrade, calculateBrainGrade, calculateOverallGrade } from "@/lib/gradingSystem";
 import { getBenchmarksForLevel } from "@/lib/benchmarks";
 import { useQuery } from "@tanstack/react-query";
-import { User, TrendingUp, Target, Zap, Trophy, Camera } from "lucide-react";
+import { User, TrendingUp, Target, Zap, Trophy, Camera, LayoutDashboard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -269,6 +269,12 @@ export default function Dashboard() {
             <p className="text-muted-foreground">Track your progress with the 4 B's framework</p>
           </div>
           <div className="flex items-center gap-2">
+            {(isCoach || isAdmin) && (
+              <Button variant="outline" onClick={() => navigate("/admin")}>
+                <LayoutDashboard className="h-4 w-4 mr-2" />
+                Admin Dashboard
+              </Button>
+            )}
             {!isCoach && !isAdmin && membership?.tier === 'free' && (
               <FreeSwingCounter 
                 swingsUsed={membership.swingCount || 0}
