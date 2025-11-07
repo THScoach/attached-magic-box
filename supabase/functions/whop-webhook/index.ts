@@ -44,21 +44,31 @@ Deno.serve(async (req) => {
     const eventType = payload.action || payload.type;
 
     switch (eventType) {
+      // V5+ format (with app_ prefix)
+      case 'app_membership_went_valid':
+      // V6+ format (without app_ prefix)
       case 'membership.went_valid':
+      case 'membership_went_valid':
       case 'membership_activated':
         await handleMembershipActivated(supabase, payload);
         break;
         
+      // V5+ format (with app_ prefix)
+      case 'app_membership_went_invalid':
+      // V6+ format (without app_ prefix)
       case 'membership.went_invalid':
+      case 'membership_went_invalid':
       case 'membership_deactivated':
         await handleMembershipDeactivated(supabase, payload);
         break;
         
+      case 'app_payment_succeeded':
       case 'payment.succeeded':
       case 'payment_succeeded':
         await handlePaymentSucceeded(supabase, payload);
         break;
         
+      case 'app_payment_failed':
       case 'payment.failed':
       case 'payment_failed':
         await handlePaymentFailed(supabase, payload);
