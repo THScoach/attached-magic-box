@@ -29,7 +29,7 @@ interface ScheduledMeeting {
 
 export default function AdminCalendar() {
   const navigate = useNavigate();
-  const [zoomLink, setZoomLink] = useState("");
+  const [zoomLink, setZoomLink] = useState("https://us06web.zoom.us/j/6345738989?pwd=QkhxK0YzaHk3MTNTcmpjQjQwYmxrdz09");
   const [zoomPassword, setZoomPassword] = useState("");
   const [reminderMessage, setReminderMessage] = useState("");
   const [cancelMessage, setCancelMessage] = useState("");

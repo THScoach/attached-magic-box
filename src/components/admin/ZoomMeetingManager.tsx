@@ -11,7 +11,7 @@ import { format, addDays, nextMonday, setHours, setMinutes } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
 
 export function ZoomMeetingManager() {
-  const [zoomLink, setZoomLink] = useState("");
+  const [zoomLink, setZoomLink] = useState("https://us06web.zoom.us/j/6345738989?pwd=QkhxK0YzaHk3MTNTcmpjQjQwYmxrdz09");
   const [meetingPassword, setMeetingPassword] = useState("");
   const [customMessage, setCustomMessage] = useState("");
   const [loading, setLoading] = useState(false);
