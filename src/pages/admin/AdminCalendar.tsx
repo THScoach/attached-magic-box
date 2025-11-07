@@ -36,58 +36,10 @@ export default function AdminCalendar() {
   const [loading, setLoading] = useState(false);
   const [upcomingMeetings, setUpcomingMeetings] = useState<ScheduledMeeting[]>([]);
   const [loadingMeetings, setLoadingMeetings] = useState(true);
-  const [rosterCount, setRosterCount] = useState(0);
-  const [loadingRoster, setLoadingRoster] = useState(true);
 
   useEffect(() => {
     loadUpcomingMeetings();
-    checkRosterStatus();
   }, []);
-
-  const checkRosterStatus = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Check if user is admin
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      const isAdmin = roleData?.role === "admin";
-
-      let count = 0;
-
-      if (isAdmin) {
-        // Admins see count of all athletes in system
-        const { count: athleteCount, error } = await supabase
-          .from("user_roles")
-          .select("*", { count: 'exact', head: true })
-          .eq("role", "athlete");
-
-        if (error) throw error;
-        count = athleteCount || 0;
-      } else {
-        // Regular coaches see their roster count
-        const { count: rosterCount, error } = await supabase
-          .from("team_rosters")
-          .select("*", { count: 'exact', head: true })
-          .eq("coach_id", user.id)
-          .eq("is_active", true);
-
-        if (error) throw error;
-        count = rosterCount || 0;
-      }
-
-      setRosterCount(count);
-    } catch (error) {
-      console.error("Error checking roster:", error);
-    } finally {
-      setLoadingRoster(false);
-    }
-  };
 
   const loadUpcomingMeetings = async () => {
     try {
@@ -130,39 +82,8 @@ export default function AdminCalendar() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Check if user is admin
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      const isAdmin = roleData?.role === "admin";
-
-      let studentIds: string[] = [];
-
-      if (isAdmin) {
-        // Admins get all athletes - query all users with athlete role
-        const { data: athleteRoles, error: athleteError } = await supabase
-          .from("user_roles")
-          .select("user_id")
-          .eq("role", "athlete");
-
-        if (athleteError) throw athleteError;
-        studentIds = athleteRoles?.map(r => r.user_id) || [];
-      } else {
-        // Regular coaches get their roster athletes
-        const { data: rosterData, error: rosterError } = await supabase
-          .from("team_rosters")
-          .select("athlete_id")
-          .eq("coach_id", user.id)
-          .eq("is_active", true);
-
-        if (rosterError) throw rosterError;
-        studentIds = rosterData?.map(r => r.athlete_id) || [];
-      }
-
       // Schedule for next 8 Mondays at 7:00 PM CST
+      // Create meetings for the coach - athletes will get them automatically via trigger when added
       const meetings = [];
       const timezone = "America/Chicago";
       
@@ -175,45 +96,22 @@ export default function AdminCalendar() {
         const zonedDate = toZonedTime(nextMonday, timezone);
         const dateStr = format(zonedDate, "yyyy-MM-dd");
 
-        if (studentIds.length > 0) {
-          // Create meeting for each athlete
-          for (const studentId of studentIds) {
-            meetings.push({
-              user_id: studentId,
-              coach_id: user.id,
-              item_type: "live_meeting",
-              title: "Weekly Live Coaching Session",
-              description: "Join Coach Rick for the weekly group coaching session",
-              scheduled_date: dateStr,
-              scheduled_time: "19:00:00",
-              duration: 60,
-              status: "scheduled",
-              metadata: {
-                zoom_link: zoomLink,
-                zoom_password: zoomPassword || null,
-                timezone: timezone,
-              },
-            });
-          }
-        } else {
-          // No athletes yet - create placeholder meeting for coach to see
-          meetings.push({
-            user_id: user.id,
-            coach_id: user.id,
-            item_type: "live_meeting",
-            title: "Weekly Live Coaching Session",
-            description: "Join Coach Rick for the weekly group coaching session",
-            scheduled_date: dateStr,
-            scheduled_time: "19:00:00",
-            duration: 60,
-            status: "scheduled",
-            metadata: {
-              zoom_link: zoomLink,
-              zoom_password: zoomPassword || null,
-              timezone: timezone,
-            },
-          });
-        }
+        meetings.push({
+          user_id: user.id,
+          coach_id: user.id,
+          item_type: "live_meeting",
+          title: "Weekly Live Coaching Session",
+          description: "Join Coach Rick for the weekly group coaching session",
+          scheduled_date: dateStr,
+          scheduled_time: "19:00:00",
+          duration: 60,
+          status: "scheduled",
+          metadata: {
+            zoom_link: zoomLink,
+            zoom_password: zoomPassword || null,
+            timezone: timezone,
+          },
+        });
       }
 
       const { error } = await supabase
@@ -222,11 +120,7 @@ export default function AdminCalendar() {
 
       if (error) throw error;
 
-      if (studentIds.length > 0) {
-        toast.success(`Scheduled ${meetings.length} meetings for ${studentIds.length} athlete(s) over the next 8 weeks`);
-      } else {
-        toast.success("Scheduled 8 meetings on calendar. Athletes will see them when added to roster.");
-      }
+      toast.success(`Scheduled 8 weekly meetings. Athletes will automatically see them when added to your roster.`);
       setZoomLink("");
       setZoomPassword("");
       loadUpcomingMeetings();
@@ -250,55 +144,40 @@ export default function AdminCalendar() {
         .select("*")
         .eq("item_type", "live_meeting")
         .eq("status", "scheduled")
+        .eq("coach_id", user.id)
         .gte("scheduled_date", new Date().toISOString().split("T")[0])
         .order("scheduled_date", { ascending: true })
         .order("scheduled_time", { ascending: true })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (meetingError || !nextMeeting) {
         toast.error("No upcoming meetings found");
         return;
       }
 
-      // Check if user is admin
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      const isAdmin = roleData?.role === "admin";
-
-      let studentIds: string[] = [];
-
-    if (isAdmin) {
-      // Admins get all athletes
-      const { data: athleteRoles, error: athleteError } = await supabase
-        .from("user_roles")
+      // Get all unique athletes who have this meeting
+      const { data: athleteMeetings, error: athleteError } = await supabase
+        .from("calendar_items")
         .select("user_id")
-        .eq("role", "athlete");
+        .eq("scheduled_date", nextMeeting.scheduled_date)
+        .eq("scheduled_time", nextMeeting.scheduled_time)
+        .eq("coach_id", user.id)
+        .neq("user_id", user.id); // Exclude coach
 
       if (athleteError) throw athleteError;
-      studentIds = athleteRoles?.map(r => r.user_id) || [];
-    } else {
-      // Regular coaches get their roster athletes
-      const { data: rosterData, error: rosterError } = await supabase
-        .from("team_rosters")
-        .select("athlete_id")
-        .eq("coach_id", user.id)
-        .eq("is_active", true);
 
-      if (rosterError) throw rosterError;
-      studentIds = rosterData?.map(r => r.athlete_id) || [];
-    }
+      const studentIds = athleteMeetings?.map(m => m.user_id) || [];
 
-    const students = studentIds.map(id => ({ id }));
+      if (studentIds.length === 0) {
+        toast.error("No athletes have been assigned this meeting yet");
+        return;
+      }
 
       // Send notifications
       const metadata = nextMeeting.metadata as ScheduledMeeting['metadata'];
-      const notifications = (students || []).map(student => ({
-        user_id: student.id,
+      const notifications = studentIds.map(studentId => ({
+        user_id: studentId,
         type: "meeting_reminder",
         title: "Upcoming Zoom Meeting",
         message: reminderMessage || `Reminder: Live coaching session on ${nextMeeting.scheduled_date} at ${nextMeeting.scheduled_time}. ${metadata?.zoom_link || ''}`,
@@ -311,7 +190,7 @@ export default function AdminCalendar() {
 
       if (error) throw error;
 
-      toast.success(`Sent reminders to ${notifications.length} students`);
+      toast.success(`Sent reminders to ${notifications.length} athletes`);
       setReminderMessage("");
     } catch (error: any) {
       console.error("Error sending reminders:", error);
@@ -338,6 +217,7 @@ export default function AdminCalendar() {
         .select("scheduled_date")
         .eq("item_type", "live_meeting")
         .eq("status", "scheduled")
+        .eq("coach_id", user.id)
         .gte("scheduled_date", new Date().toISOString().split("T")[0])
         .order("scheduled_date", { ascending: true })
         .limit(1);
@@ -349,66 +229,51 @@ export default function AdminCalendar() {
 
       const nextMeetingDate = nextMeetings[0].scheduled_date;
 
-      // Cancel all meetings on that date
+      // Cancel all meetings on that date for this coach
       const { error: updateError } = await supabase
         .from("calendar_items")
         .update({ status: "cancelled" })
         .eq("item_type", "live_meeting")
         .eq("scheduled_date", nextMeetingDate)
+        .eq("coach_id", user.id)
         .eq("status", "scheduled");
 
       if (updateError) throw updateError;
 
-      // Check if user is admin
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      const isAdmin = roleData?.role === "admin";
-
-      let studentIds: string[] = [];
-
-    if (isAdmin) {
-      // Admins get all athletes
-      const { data: athleteRoles, error: athleteError } = await supabase
-        .from("user_roles")
+      // Get all unique athletes affected by this cancellation
+      const { data: affectedMeetings, error: affectedError } = await supabase
+        .from("calendar_items")
         .select("user_id")
-        .eq("role", "athlete");
-
-      if (athleteError) throw athleteError;
-      studentIds = athleteRoles?.map(r => r.user_id) || [];
-    } else {
-      // Regular coaches get their roster athletes
-      const { data: rosterData, error: rosterError } = await supabase
-        .from("team_rosters")
-        .select("athlete_id")
+        .eq("scheduled_date", nextMeetingDate)
         .eq("coach_id", user.id)
-        .eq("is_active", true);
+        .eq("status", "cancelled")
+        .neq("user_id", user.id); // Exclude coach
 
-      if (rosterError) throw rosterError;
-      studentIds = rosterData?.map(r => r.athlete_id) || [];
-    }
+      if (affectedError) throw affectedError;
 
-    const students = studentIds.map(id => ({ id }));
+      const studentIds = affectedMeetings?.map(m => m.user_id) || [];
 
-      // Send cancellation notifications
-      const notifications = (students || []).map(student => ({
-        user_id: student.id,
-        type: "meeting_cancelled",
-        title: "Meeting Cancelled",
-        message: cancelMessage,
-        is_read: false,
-      }));
+      // Send cancellation notifications if there are athletes
+      if (studentIds.length > 0) {
+        const notifications = studentIds.map(studentId => ({
+          user_id: studentId,
+          type: "meeting_cancelled",
+          title: "Meeting Cancelled",
+          message: cancelMessage,
+          is_read: false,
+        }));
 
-      const { error: notifError } = await supabase
-        .from("notifications")
-        .insert(notifications);
+        const { error: notifError } = await supabase
+          .from("notifications")
+          .insert(notifications);
 
-      if (notifError) throw notifError;
+        if (notifError) throw notifError;
 
-      toast.success(`Cancelled meeting on ${nextMeetingDate} and notified all students`);
+        toast.success(`Cancelled meeting on ${nextMeetingDate} and notified ${studentIds.length} athletes`);
+      } else {
+        toast.success(`Cancelled meeting on ${nextMeetingDate}`);
+      }
+      
       setCancelMessage("");
       loadUpcomingMeetings();
     } catch (error: any) {
@@ -446,7 +311,8 @@ export default function AdminCalendar() {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Schedule Recurring Zoom Meetings</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Schedule group coaching sessions every Monday at 7:00 PM CST for the next 8 weeks
+              Schedule group coaching sessions every Monday at 7:00 PM CST for the next 8 weeks. 
+              When you add athletes to your roster, they'll automatically receive all future scheduled meetings.
             </p>
             <div className="space-y-4">
               <div>
