@@ -1073,6 +1073,68 @@ export default function Analyze() {
                 </Card>
               </div>
             )}
+
+            {/* Single Camera Upload/Record - Only show when player selected and dual camera disabled */}
+            {selectedPlayerId && !dualCameraMode && (
+              <Card className="p-6">
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <h3 className="font-bold text-lg mb-2">Upload or Record Your Swing</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Choose a video file from your device or use your camera to record
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Upload Video Button */}
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="h-24 flex flex-col items-center gap-2"
+                      onClick={() => document.getElementById('single-video-upload')?.click()}
+                    >
+                      <Upload className="h-6 w-6" />
+                      <div className="text-center">
+                        <div className="font-bold">Upload Video</div>
+                        <div className="text-xs opacity-80">From device</div>
+                      </div>
+                    </Button>
+
+                    {/* Use Camera Button */}
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="h-24 flex flex-col items-center gap-2"
+                      onClick={handleStartCamera}
+                    >
+                      <Camera className="h-6 w-6" />
+                      <div className="text-center">
+                        <div className="font-bold">Use Camera</div>
+                        <div className="text-xs opacity-80">Record now</div>
+                      </div>
+                    </Button>
+                  </div>
+
+                  <input
+                    id="single-video-upload"
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => handleFileUpload(e)}
+                    className="hidden"
+                  />
+
+                  <div className="text-xs text-muted-foreground space-y-1 p-3 bg-muted/50 rounded-lg">
+                    <p className="font-semibold">💡 Tips for best results:</p>
+                    <ul className="space-y-1 pl-4">
+                      <li>• Record from the side (profile view)</li>
+                      <li>• Keep full body in frame</li>
+                      <li>• Use good lighting</li>
+                      <li>• Video should be 4-8 seconds long</li>
+                    </ul>
+                  </div>
+                </div>
+              </Card>
+            )}
           </>
         ) : recordedVideoFile && recordedVideoUrl ? (
           /* Recorded Video Review UI */
