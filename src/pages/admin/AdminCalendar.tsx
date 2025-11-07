@@ -162,11 +162,6 @@ export default function AdminCalendar() {
         studentIds = rosterData?.map(r => r.athlete_id) || [];
       }
 
-      if (studentIds.length === 0) {
-        toast.error(isAdmin ? "No athletes found in the system." : "No athletes found in your roster.");
-        return;
-      }
-
       const students = studentIds.map(id => ({ id }));
 
       // Schedule for next 8 Mondays at 7:00 PM CST
@@ -202,13 +197,16 @@ export default function AdminCalendar() {
         }
       }
 
-      const { error } = await supabase
-        .from("calendar_items")
-        .insert(meetings);
+      if (meetings.length > 0) {
+        const { error } = await supabase
+          .from("calendar_items")
+          .insert(meetings);
 
-      if (error) throw error;
-
-      toast.success(`Scheduled ${meetings.length} meetings for the next 8 weeks`);
+        if (error) throw error;
+        toast.success(`Scheduled ${meetings.length} meetings for the next 8 weeks`);
+      } else {
+        toast.success("Calendar configured for next 8 weeks. Athletes will see meetings when added to roster.");
+      }
       setZoomLink("");
       setZoomPassword("");
       loadUpcomingMeetings();
@@ -410,32 +408,6 @@ export default function AdminCalendar() {
         </div>
       </div>
 
-      {!loadingRoster && rosterCount === 0 && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between">
-            <span>
-              No athletes found in roster. Add athletes to schedule meetings for them.
-            </span>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate("/admin/roster")}
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Go to Team Roster
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-      {!loadingRoster && rosterCount > 0 && (
-        <Alert>
-          <Users className="h-4 w-4" />
-          <AlertDescription>
-            Ready to schedule meetings for {rosterCount} athlete{rosterCount !== 1 ? 's' : ''} in your roster.
-          </AlertDescription>
-        </Alert>
-      )}
 
       <Tabs defaultValue="zoom" className="space-y-6">
         <TabsList>
