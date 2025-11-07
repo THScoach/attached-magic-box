@@ -28,6 +28,7 @@ import { BulkTeamActions } from "@/components/admin/BulkTeamActions";
 import { ParentGuardianManager } from "@/components/admin/ParentGuardianManager";
 import { WhopIntegrationPanel } from "@/components/admin/WhopIntegrationPanel";
 import { WhopSetupGuide } from "@/components/admin/WhopSetupGuide";
+import { WhopAnalyticsDashboard } from "@/components/admin/WhopAnalyticsDashboard";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -220,7 +221,7 @@ export default function CoachDashboard() {
               <span className="lg:hidden">Bk</span>
             </TabsTrigger>
             <TabsTrigger value="whop" className="text-xs">
-              <span className="hidden lg:inline">Whop Setup</span>
+              <span className="hidden lg:inline">Whop</span>
               <span className="lg:hidden">Wp</span>
             </TabsTrigger>
           </TabsList>
@@ -401,6 +402,7 @@ export default function CoachDashboard() {
           </TabsContent>
 
           <TabsContent value="whop" className="space-y-6">
+            <WhopAnalyticsDashboard />
             <WhopIntegrationPanel />
             <WhopSetupGuide />
           </TabsContent>
