@@ -470,11 +470,23 @@ export function categoryHasData(
   metrics: Record<string, number>,
   userTier: MembershipTier
 ): boolean {
+  // BRAIN is always educational-only (no grading)
+  if (category === 'brain') {
+    return false;
+  }
+  
   const availableMetrics = getAvailableMetrics(userTier, category);
   return availableMetrics.some((metric) => {
     const value = metrics[metric.id];
     return value !== undefined && value !== null && !isNaN(value);
   });
+}
+
+/**
+ * Check if a category should display educational content only (no grade)
+ */
+export function isEducationalOnly(category: BCategory): boolean {
+  return category === 'brain';
 }
 
 /**

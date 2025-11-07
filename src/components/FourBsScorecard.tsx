@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Lock, TrendingUp } from "lucide-react";
+import { ChevronRight, Lock, TrendingUp, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
-import { MembershipTier, getBCategoryInfo, BCategory, calculateBGrade, hasMetricAccess, METRIC_DEFINITIONS, categoryHasData } from "@/lib/fourBsFramework";
+import { MembershipTier, getBCategoryInfo, BCategory, calculateBGrade, hasMetricAccess, METRIC_DEFINITIONS, categoryHasData, isEducationalOnly } from "@/lib/fourBsFramework";
 
 import { cn } from "@/lib/utils";
 
@@ -68,12 +68,49 @@ export function FourBsScorecard({
     const info = getBCategoryInfo(category);
     const grade = categoryGrades[category];
     
+    // Check if this is educational-only (BRAIN)
+    const educationalOnly = isEducationalOnly(category);
+    
     // Check if we have actual data for this category
     const hasData = bypassTierRestrictions 
       ? categoryHasData(category, metrics, 'elite')
       : categoryHasData(category, metrics, userTier);
     
     const hasAccess = bypassTierRestrictions || METRIC_DEFINITIONS.filter((m) => m.category === category).some((m) => hasMetricAccess(userTier, m));
+
+    // If educational-only category (BRAIN), show special card
+    if (educationalOnly) {
+      return (
+        <Card key={category} className="hover:shadow-lg transition-shadow border-2 border-dashed border-primary/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-3xl">{info.icon}</span>
+                <div>
+                  <h3 className="font-bold text-lg">{info.name}</h3>
+                  <p className="text-xs text-muted-foreground">{info.description}</p>
+                </div>
+              </div>
+              <div className="text-center">
+                <BookOpen className="h-8 w-8 text-primary mb-1" />
+                <div className="text-xs text-muted-foreground">Learn</div>
+              </div>
+            </div>
+
+            <div className="bg-primary/10 rounded-lg p-3 mb-2">
+              <p className="text-sm text-foreground">
+                <strong>Educational Content:</strong> Decision making and pitch selection concepts. No metrics tracked yet.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between text-xs text-primary">
+              <span>Learn More</span>
+              <ChevronRight className="h-4 w-4" />
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
 
     // If no data and no access, show locked state
     if (!hasData && !hasAccess) {
@@ -105,24 +142,40 @@ export function FourBsScorecard({
       );
     }
 
-    // If has access but no data, show "No Data" state
+    // If has access but no data, show "No Data" educational state
     if (hasAccess && !hasData) {
+      let noDataMessage = "No data available yet";
+      
+      if (category === 'bat') {
+        noDataMessage = "Upload a swing video or connect bat sensor to get bat metrics";
+      } else if (category === 'ball') {
+        noDataMessage = "Connect exit velocity sensor (HitTrax, Rapsodo, etc.) to track ball metrics";
+      } else if (category === 'body') {
+        noDataMessage = "Upload a swing video to analyze body mechanics";
+      }
+      
       return (
-        <Card key={category} className="relative overflow-hidden opacity-60">
+        <Card key={category} className="relative overflow-hidden border-2 border-dashed border-muted">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{info.icon}</span>
+                <span className="text-2xl opacity-50">{info.icon}</span>
                 <div>
-                  <h3 className="font-semibold">{info.name}</h3>
+                  <h3 className="font-semibold text-muted-foreground">{info.name}</h3>
                   <p className="text-xs text-muted-foreground">{info.description}</p>
                 </div>
               </div>
-              <div className="text-sm font-medium text-muted-foreground">
-                No Data
-              </div>
+              <BookOpen className="h-6 w-6 text-muted-foreground" />
             </div>
-            <Progress value={0} className="h-2" />
+            <div className="bg-muted/30 rounded-lg p-3 mb-2">
+              <p className="text-xs text-muted-foreground">
+                {noDataMessage}
+              </p>
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Educational Content</span>
+              <ChevronRight className="h-4 w-4" />
+            </div>
           </CardContent>
         </Card>
       );
