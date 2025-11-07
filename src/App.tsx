@@ -95,7 +95,7 @@ const App = () => {
             
             {/* Admin Routes - New comprehensive admin dashboard */}
             <Route path="/admin" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -103,10 +103,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/players" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -114,10 +114,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/players/:id" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -125,10 +125,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/roster" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -136,10 +136,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/calendar" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -147,10 +147,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/analyses" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -158,10 +158,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/analytics" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -169,10 +169,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/comparisons" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -180,10 +180,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/reports" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -191,10 +191,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/settings" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -202,10 +202,10 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             <Route path="/admin/test" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
@@ -213,47 +213,47 @@ const App = () => {
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             
             {/* Old Admin Route - Keep for backwards compatibility */}
             <Route path="/admin-old" element={
-              <ProtectedRoute>
+              <AuthGuard>
                 <RoleGuard allowedRoles={["admin"]}>
                   <Admin />
                 </RoleGuard>
-              </ProtectedRoute>
+              </AuthGuard>
             } />
             
             {/* Coach Routes */}
             <Route 
               path="/coach-dashboard" 
               element={
-                <ProtectedRoute>
+                <AuthGuard>
                   <RoleGuard allowedRoles={["coach"]}>
                     <CoachDashboard />
                   </RoleGuard>
-                </ProtectedRoute>
+                </AuthGuard>
               } 
             />
             <Route 
               path="/coach-roster" 
               element={
-                <ProtectedRoute>
+                <AuthGuard>
                   <RoleGuard allowedRoles={["coach"]}>
                     <CoachRoster />
                   </RoleGuard>
-                </ProtectedRoute>
+                </AuthGuard>
               } 
             />
             <Route 
               path="/coach/athlete/:athleteId" 
               element={
-                <ProtectedRoute>
+                <AuthGuard>
                   <RoleGuard allowedRoles={["coach"]}>
                     <AthleteProfileDashboard />
                   </RoleGuard>
-                </ProtectedRoute>
+                </AuthGuard>
               } 
             />
             
@@ -263,11 +263,11 @@ const App = () => {
             <Route 
               path="/team-analytics" 
               element={
-                <ProtectedRoute>
+                <AuthGuard>
                   <RoleGuard allowedRoles={["coach"]}>
                     <TeamAnalytics />
                   </RoleGuard>
-                </ProtectedRoute>
+                </AuthGuard>
               } 
             />
             
