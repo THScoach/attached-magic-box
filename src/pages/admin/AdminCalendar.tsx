@@ -79,12 +79,21 @@ export default function AdminCalendar() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Get all students
-      const { data: students, error: studentsError } = await supabase
-        .from("profiles")
-        .select("id");
+      // Get athletes from coach's roster
+      const { data: rosterData, error: studentsError } = await supabase
+        .from("team_rosters")
+        .select("athlete_id")
+        .eq("coach_id", user.id)
+        .eq("is_active", true);
 
       if (studentsError) throw studentsError;
+      
+      if (!rosterData || rosterData.length === 0) {
+        toast.error("No athletes found in your roster. Please add athletes first.");
+        return;
+      }
+
+      const students = rosterData.map(r => ({ id: r.athlete_id }));
 
       // Schedule for next 8 Mondays at 7:00 PM CST
       const meetings = [];
@@ -160,12 +169,16 @@ export default function AdminCalendar() {
         return;
       }
 
-      // Get all students
-      const { data: students, error: studentsError } = await supabase
-        .from("profiles")
-        .select("id");
+      // Get athletes from coach's roster
+      const { data: rosterData, error: studentsError } = await supabase
+        .from("team_rosters")
+        .select("athlete_id")
+        .eq("coach_id", user.id)
+        .eq("is_active", true);
 
       if (studentsError) throw studentsError;
+      
+      const students = rosterData?.map(r => ({ id: r.athlete_id })) || [];
 
       // Send notifications
       const metadata = nextMeeting.metadata as ScheduledMeeting['metadata'];
@@ -231,12 +244,16 @@ export default function AdminCalendar() {
 
       if (updateError) throw updateError;
 
-      // Get all students
-      const { data: students, error: studentsError } = await supabase
-        .from("profiles")
-        .select("id");
+      // Get athletes from coach's roster
+      const { data: rosterData, error: studentsError } = await supabase
+        .from("team_rosters")
+        .select("athlete_id")
+        .eq("coach_id", user.id)
+        .eq("is_active", true);
 
       if (studentsError) throw studentsError;
+      
+      const students = rosterData?.map(r => ({ id: r.athlete_id })) || [];
 
       // Send cancellation notifications
       const notifications = (students || []).map(student => ({
