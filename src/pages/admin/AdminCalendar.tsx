@@ -374,11 +374,11 @@ export default function AdminCalendar() {
       </div>
 
       {!loadingRoster && rosterCount === 0 && (
-        <Alert className="border-warning">
+        <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
             <span>
-              You need to add athletes to your roster before scheduling meetings.
+              No athletes found in roster. Add athletes to schedule meetings for them.
             </span>
             <Button 
               variant="outline" 
@@ -388,6 +388,14 @@ export default function AdminCalendar() {
               <Users className="h-4 w-4 mr-2" />
               Go to Team Roster
             </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+      {!loadingRoster && rosterCount > 0 && (
+        <Alert>
+          <Users className="h-4 w-4" />
+          <AlertDescription>
+            Ready to schedule meetings for {rosterCount} athlete{rosterCount !== 1 ? 's' : ''} in your roster.
           </AlertDescription>
         </Alert>
       )}
@@ -432,7 +440,7 @@ export default function AdminCalendar() {
                   disabled={loading}
                 />
               </div>
-              <Button onClick={scheduleRecurringMeetings} disabled={loading || rosterCount === 0}>
+              <Button onClick={scheduleRecurringMeetings} disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -445,11 +453,6 @@ export default function AdminCalendar() {
                   </>
                 )}
               </Button>
-              {rosterCount > 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Will schedule meetings for {rosterCount} athlete{rosterCount !== 1 ? 's' : ''}
-                </p>
-              )}
             </div>
           </Card>
 
