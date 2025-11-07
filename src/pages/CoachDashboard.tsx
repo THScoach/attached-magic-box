@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { LogOut, Users, Ticket, TrendingUp, UserPlus, Calendar } from "lucide-react";
 import { useCoachRoster } from "@/hooks/useCoachRoster";
 import { AddAthleteModal } from "@/components/AddAthleteModal";
-import { useWhopTierAccess } from "@/hooks/useWhopTierAccess";
 import { PromoCodeManager } from "@/components/PromoCodeManager";
 import { RealtimeNotificationCenter } from "@/components/RealtimeNotificationCenter";
 import { CoachAITrainingInput } from "@/components/admin/CoachAITrainingInput";
@@ -32,7 +31,6 @@ export default function CoachDashboard() {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const navigate = useNavigate();
-  const tierAccess = useWhopTierAccess();
   const { athletes, loading: rosterLoading, stats, reload } = useCoachRoster();
 
   useEffect(() => {
