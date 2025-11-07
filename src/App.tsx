@@ -1,7 +1,8 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthGuard } from "./components/AuthGuard";
 import { RoleGuard } from "./components/RoleGuard";
@@ -61,8 +62,6 @@ const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminTest = lazy(() => import("./pages/admin/AdminTest"));
 
-const queryClient = new QueryClient();
-
 const App = () => {
   // Set dark mode by default to match landing page branding
   useEffect(() => {
@@ -84,8 +83,11 @@ const App = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/request-demo" element={<RequestDemo />} />
             <Route path="/book-call" element={<BookCall />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/coach-auth" element={<CoachAuth />} />
+            {/* Auth routes removed - Whop handles authentication */}
+            {/* <Route path="/auth" element={<Auth />} /> */}
+            {/* <Route path="/coach-auth" element={<CoachAuth />} /> */}
+            
+            {/* Note: Admin/Coach routes preserved but won't work in Whop (no role system) */}
             
             {/* Admin Routes - New comprehensive admin dashboard */}
             <Route path="/admin" element={

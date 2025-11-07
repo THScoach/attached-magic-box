@@ -12,16 +12,16 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { extractVideoFrames, detectPoseInFrames } from "@/lib/videoAnalysis";
 import { CameraRecorder } from "@/lib/cameraRecording";
-import { useUserMembership } from "@/hooks/useUserMembership";
+import { useWhopMembership } from "@/hooks/useWhopMembership";
 import { useUserRole } from "@/hooks/useUserRole";
-import { useTierAccess } from "@/hooks/useTierAccess";
+import { useWhopTierAccess } from "@/hooks/useWhopTierAccess";
 
 
 export default function Analyze() {
   const navigate = useNavigate();
-  const { membership, loading: membershipLoading } = useUserMembership();
+  const { membership, loading: membershipLoading } = useWhopMembership();
   const { isCoach, isAdmin } = useUserRole();
-  const { canAnalyzeSwing, swingsRemaining, tier } = useTierAccess();
+  const { canAnalyzeSwing, swingsRemaining, tier } = useWhopTierAccess();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysisStep, setAnalysisStep] = useState<string>('');

@@ -1,7 +1,7 @@
-import { useUserMembership } from "./useUserMembership";
+import { useWhopMembership } from "./useWhopMembership";
 
 export function useCoachRickAccess() {
-  const { membership, loading } = useUserMembership();
+  const { membership, loading } = useWhopMembership();
 
   const hasAccess = !loading && membership && 
     ['challenge', 'diy', 'elite'].includes(membership.tier);

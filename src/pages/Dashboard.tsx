@@ -23,14 +23,14 @@ import { User, TrendingUp, Target, Zap, Trophy, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useTierAccess } from "@/hooks/useTierAccess";
-import { useUserMembership } from "@/hooks/useUserMembership";
+import { useWhopTierAccess } from "@/hooks/useWhopTierAccess";
+import { useWhopMembership } from "@/hooks/useWhopMembership";
 import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const tierAccess = useTierAccess();
-  const { membership } = useUserMembership();
+  const tierAccess = useWhopTierAccess();
+  const { membership } = useWhopMembership();
   const { isCoach, isAdmin } = useUserRole();
   const [todaysProgram, setTodaysProgram] = useState<any>(null);
   const [showPromoRedeem, setShowPromoRedeem] = useState(false);

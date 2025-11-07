@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BottomNav } from "@/components/BottomNav";
 import { FourBsScorecard as FourBsScorecardComponent } from "@/components/FourBsScorecard";
-import { useUserMembership } from "@/hooks/useUserMembership";
+import { useWhopMembership } from "@/hooks/useWhopMembership";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, TrendingUp, Camera, Award } from "lucide-react";
 
 export default function FourBsScorecard() {
   const navigate = useNavigate();
-  const { membership, loading: tierLoading } = useUserMembership();
+  const { membership, loading: tierLoading } = useWhopMembership();
   const [latestAnalysis, setLatestAnalysis] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   

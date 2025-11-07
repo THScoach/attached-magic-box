@@ -1,13 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Crown, Zap, Star } from "lucide-react";
-import { useUserMembership } from "@/hooks/useUserMembership";
-import { useUserRole } from "@/hooks/useUserRole";
+import { Crown, Zap, Star, ArrowUpRight } from "lucide-react";
+import { useWhopMembership } from "@/hooks/useWhopMembership";
+import { useWhopAuth } from "@/contexts/WhopContext";
 
 export function MembershipCard() {
-  const { membership, loading } = useUserMembership();
-  const { isCoach, isAdmin } = useUserRole();
+  const { membership, loading } = useWhopMembership();
+  const { upgradeToTier } = useWhopAuth();
 
   if (loading) {
     return (
@@ -83,6 +83,44 @@ export function MembershipCard() {
           <p className="text-xs text-muted-foreground">
             Expires: {new Date(membership.expiresAt).toLocaleDateString()}
           </p>
+        )}
+
+        {membership?.tier === "free" && (
+          <div className="space-y-2 pt-2 border-t">
+            <Button 
+              onClick={() => upgradeToTier('challenge')} 
+              className="w-full"
+              size="sm"
+            >
+              Try 7-Day Challenge <ArrowUpRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {membership?.tier === "challenge" && (
+          <div className="space-y-2 pt-2 border-t">
+            <Button 
+              onClick={() => upgradeToTier('diy')} 
+              className="w-full"
+              size="sm"
+              variant="outline"
+            >
+              Upgrade to DIY <ArrowUpRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {membership?.tier === "diy" && (
+          <div className="space-y-2 pt-2 border-t">
+            <Button 
+              onClick={() => upgradeToTier('elite')} 
+              className="w-full"
+              size="sm"
+              variant="outline"
+            >
+              Upgrade to Elite <ArrowUpRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         )}
       </CardContent>
     </Card>

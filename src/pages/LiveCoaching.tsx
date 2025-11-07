@@ -8,7 +8,7 @@ import { Video, Clock, Calendar, Play, Lock } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { BottomNav } from "@/components/BottomNav";
 import { SubmitForLiveModal } from "@/components/SubmitForLiveModal";
-import { useTierAccess } from "@/hooks/useTierAccess";
+import { useWhopTierAccess } from "@/hooks/useWhopTierAccess";
 
 interface CoachingSession {
   id: string;
@@ -24,7 +24,7 @@ interface CoachingSession {
 }
 
 export default function LiveCoaching() {
-  const tierAccess = useTierAccess();
+  const tierAccess = useWhopTierAccess();
   const [upcomingSessions, setUpcomingSessions] = useState<CoachingSession[]>([]);
   const [replays, setReplays] = useState<CoachingSession[]>([]);
   const [loading, setLoading] = useState(true);

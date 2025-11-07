@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, X } from "lucide-react";
 import { SwingAnalysis } from "@/types/swing";
 import { toast } from "sonner";
-import { useTierAccess } from "@/hooks/useTierAccess";
+import { useWhopTierAccess } from "@/hooks/useWhopTierAccess";
 
 
 interface Message {
@@ -20,7 +20,7 @@ interface CoachRickChatProps {
 }
 
 export function CoachRickChat({ analysis, onClose }: CoachRickChatProps) {
-  const { canAccessCoachRick } = useTierAccess();
+  const { canAccessCoachRick } = useWhopTierAccess();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
