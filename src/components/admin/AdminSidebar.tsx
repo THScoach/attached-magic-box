@@ -9,7 +9,8 @@ import {
   TestTube,
   Home,
   LogOut,
-  UserCog
+  UserCog,
+  Calendar
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ export function AdminSidebar() {
     { icon: Home, label: "Overview", path: "/admin" },
     { icon: Users, label: "Players", path: "/admin/players" },
     { icon: UserCog, label: "Team Roster", path: "/admin/roster" },
+    { icon: Calendar, label: "Calendar", path: "/admin/calendar" },
     { icon: FileVideo, label: "All Analyses", path: "/admin/analyses" },
     { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
     { icon: GitCompare, label: "Comparisons", path: "/admin/comparisons" },

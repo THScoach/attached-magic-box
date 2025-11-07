@@ -56,6 +56,7 @@ const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminPlayers = lazy(() => import("./pages/admin/AdminPlayers"));
 const AdminPlayerDetail = lazy(() => import("./pages/admin/AdminPlayerDetail"));
 const AdminRoster = lazy(() => import("./pages/admin/AdminRoster"));
+const AdminCalendar = lazy(() => import("./pages/admin/AdminCalendar"));
 const AdminAnalyses = lazy(() => import("./pages/admin/AdminAnalyses"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminComparisons = lazy(() => import("./pages/admin/AdminComparisons"));
@@ -132,6 +133,17 @@ const App = () => {
                   <AdminLayout>
                     <RoleGuard allowedRoles={["admin", "coach"]}>
                       <AdminRoster />
+                    </RoleGuard>
+                  </AdminLayout>
+                </Suspense>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/calendar" element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+                  <AdminLayout>
+                    <RoleGuard allowedRoles={["admin", "coach"]}>
+                      <AdminCalendar />
                     </RoleGuard>
                   </AdminLayout>
                 </Suspense>
