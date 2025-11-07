@@ -40,10 +40,14 @@ export default function AdminCalendar() {
 
   const loadUpcomingMeetings = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from("calendar_items")
         .select("*")
         .eq("item_type", "live_meeting")
+        .eq("coach_id", user.id)
         .gte("scheduled_date", new Date().toISOString().split("T")[0])
         .order("scheduled_date", { ascending: true })
         .order("scheduled_time", { ascending: true });

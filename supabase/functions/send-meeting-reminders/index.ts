@@ -18,20 +18,20 @@ Deno.serve(async (req) => {
 
     console.log('Starting meeting reminder check...');
 
-    // Get tomorrow's date in YYYY-MM-DD format
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
 
-    console.log('Checking for meetings on:', tomorrowStr);
+    console.log('Checking for meetings on:', todayStr);
 
-    // Find all scheduled Zoom meetings for tomorrow
+    // Find all scheduled Zoom meetings for today
     const { data: meetings, error: meetingsError } = await supabaseClient
       .from('calendar_items')
       .select('*, profiles!calendar_items_user_id_fkey(id, email, first_name)')
       .eq('item_type', 'live_meeting')
-      .eq('scheduled_date', tomorrowStr)
-      .eq('status', 'scheduled');
+      .eq('scheduled_date', todayStr)
+      .eq('status', 'scheduled')
+      .eq('reminder_sent', false);
 
     if (meetingsError) {
       console.error('Error fetching meetings:', meetingsError);
@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
 
     if (!meetings || meetings.length === 0) {
       return new Response(
-        JSON.stringify({ success: true, reminders_sent: 0, message: 'No meetings tomorrow' }),
+        JSON.stringify({ success: true, reminders_sent: 0, message: 'No meetings today needing reminders' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       );
     }
@@ -51,8 +51,8 @@ Deno.serve(async (req) => {
     const notifications = meetings.map(meeting => ({
       user_id: meeting.user_id,
       type: 'meeting_reminder',
-      title: '📅 Meeting Tomorrow',
-      message: `Reminder: ${meeting.title} tomorrow at ${meeting.scheduled_time || '7:00 PM'} CST.\n\n${meeting.description}`,
+      title: '🎯 Meeting Today!',
+      message: `Reminder: ${meeting.title} today at ${meeting.scheduled_time || '7:00 PM'} CST.\n\n${meeting.description}`,
     }));
 
     const { error: notifError } = await supabaseClient
@@ -64,13 +64,26 @@ Deno.serve(async (req) => {
       throw notifError;
     }
 
+    // Mark reminders as sent
+    const { error: updateError } = await supabaseClient
+      .from('calendar_items')
+      .update({ reminder_sent: true })
+      .eq('item_type', 'live_meeting')
+      .eq('scheduled_date', todayStr)
+      .eq('status', 'scheduled')
+      .eq('reminder_sent', false);
+
+    if (updateError) {
+      console.error('Error updating reminder_sent status:', updateError);
+    }
+
     console.log(`Successfully sent ${notifications.length} reminders`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         reminders_sent: notifications.length,
-        meeting_date: tomorrowStr
+        meeting_date: todayStr
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );
