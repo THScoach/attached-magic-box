@@ -25,6 +25,7 @@ import { TeamLeaderboards } from "@/components/admin/TeamLeaderboards";
 import { CoachingNotesPanel } from "@/components/admin/CoachingNotesPanel";
 import { BulkTeamActions } from "@/components/admin/BulkTeamActions";
 import { ParentGuardianManager } from "@/components/admin/ParentGuardianManager";
+import { WhopIntegrationPanel } from "@/components/admin/WhopIntegrationPanel";
 
 export default function CoachDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -175,7 +176,7 @@ export default function CoachDashboard() {
 
         {/* AI Training Input */}
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 gap-1">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-11 gap-1">
             <TabsTrigger value="analytics" className="text-xs">
               <TrendingUp className="h-4 w-4 lg:mr-1" />
               <span className="hidden lg:inline">Analytics</span>
@@ -215,6 +216,10 @@ export default function CoachDashboard() {
             <TabsTrigger value="bulk" className="text-xs">
               <span className="hidden lg:inline">Bulk</span>
               <span className="lg:hidden">Bk</span>
+            </TabsTrigger>
+            <TabsTrigger value="whop" className="text-xs">
+              <span className="hidden lg:inline">Whop Setup</span>
+              <span className="lg:hidden">Wp</span>
             </TabsTrigger>
           </TabsList>
 
@@ -389,6 +394,10 @@ export default function CoachDashboard() {
               id: a.athlete_id,
               email: a.athlete_email
             }))} />
+          </TabsContent>
+
+          <TabsContent value="whop" className="space-y-6">
+            <WhopIntegrationPanel />
           </TabsContent>
         </Tabs>
 
