@@ -88,6 +88,7 @@ async function handleMembershipActivated(supabase: any, payload: any) {
   
   const whopUserId = user?.id || data.user_id;
   const whopEmail = user?.email || data.email;
+  const whopUsername = user?.username || data.username;
   const productId = product?.id || data.product_id || data.plan_id;
   const membershipId = data.membership?.id || data.membership_id;
   const validUntil = data.membership?.valid_until || data.valid_until;
@@ -103,7 +104,9 @@ async function handleMembershipActivated(supabase: any, payload: any) {
   const tier = mapPlanToTier(productId);
   console.log('[Whop] Mapped product', productId, 'to tier:', tier);
 
-  // Find user by email or whop_user_id
+  // Find or create user profile
+  let userId: string;
+  
   const { data: profiles } = await supabase
     .from('profiles')
     .select('id')
@@ -111,11 +114,30 @@ async function handleMembershipActivated(supabase: any, payload: any) {
     .limit(1);
 
   if (!profiles || profiles.length === 0) {
-    console.error('[Whop] User not found with email:', whopEmail, 'or whop_user_id:', whopUserId);
-    return;
+    // Create new profile for Whop user
+    console.log('[Whop] Creating new profile for:', whopEmail);
+    const { data: newProfile, error: profileError } = await supabase
+      .from('profiles')
+      .insert({
+        email: whopEmail,
+        whop_user_id: whopUserId,
+        whop_username: whopUsername,
+        first_name: whopUsername || '',
+        last_name: '',
+      })
+      .select('id')
+      .single();
+    
+    if (profileError || !newProfile) {
+      console.error('[Whop] Error creating profile:', profileError);
+      return;
+    }
+    
+    userId = newProfile.id;
+    console.log('[Whop] Created profile with ID:', userId);
+  } else {
+    userId = profiles[0].id;
   }
-
-  const userId = profiles[0].id;
   
   // Update profile with whop_user_id if not set
   await supabase

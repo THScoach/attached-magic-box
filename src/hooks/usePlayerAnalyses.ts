@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useWhopAuth } from "@/contexts/WhopContext";
 
 interface Analysis {
   id: string;
@@ -20,6 +21,7 @@ interface PlayerStats {
 }
 
 export function usePlayerAnalyses(playerId: string | null) {
+  const { user: whopUser } = useWhopAuth();
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [stats, setStats] = useState<PlayerStats>({
     totalSwings: 0,
@@ -30,7 +32,10 @@ export function usePlayerAnalyses(playerId: string | null) {
   const [error, setError] = useState<string | null>(null);
 
   const loadAnalyses = async () => {
-    if (!playerId) {
+    // Use Whop user ID if available, fallback to playerId
+    const userId = whopUser?.id || playerId;
+    
+    if (!userId) {
       setLoading(false);
       return;
     }
@@ -39,11 +44,11 @@ export function usePlayerAnalyses(playerId: string | null) {
       setLoading(true);
       setError(null);
 
-      // Fetch all analyses for this player
+      // Fetch analyses by user_id (which stores Whop user ID)
       const { data, error: fetchError } = await supabase
         .from('swing_analyses')
         .select('*')
-        .eq('player_id', playerId)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
       if (fetchError) throw fetchError;
@@ -70,7 +75,7 @@ export function usePlayerAnalyses(playerId: string | null) {
 
   useEffect(() => {
     loadAnalyses();
-  }, [playerId]);
+  }, [playerId, whopUser?.id]);
 
   return {
     analyses,
