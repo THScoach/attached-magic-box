@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
     }
 
     const coachEmails = coaches
-      .map(c => c.profiles?.email)
+      .map(c => (c as any).profiles?.email)
       .filter(email => email) as string[];
 
     if (coachEmails.length === 0) {
