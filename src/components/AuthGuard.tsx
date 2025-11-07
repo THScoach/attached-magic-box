@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useWhopAutoSync } from "@/hooks/useWhopAutoSync";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -11,9 +10,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  
-  // Auto-sync Whop data when user is authenticated
-  const { syncing: whopSyncing } = useWhopAutoSync();
 
   useEffect(() => {
     // Check current auth state
@@ -37,14 +33,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  if (loading || whopSyncing) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-2">
-          <p>{whopSyncing ? 'Syncing your subscription...' : 'Loading...'}</p>
-          {whopSyncing && (
-            <p className="text-sm text-muted-foreground">Please wait a moment</p>
-          )}
+          <p>Loading...</p>
         </div>
       </div>
     );
