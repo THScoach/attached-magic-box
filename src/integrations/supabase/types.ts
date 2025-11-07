@@ -1510,6 +1510,7 @@ export type Database = {
           updated_at: string | null
           weight_lbs: number | null
           whop_user_id: string | null
+          whop_username: string | null
           years_playing: number | null
         }
         Insert: {
@@ -1536,6 +1537,7 @@ export type Database = {
           updated_at?: string | null
           weight_lbs?: number | null
           whop_user_id?: string | null
+          whop_username?: string | null
           years_playing?: number | null
         }
         Update: {
@@ -1562,6 +1564,7 @@ export type Database = {
           updated_at?: string | null
           weight_lbs?: number | null
           whop_user_id?: string | null
+          whop_username?: string | null
           years_playing?: number | null
         }
         Relationships: []
@@ -2287,6 +2290,8 @@ export type Database = {
           updated_at: string
           user_id: string
           whop_membership_id: string | null
+          whop_plan_id: string | null
+          whop_product_id: string | null
           whop_user_id: string | null
         }
         Insert: {
@@ -2302,6 +2307,8 @@ export type Database = {
           updated_at?: string
           user_id: string
           whop_membership_id?: string | null
+          whop_plan_id?: string | null
+          whop_product_id?: string | null
           whop_user_id?: string | null
         }
         Update: {
@@ -2317,6 +2324,8 @@ export type Database = {
           updated_at?: string
           user_id?: string
           whop_membership_id?: string | null
+          whop_plan_id?: string | null
+          whop_product_id?: string | null
           whop_user_id?: string | null
         }
         Relationships: []
