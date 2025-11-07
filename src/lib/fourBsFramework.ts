@@ -493,40 +493,119 @@ export function isEducationalOnly(category: BCategory): boolean {
  * Normalize metric value to 0-100 scale for grading
  */
 function normalizeMetricValue(metric: MetricDefinition, value: number): number {
-  // This is a simplified version - you'd want more sophisticated normalization
-  // based on age, level, and MLB benchmarks
+  // Normalize metrics to 0-100 scale based on realistic benchmarks
   
   switch (metric.id) {
     case 'bat_speed':
     case 'bat_speed_sensor':
-      // Normalize bat speed: 50 mph = 0, 80 mph = 100
-      return Math.max(0, Math.min(100, ((value - 50) / 30) * 100));
+      // Bat speed normalization: 50 mph = 0, 85+ mph = 100
+      // Youth ~60mph, HS ~70mph, College ~75mph, MLB ~73-82mph
+      if (value >= 85) return 100;
+      if (value <= 50) return 0;
+      return ((value - 50) / 35) * 100;
     
     case 'exit_velocity':
     case 'exit_velocity_sensor':
-      // Normalize EV: 60 mph = 0, 110 mph = 100
-      return Math.max(0, Math.min(100, ((value - 60) / 50) * 100));
+      // Exit velocity: 60 mph = 0, 110+ mph = 100
+      // Youth ~70mph, HS ~80mph, College ~88mph, MLB ~88-95mph
+      if (value >= 110) return 100;
+      if (value <= 60) return 0;
+      return ((value - 60) / 50) * 100;
     
     case 'attack_angle':
     case 'attack_angle_sensor':
-      // Ideal range is 5-20°, score based on distance from ideal
-      const idealMid = 12.5;
-      const distance = Math.abs(value - idealMid);
-      return Math.max(0, 100 - (distance * 8)); // 8 points lost per degree from ideal
+      // Ideal range is 5-20°, optimal around 10-15°
+      if (value >= 5 && value <= 20) {
+        // Within ideal range - grade on how close to optimal
+        const optimal = 12;
+        const distanceFromOptimal = Math.abs(value - optimal);
+        return Math.max(80, 100 - (distanceFromOptimal * 3));
+      } else if (value < 5) {
+        // Too steep/downward
+        return Math.max(0, 60 - ((5 - value) * 10));
+      } else {
+        // Too much uppercut
+        return Math.max(0, 60 - ((value - 20) * 5));
+      }
+    
+    case 'tempo_ratio':
+      // Optimal tempo ratio is 3:1 (3.0)
+      // Acceptable range: 2.5-3.5 = A grade
+      // Research shows elite hitters use 3:1 load to fire ratio
+      const ideal = 3.0;
+      const distance = Math.abs(value - ideal);
+      if (distance <= 0.5) return 95; // Within 0.5 of ideal = A
+      if (distance <= 1.0) return 85; // Within 1.0 = B
+      if (distance <= 1.5) return 75; // Within 1.5 = C
+      if (distance <= 2.0) return 65; // Within 2.0 = D
+      return 50; // More than 2.0 away = F
+    
+    case 'weight_transfer':
+      // Weight transfer in inches: 10-16 inches is optimal for elite hitters
+      if (value >= 10 && value <= 16) return 95;
+      if (value >= 8 && value < 10) return 85;
+      if (value >= 6 && value < 8) return 75;
+      if (value >= 4 && value < 6) return 65;
+      return 50;
+    
+    case 'hip_shoulder_separation':
+      // Hip-shoulder separation: 40-60° is elite
+      if (value >= 40 && value <= 60) return 95;
+      if (value >= 30 && value < 40) return 85;
+      if (value >= 20 && value < 30) return 75;
+      return 60;
     
     case 'ideal_attack_angle_rate':
     case 'barrel_rate':
     case 'hard_hit_rate':
     case 'swing_decision_rate':
-      // These are already percentages
+    case 'chase_rate':
+    case 'timing_consistency':
+      // These are already percentages (0-100)
       return Math.max(0, Math.min(100, value));
     
     case 'kinematic_sequence':
-      // Sequence efficiency percentage
+      // Sequence efficiency percentage (0-100)
       return Math.max(0, Math.min(100, value));
     
+    case 'ground_force':
+      // Ground force as % of body weight: 120%+ is elite
+      if (value >= 120) return 100;
+      if (value >= 110) return 90;
+      if (value >= 100) return 80;
+      if (value >= 90) return 70;
+      return 60;
+    
+    case 'time_in_zone':
+      // Time in zone (milliseconds): 150-200ms is ideal
+      if (value >= 150 && value <= 200) return 95;
+      if (value >= 120 && value < 150) return 85;
+      if (value >= 100 && value < 120) return 75;
+      return 60;
+    
+    case 'swing_path_tilt':
+    case 'attack_direction':
+      // Angular measurements in degrees - normalize based on specific metric needs
+      // Default to percentage-style scoring
+      return Math.max(0, Math.min(100, value));
+    
+    case 'launch_angle':
+      // Launch angle: 10-30° is good for line drives/fly balls
+      if (value >= 10 && value <= 30) return 90;
+      if (value >= 5 && value < 10) return 80;
+      if (value >= 0 && value < 5) return 70;
+      if (value < 0) return 60; // Ground balls
+      if (value > 30 && value <= 40) return 75;
+      return 60; // Pop ups
+    
+    case 'estimated_distance':
+      // Distance in feet: 300+ = 100, 200 = 70, 100 = 40
+      if (value >= 400) return 100;
+      return Math.max(40, Math.min(100, 40 + ((value - 100) / 300) * 60));
+    
     default:
-      // Default: assume the value is already 0-100
+      // For unknown metrics, assume already normalized to 0-100
+      // But cap at reasonable bounds
       return Math.max(0, Math.min(100, value));
   }
 }
