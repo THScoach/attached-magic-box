@@ -16,6 +16,7 @@ import { FreeSwingCounter } from "@/components/FreeSwingCounter";
 import { ProfileUpdatePrompt } from "@/components/ProfileUpdatePrompt";
 import { FourBsScorecard } from "@/components/FourBsScorecard";
 import { TeamChallenges } from "@/components/TeamChallenges";
+import { WhopSubscriptionCard } from "@/components/WhopSubscriptionCard";
 import { calculateBatGrade, calculateBodyGrade, calculateBallGrade, calculateBrainGrade, calculateOverallGrade } from "@/lib/gradingSystem";
 import { getBenchmarksForLevel } from "@/lib/benchmarks";
 import { useQuery } from "@tanstack/react-query";
@@ -349,7 +350,8 @@ export default function Dashboard() {
         )}
 
         {/* Key Metrics Row */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {!isCoach && !isAdmin && <WhopSubscriptionCard />}
           <GrindScoreCard userId={undefined} />
           
           <Card className="p-4">
