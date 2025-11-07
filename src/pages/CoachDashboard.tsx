@@ -19,6 +19,7 @@ import { ChallengeLeaderboard } from "@/components/ChallengeLeaderboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AthleteProgressOverview } from "@/components/admin/AthleteProgressOverview";
 import { TeamAnalyticsDashboard } from "@/components/admin/TeamAnalyticsDashboard";
+import { RecentWhopSubscriptions } from "@/components/admin/RecentWhopSubscriptions";
 import { AthleteReportScheduler } from "@/components/admin/AthleteReportScheduler";
 import { AthleteComparison } from "@/components/admin/AthleteComparison";
 import { TeamLeaderboards } from "@/components/admin/TeamLeaderboards";
@@ -298,6 +299,8 @@ export default function CoachDashboard() {
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
+            <RecentWhopSubscriptions />
+            
             <CoachAITrainingInput />
 
             {/* Main Content */}
