@@ -43,6 +43,9 @@ export default function Landing() {
             <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/about">About</Link>
             </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/coach-auth">For Coaches</Link>
+            </Button>
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
               <Link to="/auth">
                 <HitsMonogram className="h-6 w-6 mr-2" />
@@ -501,6 +504,9 @@ export default function Landing() {
             <div className="flex gap-6">
               <Button asChild variant="ghost" className="text-gray-400 hover:text-white text-sm">
                 <Link to="/auth">App Login</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-gray-400 hover:text-white text-sm">
+                <Link to="/coach-auth">Coach Portal</Link>
               </Button>
               <Button asChild variant="ghost" className="text-gray-400 hover:text-white text-sm">
                 <a href="mailto:support@thehittingskool.com">Support</a>
