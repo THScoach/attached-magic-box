@@ -864,16 +864,6 @@ export default function AnalysisResult() {
                       </div>
                     )}
 
-                    {/* Pose Skeleton Overlay */}
-                    <PoseSkeletonOverlay
-                      jointData={jointData}
-                      currentFrame={currentFrame}
-                      videoWidth={videoRef.current?.videoWidth || 1920}
-                      videoHeight={videoRef.current?.videoHeight || 1080}
-                      isVisible={showSkeleton}
-                      onToggleVisibility={() => setShowSkeleton(!showSkeleton)}
-                    />
-
                     {/* Play/Pause Overlay */}
                     <div 
                       className={cn(

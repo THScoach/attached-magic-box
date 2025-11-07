@@ -66,28 +66,99 @@ export function FourBsScorecard({
   };
 
   const getCategoryExplanation = (category: BCategory): { title: string; content: string } => {
-    switch (category) {
-      case 'brain':
-        return {
-          title: "🧠 BRAIN - Decision Making",
-          content: "The BRAIN represents pitch selection and swing decisions. This is about reading the pitch, deciding whether to swing, and selecting the right approach. Currently, this is an educational category focused on teaching decision-making concepts. Metrics for tracking pitch selection and swing decisions are coming in future updates."
-        };
-      case 'body':
-        return {
-          title: "💪 BODY - Movement Mechanics",
-          content: "The BODY grade measures how well your body executes the swing. This includes weight transfer, rotation sequencing, balance, and overall movement quality. The grade is calculated from video analysis using computer vision to track your body mechanics through each phase of the swing. Key metrics include center of mass movement, hip-shoulder separation, and kinematic sequencing."
-        };
-      case 'bat':
-        return {
-          title: "🏏 BAT - Tool Delivery",
-          content: "The BAT grade evaluates how effectively you deliver the bat through the hitting zone. This includes bat speed, bat path efficiency, attack angle, and time in the hitting zone. Metrics can come from video analysis or bat sensors (Blast Motion, Diamond Kinetics, etc.). A high BAT grade means you're creating optimal conditions for hard contact."
-        };
-      case 'ball':
-        return {
-          title: "⚾ BALL - Result Quality",
-          content: "The BALL grade measures the quality of contact and ball flight. This includes exit velocity, launch angle, and batted ball outcomes. Data comes from sensors like HitTrax, Rapsodo, TrackMan, or other ball-tracking technology. The BALL grade shows the ultimate result - how hard and how well you're hitting the baseball."
-        };
+    const info = getBCategoryInfo(category);
+    const grade = categoryGrades[category];
+    
+    // Generate personalized explanation based on actual metrics
+    let content = '';
+    
+    if (category === 'brain') {
+      content = "The BRAIN represents pitch selection and swing decisions. This is about reading the pitch, deciding whether to swing, and selecting the right approach. Currently, this is an educational category focused on teaching decision-making concepts. Metrics for tracking pitch selection and swing decisions are coming in future updates.";
+    } else {
+      // Get metrics for this category
+      const categoryMetrics = METRIC_DEFINITIONS
+        .filter(m => m.category === category && hasMetricAccess(userTier, m))
+        .filter(m => {
+          const value = metrics[m.id];
+          return value !== undefined && value !== null && !isNaN(value);
+        });
+      
+      if (categoryMetrics.length === 0) {
+        content = `No ${info.name.toLowerCase()} data available yet. Upload more videos or connect sensors to track your ${info.name.toLowerCase()} metrics.`;
+      } else {
+        const gradeLetter = getGradeLetter(grade);
+        let gradeContext = '';
+        
+        if (grade >= 90) gradeContext = 'Outstanding work! Your metrics are in the elite range.';
+        else if (grade >= 80) gradeContext = 'Great job! You\'re performing well above average.';
+        else if (grade >= 70) gradeContext = 'Good performance with room to improve.';
+        else if (grade >= 60) gradeContext = 'There\'s significant room for improvement.';
+        else gradeContext = 'This needs immediate attention and focused training.';
+        
+        content = `**Your ${info.name} Grade: ${gradeLetter} (${grade}/100)**\n\n${gradeContext}\n\n**Key Metrics:**\n\n`;
+        
+        categoryMetrics.forEach(metric => {
+          const value = metrics[metric.id];
+          content += `• **${metric.name}:** ${value.toFixed(1)}${metric.unit}\n`;
+          
+          // Add context for specific metrics
+          if (metric.id === 'tempo_ratio') {
+            if (value >= 2.5 && value <= 3.5) {
+              content += `  ✓ Excellent! Your tempo ratio of ${value.toFixed(1)} is in the optimal 3:1 range.\n`;
+            } else if (value < 2.5) {
+              content += `  ⚠️ Your tempo is too fast. Slow down your load phase for better timing.\n`;
+            } else {
+              content += `  ⚠️ Your tempo is too slow. Speed up your firing phase for more power.\n`;
+            }
+          } else if (metric.id === 'bat_speed' || metric.id === 'bat_speed_sensor') {
+            if (value >= 70) {
+              content += `  ✓ Elite bat speed! You're generating serious power.\n`;
+            } else if (value >= 65) {
+              content += `  ✓ Good bat speed. Focus on consistency and sequencing.\n`;
+            } else {
+              content += `  ⚠️ Work on rotational mechanics and kinematic sequencing to increase bat speed.\n`;
+            }
+          } else if (metric.id === 'kinematic_sequence') {
+            if (value >= 85) {
+              content += `  ✓ Excellent sequencing! Your body is firing in the proper order.\n`;
+            } else {
+              content += `  ⚠️ Work on firing your body parts in sequence: pelvis → torso → hands → bat.\n`;
+            }
+          } else if (metric.id === 'exit_velocity' || metric.id === 'exit_velocity_sensor') {
+            if (value >= 90) {
+              content += `  ✓ Elite exit velocity! You're crushing the ball.\n`;
+            } else if (value >= 80) {
+              content += `  ✓ Good power output. Keep developing strength and bat speed.\n`;
+            } else {
+              content += `  ⚠️ Focus on bat speed, barrel contact, and full body rotation.\n`;
+            }
+          } else if (metric.id === 'attack_angle' || metric.id === 'attack_angle_sensor') {
+            if (value >= 5 && value <= 20) {
+              content += `  ✓ Perfect attack angle for line drives and hard contact.\n`;
+            } else if (value < 5) {
+              content += `  ⚠️ Too steep/downward. Work on getting under the ball more.\n`;
+            } else {
+              content += `  ⚠️ Too uppercut. Flatten your swing path slightly.\n`;
+            }
+          }
+          content += '\n';
+        });
+        
+        content += `\n**What This Means:**\n`;
+        if (category === 'body') {
+          content += 'Your body mechanics drive everything else in your swing. Great body mechanics create the foundation for bat speed and hard contact.';
+        } else if (category === 'bat') {
+          content += 'Your bat path and speed determine the quality of contact. Optimal bat delivery creates consistent, hard-hit balls.';
+        } else if (category === 'ball') {
+          content += 'These are your results - the proof is in the pudding. High exit velocity and optimal launch angle lead to more hits and extra-base hits.';
+        }
+      }
     }
+    
+    return {
+      title: `${info.icon} ${info.name.toUpperCase()} - ${info.description}`,
+      content
+    };
   };
 
   const renderCategory = (category: BCategory) => {
@@ -311,12 +382,12 @@ export function FourBsScorecard({
 
       {/* Category Explanation Dialog */}
       <Dialog open={selectedCategory !== null} onOpenChange={() => setSelectedCategory(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl">
               {selectedCategory && getCategoryExplanation(selectedCategory).title}
             </DialogTitle>
-            <DialogDescription className="text-base pt-4 text-foreground">
+            <DialogDescription className="text-base pt-4 text-foreground whitespace-pre-line">
               {selectedCategory && getCategoryExplanation(selectedCategory).content}
             </DialogDescription>
           </DialogHeader>
