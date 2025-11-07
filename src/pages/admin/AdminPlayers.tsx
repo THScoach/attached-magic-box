@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Eye, Upload, UserPlus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { AddAthleteModal } from "@/components/AddAthleteModal";
 
 interface Player {
   id: string;
@@ -28,6 +29,7 @@ export default function AdminPlayers() {
   const [sortBy, setSortBy] = useState("name");
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     loadPlayers();
@@ -168,7 +170,7 @@ export default function AdminPlayers() {
           <h1 className="text-3xl font-bold">Players</h1>
           <p className="text-muted-foreground">Manage your team members</p>
         </div>
-        <Button>
+        <Button onClick={() => setShowAddModal(true)}>
           <UserPlus className="h-4 w-4 mr-2" />
           Add Player
         </Button>
@@ -263,6 +265,13 @@ export default function AdminPlayers() {
           )}
         </div>
       </Card>
+
+      <AddAthleteModal
+        open={showAddModal}
+        onOpenChange={setShowAddModal}
+        onSuccess={loadPlayers}
+        availableSeats={999}
+      />
     </div>
   );
 }
