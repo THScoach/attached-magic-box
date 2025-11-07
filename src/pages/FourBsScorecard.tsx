@@ -146,26 +146,6 @@ export default function FourBsScorecard() {
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        {/* Overall H.I.T.S. Score Card */}
-        <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Overall H.I.T.S. Score</span>
-              <TrendingUp className="h-5 w-5 text-primary" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-6xl font-bold text-primary mb-2">
-                {Math.round(latestAnalysis.overall_score)}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Out of 100 points
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* 4 B's Breakdown */}
         <FourBsScorecardComponent
           userTier={tier}

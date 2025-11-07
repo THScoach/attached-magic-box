@@ -297,15 +297,7 @@ export function FourBsScorecard({
                 <p className="text-xs text-muted-foreground">{info.description}</p>
               </div>
             </div>
-            <div className="text-center">
-              <div className={cn("text-4xl font-bold", getGradeColor(grade))}>
-                {getGradeLetter(grade)}
-              </div>
-              <div className="text-xs text-muted-foreground">{grade}/100</div>
-            </div>
           </div>
-
-          <Progress value={grade} className="h-2 mb-2" />
 
           <div className="flex items-center justify-between text-xs text-primary">
             <span>View Details</span>
@@ -348,31 +340,14 @@ export function FourBsScorecard({
 
   return (
     <div className="space-y-4">
-      {/* Overall Score Header */}
+      {/* Header */}
       <Card className="p-6 bg-gradient-to-br from-primary/20 via-primary/10 to-background">
-        <CardHeader className="p-0 pb-4">
+        <CardHeader className="p-0">
           <CardTitle className="text-2xl">THE 4 B's SCORECARD</CardTitle>
           <p className="text-sm text-muted-foreground">
             🧠 BRAIN makes the decision → 💪 BODY executes the movement → 🏏 BAT delivers the tool → ⚾ BALL creates the result
           </p>
         </CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Overall Grade</p>
-            <div className="flex items-center gap-3">
-              <span className={cn("text-5xl font-bold", getGradeColor(overallGrade))}>
-                {getGradeLetter(overallGrade)}
-              </span>
-              <div>
-                <Progress value={overallGrade} className="w-32 h-3 mb-1" />
-                <p className="text-xs text-muted-foreground">{overallGrade}/100</p>
-              </div>
-            </div>
-          </div>
-          <Badge variant="secondary" className="text-sm">
-            {userTier.charAt(0).toUpperCase() + userTier.slice(1)} Tier
-          </Badge>
-        </div>
       </Card>
 
       {/* Category Cards - Order: BRAIN → BODY → BAT → BALL */}
