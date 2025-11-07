@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -6,8 +5,6 @@ import { Check, ArrowRight, ChevronRight } from "lucide-react";
 import { HitsLogo, HitsMonogram } from "@/components/HitsLogo";
 
 export default function Programs() {
-  const [loading] = useState(false);
-
   const handleCheckoutClick = (whopUrl: string) => {
     // Direct redirect to Whop checkout - Whop handles authentication
     window.location.href = whopUrl;
@@ -114,7 +111,6 @@ export default function Programs() {
                     size="lg" 
                     className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
                     onClick={() => handleCheckoutClick(import.meta.env.VITE_WHOP_CHALLENGE_URL)}
-                    disabled={loading}
                   >
                     Start Challenge <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
@@ -169,7 +165,6 @@ export default function Programs() {
                     size="lg" 
                     className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
                     onClick={() => handleCheckoutClick(import.meta.env.VITE_WHOP_DIY_URL)}
-                    disabled={loading}
                   >
                     Join DIY <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
@@ -231,7 +226,6 @@ export default function Programs() {
                     size="lg" 
                     className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
                     onClick={() => handleCheckoutClick(import.meta.env.VITE_WHOP_ELITE_URL)}
-                    disabled={loading}
                   >
                     Join Elite <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
