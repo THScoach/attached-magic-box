@@ -17,6 +17,7 @@ import { ProfileUpdatePrompt } from "@/components/ProfileUpdatePrompt";
 import { FourBsScorecard } from "@/components/FourBsScorecard";
 import { TeamChallenges } from "@/components/TeamChallenges";
 import { WhopSubscriptionCard } from "@/components/WhopSubscriptionCard";
+import { WhopSyncBanner } from "@/components/WhopSyncBanner";
 import { calculateBatGrade, calculateBodyGrade, calculateBallGrade, calculateBrainGrade, calculateOverallGrade } from "@/lib/gradingSystem";
 import { getBenchmarksForLevel } from "@/lib/benchmarks";
 import { useQuery } from "@tanstack/react-query";
@@ -258,6 +259,9 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="container max-w-7xl mx-auto p-4 pb-24 space-y-6">
+        {/* Whop Sync Banner */}
+        {!isCoach && !isAdmin && <WhopSyncBanner />}
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
