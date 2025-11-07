@@ -162,8 +162,6 @@ export default function AdminCalendar() {
         studentIds = rosterData?.map(r => r.athlete_id) || [];
       }
 
-      const students = studentIds.map(id => ({ id }));
-
       // Schedule for next 8 Mondays at 7:00 PM CST
       const meetings = [];
       const timezone = "America/Chicago";
@@ -177,9 +175,30 @@ export default function AdminCalendar() {
         const zonedDate = toZonedTime(nextMonday, timezone);
         const dateStr = format(zonedDate, "yyyy-MM-dd");
 
-        for (const student of students || []) {
+        if (studentIds.length > 0) {
+          // Create meeting for each athlete
+          for (const studentId of studentIds) {
+            meetings.push({
+              user_id: studentId,
+              coach_id: user.id,
+              item_type: "live_meeting",
+              title: "Weekly Live Coaching Session",
+              description: "Join Coach Rick for the weekly group coaching session",
+              scheduled_date: dateStr,
+              scheduled_time: "19:00:00",
+              duration: 60,
+              status: "scheduled",
+              metadata: {
+                zoom_link: zoomLink,
+                zoom_password: zoomPassword || null,
+                timezone: timezone,
+              },
+            });
+          }
+        } else {
+          // No athletes yet - create placeholder meeting for coach to see
           meetings.push({
-            user_id: student.id,
+            user_id: user.id,
             coach_id: user.id,
             item_type: "live_meeting",
             title: "Weekly Live Coaching Session",
@@ -197,15 +216,16 @@ export default function AdminCalendar() {
         }
       }
 
-      if (meetings.length > 0) {
-        const { error } = await supabase
-          .from("calendar_items")
-          .insert(meetings);
+      const { error } = await supabase
+        .from("calendar_items")
+        .insert(meetings);
 
-        if (error) throw error;
-        toast.success(`Scheduled ${meetings.length} meetings for the next 8 weeks`);
+      if (error) throw error;
+
+      if (studentIds.length > 0) {
+        toast.success(`Scheduled ${meetings.length} meetings for ${studentIds.length} athlete(s) over the next 8 weeks`);
       } else {
-        toast.success("Calendar configured for next 8 weeks. Athletes will see meetings when added to roster.");
+        toast.success("Scheduled 8 meetings on calendar. Athletes will see them when added to roster.");
       }
       setZoomLink("");
       setZoomPassword("");
