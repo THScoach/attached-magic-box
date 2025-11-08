@@ -71,10 +71,12 @@ export default function AnalysisResult() {
   const [videoContainerSize, setVideoContainerSize] = useState({ width: 0, height: 0 });
   const [phaseDetection, setPhaseDetection] = useState<PhaseDetectionResult | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [uploadingReboot, setUploadingReboot] = useState(false);
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const frameCallbackIdRef = useRef<number | null>(null);
+  const rebootFileInputRef = useRef<HTMLInputElement>(null);
   const FPS = 30; // Frames per second
 
   useEffect(() => {
@@ -222,6 +224,81 @@ export default function AnalysisResult() {
       console.error('Error loading latest analysis:', error);
       toast.error('Failed to load latest analysis');
       navigate('/analyze');
+    }
+  };
+
+  const handleRebootUpload = async () => {
+    rebootFileInputRef.current?.click();
+  };
+
+  const handleRebootFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!playerId) {
+      toast.error('Player ID not found');
+      return;
+    }
+
+    // Check file type
+    const isJSON = file.name.toLowerCase().endsWith('.json');
+    const isPDF = file.name.toLowerCase().endsWith('.pdf');
+    
+    if (!isJSON && !isPDF) {
+      toast.error('Please upload a JSON or PDF file from Reboot Motion');
+      return;
+    }
+
+    setUploadingReboot(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      let rebootData: any = null;
+
+      if (isJSON) {
+        // Parse JSON file
+        const text = await file.text();
+        rebootData = JSON.parse(text);
+      } else {
+        // For PDF, we'll need to use the parse_document tool or edge function
+        // For now, show a message
+        toast.error('PDF parsing coming soon. Please use JSON export from Reboot Motion.');
+        setUploadingReboot(false);
+        return;
+      }
+
+      // Save to database
+      const { error: dbError } = await supabase
+        .from('external_session_data')
+        .insert({
+          user_id: user.id,
+          player_id: playerId,
+          data_source: 'reboot_motion',
+          extracted_metrics: rebootData,
+          notes: `Uploaded ${file.name}`
+        });
+
+      if (dbError) throw dbError;
+
+      toast.success('Reboot Motion data uploaded successfully');
+      
+      // Reload the analysis to show new data
+      if (analysisId) {
+        await loadAnalysisFromDatabase(analysisId);
+      } else {
+        await loadLatestAnalysisFromDatabase();
+      }
+    } catch (error: any) {
+      console.error('Reboot upload error:', error);
+      toast.error(error.message || 'Failed to upload Reboot data');
+    } finally {
+      setUploadingReboot(false);
+      // Reset file input
+      if (rebootFileInputRef.current) {
+        rebootFileInputRef.current.value = '';
+      }
     }
   };
 
@@ -1029,12 +1106,17 @@ export default function AnalysisResult() {
 
           {/* 4B Motion Analysis Tab */}
           <TabsContent value="motion" className="mt-4">
+            <input
+              ref={rebootFileInputRef}
+              type="file"
+              accept=".json,.pdf"
+              onChange={handleRebootFileSelect}
+              style={{ display: 'none' }}
+            />
             <FourBMotionAnalysis 
               rebootData={undefined}
               playerId={playerId}
-              onUpload={() => {
-                toast.info("Upload Reboot Motion data to unlock 4B Motion Analysis");
-              }}
+              onUpload={handleRebootUpload}
             />
           </TabsContent>
 
