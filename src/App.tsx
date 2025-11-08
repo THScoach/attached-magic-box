@@ -5,7 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthGuard } from "./components/AuthGuard";
 import { RoleGuard } from "./components/RoleGuard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -86,6 +86,7 @@ const App = () => {
             <Route path="/" element={<Landing />} />
             <Route path="/4b-app" element={<FourBApp />} />
             <Route path="/train-in-person" element={<TrainInPerson />} />
+            <Route path="/programs" element={<Navigate to="/train-in-person" replace />} />
             <Route path="/remote-training" element={<RemoteTraining />} />
             <Route path="/community" element={<Community />} />
             <Route path="/free-tempo-assessment" element={<FreeTempoAssessment />} />
