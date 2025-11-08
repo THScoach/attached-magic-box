@@ -5,6 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import { HitsLogo } from "@/components/HitsLogo";
+import appDashboardMockup from "@/assets/app-dashboard-mockup.jpg";
+import swingTempoAnalysis from "@/assets/swing-tempo-analysis.jpg";
+import coachAthleteTraining from "@/assets/coach-athlete-training.jpg";
 
 export default function Programs() {
   const navigate = useNavigate();
@@ -65,6 +68,28 @@ export default function Programs() {
               "Every player I train follows the same 4B process — Brain, Body, Bat, and Ball. That's how we make progress measurable."
             </p>
             <p className="text-primary font-bold">— Coach Rick</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Video Background Placeholder - TODO: Replace with actual video loop */}
+      <section className="relative h-96 overflow-hidden bg-zinc-950">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/80 z-10" />
+        {/* Placeholder for background video - will be replaced with actual training footage */}
+        <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
+          <div className="text-center z-20">
+            <p className="text-primary text-sm font-bold mb-2">Coming Soon</p>
+            <p className="text-white/60 text-xs">Background Training Video Loop</p>
+          </div>
+        </div>
+        <div className="relative z-20 h-full flex items-center justify-center">
+          <div className="text-center max-w-3xl px-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Train Like a Pro. Measure Like Science.
+            </h2>
+            <p className="text-xl text-gray-300">
+              Choose your path to elite hitting performance
+            </p>
           </div>
         </div>
       </section>
@@ -141,8 +166,161 @@ export default function Programs() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
 
-          <div className="text-center">
+      {/* Feature Section 1: App Dashboard - Image Right */}
+      <section className="py-20 px-4 bg-zinc-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                Track Every Metric That Matters
+              </h2>
+              <p className="text-xl text-gray-300 mb-6">
+                The 4B App gives you real-time insights into your swing. See your tempo scores, kinetic sequence efficiency, and contact quality—all in one dashboard.
+              </p>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Brain Metrics</h3>
+                    <p className="text-gray-400">Decision speed, timing patterns, and cognitive load analysis</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Body Metrics</h3>
+                    <p className="text-gray-400">Sequencing efficiency, power distribution, movement quality</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Bat & Ball Metrics</h3>
+                    <p className="text-gray-400">Bat speed, path efficiency, exit velocity, launch angle</p>
+                  </div>
+                </li>
+              </ul>
+              <Button 
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-white"
+                onClick={() => navigate('/4b-app')}
+              >
+                Explore the 4B App
+              </Button>
+            </div>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-orange-500/20 blur-3xl" />
+              <img 
+                src={appDashboardMockup} 
+                alt="4B App Dashboard showing tempo analysis and metrics"
+                className="relative rounded-lg shadow-2xl border border-primary/20"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Section 2: Swing Analysis - Image Left */}
+      <section className="py-20 px-4 bg-black">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="relative order-2 md:order-1">
+              <div className="absolute -inset-4 bg-gradient-to-r from-orange-500/20 to-primary/20 blur-3xl" />
+              <img 
+                src={swingTempoAnalysis} 
+                alt="Swing tempo analysis with kinetic chain overlay"
+                className="relative rounded-lg shadow-2xl border border-primary/20"
+              />
+            </div>
+            <div className="order-1 md:order-2">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                See Your Kinetic Chain in Action
+              </h2>
+              <p className="text-xl text-gray-300 mb-6">
+                Advanced motion analysis shows exactly how energy flows from your legs through your core to the bat. Fix inefficiencies before they become habits.
+              </p>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Load:Fire Ratio Analysis</h3>
+                    <p className="text-gray-400">Measure your timing pattern against elite standards (3:1 optimal)</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Sequence Efficiency Score</h3>
+                    <p className="text-gray-400">See how well your legs, core, and arms coordinate for maximum power</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Frame-by-Frame Breakdown</h3>
+                    <p className="text-gray-400">Understand every phase of your swing with precision feedback</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Section 3: Personal Coaching - Image Right */}
+      <section className="py-20 px-4 bg-zinc-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                Coached by a Pro. Built on Science.
+              </h2>
+              <p className="text-xl text-gray-300 mb-6">
+                Coach Rick brings over 15 years of professional hitting instruction and works with athletes from Little League to the MLB. Every program is personalized to your data.
+              </p>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Direct Feedback</h3>
+                    <p className="text-gray-400">Get personalized notes on every swing you submit</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Custom Drill Plans</h3>
+                    <p className="text-gray-400">Receive drill recommendations based on your specific metrics</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-1">Weekly Progress Reviews</h3>
+                    <p className="text-gray-400">Track improvement over time with detailed trend analysis</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-orange-500/20 blur-3xl" />
+              <img 
+                src={coachAthleteTraining} 
+                alt="Coach instructing athlete with data analysis"
+                className="relative rounded-lg shadow-2xl border border-primary/20"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-black border-t border-primary/20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12">
               Every training program we offer is built on this foundation. Whether you train in-person or remotely, 
               you'll develop all four pillars in a systematic, measurable way.
