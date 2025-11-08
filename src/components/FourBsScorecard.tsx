@@ -256,7 +256,11 @@ export function FourBsScorecard({
       }
       
       return (
-        <Card key={category} className="relative overflow-hidden border-2 border-dashed border-muted">
+        <Card 
+          key={category} 
+          className="relative overflow-hidden border-2 border-dashed border-muted hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => setSelectedCategory(category)}
+        >
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
