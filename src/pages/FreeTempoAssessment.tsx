@@ -18,9 +18,6 @@ export default function FreeTempoAssessment() {
               <Link to="/">Home</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/about">Programs</Link>
-            </Button>
-            <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/train-in-person">Train In-Person</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">

@@ -30,9 +30,6 @@ export default function About() {
             <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Home
             </Link>
-            <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Programs
-            </Link>
             <Link to="/about" className="text-sm font-medium text-foreground">
               About
             </Link>
