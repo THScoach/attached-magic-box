@@ -861,6 +861,7 @@ export default function AnalysisResult() {
                       loop
                       playsInline
                       preload="auto"
+                      muted
                     />
                     
                     {/* Buffering Indicator */}
@@ -1137,62 +1138,6 @@ export default function AnalysisResult() {
             </Button>
           </div>
 
-          {/* BRAIN - Mental/Cognitive */}
-          <Card className="p-6 bg-muted/30 border-2 border-dashed">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-3xl">🧠</span>
-                <h2 className="text-2xl font-bold">BRAIN (Mental)</h2>
-              </div>
-              <Badge variant="outline">Educational Only</Badge>
-            </div>
-            
-            <div className="space-y-4">
-              <Alert className="bg-primary/10 border-primary/30">
-                <MessageCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Brain metrics cannot be measured from video.</strong> Upload S2 Cognition or Endres test data to track your cognitive performance.
-                </AlertDescription>
-              </Alert>
-
-              <div className="grid gap-4">
-                <div className="p-4 bg-background rounded-lg">
-                  <h4 className="font-semibold mb-2">⏱️ Reaction Time</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Measures how quickly you process visual information. Elite hitters: &lt;220ms. 
-                    Requires specialized testing equipment like S2 Cognition.
-                  </p>
-                </div>
-                
-                <div className="p-4 bg-background rounded-lg">
-                  <h4 className="font-semibold mb-2">🎯 Swing Decision (Plate Discipline)</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Tracks ability to identify good pitches vs bad pitches. Measured through 
-                    game tracking or cognitive assessment tests.
-                  </p>
-                </div>
-                
-                <div className="p-4 bg-background rounded-lg">
-                  <h4 className="font-semibold mb-2">🧘 Focus & Concentration</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Mental endurance during at-bats. Best assessed through sports psychology 
-                    evaluations or performance tracking systems.
-                  </p>
-                </div>
-              </div>
-
-              <Button 
-                variant="default" 
-                className="w-full"
-                onClick={() => {
-                  const storedPlayerId = sessionStorage.getItem('selectedPlayerId');
-                  navigate(`/brain/${storedPlayerId || 'latest'}`);
-                }}
-              >
-                Upload Brain Test Data →
-              </Button>
-            </div>
-          </Card>
 
           {/* BODY - Mechanics/Movement */}
           <SimplifiedSequenceBar
@@ -1212,23 +1157,6 @@ export default function AnalysisResult() {
             overallGrade={calculateGrade(analysis.whipScore || 75)}
           />
 
-          {/* BALL - Output/Results */}
-          <BallMetricsView
-            exitVelocity={analysis.exitVelocity || 85}
-            level="High School"
-            exitVelocityGrade={calculateGrade(80)}
-            exitVelocityImprovement={2}
-            flyBallPercentage={30}
-            lineDrivePercentage={50}
-            groundBallPercentage={20}
-            launchAngleGrade={calculateGrade(analysis.launchAngle ? 75 : 50)}
-            hardHitPercentage={65}
-            totalSwings={20}
-            hardHitCount={13}
-            hardHitGrade={calculateGrade(75)}
-            dataSource="estimated"
-            hasExternalData={false}
-          />
         </section>
 
         {/* AI Coach Feedback - Your #1 Opportunity */}
