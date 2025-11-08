@@ -4,11 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, User, TrendingUp, FileVideo, Target, MessageSquare, Calendar } from "lucide-react";
+import { ArrowLeft, User, TrendingUp, FileVideo, Target, MessageSquare, Calendar, Upload } from "lucide-react";
 import { FourBsScorecard } from "@/components/FourBsScorecard";
 import { MetricTrendChart } from "@/components/MetricTrendChart";
 import { CoachingNotesPanel } from "@/components/admin/CoachingNotesPanel";
 import { DrillRecommendations } from "@/components/DrillRecommendations";
+import { ExternalSessionUpload } from "@/components/ExternalSessionUpload";
+import { ExternalSessionDataView } from "@/components/ExternalSessionDataView";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { formatDistanceToNow } from "date-fns";
@@ -248,10 +250,11 @@ export default function AdminPlayerDetail() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="scorecard" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="scorecard">4 B's Scorecard</TabsTrigger>
           <TabsTrigger value="progress">Progress Charts</TabsTrigger>
           <TabsTrigger value="analyses">All Analyses</TabsTrigger>
+          <TabsTrigger value="external">External Data</TabsTrigger>
           <TabsTrigger value="notes">Coach Notes</TabsTrigger>
           <TabsTrigger value="drills">Drill Plan</TabsTrigger>
         </TabsList>
@@ -419,6 +422,34 @@ export default function AdminPlayerDetail() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="external" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5" />
+                Upload External Sensor Data
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ExternalSessionUpload
+                playerId={id!}
+                onUploadComplete={() => {
+                  // Optionally refresh data here
+                }}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>External Session Data</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ExternalSessionDataView playerId={id!} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="notes" className="space-y-4">
