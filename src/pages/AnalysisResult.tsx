@@ -26,6 +26,9 @@ import { BrainMetricsView } from "@/components/BrainMetricsView";
 import { BodyMetricsView } from "@/components/BodyMetricsView";
 import { BatMetricsView } from "@/components/BatMetricsView";
 import { BallMetricsView } from "@/components/BallMetricsView";
+import { SimplifiedSequenceBar } from "@/components/SimplifiedSequenceBar";
+import { SimplifiedBatSummary } from "@/components/SimplifiedBatSummary";
+import { VideoTempoOverlay } from "@/components/VideoTempoOverlay";
 import { detectSwingPhases, type PhaseDetectionResult } from "@/lib/swingPhaseDetection";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -981,13 +984,25 @@ export default function AnalysisResult() {
                         ))}
                       </div>
 
-                      {/* Frame Counter */}
+                     {/* Frame Counter */}
                       <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-white/10">
                         <span className="text-white/70 text-xs">Frame</span>
                         <span className="text-white font-mono font-bold text-sm">{currentFrame}</span>
                         <span className="text-white/50 text-xs">/ {Math.floor(duration * FPS)}</span>
                       </div>
                     </div>
+
+                     {/* Tempo Overlay */}
+                    <VideoTempoOverlay
+                      videoRef={videoRef}
+                      loadTime={(analysis.loadStartTiming || 0.5) * 1000}
+                      launchTime={(analysis.fireStartTiming || 0.15) * 1000}
+                      phaseDetection={phaseDetection ? {
+                        loadStart: phaseDetection.phases.find(p => p.name === 'load')?.startFrame || 0,
+                        launchStart: phaseDetection.phases.find(p => p.name === 'fire')?.startFrame || 0,
+                        contact: phaseDetection.phases.find(p => p.name === 'contact')?.startFrame || 0,
+                      } : null}
+                    />
                   </div>
                 </>
               ) : (
@@ -1112,13 +1127,13 @@ export default function AnalysisResult() {
         {/* 4 B's Performance Breakdown */}
         <section className="space-y-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Performance Breakdown</h2>
+            <h2 className="text-2xl font-bold">Your Swing Breakdown</h2>
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => setShowDetailedMetrics(true)}
             >
-              View Legacy Metrics
+              View Pro Data
             </Button>
           </div>
 
@@ -1180,35 +1195,21 @@ export default function AnalysisResult() {
           </Card>
 
           {/* BODY - Mechanics/Movement */}
-          <BodyMetricsView
-            legsPeakVelocity={analysis.pelvisMaxVelocity || 714}
-            corePeakVelocity={analysis.torsoMaxVelocity || 937}
-            armsPeakVelocity={analysis.armMaxVelocity || 1200}
-            batPeakVelocity={analysis.batMaxVelocity || 70}
-            sequenceEfficiency={analysis.efficiencyScore || 85}
-            sequenceGrade={calculateGrade(analysis.engineScore || 75)}
-            legsPower={45}
-            corePower={35}
-            armsPower={20}
-            powerGrade={calculateGrade(analysis.anchorScore || 75)}
-            loadTime={analysis.loadStartTiming || 0.5}
-            launchTime={analysis.fireStartTiming || 0.15}
+          <SimplifiedSequenceBar
+            legsTiming="good"
+            coreTiming="good"
+            armsTiming="good"
+            batTiming="good"
             tempoRatio={analysis.tempoRatio || 3.0}
-            tempoGrade={calculateGrade(analysis.engineScore || 75)}
-            isCorrectSequence={true}
           />
 
           {/* BAT - Tool */}
-          <BatMetricsView
+          <SimplifiedBatSummary
             batSpeed={analysis.batMaxVelocity || 70}
             attackAngle={analysis.attackAngle || 15}
             timeInZone={analysis.timingScore || 85}
             level="High School"
-            batSpeedGrade={calculateGrade(analysis.whipScore || 75)}
-            attackAngleGrade={calculateGrade(analysis.directionScore || 75)}
-            timeInZoneGrade={calculateGrade(analysis.timingScore || 75)}
-            personalBest={analysis.batMaxVelocity ? analysis.batMaxVelocity + 2 : undefined}
-            lastWeekSpeed={analysis.batMaxVelocity ? analysis.batMaxVelocity - 1 : undefined}
+            overallGrade={calculateGrade(analysis.whipScore || 75)}
           />
 
           {/* BALL - Output/Results */}
