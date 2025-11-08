@@ -148,7 +148,7 @@ export default function FreeTempoAssessment() {
               </p>
               
               <p>
-                Our tempo analysis reveals if you're loading too fast, firing too slow, or missing the Anchor 6.2 timing point.
+                Our tempo analysis reveals if you're loading too fast, firing too slow, or missing the optimal timing windows that separate contact from power.
               </p>
 
               <p className="text-xl font-bold text-primary pt-4">

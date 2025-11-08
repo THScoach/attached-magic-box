@@ -22,7 +22,7 @@ const mockActivities: Activity[] = [
     id: "2",
     type: "drill",
     title: "Drill Completed",
-    description: "Anchor 6.2 - Hip Hinge Series",
+    description: "4B Body Sequencing - Hip Hinge Series",
     timestamp: "5 hours ago"
   },
   {

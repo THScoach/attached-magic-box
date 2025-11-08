@@ -116,8 +116,11 @@ export default function Landing() {
             <p className="text-2xl font-bold text-primary mb-4">
               We measure tempo and sequence so you train with precision, not guesswork.
             </p>
-            <p className="text-xl text-gray-300">
-              No more hoping your swing "feels right." You'll see your Load:Fire ratio, Anchor timing, and kinetic chain efficiency—the same metrics MLB organizations use.
+            <p className="text-xl text-gray-300 mb-6">
+              No more hoping your swing "feels right." You'll see your Load:Fire ratio, kinetic chain efficiency, and contact quality—the same metrics MLB organizations use.
+            </p>
+            <p className="text-lg text-gray-400 max-w-3xl mx-auto">
+              Our tempo model is built on the same principles validated in Tour Tempo and independent research showing elite hitters and golfers share consistent load-to-fire rhythm patterns. We apply that science to baseball so your swing timing is trained, not guessed.
             </p>
           </div>
         </div>
@@ -252,7 +255,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* The HITS System - Reframed */}
+      {/* The 4B System */}
       <section id="system" className="py-24 bg-black">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl mb-12 text-center">
@@ -260,27 +263,48 @@ export default function Landing() {
               How It Works
             </p>
             <h2 className="mb-6 text-4xl font-black uppercase md:text-5xl">
-              Three Phases. One Sequence.
+              The 4B Hitting Intelligence Model
             </h2>
             <p className="text-xl text-gray-300">
-              We don't fix 47 mechanical cues. We fix the sequence that creates all of them.
+              We don't just film swings. We measure how your Brain, Body, Bat, and Ball work together.
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
             <Card className="border-2 border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-transparent">
               <CardHeader className="text-center">
                 <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10 border-2 border-blue-500/30">
-                  <Anchor className="h-8 w-8 text-blue-500" />
+                  <svg className="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
                 </div>
-                <CardTitle className="text-2xl font-black uppercase text-blue-500">1. Anchor</CardTitle>
+                <CardTitle className="text-2xl font-black uppercase text-blue-500">Brain</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-center text-gray-300 font-semibold mb-2">
-                  Rear leg loads at the right time.
+                  S2 Cognition-style decision and reaction testing to understand how fast you see the game.
                 </p>
                 <p className="text-center text-sm text-gray-400">
-                  If you load too early or late, you leak power before contact. We measure it down to the frame.
+                  We measure your reads, not just your reps.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-green-500/30 bg-gradient-to-br from-green-500/5 to-transparent">
+              <CardHeader className="text-center">
+                <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 border-2 border-green-500/30">
+                  <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <CardTitle className="text-2xl font-black uppercase text-green-500">Body</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-center text-gray-300 font-semibold mb-2">
+                  Tempo and movement efficiency: how your body sequences.
+                </p>
+                <p className="text-center text-sm text-gray-400">
+                  Video and 3D-style motion analysis to sync your load and launch.
                 </p>
               </CardContent>
             </Card>
@@ -288,16 +312,18 @@ export default function Landing() {
             <Card className="border-2 border-red-500/30 bg-gradient-to-br from-red-500/5 to-transparent">
               <CardHeader className="text-center">
                 <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 border-2 border-red-500/30">
-                  <Settings className="h-8 w-8 text-red-500" />
+                  <svg className="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
                 </div>
-                <CardTitle className="text-2xl font-black uppercase text-red-500">2. Engine</CardTitle>
+                <CardTitle className="text-2xl font-black uppercase text-red-500">Bat</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-center text-gray-300 font-semibold mb-2">
-                  Hips fire before shoulders.
+                  Bat path, plane, and barrel control.
                 </p>
                 <p className="text-center text-sm text-gray-400">
-                  If your torso rotates first, you're weak through the zone. Proper sequencing = easy power.
+                  Sensors and high-speed video to see how the barrel really moves.
                 </p>
               </CardContent>
             </Card>
@@ -305,16 +331,18 @@ export default function Landing() {
             <Card className="border-2 border-orange-500/30 bg-gradient-to-br from-orange-500/5 to-transparent">
               <CardHeader className="text-center">
                 <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-orange-500/10 border-2 border-orange-500/30">
-                  <Zap className="h-8 w-8 text-orange-500" />
+                  <svg className="h-8 w-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
                 </div>
-                <CardTitle className="text-2xl font-black uppercase text-orange-500">3. Whip</CardTitle>
+                <CardTitle className="text-2xl font-black uppercase text-orange-500">Ball</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-center text-gray-300 font-semibold mb-2">
-                  Hands lag, then explode.
+                  What the ball tells us: exit velocity, launch, spin, contact quality.
                 </p>
                 <p className="text-center text-sm text-gray-400">
-                  The last link in the chain. If you cast early, you lose bat speed. We show you when to release.
+                  Rapsodo / HitTrax / similar tools to confirm real impact.
                 </p>
               </CardContent>
             </Card>
@@ -322,7 +350,7 @@ export default function Landing() {
 
           <div className="text-center mt-12">
             <p className="text-xl text-gray-300 font-bold">
-              Fix the sequence. Everything else falls into place.
+              If the Brain, Body, Bat, and Ball agree, your swing plays in games. We build your plan around all four.
             </p>
           </div>
         </div>
@@ -349,9 +377,9 @@ export default function Landing() {
             </div>
 
             <div className="bg-black border-2 border-primary rounded-lg p-8">
-              <h3 className="text-2xl font-bold mb-3 text-primary">✓ The Hitting Skool</h3>
+              <h3 className="text-2xl font-bold mb-3 text-primary">✓ The Hitting Skool 4B System</h3>
               <ul className="space-y-2 text-white font-semibold">
-                <li>→ Focus on 1 number: tempo ratio</li>
+                <li>→ Measure Brain, Body, Bat, Ball</li>
                 <li>→ Give you exact frame-by-frame data</li>
                 <li>→ Track improvement week over week</li>
                 <li>→ Know if it's working in 30 days</li>

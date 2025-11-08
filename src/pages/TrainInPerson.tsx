@@ -40,13 +40,23 @@ export default function TrainInPerson() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(192,192,192,0.08)_0%,transparent_70%)]" />
         
         <div className="container relative z-10 mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center mb-16">
+          <div className="max-w-4xl mx-auto text-center mb-12">
             <h1 className="mb-6 text-5xl font-black uppercase leading-tight tracking-tight md:text-6xl">
               Train Live with Coach Rick
             </h1>
             <p className="text-xl text-gray-300 mb-8">
-              1-on-1 and small group sessions with the same sequencing system we use in our remote app
+              1-on-1 and small group sessions with the same 4B system we use in our remote app
             </p>
+            
+            {/* Facility Info */}
+            <div className="bg-zinc-950 border border-primary/30 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+              <h2 className="text-2xl font-bold mb-3">Train In-Person at The Hitting Skool Lab</h2>
+              <p className="text-gray-300 mb-3">All in-person sessions are held at our training HQ:</p>
+              <p className="text-xl font-bold text-primary">
+                2013 Hitzert Court, Fenton, Missouri 63026
+              </p>
+            </div>
+            
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 font-bold text-lg px-8 py-6">
               <a href="#booking">Book Your Session</a>
             </Button>
@@ -117,15 +127,15 @@ export default function TrainInPerson() {
                   <ul className="space-y-2 text-sm text-gray-300">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Complete swing assessment</span>
+                      <span>4B baseline: Brain, Body, Bat, Ball snapshot</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>HITS tempo analysis</span>
+                      <span>Tempo and movement analysis</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Custom training plan</span>
+                      <span>Custom training roadmap</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
@@ -149,7 +159,7 @@ export default function TrainInPerson() {
                   <ul className="space-y-2 text-sm text-gray-300">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>1-on-1 coaching</span>
+                      <span>Built off your 4B profile</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
@@ -185,7 +195,7 @@ export default function TrainInPerson() {
                   <ul className="space-y-2 text-sm text-gray-300">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Semi-private setting</span>
+                      <span>Built off your 4B profile</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
@@ -221,7 +231,7 @@ export default function TrainInPerson() {
                   <ul className="space-y-2 text-sm text-gray-300">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Special topic focus</span>
+                      <span>4B Hitting Intelligence focus</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
@@ -294,7 +304,7 @@ export default function TrainInPerson() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-black uppercase mb-4">Can't Train In-Person?</h2>
             <p className="text-lg text-gray-300 mb-8">
-              Get the same HITS system coaching remotely from anywhere in the country
+              Get the same 4B Hitting Intelligence System remotely from anywhere in the country
             </p>
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90 font-bold">
               <Link to="/programs">View Remote Programs</Link>
