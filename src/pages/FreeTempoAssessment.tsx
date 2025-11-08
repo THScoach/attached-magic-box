@@ -23,8 +23,14 @@ export default function FreeTempoAssessment() {
             <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/train-in-person">Train In-Person</Link>
             </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/#system">How It Works</Link>
+            </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/about">About</Link>
+            </Button>
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
-              <Link to="/auth">App Login</Link>
+              <Link to="/auth">Login</Link>
             </Button>
           </div>
         </div>

@@ -44,6 +44,9 @@ export default function Landing() {
               <Link to="/train-in-person">Train In-Person</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <a href="#system">How It Works</a>
+            </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/about">About</Link>
             </Button>
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
@@ -61,18 +64,22 @@ export default function Landing() {
         <div className="container relative z-10 mx-auto px-4 py-20">
           <div className="mx-auto max-w-5xl text-center">
             <h1 className="mb-6 text-6xl font-black uppercase leading-tight tracking-tight md:text-7xl lg:text-8xl">
-              Fix Your Swing Tempo<br />
-              Build Game-Ready Power<br />
-              In 30 Days
+              Simplify the Science.<br />
+              Train the Sequence.
             </h1>
             <p className="mx-auto mb-8 max-w-3xl text-2xl font-bold text-gray-200 md:text-3xl">
-              Join hundreds of hitters who've improved sequence and contact quality with The Hitting Skool System
+              Remote and in-person hitting development built by a pro coach. Fix your swing tempo and sequence with a clear, measurable system.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-12 py-8 text-xl font-black uppercase shadow-2xl shadow-primary/50">
                 <Link to="/free-tempo-assessment">
-                  Start Free Tempo Assessment →
+                  Start Free Tempo Assessment
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-black px-12 py-8 text-xl font-black uppercase">
+                <Link to="/train-in-person">
+                  Train In-Person
                 </Link>
               </Button>
             </div>
