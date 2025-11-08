@@ -28,6 +28,7 @@ import { BatMetricsView } from "@/components/BatMetricsView";
 import { BallMetricsView } from "@/components/BallMetricsView";
 import { SimplifiedSequenceBar } from "@/components/SimplifiedSequenceBar";
 import { SimplifiedBatSummary } from "@/components/SimplifiedBatSummary";
+import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
 import { VideoTempoOverlay } from "@/components/VideoTempoOverlay";
 import { detectSwingPhases, type PhaseDetectionResult } from "@/lib/swingPhaseDetection";
 import { Badge } from "@/components/ui/badge";
@@ -836,7 +837,7 @@ export default function AnalysisResult() {
           <Tabs defaultValue="video" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="video">Video Analysis</TabsTrigger>
-            <TabsTrigger value="motion">3D Motion</TabsTrigger>
+            <TabsTrigger value="motion">4B Motion Analysis</TabsTrigger>
             <TabsTrigger value="markup">Markup Tools</TabsTrigger>
           </TabsList>
           
@@ -1015,84 +1016,14 @@ export default function AnalysisResult() {
           </Card>
           </TabsContent>
 
-          {/* 3D Motion Tab */}
+          {/* 4B Motion Analysis Tab */}
           <TabsContent value="motion" className="mt-4">
-            <Card className="overflow-hidden">
-              <div className="aspect-video">
-                <SwingAvatar3D 
-                  poseData={jointData}
-                  currentTime={currentTime}
-                  duration={duration}
-                />
-              </div>
-              
-              {/* Video Controls Synced Below 3D View */}
-              <div className="border-t bg-muted/50 p-4">
-                <div className="flex items-center gap-2 justify-center">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={skipBackward}
-                    title="Back 1 second"
-                  >
-                    <SkipBack className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={stepBackward}
-                    title="Back 1 frame"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    size="default"
-                    onClick={togglePlayPause}
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-5 w-5" />
-                    ) : (
-                      <Play className="h-5 w-5" />
-                    )}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={stepForward}
-                    title="Forward 1 frame"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={skipForward}
-                    title="Forward 1 second"
-                  >
-                    <SkipForward className="h-4 w-4" />
-                  </Button>
-                  
-                  <div className="flex-1 text-sm font-mono ml-4">
-                    <span className="font-semibold">{formatTime(currentTime)}</span>
-                    <span className="text-muted-foreground"> / </span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-1">
-                    {[0.25, 0.5, 1].map((rate) => (
-                      <Button
-                        key={rate}
-                        size="sm"
-                        variant={playbackRate === rate ? "default" : "ghost"}
-                        onClick={() => changePlaybackRate(rate)}
-                      >
-                        {rate}x
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
+            <FourBMotionAnalysis 
+              rebootData={undefined}
+              onUpload={() => {
+                toast.info("Upload Reboot Motion data to unlock 4B Motion Analysis");
+              }}
+            />
           </TabsContent>
 
           {/* Markup Tools Tab */}
