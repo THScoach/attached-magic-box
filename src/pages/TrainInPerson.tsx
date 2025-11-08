@@ -289,8 +289,11 @@ export default function TrainInPerson() {
           <div className="grid md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
               <h3 className="font-bold mb-4">The Hitting Skool</h3>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-400 mb-3">
                 Professional hitting instruction powered by tempo-based swing science
+              </p>
+              <p className="text-xs text-gray-500 italic">
+                All programs managed through GoHighLevel and Coachly platforms.
               </p>
             </div>
             <div>

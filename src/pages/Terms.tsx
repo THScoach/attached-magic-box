@@ -203,9 +203,14 @@ export default function Terms() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <HitsMonogram className="h-8 w-8" />
-              <p className="text-sm text-gray-400">
-                © 2025 The Hitting Skool. All rights reserved.
-              </p>
+              <div>
+                <p className="text-sm text-gray-400">
+                  © 2025 The Hitting Skool. All rights reserved.
+                </p>
+                <p className="text-xs text-gray-500 mt-1 italic">
+                  All programs managed through GoHighLevel and Coachly platforms.
+                </p>
+              </div>
             </div>
             <div className="flex gap-6">
               <Button asChild variant="ghost" className="text-gray-400 hover:text-white text-sm">

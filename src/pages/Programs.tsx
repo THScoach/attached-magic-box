@@ -115,6 +115,10 @@ export default function Programs() {
               <Button 
                 size="lg"
                 className="w-full bg-primary hover:bg-primary/90 text-white"
+                onClick={() => {
+                  // Replace with GHL checkout link once provided
+                  window.location.href = '#ghl-evaluation-checkout';
+                }}
               >
                 Book Your 4B Evaluation
               </Button>
@@ -238,6 +242,10 @@ export default function Programs() {
               <Button 
                 size="lg"
                 className="w-full bg-primary hover:bg-primary/90 text-white"
+                onClick={() => {
+                  // Replace with GHL checkout link once provided
+                  window.location.href = '#ghl-pod-checkout';
+                }}
               >
                 Join a Pod Program
               </Button>
@@ -316,6 +324,10 @@ export default function Programs() {
               <Button 
                 size="lg"
                 className="w-full bg-primary hover:bg-primary/90 text-white"
+                onClick={() => {
+                  // Replace with Coachly URL once provided
+                  window.location.href = '#coachly-remote-training';
+                }}
               >
                 Start Remote Training
               </Button>
@@ -385,7 +397,10 @@ export default function Programs() {
               <Button 
                 size="lg"
                 className="w-full bg-primary hover:bg-primary/90 text-white"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={() => {
+                  // Replace with GHL checkout link once provided
+                  window.location.href = '#ghl-community-checkout';
+                }}
               >
                 Join the Community
               </Button>
@@ -400,8 +415,11 @@ export default function Programs() {
           <div className="grid md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
               <h3 className="font-bold mb-4">The Hitting Skool</h3>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-400 mb-3">
                 Professional hitting instruction powered by tempo-based swing science
+              </p>
+              <p className="text-xs text-gray-500 italic">
+                All programs managed through GoHighLevel and Coachly platforms.
               </p>
             </div>
             <div>

@@ -343,6 +343,9 @@ export default function About() {
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} HITS™. All rights reserved.
               </p>
+              <p className="text-xs text-muted-foreground/70 italic mt-1">
+                All programs managed through GoHighLevel and Coachly platforms.
+              </p>
             </div>
             <div className="flex gap-8 text-sm">
               <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
