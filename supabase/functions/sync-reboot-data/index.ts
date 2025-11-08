@@ -53,6 +53,78 @@ serve(async (req) => {
 
     const rebootData = await rebootResponse.json();
 
+    // Fetch frame-by-frame joint data
+    const framesResponse = await fetch(
+      `https://api.rebootmotion.com/v1/sessions/${sessionId}/frames`,
+      {
+        headers: {
+          'Authorization': `Bearer ${rebootApiKey}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    let poseData = null;
+    let comData = null;
+    
+    if (framesResponse.ok) {
+      const framesData = await framesResponse.json();
+      
+      // Transform Reboot joint data to our FrameJointData format
+      poseData = framesData.frames?.map((frame: any, index: number) => {
+        // Map Reboot joint names to MediaPipe landmark format
+        const joints: Record<string, any> = {};
+        
+        // Reboot provides full body tracking - map to MediaPipe indices
+        const jointMapping: Record<string, number> = {
+          'nose': 0,
+          'left_shoulder': 11,
+          'right_shoulder': 12,
+          'left_elbow': 13,
+          'right_elbow': 14,
+          'left_wrist': 15,
+          'right_wrist': 16,
+          'left_hip': 23,
+          'right_hip': 24,
+          'left_knee': 25,
+          'right_knee': 26,
+          'left_ankle': 27,
+          'right_ankle': 28,
+        };
+        
+        // Transform Reboot coordinates to our system
+        Object.entries(jointMapping).forEach(([rebootName, landmarkId]) => {
+          const joint = frame.joints?.[rebootName];
+          if (joint) {
+            joints[landmarkId] = {
+              x: joint.x, // Reboot uses normalized 0-1 coordinates
+              y: joint.y,
+              z: joint.z || 0, // Depth
+              confidence: joint.confidence || 1.0
+            };
+          }
+        });
+        
+        return {
+          frameNumber: index,
+          timestamp: frame.timestamp || (index / 30), // Assume 30fps if no timestamp
+          phase: determinePhaseFromReboot(frame, rebootData),
+          joints,
+          angles: {}, // Can be calculated later
+          velocities: [] // Can be calculated later
+        };
+      }) || [];
+      
+      // Extract COM path data
+      comData = {
+        positions: framesData.com_positions || [],
+        velocities: framesData.com_velocities || [],
+        maxVelocity: rebootData.com_max_velocity || 0,
+        totalDistance: rebootData.com_forward_distance || 0,
+        peakVelocityTiming: rebootData.com_peak_velocity_timing || 0
+      };
+    }
+
     // Map Reboot data to 4 B's framework
     const bodyMetrics = {
       legs_peak_velocity: rebootData.pelvis_peak_rotational_velocity || 0,
@@ -75,7 +147,28 @@ serve(async (req) => {
       time_in_zone: rebootData.time_to_contact || 0,
     };
 
-    // Create or update swing analysis with verified Reboot data
+    // Helper function to determine swing phase from Reboot frame data
+    const determinePhaseFromReboot = (frame: any, sessionSummary: any): string => {
+      const timing = frame.phase_timing || {};
+      
+      if (timing.phase === 'stance') return 'stance';
+      if (timing.phase === 'load') return 'load';
+      if (timing.phase === 'stride') return 'stride';
+      if (timing.phase === 'fire') return 'fire';
+      if (timing.phase === 'contact') return 'contact';
+      if (timing.phase === 'follow_through') return 'follow_through';
+      
+      // Fallback: estimate from timestamp
+      const relativeTime = frame.timestamp / sessionSummary.duration;
+      if (relativeTime < 0.15) return 'stance';
+      if (relativeTime < 0.35) return 'load';
+      if (relativeTime < 0.5) return 'stride';
+      if (relativeTime < 0.8) return 'fire';
+      if (relativeTime < 0.85) return 'contact';
+      return 'follow_through';
+    };
+
+    // Create or update swing analysis with verified Reboot data + full pose data
     const { data: analysis, error: analysisError } = await supabase
       .from('swing_analyses')
       .insert({
@@ -89,6 +182,28 @@ serve(async (req) => {
           dataSource: 'reboot_motion',
           verified: true,
           sessionId: sessionId,
+          // Store full frame-by-frame data for 3D visualization
+          poseData: poseData,
+          comData: comData,
+          // Additional Reboot-specific metrics
+          torsoKinematics: {
+            pelvisDirection: rebootData.pelvis_direction,
+            shoulderDirection: rebootData.shoulder_direction,
+            pelvisRotation: rebootData.pelvis_rotation_degrees,
+            shoulderRotation: rebootData.shoulder_rotation_degrees,
+            xFactor: rebootData.x_factor
+          },
+          swingPosture: {
+            frontalTilt: rebootData.frontal_tilt,
+            lateralTilt: rebootData.lateral_tilt,
+            spineAngle: rebootData.spine_angle
+          },
+          angularVelocities: {
+            pelvis: rebootData.pelvis_angular_velocity_curve || [],
+            torso: rebootData.torso_angular_velocity_curve || [],
+            arm: rebootData.arm_angular_velocity_curve || [],
+            bat: rebootData.bat_angular_velocity_curve || []
+          }
         },
       })
       .select()
