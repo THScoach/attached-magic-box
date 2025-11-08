@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { MapPin, Clock, Users, Trophy, CheckCircle2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useNavigate } from "react-router-dom";
+import { Video, Activity, Target, Users, CheckCircle } from "lucide-react";
 import { HitsLogo } from "@/components/HitsLogo";
 import { GHLBookingEmbedPlaceholder } from "@/components/GHLBookingEmbedPlaceholder";
 
 export default function TrainInPerson() {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -35,281 +37,249 @@ export default function TrainInPerson() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-black to-black" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(192,192,192,0.08)_0%,transparent_70%)]" />
-        
-        <div className="container relative z-10 mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h1 className="mb-6 text-5xl font-black uppercase leading-tight tracking-tight md:text-6xl">
-              Train Live with Coach Rick
-            </h1>
-            <p className="text-xl text-gray-300 mb-8">
-              1-on-1 and small group sessions with the same 4B system we use in our remote app
+      <section className="bg-gradient-to-b from-black to-zinc-900 pt-32 pb-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            Train In-Person at The Hitting Skool Lab
+          </h1>
+          <p className="text-xl text-gray-300 mb-4">
+            All in-person sessions are held at our training HQ:
+          </p>
+          <div className="mb-8 p-4 bg-black/50 rounded-lg inline-block">
+            <p className="text-lg text-white font-semibold">
+              2013 Hitzert Court, Fenton, Missouri 63026
             </p>
-            
-            {/* Facility Info */}
-            <div className="bg-zinc-950 border border-primary/30 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
-              <h2 className="text-2xl font-bold mb-3">Train In-Person at The Hitting Skool Lab</h2>
-              <p className="text-gray-300 mb-3">All in-person sessions are held at our training HQ:</p>
-              <p className="text-xl font-bold text-primary">
-                2013 Hitzert Court, Fenton, Missouri 63026
-              </p>
-            </div>
-            
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 font-bold text-lg px-8 py-6">
-              <a href="#booking">Book Your Session</a>
-            </Button>
           </div>
+          <p className="text-xl text-gray-300 mb-8">
+            Stop guessing. Start measuring. Train live with Coach Rick.
+          </p>
+          <GHLBookingEmbedPlaceholder />
         </div>
       </section>
 
-      {/* Locations & Availability */}
-      <section className="py-16 bg-zinc-950">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-black uppercase mb-8 text-center">Locations & Availability</h2>
-            
-            <Card className="bg-black border-white/20 mb-8">
-              <CardContent className="p-8">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="flex gap-4">
-                    <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                      <h3 className="font-bold text-lg mb-2">Training Locations</h3>
-                      <p className="text-gray-400 text-sm">
-                        Sessions available at select facilities in the [LOCATION AREA]. Specific location provided upon booking confirmation.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-4">
-                    <Clock className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                      <h3 className="font-bold text-lg mb-2">Schedule</h3>
-                      <p className="text-gray-400 text-sm">
-                        Available [DAYS] between [TIME RANGE]. Book at least 48 hours in advance for best availability.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+      {/* 4B Elite Evaluation */}
+      <section className="py-20 px-4 bg-zinc-900">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              4B Elite Swing Evaluation – $299
+            </h2>
+            <p className="text-xl text-gray-300">
+              The most complete hitting assessment in the country.
+            </p>
+          </div>
+
+          <Card className="bg-black border-primary/50">
+            <CardContent className="p-8">
+              <p className="text-lg text-gray-300 mb-6">
+                In 90 minutes we measure your <span className="text-primary font-bold">Brain, Body, Bat, and Ball</span> using advanced tech to build your personalized hitting blueprint.
+              </p>
+
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-4">Includes:</h3>
+                <ul className="space-y-3 text-gray-300">
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span><strong>S2 Cognition Test</strong> (Brain)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span><strong>3D Biomechanical & Tempo Analysis</strong> (Body)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span><strong>Bat Speed & Barrel Efficiency Testing</strong> (Bat)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span><strong>Exit Speed & Launch Angle Assessment</strong> (Ball)</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-4">Deliverables:</h3>
+                <ul className="space-y-3 text-gray-300">
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span>Personalized 4B Report</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span>Video Summary</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span>Next-Step Plan</span>
+                  </li>
+                </ul>
+              </div>
+
+              <Button 
+                size="lg"
+                className="w-full bg-primary hover:bg-primary/90 text-white"
+              >
+                Book Your 4B Evaluation
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* 12-Week Pod Training Program */}
+      <section className="py-20 px-4 bg-black">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Train in Pods – Affordable. Data-Driven. Consistent.
+            </h2>
+            <p className="text-xl text-gray-300">
+              Small-group pods that train like pros. Each pod runs for 12 weeks.
+            </p>
+          </div>
+
+          <Card className="bg-zinc-900 border-white/20">
+            <CardContent className="p-8">
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-4">Program Details:</h3>
+                <ul className="space-y-3 text-gray-300">
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span>9 total players per 100-minute pod (3 new players start every 20 minutes)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span>Each player receives ~40 minutes of focused work</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span>Includes weekly tempo & sequencing feedback</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mb-8 p-6 bg-black rounded-lg border border-primary/30">
+                <h3 className="text-xl font-bold text-white mb-4">Commitment:</h3>
+                <ul className="space-y-3 text-gray-300">
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span><strong>12-week minimum</strong> (program, not lessons)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span>1 pod per week</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span><strong>$75</strong> per player per session</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
+                    <span>Billed monthly: <strong>$300/month for 3 months</strong> ($900 total per player)</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mb-6 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+                <p className="text-gray-300 text-sm">
+                  <strong className="text-primary">Note:</strong> This is a <strong>program-based model</strong>, not single lessons. You're committing to a 12-week development cycle designed to build lasting results.
+                </p>
+              </div>
+
+              <Button 
+                size="lg"
+                className="w-full bg-primary hover:bg-primary/90 text-white"
+              >
+                Join a Pod Program
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Why Train In-Person */}
+      <section className="py-20 px-4 bg-zinc-900">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">
+            Why Train In-Person?
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="bg-black border-white/20">
+              <CardHeader>
+                <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <Video className="h-6 w-6 text-primary" />
+                  Real-Time Feedback
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-300">
+                  See your swing analyzed instantly with high-speed video and immediate coaching adjustments based on your 4B profile.
+                </p>
               </CardContent>
             </Card>
 
-            <div className="bg-zinc-900 border border-white/10 rounded-lg p-6 text-center">
-              <p className="text-gray-400 text-sm">
-                <strong className="text-white">Note:</strong> In-person training spots are limited. 
-                Remote training is available nationwide for those outside the local area.
-              </p>
-            </div>
+            <Card className="bg-black border-white/20">
+              <CardHeader>
+                <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <Activity className="h-6 w-6 text-primary" />
+                  Advanced Technology
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-300">
+                  Access to professional-grade hitting tech: high-speed cameras, launch monitors, and 4B Hitting Intelligence System analysis.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-black border-white/20">
+              <CardHeader>
+                <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <Target className="h-6 w-6 text-primary" />
+                  Personalized Plans
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-300">
+                  Every session is tailored to your tempo profile and 4B system data. No cookie-cutter drills—just what your swing needs.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-black border-white/20">
+              <CardHeader>
+                <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <Users className="h-6 w-6 text-primary" />
+                  Proven Results
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-300">
+                  Coach Rick's 4B Hitting Intelligence System has helped hundreds of hitters improve their tempo, sequence, and in-game performance.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Session Types & Pricing */}
-      <section className="py-16 bg-black">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-black uppercase mb-12 text-center">Session Types & Pricing</h2>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Initial Evaluation */}
-              <Card className="bg-zinc-950 border-white/20 hover:border-primary/50 transition-all">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Initial Evaluation</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    60 minutes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-3xl font-black text-primary">$150</div>
-                  
-                  <ul className="space-y-2 text-sm text-gray-300">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>4B baseline: Brain, Body, Bat, Ball snapshot</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Tempo and movement analysis</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Custom training roadmap</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Video analysis report</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Private Lesson */}
-              <Card className="bg-zinc-950 border-primary/50 hover:border-primary transition-all">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">Private Lesson</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    60 minutes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-3xl font-black text-primary">$125</div>
-                  
-                  <ul className="space-y-2 text-sm text-gray-300">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Built off your 4B profile</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Drill work & feedback</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Video review</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Ongoing support</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Small Group */}
-              <Card className="bg-zinc-950 border-white/20 hover:border-primary/50 transition-all">
-                <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl font-bold">Small Group</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    90 minutes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-3xl font-black text-primary">$75</div>
-                  <div className="text-xs text-gray-400">per athlete (2-4 players)</div>
-                  
-                  <ul className="space-y-2 text-sm text-gray-300">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Built off your 4B profile</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Individual attention</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Peer learning</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Cost-effective</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Clinics */}
-              <Card className="bg-zinc-950 border-white/20 hover:border-primary/50 transition-all">
-                <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="h-5 w-5 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl font-bold">Clinics</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    2-3 hours
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-3xl font-black text-primary">$50</div>
-                  <div className="text-xs text-gray-400">per athlete (5-12 players)</div>
-                  
-                  <ul className="space-y-2 text-sm text-gray-300">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>4B Hitting Intelligence focus</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Group instruction</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Team building</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>Great value</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="mt-8 text-center">
-              <p className="text-gray-400 text-sm">
-                Package deals and monthly memberships available. Contact for team rates.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Booking Section */}
-      <section id="booking" className="py-16 bg-zinc-950">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-black uppercase mb-4">Book Your Session</h2>
-              <p className="text-lg text-gray-300">
-                Select your preferred session type and available time below
-              </p>
-            </div>
-            
-            {/* GHL Booking Placeholder */}
-            <GHLBookingEmbedPlaceholder />
-
-            <div className="mt-8 bg-zinc-900 border border-white/10 rounded-lg p-6">
-              <h3 className="font-bold text-lg mb-3">What to Bring:</h3>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                  <span>Your own bat (or use facility equipment)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                  <span>Athletic wear and turf shoes</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                  <span>Water bottle</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                  <span>Positive attitude and willingness to learn</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 bg-black">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-black uppercase mb-4">Can't Train In-Person?</h2>
-            <p className="text-lg text-gray-300 mb-8">
-              Get the same 4B Hitting Intelligence System remotely from anywhere in the country
-            </p>
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 font-bold">
-              <Link to="/programs">View Remote Programs</Link>
-            </Button>
-          </div>
+      {/* Can't Train In-Person CTA */}
+      <section className="py-20 px-4 bg-black">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            Can't Train In-Person?
+          </h2>
+          <p className="text-xl text-gray-300 mb-8">
+            Get the same 4B Hitting Intelligence System coaching remotely through our online programs.
+          </p>
+          <Button 
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-white"
+            onClick={() => navigate('/programs')}
+          >
+            View Remote Programs
+          </Button>
         </div>
       </section>
 
