@@ -47,6 +47,7 @@ import VideoLibrary from "./pages/VideoLibrary";
 import Timeline from "./pages/Timeline";
 import TierDemo from "./pages/TierDemo";
 import FourBsScorecard from "./pages/FourBsScorecard";
+import FourBApp from "./pages/FourBApp";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
@@ -81,6 +82,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/programs" element={<Programs />} />
+            <Route path="/4b-app" element={<FourBApp />} />
             <Route path="/train-in-person" element={<TrainInPerson />} />
             <Route path="/free-tempo-assessment" element={<FreeTempoAssessment />} />
             <Route path="/about" element={<About />} />
