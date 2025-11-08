@@ -142,93 +142,110 @@ export default function FourBApp() {
 
       {/* Offer Tiers */}
       <section className="py-12 px-4 bg-muted/30">
-        <div className="container mx-auto max-w-5xl space-y-6">
-          {/* Tier 1: Free Tempo Analyzer */}
-          <Card className="border-primary/20 hover:border-primary/40 transition-all">
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Brain className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl">Free 4B Tempo Analyzer</CardTitle>
-                  <CardDescription className="text-base mt-1">
-                    Find your rhythm. Upload a swing and see your tempo score in seconds.
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Button size="lg" className="w-full sm:w-auto" asChild>
-                <a href="#" onClick={(e) => { 
-                  e.preventDefault(); 
-                  // TODO: Replace placeholder GoHighLevel link for Free Tempo Analyzer (tag: THS_TEMPO_LEAD)
-                  alert('Replace with GoHighLevel form link');
-                }}>
-                  Get Your Free Tempo Score
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
+        <div className="container mx-auto max-w-5xl">
+          <h2 className="text-3xl font-bold text-center mb-2 text-foreground">
+            Start free. Upgrade when you're ready.
+          </h2>
+          <p className="text-center text-muted-foreground mb-8 text-lg">
+            Three tiers. One proven system.
+          </p>
 
-          {/* Tier 2: DIY Challenge */}
-          <Card className="border-primary/30 hover:border-primary/50 transition-all shadow-lg">
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Activity className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-3">
-                    <CardTitle className="text-2xl">DIY 4B Challenge</CardTitle>
-                    <span className="text-xl font-bold text-primary">One-Time $99</span>
+          <div className="space-y-6">
+            {/* Tier 1: Free Tempo Analyzer */}
+            <Card className="border-primary/20 hover:border-primary/40 transition-all">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Brain className="h-6 w-6 text-primary" />
                   </div>
-                  <CardDescription className="text-base mt-1">
-                    Run the same drills and tempo checks we use with elite hitters.<br />
-                    Self-paced. No coaching calls. Just results.
-                  </CardDescription>
+                  <div>
+                    <CardTitle className="text-2xl">Free 4B Tempo Analyzer</CardTitle>
+                    <div className="text-lg font-bold text-primary mt-1">$0</div>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Button size="lg" variant="default" className="w-full sm:w-auto" asChild>
-                <a href="#" onClick={(e) => { 
-                  e.preventDefault(); 
-                  // TODO: Replace placeholder GoHighLevel checkout link for DIY Challenge (tag: THS_DIY)
-                  alert('Replace with GoHighLevel checkout link');
-                }}>
-                  Join the DIY Challenge
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
+                <CardDescription className="text-base mt-2">
+                  Find your rhythm and discover your personal Load:Fire tempo ratio in seconds.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button size="lg" className="w-full sm:w-auto" asChild>
+                  <a href="#" onClick={(e) => { 
+                    e.preventDefault(); 
+                    // TODO: Replace placeholder GoHighLevel link for Free Tempo Analyzer (tag: THS_TEMPO_LEAD)
+                    alert('Replace with GoHighLevel form link');
+                  }}>
+                    Get Your Free Tempo Score
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
 
-          {/* Tier 3: Full App Access */}
-          <Card className="border-primary/40 hover:border-primary/60 transition-all shadow-xl bg-card/80">
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-primary" />
+            {/* Tier 2: 7-Day Challenge */}
+            <Card className="border-primary/30 hover:border-primary/50 transition-all shadow-lg">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Activity className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <CardTitle className="text-2xl">7-Day 4B Challenge</CardTitle>
+                      <span className="text-xl font-bold text-primary">$9.97 One-Time</span>
+                    </div>
+                    <CardDescription className="text-base mt-2">
+                      Learn the 4B System through a focused 7-day progression. Each day unlocks one key pillar — Brain, Body, Bat, or Ball — so you can train with clarity and confidence.
+                    </CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-2xl">Full 4B App Access</CardTitle>
-                  <CardDescription className="text-base mt-1 font-medium">
-                    Included with Coaching
-                  </CardDescription>
-                  <CardDescription className="text-base mt-2">
-                    Every Pod, Remote, and Private athlete gets full 4B App access to track Brain, Body, Bat, and Ball metrics.
-                  </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button size="lg" variant="default" className="w-full sm:w-auto" asChild>
+                  <a href="#" onClick={(e) => { 
+                    e.preventDefault(); 
+                    // TODO: Replace placeholder GoHighLevel checkout link for 7-Day Challenge (tag: THS_7DAY)
+                    alert('Replace with GoHighLevel checkout link');
+                  }}>
+                    Start the 7-Day Challenge
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Tier 3: DIY Full Access */}
+            <Card className="border-primary/40 hover:border-primary/60 transition-all shadow-xl bg-card/80">
+              <CardHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Zap className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <CardTitle className="text-2xl">DIY 4B Full Access</CardTitle>
+                      <span className="text-xl font-bold text-primary">$297 One-Time</span>
+                    </div>
+                    <CardDescription className="text-base mt-2">
+                      Unlock full access to the 4B App and train like a pro. Track your Brain, Body, Bat, and Ball metrics, analyze tempo over time, and receive AI-powered feedback.
+                    </CardDescription>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
-                <Link to="/programs#programs">
-                  Join a 4B Program
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent>
+                <Button size="lg" variant="secondary" className="w-full sm:w-auto" asChild>
+                  <a href="#" onClick={(e) => { 
+                    e.preventDefault(); 
+                    // TODO: Replace placeholder GoHighLevel checkout link for DIY Full Access (tag: THS_DIY_FULL)
+                    alert('Replace with GoHighLevel checkout link');
+                  }}>
+                    Upgrade to Full 4B Access
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            All 4B App tiers are one-time payments. No subscriptions. Payments managed through GoHighLevel + Stripe.
+          </p>
         </div>
       </section>
 
