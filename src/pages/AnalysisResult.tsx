@@ -54,6 +54,7 @@ export default function AnalysisResult() {
   const { hasAccess: hasCoachRickAccess } = useCoachRickAccess();
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [playerName, setPlayerName] = useState<string>('');
+  const [playerId, setPlayerId] = useState<string>('');
   const [analysisCreatedAt, setAnalysisCreatedAt] = useState<string>('');
   const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
@@ -125,6 +126,11 @@ export default function AnalysisResult() {
 
       // Store created_at for ReanalyzeButton
       setAnalysisCreatedAt(data.created_at);
+
+      // Set player ID
+      if (data.player_id) {
+        setPlayerId(data.player_id);
+      }
 
       // Set player name
       if (data.players) {
@@ -231,6 +237,11 @@ export default function AnalysisResult() {
 
       // Store created_at for ReanalyzeButton
       setAnalysisCreatedAt(data.created_at);
+
+      // Set player ID
+      if (data.player_id) {
+        setPlayerId(data.player_id);
+      }
 
       // Set player name
       if (data.players) {
@@ -1020,6 +1031,7 @@ export default function AnalysisResult() {
           <TabsContent value="motion" className="mt-4">
             <FourBMotionAnalysis 
               rebootData={undefined}
+              playerId={playerId}
               onUpload={() => {
                 toast.info("Upload Reboot Motion data to unlock 4B Motion Analysis");
               }}

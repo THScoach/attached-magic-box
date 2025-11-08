@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ChevronDown, Upload } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
+import { RebootProgressionTracker } from "./RebootProgressionTracker";
 
 interface RebootData {
   kinematicSequence?: {
@@ -32,10 +33,11 @@ interface RebootData {
 
 interface FourBMotionAnalysisProps {
   rebootData?: RebootData;
+  playerId?: string;
   onUpload?: () => void;
 }
 
-export function FourBMotionAnalysis({ rebootData, onUpload }: FourBMotionAnalysisProps) {
+export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMotionAnalysisProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
   // No data state
@@ -329,6 +331,11 @@ export function FourBMotionAnalysis({ rebootData, onUpload }: FourBMotionAnalysi
             <p className="text-xs text-muted-foreground">Data Source: Reboot Motion</p>
           </CardContent>
         </Card>
+      )}
+
+      {/* Progress Over Time */}
+      {playerId && (
+        <RebootProgressionTracker playerId={playerId} currentData={rebootData} />
       )}
 
       {/* 4. Advanced Coach View */}
