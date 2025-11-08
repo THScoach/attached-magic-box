@@ -5,6 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { HitsLogo } from "@/components/HitsLogo";
 import { Brain, Activity, Target, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import appDashboardMockup from "@/assets/app-dashboard-mockup.jpg";
+import swingTempoAnalysis from "@/assets/swing-tempo-analysis.jpg";
+import coachAthleteTraining from "@/assets/coach-athlete-training.jpg";
 
 export default function FourBApp() {
   return (
@@ -46,6 +49,17 @@ export default function FourBApp() {
         </div>
       </header>
 
+      {/* Background Video Loop Placeholder */}
+      <section className="relative h-[40vh] min-h-[400px] overflow-hidden bg-black">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-background z-10" />
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20">
+          <div className="text-center">
+            <p className="text-primary text-sm font-semibold mb-2">[ Background Video Loop Placeholder ]</p>
+            <p className="text-muted-foreground text-xs">3-5 second loop of training footage or app interface</p>
+          </div>
+        </div>
+      </section>
+
       {/* Hero Section */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl text-center">
@@ -55,6 +69,74 @@ export default function FourBApp() {
           <p className="text-xl text-muted-foreground">
             Start with the Free 4B Tempo Analyzer, level up with the DIY Challenge, and unlock full access when you join a 4B Program.
           </p>
+        </div>
+      </section>
+
+      {/* Visual Feature Sections - Alternating Layout */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-6xl space-y-24">
+          {/* Section 1: App Dashboard - Image Right */}
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold mb-4 text-foreground">Track Your Progress in Real-Time</h2>
+              <p className="text-lg text-muted-foreground mb-4">
+                The 4B App gives you instant feedback on every swing. Monitor your tempo, sequencing, bat speed, and contact quality—all in one intuitive dashboard.
+              </p>
+              <p className="text-muted-foreground">
+                No more guessing. See exactly what's working and what needs attention, backed by the same metrics used by elite programs.
+              </p>
+            </div>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-primary/20 rounded-lg blur-xl" />
+              <img 
+                src={appDashboardMockup} 
+                alt="4B App Dashboard Mockup" 
+                className="relative rounded-lg shadow-2xl border border-primary/30"
+              />
+            </div>
+          </div>
+
+          {/* Section 2: Swing Analysis - Image Left */}
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="order-2 md:order-1 relative">
+              <div className="absolute -inset-4 bg-primary/20 rounded-lg blur-xl" />
+              <img 
+                src={swingTempoAnalysis} 
+                alt="Swing Tempo Analysis" 
+                className="relative rounded-lg shadow-2xl border border-primary/30"
+              />
+            </div>
+            <div className="order-1 md:order-2">
+              <h2 className="text-3xl font-bold mb-4 text-foreground">Visualize Your Kinetic Chain</h2>
+              <p className="text-lg text-muted-foreground mb-4">
+                See your swing broken down frame-by-frame with tempo graphs and kinetic sequencing overlays. Understand how energy flows from your lower body through contact.
+              </p>
+              <p className="text-muted-foreground">
+                The same biomechanical insights used by pro hitters, now available on your phone.
+              </p>
+            </div>
+          </div>
+
+          {/* Section 3: Coach Instruction - Image Right */}
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold mb-4 text-foreground">Expert Coaching, Personalized Feedback</h2>
+              <p className="text-lg text-muted-foreground mb-4">
+                When you join a 4B program, you get direct access to Coach Rick's proven training system. Every metric is tied to actionable drills and personalized coaching cues.
+              </p>
+              <p className="text-muted-foreground">
+                The app measures. The coaching applies. Together, they transform your swing.
+              </p>
+            </div>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-primary/20 rounded-lg blur-xl" />
+              <img 
+                src={coachAthleteTraining} 
+                alt="Coach Rick instructing athlete" 
+                className="relative rounded-lg shadow-2xl border border-primary/30"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
