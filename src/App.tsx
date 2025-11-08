@@ -12,7 +12,6 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { CelebrationProvider } from "./components/CelebrationProvider";
 import { useEffect } from "react";
 import Landing from "./pages/Landing";
-import Programs from "./pages/Programs";
 import TrainInPerson from "./pages/TrainInPerson";
 import RemoteTraining from "./pages/RemoteTraining";
 import Community from "./pages/Community";
@@ -85,7 +84,6 @@ const App = () => {
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/" element={<Landing />} />
-            <Route path="/programs" element={<Programs />} />
             <Route path="/4b-app" element={<FourBApp />} />
             <Route path="/train-in-person" element={<TrainInPerson />} />
             <Route path="/remote-training" element={<RemoteTraining />} />

@@ -16,9 +16,9 @@ export default function BookCall() {
           </Link>
           <div className="flex items-center gap-4">
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/programs">
+              <Link to="/about">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Programs
+                Back to About
               </Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
@@ -197,7 +197,7 @@ export default function BookCall() {
                   Not ready to book yet?
                 </p>
                 <Button asChild variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10">
-                  <Link to="/programs">Learn More About Our Programs</Link>
+                  <Link to="/train-in-person">Learn More About Our Programs</Link>
                 </Button>
               </div>
             </div>

@@ -16,7 +16,7 @@ export default function Privacy() {
               <Link to="/">Home</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/programs">Programs</Link>
+              <Link to="/about">Programs</Link>
             </Button>
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
               <Link to="/auth">

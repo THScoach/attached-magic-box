@@ -23,7 +23,7 @@ export default function TrainInPerson() {
               <Link to="/">Home</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/programs">Programs</Link>
+              <Link to="/about">Programs</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/train-in-person">In-Person Training</Link>
@@ -371,7 +371,7 @@ export default function TrainInPerson() {
                 <Link to="/" className="block text-gray-400 hover:text-white transition-colors">
                   Home
                 </Link>
-                <Link to="/programs" className="block text-gray-400 hover:text-white transition-colors">
+                <Link to="/about" className="block text-gray-400 hover:text-white transition-colors">
                   Programs
                 </Link>
                 <Link to="/train-in-person" className="block text-gray-400 hover:text-white transition-colors">

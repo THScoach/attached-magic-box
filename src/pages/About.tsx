@@ -30,7 +30,7 @@ export default function About() {
             <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Home
             </Link>
-            <Link to="/programs" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Programs
             </Link>
             <Link to="/about" className="text-sm font-medium text-foreground">
@@ -154,6 +154,83 @@ export default function About() {
               </p>
               <blockquote className="border-l-4 border-primary pl-6 italic text-xl text-foreground mt-12">
                 "I don't teach swings. I build hitters."
+                <footer className="text-sm text-muted-foreground mt-2 not-italic">— Coach Rick</footer>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The 4B Philosophy Section */}
+      <section className="py-20">
+        <div className="container">
+          <div className="max-w-6xl mx-auto space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl font-black uppercase tracking-tight">
+                The 4B Philosophy
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                The Foundation of Modern Hitting
+              </p>
+            </div>
+
+            <div className="prose prose-lg max-w-none space-y-8 text-muted-foreground">
+              <p className="text-lg leading-relaxed">
+                The 4B System isn't about teaching a swing. It's about building complete hitters by measuring and optimizing the four pillars that separate good from elite:
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-8 not-prose">
+                <Card className="p-8 space-y-4 bg-card/50 border-blue-500/30">
+                  <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <svg className="h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-blue-500">Brain</h3>
+                  <p className="text-muted-foreground">
+                    Tempo, timing, and cognitive processing. We measure decision speed, timing patterns, and swing rhythm. Elite hitters don't think faster—they sync better. The Load:Fire ratio (optimal 3:1) determines whether your brain is controlling the swing or reacting to it.
+                  </p>
+                </Card>
+
+                <Card className="p-8 space-y-4 bg-card/50 border-green-500/30">
+                  <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <svg className="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-green-500">Body</h3>
+                  <p className="text-muted-foreground">
+                    Sequencing, power generation, and movement quality. How your body transfers energy from the ground up through the kinetic chain. We track pelvis rotation, torso sequencing, and weight transfer patterns. The body doesn't lie—inefficient movement shows up in the data before it shows up in your results.
+                  </p>
+                </Card>
+
+                <Card className="p-8 space-y-4 bg-card/50 border-red-500/30">
+                  <div className="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                    <svg className="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-red-500">Bat</h3>
+                  <p className="text-muted-foreground">
+                    Speed, path efficiency, and swing mechanics. We measure bat speed, attack angle, and barrel control through the zone. Bat speed matters, but only when paired with efficient sequencing and timing. A fast bat with poor timing is just noise.
+                  </p>
+                </Card>
+
+                <Card className="p-8 space-y-4 bg-card/50 border-orange-500/30">
+                  <div className="h-12 w-12 rounded-full bg-orange-500/10 flex items-center justify-center">
+                    <svg className="h-6 w-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-orange-500">Ball</h3>
+                  <p className="text-muted-foreground">
+                    Exit velocity, launch angle, and contact quality. The outcome metrics that prove everything else is working. We track hard-hit percentage, spray charts, and launch consistency. The ball is the final judge—but it's the Brain, Body, and Bat that determine the verdict.
+                  </p>
+                </Card>
+              </div>
+
+              <blockquote className="border-l-4 border-primary pl-6 italic text-xl text-foreground">
+                "Every player I train follows the same 4B process. That's how we make progress measurable, not debatable."
                 <footer className="text-sm text-muted-foreground mt-2 not-italic">— Coach Rick</footer>
               </blockquote>
             </div>
@@ -320,6 +397,53 @@ export default function About() {
         </div>
       </section>
 
+      {/* The 4B Promise */}
+      <section className="py-20 bg-muted/20">
+        <div className="container">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <h2 className="text-4xl font-black uppercase tracking-tight text-center">
+              The 4B Promise
+            </h2>
+            <div className="prose prose-lg max-w-none space-y-6 text-muted-foreground">
+              <p className="text-lg leading-relaxed text-center">
+                When you train with the 4B System, you're not guessing. You're measuring. You're not chasing feelings—you're building efficiency.
+              </p>
+              
+              <div className="grid md:grid-cols-3 gap-6 not-prose pt-8">
+                <Card className="p-6 text-center space-y-3">
+                  <CheckCircle2 className="h-8 w-8 text-primary mx-auto" />
+                  <h3 className="text-xl font-bold">Measurable Progress</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Every session is tracked. Every metric is recorded. You'll see improvement in numbers before you feel it in games.
+                  </p>
+                </Card>
+
+                <Card className="p-6 text-center space-y-3">
+                  <CheckCircle2 className="h-8 w-8 text-primary mx-auto" />
+                  <h3 className="text-xl font-bold">No Guesswork</h3>
+                  <p className="text-sm text-muted-foreground">
+                    We don't chase trends or teach what "feels right." We train what the data proves works.
+                  </p>
+                </Card>
+
+                <Card className="p-6 text-center space-y-3">
+                  <CheckCircle2 className="h-8 w-8 text-primary mx-auto" />
+                  <h3 className="text-xl font-bold">Pro-Level System</h3>
+                  <p className="text-sm text-muted-foreground">
+                    The same methods used by MLB organizations, now accessible to every level of player.
+                  </p>
+                </Card>
+              </div>
+
+              <blockquote className="border-l-4 border-primary pl-6 italic text-xl text-foreground mt-12">
+                "I don't promise faster swings. I promise better hitters."
+                <footer className="text-sm text-muted-foreground mt-2 not-italic">— Coach Rick</footer>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Footer */}
       <section className="py-20">
         <div className="container">
@@ -328,7 +452,7 @@ export default function About() {
               Ready to train smarter?
             </h2>
             <Button asChild size="lg" className="text-base font-semibold">
-              <Link to="/programs">Start My HITS Training</Link>
+              <Link to="/train-in-person">Start My HITS Training</Link>
             </Button>
           </div>
         </div>
@@ -351,7 +475,7 @@ export default function About() {
               <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
                 Home
               </Link>
-              <Link to="/programs" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors">
                 Programs
               </Link>
               <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors">

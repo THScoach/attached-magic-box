@@ -20,7 +20,7 @@ export default function RemoteTraining() {
               <Link to="/">Home</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/programs">Programs</Link>
+              <Link to="/about">Programs</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/train-in-person">In-Person Training</Link>

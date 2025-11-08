@@ -18,7 +18,7 @@ export default function FreeTempoAssessment() {
               <Link to="/">Home</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/programs">Programs</Link>
+              <Link to="/about">Programs</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/train-in-person">Train In-Person</Link>
@@ -123,7 +123,7 @@ export default function FreeTempoAssessment() {
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-400 mb-6">
                 Not ready to sign up yet?{" "}
-                <Link to="/programs" className="text-primary hover:underline">
+                <Link to="/train-in-person" className="text-primary hover:underline">
                   Learn more about our programs
                 </Link>
               </p>
@@ -206,7 +206,7 @@ export default function FreeTempoAssessment() {
                 <Link to="/" className="block text-gray-400 hover:text-white transition-colors">
                   Home
                 </Link>
-                <Link to="/programs" className="block text-gray-400 hover:text-white transition-colors">
+                <Link to="/about" className="block text-gray-400 hover:text-white transition-colors">
                   Programs
                 </Link>
                 <Link to="/train-in-person" className="block text-gray-400 hover:text-white transition-colors">

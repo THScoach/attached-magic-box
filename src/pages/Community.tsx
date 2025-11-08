@@ -20,7 +20,7 @@ export default function Community() {
               <Link to="/">Home</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/programs">Programs</Link>
+              <Link to="/about">Programs</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/train-in-person">In-Person Training</Link>
@@ -173,7 +173,7 @@ export default function Community() {
               className="bg-primary hover:bg-primary/90 text-white"
               asChild
             >
-              <Link to="/programs">View All Programs</Link>
+              <Link to="/train-in-person">View All Programs</Link>
             </Button>
             <Button 
               size="lg"
