@@ -1,6 +1,7 @@
 import { ReactionTimeStopwatch } from "./ReactionTimeStopwatch";
 import { SwingDecisionTrafficLight } from "./SwingDecisionTrafficLight";
 import { ConcentrationMeter } from "./ConcentrationMeter";
+import { MetricSourceBadge } from "./MetricSourceBadge";
 import { LetterGrade } from "@/lib/gradingSystem";
 
 interface BrainMetricsViewProps {
@@ -15,6 +16,7 @@ interface BrainMetricsViewProps {
   focusScore: number;
   focusGrade: LetterGrade;
   consistencyRating?: number;
+  dataSource?: "video" | "sensor" | "estimated";
 }
 
 export function BrainMetricsView({
@@ -29,12 +31,16 @@ export function BrainMetricsView({
   focusScore,
   focusGrade,
   consistencyRating,
+  dataSource = "estimated",
 }: BrainMetricsViewProps) {
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-3xl">🧠</span>
-        <h2 className="text-2xl font-bold">BRAIN (Mental)</h2>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-3xl">🧠</span>
+          <h2 className="text-2xl font-bold">BRAIN (Mental)</h2>
+        </div>
+        <MetricSourceBadge source={dataSource} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">

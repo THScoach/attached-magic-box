@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, User, TrendingUp, FileVideo, Target, MessageSquare, Calendar, Upload } from "lucide-react";
+import { ArrowLeft, User, TrendingUp, FileVideo, Target, MessageSquare, Calendar, Upload, Brain } from "lucide-react";
 import { FourBsScorecard } from "@/components/FourBsScorecard";
 import { MetricTrendChart } from "@/components/MetricTrendChart";
 import { CoachingNotesPanel } from "@/components/admin/CoachingNotesPanel";
@@ -185,6 +185,14 @@ export default function AdminPlayerDetail() {
             )}
           </div>
         </div>
+        <Button
+          onClick={() => navigate(`/brain/${id}`)}
+          variant="outline"
+          className="gap-2"
+        >
+          <Brain className="h-4 w-4" />
+          Brain Dashboard
+        </Button>
       </div>
 
       {/* Stats Overview */}
