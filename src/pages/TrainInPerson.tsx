@@ -1,3 +1,5 @@
+// TODO: Replace placeholder GoHighLevel and Coachly URLs once finalized.
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
@@ -24,7 +26,16 @@ export default function TrainInPerson() {
               <Link to="/programs">Programs</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/#system">How It Works</Link>
+              <Link to="/train-in-person">In-Person Training</Link>
+            </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/remote-training">Remote Training</Link>
+            </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/4b-app">The 4B App</Link>
+            </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/community">Community</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/about">About</Link>

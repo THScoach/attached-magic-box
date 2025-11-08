@@ -20,12 +20,12 @@ export function HitsLogo({ className, variant = "full" }: HitsLogoProps) {
     <div className={cn("flex flex-col", className)}>
       <div className="flex items-baseline gap-1">
         <span className="text-3xl font-black uppercase tracking-tight text-white">
-          HITS
+          The Hitting Skool
         </span>
         <span className="text-xs font-bold text-gray-400">™</span>
       </div>
       <span className="text-[0.65rem] font-medium uppercase tracking-wider text-gray-500">
-        Hitting Intelligence Training System
+        Powered by the 4B System
       </span>
     </div>
   );

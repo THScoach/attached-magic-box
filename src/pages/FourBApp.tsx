@@ -1,3 +1,5 @@
+// TODO: Replace placeholder GoHighLevel links for Free Tempo Analyzer and DIY Challenge.
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { HitsLogo } from "@/components/HitsLogo";
@@ -10,9 +12,37 @@ export default function FourBApp() {
       {/* Header */}
       <header className="border-b border-border/40 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <Link to="/" className="inline-block">
-            <HitsLogo className="h-12" />
-          </Link>
+          <nav className="flex items-center justify-between">
+            <Link to="/" className="inline-block">
+              <HitsLogo className="h-12" />
+            </Link>
+            <div className="flex items-center gap-4">
+              <Button asChild variant="ghost" className="text-white hover:text-primary">
+                <Link to="/">Home</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-white hover:text-primary">
+                <Link to="/programs">Programs</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-white hover:text-primary">
+                <Link to="/train-in-person">In-Person Training</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-white hover:text-primary">
+                <Link to="/remote-training">Remote Training</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-white hover:text-primary">
+                <Link to="/4b-app">The 4B App</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-white hover:text-primary">
+                <Link to="/community">Community</Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-white hover:text-primary">
+                <Link to="/about">About</Link>
+              </Button>
+              <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
+                <Link to="/auth">Login</Link>
+              </Button>
+            </div>
+          </nav>
         </div>
       </header>
 

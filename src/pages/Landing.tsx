@@ -38,13 +38,22 @@ export default function Landing() {
           </Link>
           <div className="flex items-center gap-4">
             <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/">Home</Link>
+            </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/programs">Programs</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/train-in-person">Train In-Person</Link>
+              <Link to="/train-in-person">In-Person Training</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <a href="#system">How It Works</a>
+              <Link to="/remote-training">Remote Training</Link>
+            </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/4b-app">The 4B App</Link>
+            </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/community">Community</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/about">About</Link>

@@ -1,3 +1,5 @@
+// TODO: Replace placeholder GoHighLevel and Coachly URLs once finalized.
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +14,8 @@ import { useEffect } from "react";
 import Landing from "./pages/Landing";
 import Programs from "./pages/Programs";
 import TrainInPerson from "./pages/TrainInPerson";
+import RemoteTraining from "./pages/RemoteTraining";
+import Community from "./pages/Community";
 import FreeTempoAssessment from "./pages/FreeTempoAssessment";
 import About from "./pages/About";
 import Privacy from "./pages/Privacy";
@@ -84,6 +88,8 @@ const App = () => {
             <Route path="/programs" element={<Programs />} />
             <Route path="/4b-app" element={<FourBApp />} />
             <Route path="/train-in-person" element={<TrainInPerson />} />
+            <Route path="/remote-training" element={<RemoteTraining />} />
+            <Route path="/community" element={<Community />} />
             <Route path="/free-tempo-assessment" element={<FreeTempoAssessment />} />
             <Route path="/about" element={<About />} />
             <Route path="/privacy" element={<Privacy />} />
