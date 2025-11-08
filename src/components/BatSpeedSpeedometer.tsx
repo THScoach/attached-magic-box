@@ -52,7 +52,7 @@ export function BatSpeedSpeedometer({
           <span className="text-2xl">⚡</span>
           <h3 className="font-semibold text-lg">YOUR BAT SPEED</h3>
         </div>
-        <MetricSourceBadge source="estimated" />
+        <MetricSourceBadge source="video" />
       </div>
 
       {/* Speedometer Gauge */}

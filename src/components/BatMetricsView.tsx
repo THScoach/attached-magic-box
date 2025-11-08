@@ -2,6 +2,7 @@ import { BatSpeedSpeedometer } from "./BatSpeedSpeedometer";
 import { AttackAngleLaunchRamp } from "./AttackAngleLaunchRamp";
 import { TimeInZoneTarget } from "./TimeInZoneTarget";
 import { MetricsDisclaimer } from "./MetricsDisclaimer";
+import { MetricSourceBadge } from "./MetricSourceBadge";
 import { LetterGrade } from "@/lib/gradingSystem";
 
 interface BatMetricsViewProps {
@@ -29,9 +30,12 @@ export function BatMetricsView({
 }: BatMetricsViewProps) {
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-3xl">🏏</span>
-        <h2 className="text-2xl font-bold">BAT (Tool)</h2>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-3xl">🏏</span>
+          <h2 className="text-2xl font-bold">BAT (Tool)</h2>
+        </div>
+        <MetricSourceBadge source="video" />
       </div>
 
       <MetricsDisclaimer type="bat" />

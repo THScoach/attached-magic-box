@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { MetricSourceBadge } from "./MetricSourceBadge";
 import { LetterGrade, getGradeColor } from "@/lib/gradingSystem";
 
 interface TimeInZoneTargetProps {
@@ -27,9 +28,19 @@ export function TimeInZoneTarget({ timeInZone, level, grade }: TimeInZoneTargetP
 
   return (
     <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-2xl">🎯</span>
-        <h3 className="font-semibold text-lg">TIME IN THE ZONE</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🎯</span>
+          <h3 className="font-semibold text-lg">TIME IN THE ZONE</h3>
+        </div>
+        <MetricSourceBadge source="estimated" />
+      </div>
+
+      <div className="mb-4 p-2 bg-warning/10 border border-warning/30 rounded-lg">
+        <p className="text-xs text-muted-foreground">
+          ⚠️ <strong>In Development:</strong> Time-in-zone calculation is being refined. 
+          Values shown are estimates based on bat path analysis.
+        </p>
       </div>
 
       {/* Target visualization */}

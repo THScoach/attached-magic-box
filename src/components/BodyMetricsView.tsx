@@ -1,7 +1,9 @@
 import { KinematicSequenceRelayRace } from "./KinematicSequenceRelayRace";
 import { PowerDistributionBattery } from "./PowerDistributionBattery";
 import { TempoMetronome } from "./TempoMetronome";
+import { SwingPhaseTimelineGraph } from "./SwingPhaseTimelineGraph";
 import { MetricsDisclaimer } from "./MetricsDisclaimer";
+import { MetricSourceBadge } from "./MetricSourceBadge";
 import { LetterGrade } from "@/lib/gradingSystem";
 
 interface BodyMetricsViewProps {
@@ -41,14 +43,24 @@ export function BodyMetricsView({
 }: BodyMetricsViewProps) {
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-3xl">💪</span>
-        <h2 className="text-2xl font-bold">BODY (Mechanics)</h2>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-3xl">💪</span>
+          <h2 className="text-2xl font-bold">BODY (Mechanics)</h2>
+        </div>
+        <MetricSourceBadge source="video" />
       </div>
 
       <MetricsDisclaimer type="body" />
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+        <div className="lg:col-span-2">
+          <SwingPhaseTimelineGraph
+            loadTime={loadTime}
+            launchTime={launchTime}
+          />
+        </div>
+
         <div className="lg:col-span-2">
           <KinematicSequenceRelayRace
             legsPeakVelocity={legsPeakVelocity}

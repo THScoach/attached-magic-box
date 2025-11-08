@@ -1180,25 +1180,9 @@ Provide detailed scores and analysis in this exact JSON format:
           total_swings: 1
         });
 
-        // Save BRAIN metrics
-        const reactionTime = 200 + (Math.random() * 50); // Placeholder - calculate from video timing
-        const focusScore = analysis.hitsScore || 85;
-        
-        await supabaseAdmin.from('brain_metrics').insert({
-          user_id: userId,
-          player_id: playerId,
-          analysis_id: analysisId,
-          reaction_time: reactionTime,
-          reaction_time_grade: reactionTime <= 220 ? 95 : reactionTime <= 250 ? 85 : 75,
-          good_swings_percentage: 85,
-          good_takes_percentage: 80,
-          swing_decision_grade: 85,
-          chase_rate: 15,
-          focus_score: focusScore,
-          focus_grade: focusScore >= 90 ? 95 : focusScore >= 80 ? 85 : 75,
-          consistency_rating: analysis.hitsScore || 85,
-          total_pitches: 1
-        });
+        // DO NOT save BRAIN metrics from video analysis
+        // Brain metrics should ONLY come from uploaded S2 Cognition or Endres test data
+        // Video analysis cannot accurately measure reaction time, swing decisions, or cognitive performance
 
         console.log('4 Bs metrics saved successfully');
 
