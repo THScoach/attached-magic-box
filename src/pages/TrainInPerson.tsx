@@ -197,6 +197,64 @@ export default function TrainInPerson() {
                 </p>
               </div>
 
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-4">Class Format – The 4B Solution in Action</h3>
+                <p className="text-gray-300 mb-6">
+                  Each 90-minute pod class is built on the 4B System — every player trains all four pillars in a single session.
+                </p>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/20">
+                        <th className="text-left py-3 px-4 text-white font-bold">Phase</th>
+                        <th className="text-left py-3 px-4 text-white font-bold">Focus</th>
+                        <th className="text-left py-3 px-4 text-white font-bold">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-white/10">
+                        <td className="py-4 px-4 text-gray-300">Stack Protocol (30 min)</td>
+                        <td className="py-4 px-4">
+                          <span className="font-bold text-primary">Bat + Body</span>
+                        </td>
+                        <td className="py-4 px-4 text-gray-300">
+                          AI-powered bat-speed & strength phase using The Stack System. Players build rotational power and tempo awareness.
+                        </td>
+                      </tr>
+                      <tr className="border-b border-white/10">
+                        <td className="py-4 px-4 text-gray-300">Movement & Sequencing (30 min)</td>
+                        <td className="py-4 px-4">
+                          <span className="font-bold text-primary">Body + Brain</span>
+                        </td>
+                        <td className="py-4 px-4 text-gray-300">
+                          Stability and timing work that connects movement efficiency with mental rhythm and sequencing.
+                        </td>
+                      </tr>
+                      <tr className="border-b border-white/10">
+                        <td className="py-4 px-4 text-gray-300">Live Hitting & Feedback (30 min)</td>
+                        <td className="py-4 px-4">
+                          <span className="font-bold text-primary">Ball + Bat</span>
+                        </td>
+                        <td className="py-4 px-4 text-gray-300">
+                          Measured results using HitTrax / Rapsodo / constraint drills. Immediate feedback on contact, launch, and exit speed.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p className="text-gray-300 mt-6">
+                  Each class reinforces the Brain, Body, Bat, and Ball pillars — so hitters develop complete, game-transferable skill sets instead of isolated mechanics.
+                </p>
+              </div>
+
+              <div className="mb-6 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+                <p className="text-gray-300 text-sm">
+                  <strong className="text-primary">Note:</strong> This is a <strong>program-based model</strong>, not single lessons. You're committing to a 12-week development cycle designed to build lasting results.
+                </p>
+              </div>
+
               <Button 
                 size="lg"
                 className="w-full bg-primary hover:bg-primary/90 text-white"
@@ -282,14 +340,14 @@ export default function TrainInPerson() {
             Can't Train In-Person?
           </h2>
           <p className="text-xl text-gray-300 mb-8">
-            Get the same 4B Hitting Intelligence System coaching remotely through our online programs.
+            Get the same 4B Hitting Intelligence System coaching remotely.
           </p>
           <Button 
             size="lg"
             className="bg-primary hover:bg-primary/90 text-white"
-            onClick={() => navigate('/programs')}
+            onClick={() => navigate('/remote-training')}
           >
-            View Remote Programs
+            View Remote Training
           </Button>
         </div>
       </section>
