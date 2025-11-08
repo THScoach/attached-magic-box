@@ -41,16 +41,13 @@ export default function Landing() {
               <Link to="/programs">Programs</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/about">About</Link>
+              <Link to="/train-in-person">Train In-Person</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
-              <Link to="/coach-auth">For Coaches</Link>
+              <Link to="/about">About</Link>
             </Button>
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
-              <Link to="/auth">
-                <HitsMonogram className="h-6 w-6 mr-2" />
-                App Login
-              </Link>
+              <Link to="/auth">Login</Link>
             </Button>
           </div>
         </div>
@@ -68,17 +65,17 @@ export default function Landing() {
               Train the Sequence.
             </h1>
             <p className="mx-auto mb-8 max-w-3xl text-xl text-gray-300 md:text-2xl">
-              Master the tempo-based swing system that MLB organizations use to develop All-Stars.
+              Remote + in-person hitting training built by a pro coach, powered by swing tempo and sequencing.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-lg font-bold uppercase">
-                <Link to="/auth">
-                  Get Your Tempo Score Free
+                <Link to="/free-tempo-assessment">
+                  Start Free Tempo Assessment
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 px-8 py-6 text-lg font-bold uppercase">
-                <a href="#sample-report">See Sample Report</a>
+                <Link to="/train-in-person">Train In-Person</Link>
               </Button>
             </div>
           </div>

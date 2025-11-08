@@ -11,6 +11,8 @@ import { CelebrationProvider } from "./components/CelebrationProvider";
 import { useEffect } from "react";
 import Landing from "./pages/Landing";
 import Programs from "./pages/Programs";
+import TrainInPerson from "./pages/TrainInPerson";
+import FreeTempoAssessment from "./pages/FreeTempoAssessment";
 import About from "./pages/About";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
@@ -80,6 +82,8 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/programs" element={<Programs />} />
+            <Route path="/train-in-person" element={<TrainInPerson />} />
+            <Route path="/free-tempo-assessment" element={<FreeTempoAssessment />} />
             <Route path="/about" element={<About />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />

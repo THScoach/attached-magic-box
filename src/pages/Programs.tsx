@@ -1,14 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Check, ArrowRight, ChevronRight } from "lucide-react";
-import { HitsLogo, HitsMonogram } from "@/components/HitsLogo";
+import { Upload, Video, Calendar, Trophy, CheckCircle2 } from "lucide-react";
+import { HitsLogo } from "@/components/HitsLogo";
 
 export default function Programs() {
-  const handleCheckoutClick = (whopUrl: string) => {
-    // Direct redirect to Whop checkout - Whop handles authentication
-    window.location.href = whopUrl;
-  };
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -22,335 +18,233 @@ export default function Programs() {
               <Link to="/">Home</Link>
             </Button>
             <Button asChild variant="ghost" className="text-white hover:text-primary">
+              <Link to="/train-in-person">Train In-Person</Link>
+            </Button>
+            <Button asChild variant="ghost" className="text-white hover:text-primary">
               <Link to="/about">About</Link>
             </Button>
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
-              <Link to="/auth">
-                <HitsMonogram className="h-6 w-6 mr-2" />
-                App Login
-              </Link>
+              <Link to="/auth">App Login</Link>
             </Button>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-16 overflow-hidden">
+      <section className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-black to-black" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(192,192,192,0.08)_0%,transparent_70%)]" />
-        <div className="container relative z-10 mx-auto px-4 text-center">
-          <h1 className="mb-6 text-5xl font-black uppercase leading-tight tracking-tight md:text-6xl lg:text-7xl">
-            Choose Your Path
-          </h1>
-          <p className="mx-auto max-w-2xl text-xl text-gray-300">
-            From free analysis to elite 1-on-1 coaching — pick the program that matches your commitment level
-          </p>
-        </div>
-      </section>
-
-      {/* Product Cards Section */}
-      <section className="py-20 bg-black">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-8 max-w-6xl mx-auto">
-            
-            {/* FREE - HITS Tempo Score */}
-            <Card className="border-2 border-green-500/30 bg-zinc-900 hover:border-green-500/50 transition-all">
-              <CardHeader>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <div className="mb-2">
-                      <span className="text-4xl font-black text-green-500">FREE</span>
-                    </div>
-                    <CardTitle className="text-2xl font-black uppercase mb-2">HITS Tempo Score</CardTitle>
-                    <CardDescription className="text-gray-400 text-base">
-                      Instant swing analysis with personalized tempo breakdown
-                    </CardDescription>
-                  </div>
-                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <Link to="/auth">
-                      Start Free <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Instant Tempo Score (2.0:1 vs 1.5:1)</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Basic Anchor-Engine-Whip breakdown</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Access to drill library</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* $9.97 - 7-Day Challenge */}
-            <Card className="border-2 border-primary/50 bg-zinc-900 hover:border-primary transition-all shadow-lg shadow-primary/20">
-              <div className="absolute -top-4 left-8 bg-red-500 text-white px-6 py-1.5 rounded-full text-xs font-black uppercase">
-                🔥 Best Value
-              </div>
-              <CardHeader>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <div className="mb-2">
-                      <span className="text-4xl font-black text-primary">$9.97</span>
-                    </div>
-                    <CardTitle className="text-2xl font-black uppercase mb-2">HITS 7-Day Challenge</CardTitle>
-                    <CardDescription className="text-gray-400 text-base">
-                      Prove the system works with daily coaching and feedback
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    size="lg" 
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
-                    onClick={() => handleCheckoutClick(import.meta.env.VITE_WHOP_CHALLENGE_URL)}
-                  >
-                    Start Challenge <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300 font-semibold">Daily video analysis + feedback</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Personalized 7-day drill progression</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Coach Rick live Q&A access</span>
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-white/10">
-                  <p className="text-sm text-gray-400">
-                    <span className="font-bold text-primary">+3-5 MPH average gain</span> in just 7 days • Over 400 enrolled this month
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* DIY - $297/year */}
-            <Card className="border-2 border-white/20 bg-zinc-900 hover:border-white/40 transition-all">
-              <div className="absolute -top-4 left-8 bg-blue-500 text-white px-6 py-1.5 rounded-full text-xs font-black uppercase">
-                MOST POPULAR
-              </div>
-              <CardHeader>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <div className="mb-2 space-y-1">
-                      <div>
-                        <span className="text-4xl font-black text-white">$297</span>
-                        <span className="text-xl text-gray-400">/year</span>
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        or 4 payments of $74.25 with Klarna
-                      </div>
-                    </div>
-                    <CardTitle className="text-2xl font-black uppercase mb-2">DIY Membership</CardTitle>
-                    <CardDescription className="text-gray-400 text-base">
-                      Full platform access with unlimited AI-powered analysis
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    size="lg" 
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
-                    onClick={() => handleCheckoutClick(import.meta.env.VITE_WHOP_DIY_URL)}
-                  >
-                    Join DIY <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Unlimited swing analyses</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Coach Rick AI chat (unlimited)</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Personalized drill plans</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Progress tracking & history</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Community access</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Advanced biomechanics reports</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Elite - $997/year */}
-            <Card className="relative border-2 border-primary bg-gradient-to-br from-primary/5 via-zinc-900 to-zinc-950 hover:border-primary transition-all shadow-xl shadow-primary/20">
-              <div className="absolute -top-4 left-8 bg-gradient-to-r from-primary to-amber-400 text-black px-6 py-1.5 rounded-full text-xs font-black uppercase">
-                PREMIUM
-              </div>
-              <CardHeader>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <div className="mb-2 space-y-1">
-                      <div>
-                        <span className="text-4xl font-black text-primary">$997</span>
-                        <span className="text-xl text-gray-400">/year</span>
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        or 12 payments of $83 with Klarna
-                      </div>
-                    </div>
-                    <CardTitle className="text-2xl font-black uppercase mb-2">Elite</CardTitle>
-                    <CardDescription className="text-gray-400 text-base">
-                      Premium coaching with monthly 1-on-1 calls and custom programming
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    size="lg" 
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap"
-                    onClick={() => handleCheckoutClick(import.meta.env.VITE_WHOP_ELITE_URL)}
-                  >
-                    Join Elite <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4 text-sm mb-6">
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300 font-semibold">Everything in DIY, PLUS:</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300 font-semibold">Monthly 1-on-1 video call</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Custom 12-week training program</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Priority support (24-hour response)</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Equipment recommendations</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Exclusive community access</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Coaches & Teams */}
-            <Card className="border-2 border-white/20 bg-zinc-900 hover:border-white/40 transition-all">
-              <CardHeader>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-2xl font-black uppercase mb-2">
-                      Coaches & Teams
-                    </CardTitle>
-                    <CardDescription className="text-gray-400 text-base">
-                      Custom programs, bulk licensing, and dedicated support for organizations
-                    </CardDescription>
-                  </div>
-                  <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase whitespace-nowrap">
-                    <Link to="/request-demo">
-                      Request Demo <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Team-wide analytics dashboard</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Custom training programs</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Bulk seat licensing</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">On-site workshop options</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">Dedicated account manager</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                    <span className="text-gray-300">White-label options available</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-zinc-950">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="mb-6 text-4xl font-black uppercase md:text-5xl">
-              Not Sure Where to Start?
-            </h2>
-            <p className="mb-8 text-xl text-gray-300">
-              Begin with a free Tempo Score analysis and discover what's holding your swing back
+        
+        <div className="container relative z-10 mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h1 className="mb-6 text-5xl font-black uppercase leading-tight tracking-tight md:text-6xl">
+              Training Programs
+            </h1>
+            <p className="text-xl text-gray-300">
+              Choose the path that fits your goals — from free tempo assessments to elite remote coaching
             </p>
-            <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-lg font-bold uppercase">
-              <Link to="/auth">
-                Get Free Analysis <ChevronRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+          </div>
+
+          {/* Remote Programs Section */}
+          <div className="max-w-6xl mx-auto mb-20">
+            <h2 className="text-3xl font-black uppercase mb-8 text-center">Remote Training</h2>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Free Tempo Assessment */}
+              <Card className="bg-black border-white/20 hover:border-primary/50 transition-all">
+                <CardHeader>
+                  <div className="h-12 w-12 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center mb-4">
+                    <Upload className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold">Free Tempo Assessment</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Get started with the basics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-3xl font-black text-primary">FREE</div>
+                  
+                  <ul className="space-y-2 text-sm text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Upload 1 swing video</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Instant Tempo Score analysis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>1-2 key mechanical insights</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>See what our system can do</span>
+                    </li>
+                  </ul>
+
+                  <Button asChild className="w-full bg-primary hover:bg-primary/90 font-bold">
+                    <Link to="/free-tempo-assessment">Get Started Free</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* DIY Membership */}
+              <Card className="bg-black border-primary/50 hover:border-primary transition-all relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-xs font-bold uppercase">
+                  Popular
+                </div>
+                <CardHeader>
+                  <div className="h-12 w-12 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center mb-4">
+                    <Video className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold">DIY Membership</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Self-guided training with AI tools
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="text-3xl font-black text-primary">$49.97</div>
+                    <div className="text-sm text-gray-400">per month</div>
+                  </div>
+                  
+                  <ul className="space-y-2 text-sm text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Unlimited swing uploads</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Full HITS analysis (Anchor, Engine, Whip)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>AI-powered drill recommendations</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Progress tracking dashboard</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Video comparison tools</span>
+                    </li>
+                  </ul>
+
+                  <Button asChild className="w-full bg-primary hover:bg-primary/90 font-bold">
+                    <Link to="/auth">Start DIY Training</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Elite Coaching */}
+              <Card className="bg-gradient-to-br from-primary/10 to-black border-primary/30 hover:border-primary transition-all">
+                <CardHeader>
+                  <div className="h-12 w-12 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center mb-4">
+                    <Trophy className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-2xl font-bold">Elite Coaching</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Direct coaching from Coach Rick
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="text-3xl font-black text-primary">$297</div>
+                    <div className="text-sm text-gray-400">per month</div>
+                  </div>
+                  
+                  <ul className="space-y-2 text-sm text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Everything in DIY</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Personal video reviews from Coach Rick</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Custom drill programming</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Weekly 1-on-1 check-ins</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <span>Priority support access</span>
+                    </li>
+                  </ul>
+
+                  <Button asChild className="w-full bg-primary hover:bg-primary/90 font-bold">
+                    <Link to="/auth">Get Elite Coaching</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* In-Person Training CTA */}
+          <div className="max-w-4xl mx-auto">
+            <Card className="bg-zinc-950 border-white/20">
+              <CardContent className="p-8 text-center">
+                <Calendar className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h2 className="text-3xl font-black uppercase mb-4">In-Person Training</h2>
+                <p className="text-lg text-gray-300 mb-6">
+                  Train live with Coach Rick at select locations. Private lessons, small groups, and clinics available.
+                </p>
+                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 font-bold">
+                  <Link to="/train-in-person">View In-Person Options</Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-black py-12">
+      <footer className="border-t border-white/10 bg-zinc-950 py-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <HitsMonogram className="h-8 w-8" />
+          <div className="grid md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+              <h3 className="font-bold mb-4">The Hitting Skool</h3>
               <p className="text-sm text-gray-400">
-                © 2025 The Hitting Skool. All rights reserved.
+                Professional hitting instruction powered by tempo-based swing science
               </p>
             </div>
-            <div className="flex gap-6">
-              <Button asChild variant="ghost" className="text-gray-400 hover:text-white text-sm">
-                <Link to="/auth">App Login</Link>
-              </Button>
-              <Button asChild variant="ghost" className="text-gray-400 hover:text-white text-sm">
-                <a href="mailto:support@thehittingskool.com">Support</a>
-              </Button>
+            <div>
+              <h3 className="font-bold mb-4">Quick Links</h3>
+              <div className="space-y-2 text-sm">
+                <Link to="/" className="block text-gray-400 hover:text-white transition-colors">
+                  Home
+                </Link>
+                <Link to="/programs" className="block text-gray-400 hover:text-white transition-colors">
+                  Programs
+                </Link>
+                <Link to="/train-in-person" className="block text-gray-400 hover:text-white transition-colors">
+                  Train In-Person
+                </Link>
+                <Link to="/about" className="block text-gray-400 hover:text-white transition-colors">
+                  About
+                </Link>
+              </div>
             </div>
+            <div>
+              <h3 className="font-bold mb-4">Legal</h3>
+              <div className="space-y-2 text-sm">
+                <Link to="/terms" className="block text-gray-400 hover:text-white transition-colors">
+                  Terms of Service
+                </Link>
+                <Link to="/privacy" className="block text-gray-400 hover:text-white transition-colors">
+                  Privacy Policy
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-white/10 text-center text-sm text-gray-400">
+            © {new Date().getFullYear()} The Hitting Skool. All rights reserved.
           </div>
         </div>
       </footer>
