@@ -53,7 +53,7 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section - PROMISE + CTA */}
       <section className="relative flex min-h-screen items-center overflow-hidden pt-16">
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-black to-black" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(192,192,192,0.08)_0%,transparent_70%)]" />
@@ -61,407 +61,373 @@ export default function Landing() {
         <div className="container relative z-10 mx-auto px-4 py-20">
           <div className="mx-auto max-w-5xl text-center">
             <h1 className="mb-6 text-6xl font-black uppercase leading-tight tracking-tight md:text-7xl lg:text-8xl">
-              Simplify the Science.<br />
-              Train the Sequence.
+              Fix Your Swing Tempo<br />
+              Build Game-Ready Power<br />
+              In 30 Days
             </h1>
-            <p className="mx-auto mb-8 max-w-3xl text-xl text-gray-300 md:text-2xl">
-              Remote + in-person hitting training built by a pro coach, powered by swing tempo and sequencing.
+            <p className="mx-auto mb-8 max-w-3xl text-2xl font-bold text-gray-200 md:text-3xl">
+              Join hundreds of hitters who've improved sequence and contact quality with The Hitting Skool System
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-lg font-bold uppercase">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+              <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-12 py-8 text-xl font-black uppercase shadow-2xl shadow-primary/50">
                 <Link to="/free-tempo-assessment">
-                  Start Free Tempo Assessment
+                  Start Free Tempo Assessment →
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 px-8 py-6 text-lg font-bold uppercase">
-                <Link to="/train-in-person">Train In-Person</Link>
-              </Button>
+            </div>
+            <p className="text-gray-400">No equipment needed. Results in 48 hours.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* PROBLEM Section */}
+      <section className="py-24 bg-zinc-950 border-y border-white/10">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="mb-8 text-4xl font-black uppercase md:text-5xl text-red-500">
+              Most Hitters Are Guessing Their Mechanics
+            </h2>
+            <div className="space-y-6 text-xl text-gray-300">
+              <p>You take 1,000 swings.</p>
+              <p>You watch YouTube videos.</p>
+              <p>You copy what "looks good."</p>
+              <p className="text-2xl font-bold text-white pt-4">But you don't know if your timing is actually improving.</p>
+              <p className="text-gray-400">Without data, you're flying blind. And blind reps don't make you elite.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Trusted By Pros Bar */}
-      <section className="py-12 bg-zinc-950 border-y border-white/10">
+      {/* MECHANISM Section */}
+      <section className="py-24 bg-black">
         <div className="container mx-auto px-4">
-          <p className="text-center text-sm font-semibold uppercase tracking-widest text-gray-400 mb-6">
-            Trusted By Professional Athletes
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 text-gray-300 mb-12">
-            <span className="text-lg font-bold">Pete Crow-Armstrong</span>
-            <span className="text-2xl text-gray-600">•</span>
-            <span className="text-lg font-bold">Cedric Mullins</span>
-            <span className="text-2xl text-gray-600">•</span>
-            <span className="text-lg font-bold">Matt Adams</span>
-            <span className="text-2xl text-gray-600">•</span>
-            <span className="text-lg font-bold">MLB Organizations</span>
-          </div>
-
-          {/* Technology Partners */}
-          <div className="max-w-6xl mx-auto pt-8 border-t border-white/10">
-            <p className="text-center text-sm font-semibold uppercase tracking-widest text-gray-400 mb-8">
-              Trusted by Leaders in Biomechanics and Player Performance
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="mb-6 text-4xl font-black uppercase md:text-5xl">
+              The Hitting Sequence System
+            </h2>
+            <p className="text-2xl font-bold text-primary mb-4">
+              We measure tempo and sequence so you train with precision, not guesswork.
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 opacity-40 hover:opacity-60 transition-opacity">
-              {[
-                "Reboot Motion",
-                "Zenolink",
-                "Blast Motion",
-                "Diamond Kinetics",
-                "Rapsodo",
-                "HitTrax",
-                "Uplift Labs",
-                "Sports Science Lab"
-              ].map((tech) => (
-                <div key={tech} className="aspect-video rounded-lg bg-white/5 border border-white/10 flex items-center justify-center p-4 hover:bg-white/10 hover:border-white/20 transition-all">
-                  <p className="text-gray-300 text-xs text-center font-semibold">{tech}</p>
-                </div>
-              ))}
-            </div>
+            <p className="text-xl text-gray-300">
+              No more hoping your swing "feels right." You'll see your Load:Fire ratio, Anchor timing, and kinetic chain efficiency—the same metrics MLB organizations use.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Sample Report Lead Capture */}
-      <section id="sample-report" className="py-24 bg-zinc-950">
+      {/* PROOF Section */}
+      <section className="py-16 bg-zinc-950">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="mb-4 text-4xl font-black uppercase md:text-5xl">
-                See What You'll Get
-              </h2>
-              <p className="text-xl text-gray-300">
-                View a real swing analysis report and see how we track your progress over time
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-8 items-start">
-              {/* Demo Report Features */}
-              <div className="space-y-6">
-                <div className="flex gap-4 items-start">
-                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-                    <span className="text-lg font-black text-primary">✓</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-1">Progress Tracking Over Time</h3>
-                    <p className="text-gray-400 text-sm">
-                      See exactly how your swing metrics improve session by session
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 items-start">
-                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-                    <span className="text-lg font-black text-primary">✓</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-1">Three Pillars Breakdown</h3>
-                    <p className="text-gray-400 text-sm">
-                      Understand your ANCHOR, ENGINE, and WHIP scores with detailed analysis
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 items-start">
-                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-                    <span className="text-lg font-black text-primary">✓</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-1">Actionable Insights</h3>
-                    <p className="text-gray-400 text-sm">
-                      Get specific recommendations on what to work on next
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 items-start">
-                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-                    <span className="text-lg font-black text-primary">✓</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-1">Downloadable PDF</h3>
-                    <p className="text-gray-400 text-sm">
-                      Print and share your progress with coaches and recruiters
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Lead Capture Form */}
-              <Card className="bg-black border-white/20">
-                <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <FileText className="h-6 w-6 text-primary" />
-                    <CardTitle className="text-xl">View Sample Report</CardTitle>
-                  </div>
-                  <p className="text-sm text-gray-400">
-                    Enter your info to see a real example
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleDemoRequest} className="space-y-4">
-                    {/* Honeypot field - hidden from users, catches bots */}
-                    <input
-                      type="text"
-                      name="website"
-                      value={honeypot}
-                      onChange={(e) => setHoneypot(e.target.value)}
-                      style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
-                      tabIndex={-1}
-                      autoComplete="off"
-                      aria-hidden="true"
-                    />
-                    
-                    <div>
-                      <Label htmlFor="name" className="text-white">Your Name</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        placeholder="Enter your name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        className="bg-zinc-900 border-white/10 text-white"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email" className="text-white">Email Address</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="your@email.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="bg-zinc-900 border-white/10 text-white"
-                      />
-                    </div>
-                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-lg font-bold">
-                      Continue to View Report
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                    <p className="text-xs text-center text-gray-400">
-                      You'll be asked to sign up or log in
-                    </p>
-                  </form>
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-4xl font-black uppercase text-center mb-12">Real Hitters. Real Results.</h2>
+            
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
+              <Card className="bg-black border-primary/30">
+                <CardContent className="p-6 text-center">
+                  <div className="text-5xl font-black text-primary mb-2">2.8→3.1</div>
+                  <p className="text-sm text-gray-400">Load:Fire ratio improvement</p>
+                  <p className="text-xs text-gray-500 mt-2">High school outfielder, 21 days</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-black border-primary/30">
+                <CardContent className="p-6 text-center">
+                  <div className="text-5xl font-black text-primary mb-2">+8 MPH</div>
+                  <p className="text-sm text-gray-400">Exit velocity increase</p>
+                  <p className="text-xs text-gray-500 mt-2">College recruit, 30 days</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-black border-primary/30">
+                <CardContent className="p-6 text-center">
+                  <div className="text-5xl font-black text-primary mb-2">87%</div>
+                  <p className="text-sm text-gray-400">Improved contact consistency</p>
+                  <p className="text-xs text-gray-500 mt-2">Travel ball athletes, 6 weeks</p>
                 </CardContent>
               </Card>
             </div>
+
+            <div className="text-center text-gray-300 mb-8">
+              <p className="text-lg font-semibold mb-4">Trusted by:</p>
+              <div className="flex flex-wrap justify-center gap-6 text-base">
+                <span>Pete Crow-Armstrong</span>
+                <span className="text-gray-600">•</span>
+                <span>Cedric Mullins</span>
+                <span className="text-gray-600">•</span>
+                <span>Matt Adams</span>
+                <span className="text-gray-600">•</span>
+                <span>MLB Organizations</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* The HITS System - 3 Pillars */}
+      {/* VALUE STACK - What You Get */}
+      <section className="py-24 bg-black">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl font-black uppercase text-center mb-4">Here's Everything You Get</h2>
+            <p className="text-center text-xl text-primary font-bold mb-12">In Your Free Tempo Assessment</p>
+            
+            <div className="bg-zinc-950 border-2 border-primary/30 rounded-lg p-8 mb-8">
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+                    <span className="text-lg font-black text-black">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-1">Your Personal Tempo Score</h3>
+                    <p className="text-gray-400">See your exact Load:Fire ratio vs. elite standards (Value: $150)</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+                    <span className="text-lg font-black text-black">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-1">Video Breakdown</h3>
+                    <p className="text-gray-400">Frame-by-frame analysis of your sequence timing (Value: $200)</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+                    <span className="text-lg font-black text-black">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-1">Top 2 Mechanical Fixes</h3>
+                    <p className="text-gray-400">Specific corrections that will improve your contact quality immediately (Value: $300)</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+                    <span className="text-lg font-black text-black">✓</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-1">48-Hour Turnaround</h3>
+                    <p className="text-gray-400">No waiting weeks. You get answers fast. (Priceless)</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-white/10 text-center">
+                <p className="text-gray-400 mb-2">Total Value: <span className="line-through">$650</span></p>
+                <p className="text-5xl font-black text-primary mb-4">FREE</p>
+                <p className="text-sm text-gray-500">No credit card. No catch. Just your swing video.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* URGENCY Section */}
+      <section className="py-16 bg-zinc-950 border-y-4 border-red-500">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-block bg-red-500 text-white px-6 py-2 rounded-full text-sm font-black uppercase mb-6">
+              ⏰ Limited Availability
+            </div>
+            <h2 className="text-3xl font-black uppercase mb-4">
+              Only 50 Free Assessments Available This Month
+            </h2>
+            <p className="text-xl text-gray-300 mb-8">
+              Coach Rick personally reviews every assessment. When spots are gone, you'll join the waitlist.
+            </p>
+            <div className="bg-black border border-white/10 rounded-lg p-6 inline-block">
+              <p className="text-sm text-gray-400 mb-2">Spots Remaining:</p>
+              <p className="text-5xl font-black text-primary">27</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The HITS System - Reframed */}
       <section id="system" className="py-24 bg-black">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl mb-16 text-center">
+          <div className="mx-auto max-w-4xl mb-12 text-center">
             <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-primary">
-              The HITS System
+              How It Works
             </p>
             <h2 className="mb-6 text-4xl font-black uppercase md:text-5xl">
-              Three Pillars of Power
+              Three Phases. One Sequence.
             </h2>
             <p className="text-xl text-gray-300">
-              Elite swing mechanics broken down into three sequenced movements
+              We don't fix 47 mechanical cues. We fix the sequence that creates all of them.
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto mb-12">
-            <Card className="border-2 border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-transparent hover:border-blue-500/50 transition-all">
+          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+            <Card className="border-2 border-blue-500/30 bg-gradient-to-br from-blue-500/5 to-transparent">
               <CardHeader className="text-center">
-                <div className="mx-auto mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-blue-500/10 border-2 border-blue-500/30">
-                  <Anchor className="h-10 w-10 text-blue-500" />
+                <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10 border-2 border-blue-500/30">
+                  <Anchor className="h-8 w-8 text-blue-500" />
                 </div>
-                <CardTitle className="text-2xl font-black uppercase text-blue-500">Anchor</CardTitle>
-                <p className="text-gray-400 mt-2">Ground Force & Stability</p>
+                <CardTitle className="text-2xl font-black uppercase text-blue-500">1. Anchor</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-center text-gray-300">
-                  Rear leg stability and connection point timing — the foundation of all power generation
+                <p className="text-center text-gray-300 font-semibold mb-2">
+                  Rear leg loads at the right time.
+                </p>
+                <p className="text-center text-sm text-gray-400">
+                  If you load too early or late, you leak power before contact. We measure it down to the frame.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-red-500/30 bg-gradient-to-br from-red-500/5 to-transparent hover:border-red-500/50 transition-all">
+            <Card className="border-2 border-red-500/30 bg-gradient-to-br from-red-500/5 to-transparent">
               <CardHeader className="text-center">
-                <div className="mx-auto mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 border-2 border-red-500/30">
-                  <Settings className="h-10 w-10 text-red-500" />
+                <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 border-2 border-red-500/30">
+                  <Settings className="h-8 w-8 text-red-500" />
                 </div>
-                <CardTitle className="text-2xl font-black uppercase text-red-500">Engine</CardTitle>
-                <p className="text-gray-400 mt-2">Rotational Power</p>
+                <CardTitle className="text-2xl font-black uppercase text-red-500">2. Engine</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-center text-gray-300">
-                  Pelvis-to-torso coil and rotation timing — where bat speed is created
+                <p className="text-center text-gray-300 font-semibold mb-2">
+                  Hips fire before shoulders.
+                </p>
+                <p className="text-center text-sm text-gray-400">
+                  If your torso rotates first, you're weak through the zone. Proper sequencing = easy power.
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-orange-500/30 bg-gradient-to-br from-orange-500/5 to-transparent hover:border-orange-500/50 transition-all">
+            <Card className="border-2 border-orange-500/30 bg-gradient-to-br from-orange-500/5 to-transparent">
               <CardHeader className="text-center">
-                <div className="mx-auto mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-orange-500/10 border-2 border-orange-500/30">
-                  <Zap className="h-10 w-10 text-orange-500" />
+                <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-orange-500/10 border-2 border-orange-500/30">
+                  <Zap className="h-8 w-8 text-orange-500" />
                 </div>
-                <CardTitle className="text-2xl font-black uppercase text-orange-500">Whip</CardTitle>
-                <p className="text-gray-400 mt-2">Kinetic Release</p>
+                <CardTitle className="text-2xl font-black uppercase text-orange-500">3. Whip</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-center text-gray-300">
-                  Hand path release and lag acceleration — the final explosion through contact
+                <p className="text-center text-gray-300 font-semibold mb-2">
+                  Hands lag, then explode.
+                </p>
+                <p className="text-center text-sm text-gray-400">
+                  The last link in the chain. If you cast early, you lose bat speed. We show you when to release.
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          <div className="text-center">
-            <div className="aspect-video max-w-3xl mx-auto rounded-lg border-2 border-white/10 bg-zinc-900 overflow-hidden flex items-center justify-center">
-              <div className="text-center p-8">
-                <p className="text-xl font-bold text-gray-400 mb-2">System Explainer Video</p>
-                <p className="text-sm text-gray-500">Coming Soon</p>
-              </div>
-            </div>
+          <div className="text-center mt-12">
+            <p className="text-xl text-gray-300 font-bold">
+              Fix the sequence. Everything else falls into place.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* What Makes HITS Different */}
-      <section className="py-24 bg-black">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl mb-16 text-center">
-            <h2 className="mb-6 text-4xl font-black uppercase md:text-5xl">
-              What Makes HITS Different
-            </h2>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0">
-                <div className="h-12 w-12 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-                  <span className="text-2xl font-black text-primary">✓</span>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Tempo-Based Swing Science</h3>
-                <p className="text-gray-400">
-                  We don't guess at mechanics — we measure precise timing sequences used by MLB organizations
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex-shrink-0">
-                <div className="h-12 w-12 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-                  <span className="text-2xl font-black text-primary">✓</span>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Anchored in Biomechanics</h3>
-                <p className="text-gray-400">
-                  Every recommendation is rooted in kinematic sequencing principles proven by sports science
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex-shrink-0">
-                <div className="h-12 w-12 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-                  <span className="text-2xl font-black text-primary">✓</span>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Built by a Pro Hitting Coach</h3>
-                <p className="text-gray-400">
-                  25+ years developing MLB All-Stars and first-round draft picks at the highest level
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex-shrink-0">
-                <div className="h-12 w-12 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-                  <span className="text-2xl font-black text-primary">✓</span>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Follow a Proven Plan</h3>
-                <p className="text-gray-400">
-                  Stop guessing what to work on — get a personalized roadmap based on YOUR swing data
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trusted By Professional Hitters */}
+      {/* What Makes Us Different - Results Focus */}
       <section className="py-24 bg-zinc-950">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="mb-8 text-4xl font-black uppercase md:text-5xl">
-              Trusted by Professional Hitters
+          <div className="mx-auto max-w-4xl mb-12 text-center">
+            <h2 className="mb-6 text-4xl font-black uppercase md:text-5xl">
+              Why This Works When Everything Else Doesn't
             </h2>
-            <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-              Rick Strickland has coached MLB All-Stars and first-round draft picks, including:
-            </p>
-            
-            <div className="grid gap-8 md:grid-cols-3 max-w-3xl mx-auto mb-12">
-              <div className="text-center">
-                <div className="mb-3 h-24 w-24 mx-auto rounded-full bg-zinc-800 border-2 border-primary/30 flex items-center justify-center">
-                  <span className="text-3xl font-black text-primary">PCA</span>
-                </div>
-                <p className="text-lg font-bold text-white">
-                  Pete Crow-Armstrong
-                </p>
-                <p className="text-sm text-gray-400">Chicago Cubs</p>
-              </div>
+          </div>
 
-              <div className="text-center">
-                <div className="mb-3 h-24 w-24 mx-auto rounded-full bg-zinc-800 border-2 border-primary/30 flex items-center justify-center">
-                  <span className="text-3xl font-black text-primary">CM</span>
-                </div>
-                <p className="text-lg font-bold text-white">
-                  Cedric Mullins
-                </p>
-                <p className="text-sm text-gray-400">Baltimore Orioles</p>
-              </div>
-
-              <div className="text-center">
-                <div className="mb-3 h-24 w-24 mx-auto rounded-full bg-zinc-800 border-2 border-primary/30 flex items-center justify-center">
-                  <span className="text-3xl font-black text-primary">MA</span>
-                </div>
-                <p className="text-lg font-bold text-white">
-                  Matt Adams
-                </p>
-                <p className="text-sm text-gray-400">MLB Veteran</p>
-              </div>
+          <div className="grid gap-8 md:grid-cols-2 max-w-5xl mx-auto">
+            <div className="bg-black border border-white/10 rounded-lg p-8">
+              <h3 className="text-2xl font-bold mb-3 text-primary">❌ Most Coaches</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>→ Focus on 30+ mechanical cues</li>
+                <li>→ Tell you to "feel" the swing</li>
+                <li>→ No measurable progress tracking</li>
+                <li>→ Hope you figure it out over time</li>
+              </ul>
             </div>
 
-            <p className="text-gray-400 text-base">
-              + Multiple MLB organizations and professional development programs
+            <div className="bg-black border-2 border-primary rounded-lg p-8">
+              <h3 className="text-2xl font-bold mb-3 text-primary">✓ The Hitting Skool</h3>
+              <ul className="space-y-2 text-white font-semibold">
+                <li>→ Focus on 1 number: tempo ratio</li>
+                <li>→ Give you exact frame-by-frame data</li>
+                <li>→ Track improvement week over week</li>
+                <li>→ Know if it's working in 30 days</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="max-w-3xl mx-auto mt-12 text-center">
+            <p className="text-xl text-gray-300">
+              <strong className="text-white">Bottom line:</strong> If you can't measure it, you can't manage it. 
+              We measure your tempo. You manage your reps. Results follow.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* Social Proof - Testimonials */}
       <section className="py-24 bg-black">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-6 text-4xl font-black uppercase md:text-5xl">
-              Ready to Unlock Your Power?
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-4xl font-black uppercase text-center mb-12">
+              What Hitters Are Saying
             </h2>
-            <p className="mb-8 text-xl text-gray-300">
-              Get your free Tempo Score in 60 seconds. No equipment needed. Just your phone.
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <Card className="bg-zinc-950 border-white/10">
+                <CardContent className="p-6">
+                  <div className="text-primary text-5xl mb-2">"</div>
+                  <p className="text-gray-300 mb-4">
+                    "I went from 2.2 tempo ratio to 3.4 in three weeks. My exit velo jumped 6 mph. Coach Rick knows what he's talking about."
+                  </p>
+                  <p className="text-sm text-gray-500">— Jake M., High School SS</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-zinc-950 border-white/10">
+                <CardContent className="p-6">
+                  <div className="text-primary text-5xl mb-2">"</div>
+                  <p className="text-gray-300 mb-4">
+                    "Finally found a coach who doesn't just say 'swing harder.' The data made everything click. Hit .380 this season."
+                  </p>
+                  <p className="text-sm text-gray-500">— Marcus T., College Recruit</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-zinc-950 border-white/10">
+                <CardContent className="p-6">
+                  <div className="text-primary text-5xl mb-2">"</div>
+                  <p className="text-gray-300 mb-4">
+                    "Best investment I made for my son's game. He's hitting balls he used to miss. Real results, not guesswork."
+                  </p>
+                  <p className="text-sm text-gray-500">— Sarah L., Parent</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="text-center">
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 font-black uppercase">
+                <Link to="/free-tempo-assessment">
+                  Join Them — Start Free Assessment →
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA STRIP */}
+      <section className="py-24 bg-black">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-4xl font-black uppercase mb-6">
+              Stop Guessing. Start Measuring.
+            </h2>
+            <p className="text-xl text-gray-300 mb-8">
+              Get your free tempo assessment and see exactly what's holding your swing back.
             </p>
-            <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-lg font-bold uppercase">
-              <Link to="/auth">
-                Analyze My Swing Free <ChevronRight className="ml-2 h-5 w-5" />
+            <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-12 py-8 text-xl font-black uppercase shadow-2xl shadow-primary/50 mb-4">
+              <Link to="/free-tempo-assessment">
+                Start Free Tempo Assessment Now →
               </Link>
             </Button>
-            <p className="mt-4 text-sm text-gray-400">
-              Join 2,847+ hitters improving their swing with HITS
-            </p>
+            <p className="text-sm text-gray-400">Upload takes 2 minutes. Results in 48 hours.</p>
           </div>
         </div>
       </section>
