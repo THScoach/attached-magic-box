@@ -1,17 +1,15 @@
 // TODO: Replace placeholder GoHighLevel and Coachly URLs once finalized.
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import { CheckCircle, Brain, Activity, Target, Zap, Users, Video } from "lucide-react";
 import { HitsLogo } from "@/components/HitsLogo";
 import appDashboardMockup from "@/assets/app-dashboard-mockup.jpg";
 import swingTempoAnalysis from "@/assets/swing-tempo-analysis.jpg";
 import coachAthleteTraining from "@/assets/coach-athlete-training.jpg";
 
 export default function Programs() {
-  const navigate = useNavigate();
-  
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -206,9 +204,9 @@ export default function Programs() {
               <Button 
                 size="lg"
                 className="bg-primary hover:bg-primary/90 text-white"
-                onClick={() => navigate('/4b-app')}
+                asChild
               >
-                Explore the 4B App
+                <Link to="/4b-app">Explore the 4B App</Link>
               </Button>
             </div>
             <div className="relative">
@@ -330,17 +328,17 @@ export default function Programs() {
               <Button 
                 size="lg"
                 className="bg-primary hover:bg-primary/90 text-white px-12 py-8 text-xl font-bold"
-                onClick={() => navigate('/train-in-person')}
+                asChild
               >
-                Train In-Person
+                <Link to="/train-in-person">Train In-Person</Link>
               </Button>
               <Button 
                 size="lg"
                 variant="outline"
                 className="border-2 border-white text-white hover:bg-white hover:text-black px-12 py-8 text-xl font-bold"
-                onClick={() => navigate('/remote-training')}
+                asChild
               >
-                Train Remotely
+                <Link to="/remote-training">Train Remotely</Link>
               </Button>
             </div>
           </div>

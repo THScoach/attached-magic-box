@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { CheckCircle, Video, MessageSquare, Target } from "lucide-react";
+import { CheckCircle, Video, MessageSquare, Target, Calendar } from "lucide-react";
 import { HitsLogo } from "@/components/HitsLogo";
 
 export default function RemoteTraining() {
@@ -238,10 +238,38 @@ export default function RemoteTraining() {
         </div>
       </section>
 
+      {/* Join Community CTA */}
+      <section className="py-20 px-4 bg-zinc-900">
+        <div className="max-w-4xl mx-auto">
+          <Card className="bg-black border-primary/50 p-8">
+            <div className="text-center">
+              <Calendar className="h-16 w-16 text-primary mx-auto mb-6" />
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+                Join the Community
+              </h2>
+              <p className="text-xl text-gray-300 mb-6">
+                All monthly and 3-month plan members get access to our weekly Community Zoom calls every Monday at 7 PM CT.
+              </p>
+              <p className="text-gray-400 mb-8">
+                Live film review, Q&A sessions, and weekly accountability with Coach Rick and other dedicated hitters.
+              </p>
+              <Button 
+                size="lg"
+                variant="outline"
+                className="border-2 border-white text-white hover:bg-white hover:text-black"
+                asChild
+              >
+                <Link to="/community">Learn More About Community</Link>
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-4 bg-zinc-950">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
             Ready to Get Started?
           </h2>
           <p className="text-xl text-gray-300 mb-8">
