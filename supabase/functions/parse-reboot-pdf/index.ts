@@ -15,6 +15,9 @@ interface TimingData {
 
 interface ExtractedData extends TimingData {
   reportDate?: string;
+  // Player physical data
+  playerHeight?: number; // inches
+  playerWeight?: number; // lbs
   // Core biomechanics
   xFactorAngle?: number;
   xFactorMaxXFactor?: number; // The true X-Factor separation at Max X Factor
@@ -157,6 +160,13 @@ serve(async (req) => {
 2. Use absolute values for all angular measurements (remove negative signs)
 3. If a value is not in a table, omit it from the response
 4. Return ONLY valid JSON with no markdown formatting
+5. For bat speed or attack angle, if the value is "nan" or not available, omit it completely
+
+**PLAYER INFORMATION**
+
+Look for player height and weight (usually in header or player info section):
+- playerHeight: [Height in inches]
+- playerWeight: [Weight in lbs]
 
 **PAGE 1 - KINEMATIC SEQUENCE TABLE**
 
@@ -187,8 +197,8 @@ Row "Arm" or "Lead Arm":
 - mlbAvgArmRotVel: [MLB Avg column]
 
 Row "Bat":
-- peakBatSpeed: [Max Angular Velocity - Avg column] (might say "nan", omit if not available)
-- mlbAvgBatSpeed: [MLB Avg column] (might say "nan", omit if not available)
+- peakBatSpeed: [Max Angular Velocity - Avg column] (ONLY include if valid number, NOT "nan")
+- mlbAvgBatSpeed: [MLB Avg column] (ONLY include if valid number, NOT "nan")
 
 **PAGE 2 - TORSO DIRECTIONS AND ROTATIONS TABLE**
 
@@ -250,7 +260,7 @@ Find table with "Velocity Metric Averages" section:
 - lateralTiltMaxHandVelo: [Lateral Plane Tilt - Max Hand Velo]
 
 **BAT PATH METRICS (if available)**
-- attackAngle: [Attack Angle in degrees]
+- attackAngle: [Attack Angle in degrees] (ONLY include if valid number exists in table, NOT "nan")
 
 **REPORT DATE**
 Look for date in format MM/DD/YYYY in header:
@@ -259,6 +269,8 @@ Look for date in format MM/DD/YYYY in header:
 **RESPONSE FORMAT:**
 Return ONLY this JSON structure with NO markdown code blocks:
 {
+  "playerHeight": 0.0,
+  "playerWeight": 0.0,
   "negativeMoveTime": 0.000,
   "maxPelvisTurnTime": 0.000,
   "maxShoulderTurnTime": 0.000,
@@ -301,12 +313,10 @@ Return ONLY this JSON structure with NO markdown code blocks:
   "frontalTiltMaxHandVelo": 0.0,
   "lateralTiltFootDown": 0.0,
   "lateralTiltMaxHandVelo": 0.0,
-  "attackAngle": 0.0,
-  "peakBatSpeed": 0.0,
   "reportDate": "2025-01-01"
 }
 
-Omit any fields where data is not found in tables. Use 0 as placeholder in this example only.`
+IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric values in the tables. Omit them if "nan" or not present. Omit any other fields where data is not found in tables. Use 0 as placeholder in this example only.`
             }, {
               type: 'image_url',
               image_url: {
@@ -399,6 +409,9 @@ Omit any fields where data is not found in tables. Use 0 as placeholder in this 
       
       const totalPelvisRotation = Math.abs((extractedData.pelvisDirectionStance || 0) - (extractedData.pelvisDirectionImpact || 0));
       const totalShoulderRotation = Math.abs((extractedData.shoulderDirectionStance || 0) - (extractedData.shoulderDirectionImpact || 0));
+      
+      // Calculate body mass from weight (convert lbs to kg)
+      const bodyMass = extractedData.playerWeight ? extractedData.playerWeight * 0.453592 : null;
 
       return new Response(
         JSON.stringify({ 
@@ -413,13 +426,19 @@ Omit any fields where data is not found in tables. Use 0 as placeholder in this 
             tempoRatio,
             pelvisShoulderGap
           },
+          playerInfo: {
+            height: extractedData.playerHeight,
+            weight: extractedData.playerWeight,
+            bodyMass
+          },
           biomechanics: {
             xFactorAngle: extractedData.xFactorMaxXFactor || extractedData.xFactorAngle,
             peakPelvisRotVel: extractedData.peakPelvisRotVel,
             peakShoulderRotVel: extractedData.peakShoulderRotVel,
             peakArmRotVel: extractedData.peakArmRotVel,
-            attackAngle: extractedData.attackAngle,
-            peakBatSpeed: extractedData.peakBatSpeed
+            // Only include if present in PDF
+            ...(extractedData.attackAngle !== undefined && extractedData.attackAngle !== null && { attackAngle: extractedData.attackAngle }),
+            ...(extractedData.peakBatSpeed !== undefined && extractedData.peakBatSpeed !== null && { peakBatSpeed: extractedData.peakBatSpeed })
           },
           consistency: {
             peakPelvisRotVelStdDev: extractedData.peakPelvisRotVelStdDev,
