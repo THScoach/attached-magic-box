@@ -384,7 +384,10 @@ export default function AdminPlayerDetail() {
                 <div className="flex items-center justify-between">
                   <CardTitle>All Swing Analyses ({analyses.length})</CardTitle>
                   <Button
-                    onClick={() => navigate('/reboot-analysis')}
+                    onClick={() => {
+                      sessionStorage.setItem('selectedPlayerId', id!);
+                      navigate('/reboot-analysis');
+                    }}
                     variant="outline"
                     size="sm"
                     className="gap-2"
