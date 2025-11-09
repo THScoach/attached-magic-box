@@ -8,6 +8,8 @@ interface TempoRatioCardProps {
   tempoRatio: number;
   loadStartTiming?: number;
   fireStartTiming?: number;
+  dataSource?: 'hits_video' | 'reboot_motion' | 'both';
+  rebootTempoRatio?: number;
 }
 
 interface TempoStyle {
@@ -23,7 +25,9 @@ interface TempoStyle {
 export function TempoRatioCard({ 
   tempoRatio, 
   loadStartTiming, 
-  fireStartTiming 
+  fireStartTiming,
+  dataSource = 'hits_video',
+  rebootTempoRatio
 }: TempoRatioCardProps) {
   
   const getTempoStyle = (tempo: number): TempoStyle => {
@@ -134,18 +138,67 @@ export function TempoRatioCard({
     }
   };
 
+  const getDataSourceBadge = () => {
+    if (dataSource === 'hits_video') {
+      return <Badge variant="outline" className="text-xs bg-blue-50">📹 HITS Video Analysis</Badge>;
+    } else if (dataSource === 'reboot_motion') {
+      return <Badge variant="outline" className="text-xs bg-purple-50">📊 Reboot Motion Sensors</Badge>;
+    }
+    return null;
+  };
+
+  const hasComparison = rebootTempoRatio && dataSource === 'both';
+  const tempoDifference = hasComparison ? Math.abs(tempoRatio - rebootTempoRatio) : 0;
+
   return (
     <Card className={`border-2 ${style.bgColor}`}>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {style.icon}
-            <CardTitle>Tempo Ratio Analysis</CardTitle>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {style.icon}
+              <CardTitle>Tempo Ratio Analysis</CardTitle>
+            </div>
+            <InfoTooltip content="Tempo ratio measures the Load:Fire timing pattern. Higher ratios = longer load phase for pitch recognition. Elite power hitters: 2.0-2.6:1. Contact hitters: 3.5-4.5:1. Quick swingers: 1.5-1.8:1." />
           </div>
-          <InfoTooltip content="Tempo ratio measures the Load:Fire timing pattern. Higher ratios = longer load phase for pitch recognition. Elite power hitters: 2.0-2.6:1. Contact hitters: 3.5-4.5:1. Quick swingers: 1.5-1.8:1." />
+          <div className="flex items-center gap-2">
+            {getDataSourceBadge()}
+            {hasComparison && (
+              <Badge variant="outline" className="text-xs bg-yellow-50">⚠️ Multiple Sources</Badge>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Comparison Alert */}
+        {hasComparison && (
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div className="flex-1 space-y-2">
+                <h4 className="text-sm font-bold text-yellow-900">Different Tempo Values Detected</h4>
+                <p className="text-xs text-yellow-800 leading-relaxed">
+                  HITS video analysis and Reboot Motion sensors use different detection methods (pose tracking vs. motion sensors) 
+                  and may define swing phases slightly differently. A variance of {tempoDifference.toFixed(2)} is normal.
+                </p>
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  <div className="p-2 bg-white rounded border border-yellow-300">
+                    <p className="text-xs text-muted-foreground">📹 HITS Video</p>
+                    <p className="text-2xl font-bold text-blue-600">{tempoRatio.toFixed(2)}:1</p>
+                  </div>
+                  <div className="p-2 bg-white rounded border border-yellow-300">
+                    <p className="text-xs text-muted-foreground">📊 Reboot Sensors</p>
+                    <p className="text-2xl font-bold text-purple-600">{rebootTempoRatio?.toFixed(2)}:1</p>
+                  </div>
+                </div>
+                <p className="text-xs text-yellow-800 mt-2">
+                  💡 <strong>Tip:</strong> Use Reboot Motion tempo for precise biomechanics. Use HITS tempo for overall swing timing patterns.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Tempo Display */}
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-3">

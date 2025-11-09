@@ -1,12 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { LetterGrade, getGradeColor } from "@/lib/gradingSystem";
 import { MetricSourceBadge } from "./MetricSourceBadge";
+import { TempoDataSourceIndicator } from "./TempoDataSourceIndicator";
 
 interface TempoMetronomeProps {
   loadTime: number; // seconds
   launchTime: number; // seconds
   tempoRatio: number; // load:launch ratio
   grade: LetterGrade;
+  rebootTempoRatio?: number; // Optional Reboot Motion tempo for comparison
 }
 
 export function TempoMetronome({
@@ -14,6 +16,7 @@ export function TempoMetronome({
   launchTime,
   tempoRatio,
   grade,
+  rebootTempoRatio,
 }: TempoMetronomeProps) {
   const isOptimal = tempoRatio >= 1.5 && tempoRatio <= 2.0;
   const totalTime = loadTime + launchTime;
@@ -28,6 +31,14 @@ export function TempoMetronome({
           <h3 className="font-semibold text-lg">SWING TEMPO</h3>
         </div>
         <MetricSourceBadge source="video" />
+      </div>
+
+      {/* Data Source Comparison */}
+      <div className="mb-4">
+        <TempoDataSourceIndicator 
+          hitsTempoRatio={tempoRatio}
+          rebootTempoRatio={rebootTempoRatio}
+        />
       </div>
 
       <div className="mb-6">

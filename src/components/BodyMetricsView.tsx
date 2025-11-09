@@ -22,6 +22,7 @@ interface BodyMetricsViewProps {
   tempoRatio: number;
   tempoGrade: LetterGrade;
   isCorrectSequence?: boolean;
+  rebootTempoRatio?: number;
 }
 
 export function BodyMetricsView({
@@ -40,6 +41,7 @@ export function BodyMetricsView({
   tempoRatio,
   tempoGrade,
   isCorrectSequence,
+  rebootTempoRatio,
 }: BodyMetricsViewProps) {
   return (
     <div className="space-y-6">
@@ -85,6 +87,7 @@ export function BodyMetricsView({
           launchTime={launchTime}
           tempoRatio={tempoRatio}
           grade={tempoGrade}
+          rebootTempoRatio={rebootTempoRatio}
         />
       </div>
     </div>
