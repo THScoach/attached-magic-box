@@ -166,7 +166,7 @@ export default function FreeOnboarding() {
       }
 
       toast.success("Welcome to HITS! You have 10 free swing analyses.");
-      navigate('/dashboard');
+      navigate('/home');
     } catch (error) {
       console.error('Onboarding error:', error);
       toast.error("An error occurred");
