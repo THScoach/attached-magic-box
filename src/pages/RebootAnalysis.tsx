@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock } from "lucide-react";
+import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock, Trash2 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
 import { KinematicSequenceBarChart } from "@/components/KinematicSequenceBarChart";
@@ -67,8 +67,96 @@ interface RebootReport {
 export default function RebootAnalysis() {
   const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<RebootReport[]>([]);
   const [selectedReportIds, setSelectedReportIds] = useState<[string | null, string | null]>([null, null]);
+
+  // Load reports from database on mount
+  useEffect(() => {
+    loadReports();
+  }, []);
+
+  const loadReports = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('reboot_reports')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('report_date', { ascending: false });
+
+      if (error) throw error;
+
+      const loadedReports: RebootReport[] = (data || []).map((row: any) => ({
+        id: row.id,
+        label: row.label,
+        uploadDate: new Date(row.upload_date),
+        reportDate: new Date(row.report_date),
+        metrics: {
+          negativeMoveTime: row.negative_move_time,
+          maxPelvisTurnTime: row.max_pelvis_turn_time,
+          maxShoulderTurnTime: row.max_shoulder_turn_time,
+          maxXFactorTime: row.max_x_factor_time,
+          loadDuration: row.load_duration,
+          fireDuration: row.fire_duration,
+          tempoRatio: row.tempo_ratio,
+          kinematicSequenceGap: row.kinematic_sequence_gap,
+          peakPelvisRotVel: row.peak_pelvis_rot_vel,
+          peakShoulderRotVel: row.peak_shoulder_rot_vel,
+          peakBatSpeed: row.peak_bat_speed,
+          xFactor: row.x_factor,
+          hipShoulderSeparation: row.hip_shoulder_separation,
+          attackAngle: row.attack_angle,
+          verticalBatAngle: row.vertical_bat_angle,
+          connectionAtImpact: row.connection_at_impact,
+          postureAngle: row.posture_angle,
+          earlyConnection: row.early_connection,
+          height: row.height,
+          weight: row.weight,
+          peakCOMVelocity: row.peak_com_velocity,
+          momentumDirectionAngle: row.momentum_direction_angle,
+          forwardMomentumPct: row.forward_momentum_pct,
+          transferEfficiency: row.transfer_efficiency,
+          rotationalPower: row.rotational_power,
+          linearPower: row.linear_power,
+          totalPower: row.total_power,
+          energyTransferEfficiency: row.energy_transfer_efficiency,
+        },
+        scores: {
+          fireDurationScore: row.fire_duration_score,
+          tempoRatioScore: row.tempo_ratio_score,
+          bodyScore: row.body_score,
+          archetype: row.archetype,
+        }
+      }));
+
+      setReports(loadedReports);
+    } catch (error: any) {
+      console.error('Error loading reports:', error);
+      toast.error('Failed to load reports');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteReport = async (reportId: string) => {
+    try {
+      const { error } = await supabase
+        .from('reboot_reports')
+        .delete()
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      toast.success('Report deleted successfully');
+      await loadReports();
+    } catch (error: any) {
+      console.error('Error deleting report:', error);
+      toast.error('Failed to delete report');
+    }
+  };
 
   const calculateMetrics = (data: {
     negativeMoveTime: number;
@@ -227,24 +315,62 @@ export default function RebootAnalysis() {
       const metrics = calculateMetrics(timingData);
       const scores = calculateScores(metrics);
 
-      const newReport: RebootReport = {
-        id: Date.now().toString(),
-        label: `Report ${reports.length + 1}`,
-        uploadDate: new Date(),
-        reportDate: reportDate, // Date from the PDF report itself
-        metrics: {
-          ...timingData,
-          ...metrics,
-          ...biomechanicsData,
-          ...momentumData,
-          ...powerData
-        },
-        scores
-      };
+      // Get storage URL for the PDF
+      const { data: { publicUrl } } = supabase.storage
+        .from('swing-videos')
+        .getPublicUrl(fileName);
 
-      setReports(prev => [...prev, newReport]);
+      // Save to database
+      const { data: savedReport, error: saveError } = await supabase
+        .from('reboot_reports')
+        .insert({
+          user_id: user.id,
+          pdf_url: publicUrl,
+          label: `Report ${reports.length + 1}`,
+          report_date: reportDate.toISOString().split('T')[0],
+          negative_move_time: timingData.negativeMoveTime,
+          max_pelvis_turn_time: timingData.maxPelvisTurnTime,
+          max_shoulder_turn_time: timingData.maxShoulderTurnTime,
+          max_x_factor_time: timingData.maxXFactorTime,
+          load_duration: metrics.loadDuration,
+          fire_duration: metrics.fireDuration,
+          tempo_ratio: metrics.tempoRatio,
+          kinematic_sequence_gap: metrics.kinematicSequenceGap,
+          peak_pelvis_rot_vel: biomechanicsData.peakPelvisRotVel,
+          peak_shoulder_rot_vel: biomechanicsData.peakShoulderRotVel,
+          peak_bat_speed: biomechanicsData.peakBatSpeed,
+          x_factor: biomechanicsData.xFactor,
+          hip_shoulder_separation: biomechanicsData.hipShoulderSeparation,
+          attack_angle: biomechanicsData.attackAngle,
+          vertical_bat_angle: biomechanicsData.verticalBatAngle,
+          connection_at_impact: biomechanicsData.connectionAtImpact,
+          posture_angle: biomechanicsData.postureAngle,
+          early_connection: biomechanicsData.earlyConnection,
+          height: momentumData.height,
+          weight: momentumData.weight,
+          peak_com_velocity: momentumData.peakCOMVelocity,
+          momentum_direction_angle: momentumData.momentumDirectionAngle,
+          forward_momentum_pct: momentumData.forwardMomentumPct,
+          transfer_efficiency: momentumData.transferEfficiency,
+          rotational_power: powerData.rotationalPower,
+          linear_power: powerData.linearPower,
+          total_power: powerData.totalPower,
+          energy_transfer_efficiency: powerData.energyTransferEfficiency,
+          fire_duration_score: scores.fireDurationScore,
+          tempo_ratio_score: scores.tempoRatioScore,
+          body_score: scores.bodyScore,
+          archetype: scores.archetype,
+        })
+        .select()
+        .single();
+
+      if (saveError) throw saveError;
+
+      // Reload reports from database
+      await loadReports();
+      
       toast.dismiss();
-      toast.success('Report processed successfully!');
+      toast.success('Report processed and saved successfully!');
     } catch (error: any) {
       console.error('Upload error:', error);
       toast.dismiss();
@@ -328,6 +454,17 @@ export default function RebootAnalysis() {
 
           {/* Upload Tab */}
           <TabsContent value="upload" className="space-y-6">
+            {loading ? (
+              <Card>
+                <CardContent className="py-12">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <span className="ml-3 text-muted-foreground">Loading reports...</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
             {/* Upload Card */}
             <Card>
               <CardHeader>
@@ -556,6 +693,8 @@ export default function RebootAnalysis() {
                 </div>
               );
             })()}
+              </>
+            )}
           </TabsContent>
 
           {/* Compare Tab */}

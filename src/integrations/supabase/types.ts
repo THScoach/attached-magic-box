@@ -1672,6 +1672,146 @@ export type Database = {
           },
         ]
       }
+      reboot_reports: {
+        Row: {
+          archetype: string
+          attack_angle: number | null
+          body_score: number
+          connection_at_impact: number | null
+          created_at: string
+          early_connection: number | null
+          energy_transfer_efficiency: number | null
+          fire_duration: number
+          fire_duration_score: number
+          forward_momentum_pct: number | null
+          height: number | null
+          hip_shoulder_separation: number | null
+          id: string
+          kinematic_sequence_gap: number
+          label: string
+          linear_power: number | null
+          load_duration: number
+          max_pelvis_turn_time: number
+          max_shoulder_turn_time: number
+          max_x_factor_time: number
+          momentum_direction_angle: number | null
+          negative_move_time: number
+          pdf_url: string
+          peak_bat_speed: number | null
+          peak_com_velocity: number | null
+          peak_pelvis_rot_vel: number | null
+          peak_shoulder_rot_vel: number | null
+          player_id: string | null
+          posture_angle: number | null
+          report_date: string
+          rotational_power: number | null
+          tempo_ratio: number
+          tempo_ratio_score: number
+          total_power: number | null
+          transfer_efficiency: number | null
+          updated_at: string
+          upload_date: string
+          user_id: string
+          vertical_bat_angle: number | null
+          weight: number | null
+          x_factor: number | null
+        }
+        Insert: {
+          archetype: string
+          attack_angle?: number | null
+          body_score: number
+          connection_at_impact?: number | null
+          created_at?: string
+          early_connection?: number | null
+          energy_transfer_efficiency?: number | null
+          fire_duration: number
+          fire_duration_score: number
+          forward_momentum_pct?: number | null
+          height?: number | null
+          hip_shoulder_separation?: number | null
+          id?: string
+          kinematic_sequence_gap: number
+          label: string
+          linear_power?: number | null
+          load_duration: number
+          max_pelvis_turn_time: number
+          max_shoulder_turn_time: number
+          max_x_factor_time: number
+          momentum_direction_angle?: number | null
+          negative_move_time: number
+          pdf_url: string
+          peak_bat_speed?: number | null
+          peak_com_velocity?: number | null
+          peak_pelvis_rot_vel?: number | null
+          peak_shoulder_rot_vel?: number | null
+          player_id?: string | null
+          posture_angle?: number | null
+          report_date: string
+          rotational_power?: number | null
+          tempo_ratio: number
+          tempo_ratio_score: number
+          total_power?: number | null
+          transfer_efficiency?: number | null
+          updated_at?: string
+          upload_date?: string
+          user_id: string
+          vertical_bat_angle?: number | null
+          weight?: number | null
+          x_factor?: number | null
+        }
+        Update: {
+          archetype?: string
+          attack_angle?: number | null
+          body_score?: number
+          connection_at_impact?: number | null
+          created_at?: string
+          early_connection?: number | null
+          energy_transfer_efficiency?: number | null
+          fire_duration?: number
+          fire_duration_score?: number
+          forward_momentum_pct?: number | null
+          height?: number | null
+          hip_shoulder_separation?: number | null
+          id?: string
+          kinematic_sequence_gap?: number
+          label?: string
+          linear_power?: number | null
+          load_duration?: number
+          max_pelvis_turn_time?: number
+          max_shoulder_turn_time?: number
+          max_x_factor_time?: number
+          momentum_direction_angle?: number | null
+          negative_move_time?: number
+          pdf_url?: string
+          peak_bat_speed?: number | null
+          peak_com_velocity?: number | null
+          peak_pelvis_rot_vel?: number | null
+          peak_shoulder_rot_vel?: number | null
+          player_id?: string | null
+          posture_angle?: number | null
+          report_date?: string
+          rotational_power?: number | null
+          tempo_ratio?: number
+          tempo_ratio_score?: number
+          total_power?: number | null
+          transfer_efficiency?: number | null
+          updated_at?: string
+          upload_date?: string
+          user_id?: string
+          vertical_bat_angle?: number | null
+          weight?: number | null
+          x_factor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reboot_reports_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       report_schedules: {
         Row: {
           created_at: string | null
