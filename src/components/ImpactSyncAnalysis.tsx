@@ -139,24 +139,42 @@ export function ImpactSyncAnalysis({
       // Stage 5: Save to database
       setAnalysisStage("Saving results...");
       
+      // Calculate required scores and metrics
+      const tempoScore = Math.max(0, Math.min(100, 100 - Math.abs(correctedResult.tempoRatio - 3.0) * 20));
+      const fireScore = Math.max(0, Math.min(100, 100 - Math.abs(correctedResult.fireDuration - 150) / 2));
+      const sequenceGap = Math.max(0, (correctedResult.torsoMaxVelocity - correctedResult.pelvisMaxVelocity) / 10);
+      const bodyScore = (tempoScore + fireScore) / 2;
+      
       const { error: insertError } = await supabase
         .from('reboot_reports')
         .insert({
           user_id: user.id,
-          video_url: publicUrl,
-          pelvis_max_velocity: correctedResult.pelvisMaxVelocity,
-          torso_max_velocity: correctedResult.torsoMaxVelocity,
-          arm_max_velocity: correctedResult.armMaxVelocity,
-          bat_max_velocity: correctedResult.batMaxVelocity,
-          tempo_ratio: correctedResult.tempoRatio,
+          player_id: null, // Can be set if player context is available
+          label: `Impact Sync Analysis ${new Date().toLocaleDateString()}`,
+          report_date: new Date().toISOString().split('T')[0],
+          pdf_url: publicUrl, // Using video URL
+          archetype: 'balanced', // Default archetype
+          
+          // Required timing metrics
           load_duration: correctedResult.loadDuration,
           fire_duration: correctedResult.fireDuration,
-          impact_frame: correctedResult.impactFrame,
-          total_frames: correctedResult.totalFrames,
-          frame_rate: correctedResult.frameRate,
-          analysis_type: 'impact_sync',
-          bat_tracking_enabled: enableBatTracking,
-          bat_tracking_success: batTrackingSuccess
+          tempo_ratio: correctedResult.tempoRatio,
+          negative_move_time: correctedResult.negativeMoveFrame * (1000 / correctedResult.frameRate),
+          max_pelvis_turn_time: correctedResult.maxPelvisFrame * (1000 / correctedResult.frameRate),
+          max_shoulder_turn_time: correctedResult.impactFrame * (1000 / correctedResult.frameRate),
+          max_x_factor_time: correctedResult.maxPelvisFrame * (1000 / correctedResult.frameRate),
+          
+          // Required scores
+          tempo_ratio_score: tempoScore,
+          fire_duration_score: fireScore,
+          body_score: bodyScore,
+          kinematic_sequence_gap: sequenceGap,
+          
+          // Optional velocity metrics (mapped to correct columns)
+          peak_pelvis_rot_vel: correctedResult.pelvisMaxVelocity,
+          peak_shoulder_rot_vel: correctedResult.torsoMaxVelocity,
+          peak_arm_rot_vel: correctedResult.armMaxVelocity,
+          peak_bat_speed: correctedResult.batMaxVelocity
         });
       
       if (insertError) throw insertError;
