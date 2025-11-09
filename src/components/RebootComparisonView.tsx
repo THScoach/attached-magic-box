@@ -27,8 +27,8 @@ export function RebootComparisonView({ reports }: RebootComparisonViewProps) {
   const before = reports[0];
   const current = reports[reports.length - 1];
 
-  const calculateChange = (before: number | undefined, current: number | undefined) => {
-    if (before === undefined || current === undefined) return { value: 0, percentage: 0 };
+  const calculateChange = (before: number | undefined | null, current: number | undefined | null) => {
+    if (before == null || current == null) return { value: 0, percentage: 0 };
     const value = current - before;
     const percentage = before !== 0 ? (value / before) * 100 : 0;
     return { value, percentage };
@@ -80,8 +80,8 @@ export function RebootComparisonView({ reports }: RebootComparisonViewProps) {
     reverseColors = false
   }: {
     label: string;
-    beforeValue: number | undefined;
-    currentValue: number | undefined;
+    beforeValue: number | undefined | null;
+    currentValue: number | undefined | null;
     unit?: string;
     reverseColors?: boolean;
   }) => {
@@ -91,10 +91,10 @@ export function RebootComparisonView({ reports }: RebootComparisonViewProps) {
       <tr className="border-b border-border/50">
         <td className="py-3 text-sm font-medium">{label}</td>
         <td className="py-3 text-sm text-center">
-          {beforeValue !== undefined ? `${beforeValue.toFixed(beforeValue < 10 ? 1 : 0)}${unit}` : 'N/A'}
+          {beforeValue != null ? `${beforeValue.toFixed(beforeValue < 10 ? 1 : 0)}${unit}` : 'N/A'}
         </td>
         <td className="py-3 text-sm text-center font-bold">
-          {currentValue !== undefined ? `${currentValue.toFixed(currentValue < 10 ? 1 : 0)}${unit}` : 'N/A'}
+          {currentValue != null ? `${currentValue.toFixed(currentValue < 10 ? 1 : 0)}${unit}` : 'N/A'}
         </td>
         <td className="py-3 text-right">
           <ChangeIndicator change={change} reverseColors={reverseColors} unit={unit} />
