@@ -120,12 +120,18 @@ Analyze this data using The Hitting Skool philosophy. Focus on quality metrics (
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        messages: [{
-          role: 'user',
-          content: playerContext
-        }],
+        messages: [
+          {
+            role: 'system',
+            content: COACH_RICK_SYSTEM_PROMPT
+          },
+          {
+            role: 'user',
+            content: playerContext
+          }
+        ],
         response_format: { type: "json_object" },
-        max_tokens: 1500
+        max_tokens: 2000
       })
     });
 
@@ -152,7 +158,19 @@ Analyze this data using The Hitting Skool philosophy. Focus on quality metrics (
 
     let insights;
     try {
-      insights = JSON.parse(content);
+      // Strip markdown code fences if present
+      let cleanedContent = content.trim();
+      if (cleanedContent.startsWith('```json')) {
+        cleanedContent = cleanedContent.slice(7);
+      } else if (cleanedContent.startsWith('```')) {
+        cleanedContent = cleanedContent.slice(3);
+      }
+      if (cleanedContent.endsWith('```')) {
+        cleanedContent = cleanedContent.slice(0, -3);
+      }
+      cleanedContent = cleanedContent.trim();
+      
+      insights = JSON.parse(cleanedContent);
     } catch (parseError) {
       console.error('Failed to parse AI response:', content);
       throw new Error('Invalid AI response format');
