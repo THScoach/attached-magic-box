@@ -55,6 +55,7 @@ export default function AnalysisResult() {
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [playerName, setPlayerName] = useState<string>('');
   const [playerId, setPlayerId] = useState<string>('');
+  const [rebootData, setRebootData] = useState<any>(null);
   const [analysisCreatedAt, setAnalysisCreatedAt] = useState<string>('');
   const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
@@ -132,6 +133,8 @@ export default function AnalysisResult() {
       // Set player ID
       if (data.player_id) {
         setPlayerId(data.player_id);
+        // Fetch Reboot data for this player
+        fetchRebootData(data.player_id);
       }
 
       // Set player name
@@ -231,6 +234,35 @@ export default function AnalysisResult() {
     rebootFileInputRef.current?.click();
   };
 
+  const fetchRebootData = async (playerIdToFetch: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch the most recent Reboot Motion data for this player
+      const { data, error } = await supabase
+        .from('external_session_data')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('player_id', playerIdToFetch)
+        .eq('data_source', 'reboot_motion')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching Reboot data:', error);
+        return;
+      }
+
+      if (data && data.extracted_metrics) {
+        setRebootData(data.extracted_metrics);
+      }
+    } catch (error) {
+      console.error('Error fetching Reboot data:', error);
+    }
+  };
+
   const handleRebootFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -250,6 +282,7 @@ export default function AnalysisResult() {
     }
 
     setUploadingReboot(true);
+    toast.loading('Processing Reboot Motion file...');
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -262,11 +295,28 @@ export default function AnalysisResult() {
         const text = await file.text();
         rebootData = JSON.parse(text);
       } else {
-        // For PDF, we'll need to use the parse_document tool or edge function
-        // For now, show a message
-        toast.error('PDF parsing coming soon. Please use JSON export from Reboot Motion.');
-        setUploadingReboot(false);
-        return;
+        // Upload PDF to storage first
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}/${playerId}/reboot-${Date.now()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('swing-videos')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        // Get the file path for parsing
+        const filePath = `swing-videos/${fileName}`;
+        
+        // Parse PDF to extract Reboot data
+        const { data: parsedData, error: parseError } = await supabase.functions
+          .invoke('parse-reboot-pdf', {
+            body: { filePath }
+          });
+
+        if (parseError) throw parseError;
+        
+        rebootData = parsedData?.metrics || {};
       }
 
       // Save to database
@@ -282,16 +332,16 @@ export default function AnalysisResult() {
 
       if (dbError) throw dbError;
 
+      toast.dismiss();
       toast.success('Reboot Motion data uploaded successfully');
       
-      // Reload the analysis to show new data
-      if (analysisId) {
-        await loadAnalysisFromDatabase(analysisId);
-      } else {
-        await loadLatestAnalysisFromDatabase();
+      // Reload Reboot data
+      if (playerId) {
+        await fetchRebootData(playerId);
       }
     } catch (error: any) {
       console.error('Reboot upload error:', error);
+      toast.dismiss();
       toast.error(error.message || 'Failed to upload Reboot data');
     } finally {
       setUploadingReboot(false);
@@ -318,6 +368,8 @@ export default function AnalysisResult() {
       // Set player ID
       if (data.player_id) {
         setPlayerId(data.player_id);
+        // Fetch Reboot data for this player
+        fetchRebootData(data.player_id);
       }
 
       // Set player name
@@ -1114,7 +1166,7 @@ export default function AnalysisResult() {
               style={{ display: 'none' }}
             />
             <FourBMotionAnalysis 
-              rebootData={undefined}
+              rebootData={rebootData}
               playerId={playerId}
               onUpload={handleRebootUpload}
             />
