@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import pdfParse from "https://esm.sh/pdf-parse@1.1.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,24 +16,20 @@ interface TimingData {
 
 interface ExtractedData extends TimingData {
   reportDate?: string;
-  // Core biomechanics
   xFactorAngle?: number;
-  xFactorMaxXFactor?: number; // The true X-Factor separation at Max X Factor
+  xFactorMaxXFactor?: number;
   peakPelvisRotVel?: number;
   peakShoulderRotVel?: number;
   peakArmRotVel?: number;
   attackAngle?: number;
   peakBatSpeed?: number;
-  // Consistency metrics (std deviations)
   peakPelvisRotVelStdDev?: number;
   peakShoulderRotVelStdDev?: number;
   peakArmRotVelStdDev?: number;
-  // MLB velocity comparisons
   mlbAvgPelvisRotVel?: number;
   mlbAvgShoulderRotVel?: number;
   mlbAvgArmRotVel?: number;
   mlbAvgBatSpeed?: number;
-  // Direction/rotation at key events
   pelvisDirectionStance?: number;
   pelvisDirectionNegMove?: number;
   pelvisDirectionMaxPelvis?: number;
@@ -41,32 +38,26 @@ interface ExtractedData extends TimingData {
   shoulderDirectionNegMove?: number;
   shoulderDirectionMaxShoulder?: number;
   shoulderDirectionImpact?: number;
-  // X-Factor progression
   xFactorStance?: number;
   xFactorNegMove?: number;
   xFactorMaxPelvis?: number;
   xFactorImpact?: number;
-  // MLB comparisons
   mlbAvgMaxPelvisTurn?: number;
   mlbAvgMaxShoulderTurn?: number;
   mlbAvgXFactor?: number;
-  // Posture
   frontalTiltFootDown?: number;
   frontalTiltMaxHandVelo?: number;
   lateralTiltFootDown?: number;
   lateralTiltMaxHandVelo?: number;
-  // COM position
   comDistNegMove?: number;
   comDistFootDown?: number;
   comDistMaxForward?: number;
   strideLengthMeters?: number;
   strideLengthPctHeight?: number;
-  // COM velocity
   peakCOMVelocity?: number;
   minCOMVelocity?: number;
   comAvgAccelRate?: number;
   comAvgDecelRate?: number;
-  // Power
   rotationalPower?: number;
   linearPower?: number;
   totalPower?: number;
@@ -88,7 +79,6 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Download the PDF from storage
     const { data: fileData, error: downloadError } = await supabase.storage
       .from('swing-videos')
       .download(filePath.replace('swing-videos/', ''));
@@ -97,11 +87,9 @@ serve(async (req) => {
 
     console.log('PDF downloaded successfully, size:', fileData.size);
 
-    // If timing extraction requested, use Lovable AI to extract from PDF
     if (extractTiming) {
       console.log('Starting timing extraction...');
       
-      // Check if API key is available
       const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
       if (!lovableApiKey) {
         console.error('❌ LOVABLE_API_KEY not found in environment');
@@ -117,187 +105,232 @@ serve(async (req) => {
         );
       }
 
-      // For now, use the comprehensive prompt approach with simpler model  
-      // that doesn't require PDF parsing
-      console.log('Preparing data extraction request...');
-      // Return graceful error since PDF vision isn't available yet
-      console.error('❌ PDF extraction not yet available');
+      // Extract text from PDF
+      console.log('Extracting text from PDF...');
+      const arrayBuffer = await fileData.arrayBuffer();
+      const buffer = new Uint8Array(arrayBuffer);
+      
+      let pdfText = '';
+      try {
+        const pdfData = await pdfParse(buffer);
+        pdfText = pdfData.text;
+        console.log('✅ PDF text extracted, length:', pdfText.length);
+        console.log('📄 First 500 chars:', pdfText.substring(0, 500));
+      } catch (pdfError) {
+        console.error('❌ PDF parsing error:', pdfError);
+        return new Response(
+          JSON.stringify({ 
+            success: false,
+            error: 'Failed to extract text from PDF. The file may be corrupted or unsupported.',
+            details: pdfError instanceof Error ? pdfError.message : 'PDF parsing failed'
+          }),
+          { 
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+
+      // Use Lovable AI to extract structured data
+      console.log('Calling Lovable AI API...');
+      const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [{
+            role: 'user',
+            content: `You are a data extraction specialist analyzing Reboot Motion swing report text. Extract EXACT numerical values from TABLES ONLY.
+
+**TEXT FROM PDF:**
+${pdfText}
+
+**INSTRUCTIONS:**
+1. Extract from TABLES ONLY, not graphs
+2. Use absolute values for angular measurements (remove negative signs)
+3. Return ONLY valid JSON with no markdown
+4. Omit fields if value is "nan" or not in tables
+
+**EXTRACT:**
+- negativeMoveTime, maxPelvisTurnTime, maxShoulderTurnTime, maxXFactorTime (seconds)
+- peakPelvisRotVel, peakShoulderRotVel, peakArmRotVel (deg/s) + StdDev + MLB Avg
+- pelvisDirection/shoulderDirection at: Stance, NegMove, MaxPelvis/MaxShoulder, Impact (degrees, absolute)
+- xFactor at: Stance, NegMove, MaxPelvis, MaxXFactor, Impact (degrees, absolute)
+- MLB averages: MaxPelvisTurn, MaxShoulderTurn, XFactor (degrees, absolute)
+- COM: DistNegMove, DistFootDown, DistMaxForward (%), strideLengthMeters, strideLengthPctHeight
+- COM velocity: peak, min (m/s), avgAccelRate, avgDecelRate (m/s²)
+- Posture: frontalTilt/lateralTilt at FootDown/MaxHandVelo (degrees)
+- attackAngle, peakBatSpeed (only if valid numbers, not "nan")
+- reportDate: "YYYY-MM-DD" from header
+
+**RESPONSE FORMAT:**
+{"negativeMoveTime":0.0,"maxPelvisTurnTime":0.0,"maxShoulderTurnTime":0.0,"maxXFactorTime":0.0,"xFactorMaxXFactor":0.0,"peakPelvisRotVel":0.0,"peakShoulderRotVel":0.0,"peakArmRotVel":0.0,"peakPelvisRotVelStdDev":0.0,"peakShoulderRotVelStdDev":0.0,"peakArmRotVelStdDev":0.0,"mlbAvgPelvisRotVel":0.0,"mlbAvgShoulderRotVel":0.0,"mlbAvgArmRotVel":0.0,"pelvisDirectionStance":0.0,"pelvisDirectionNegMove":0.0,"pelvisDirectionMaxPelvis":0.0,"pelvisDirectionImpact":0.0,"shoulderDirectionStance":0.0,"shoulderDirectionNegMove":0.0,"shoulderDirectionMaxShoulder":0.0,"shoulderDirectionImpact":0.0,"xFactorStance":0.0,"xFactorNegMove":0.0,"xFactorMaxPelvis":0.0,"xFactorImpact":0.0,"mlbAvgMaxPelvisTurn":0.0,"mlbAvgMaxShoulderTurn":0.0,"mlbAvgXFactor":0.0,"comDistNegMove":0.0,"comDistFootDown":0.0,"comDistMaxForward":0.0,"strideLengthMeters":0.0,"strideLengthPctHeight":0.0,"peakCOMVelocity":0.0,"minCOMVelocity":0.0,"comAvgAccelRate":0.0,"comAvgDecelRate":0.0,"frontalTiltFootDown":0.0,"frontalTiltMaxHandVelo":0.0,"lateralTiltFootDown":0.0,"lateralTiltMaxHandVelo":0.0,"reportDate":"2025-01-01"}`
+          }],
+          max_tokens: 2000
+        })
+      });
+
+      if (!aiResponse.ok) {
+        const errorText = await aiResponse.text();
+        console.error('❌ AI API error:', aiResponse.status, errorText);
+        return new Response(
+          JSON.stringify({ 
+            success: false,
+            error: `AI extraction failed (Status ${aiResponse.status}).`,
+            details: errorText
+          }),
+          { 
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+
+      const aiResult = await aiResponse.json();
+      console.log('✅ AI response received');
+      const content = aiResult.choices[0]?.message?.content || '{}';
+      console.log('📄 AI content:', content.substring(0, 500));
+      
+      let extractedData: ExtractedData;
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        extractedData = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+        console.log('✅ Parsed data keys:', Object.keys(extractedData).join(', '));
+        
+        if (!extractedData.reportDate || !extractedData.reportDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          extractedData.reportDate = new Date().toISOString().split('T')[0];
+        }
+      } catch (parseError) {
+        console.error('❌ Parse error:', parseError);
+        return new Response(
+          JSON.stringify({ 
+            success: false,
+            error: 'Failed to parse AI response.',
+            details: parseError instanceof Error ? parseError.message : 'Parse error'
+          }),
+          { 
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+
+      // Calculate derived metrics
+      const loadDuration = (extractedData.negativeMoveTime || 0) - (extractedData.maxPelvisTurnTime || 0);
+      const fireDuration = extractedData.maxPelvisTurnTime || 0;
+      const tempoRatio = fireDuration > 0 ? loadDuration / fireDuration : 0;
+      const pelvisShoulderGap = (extractedData.maxShoulderTurnTime || 0) - (extractedData.maxPelvisTurnTime || 0);
+      const weightShift = (extractedData.comDistMaxForward || 0) - (extractedData.comDistNegMove || 0);
+      const bracingEfficiency = (extractedData.comAvgAccelRate && extractedData.comAvgDecelRate) 
+        ? Math.abs(extractedData.comAvgDecelRate) / extractedData.comAvgAccelRate : 0;
+      const pelvisConsistency = (extractedData.peakPelvisRotVel && extractedData.peakPelvisRotVelStdDev)
+        ? ((1 - extractedData.peakPelvisRotVelStdDev / extractedData.peakPelvisRotVel) * 100) : 0;
+      const shoulderConsistency = (extractedData.peakShoulderRotVel && extractedData.peakShoulderRotVelStdDev)
+        ? ((1 - extractedData.peakShoulderRotVelStdDev / extractedData.peakShoulderRotVel) * 100) : 0;
+      const armConsistency = (extractedData.peakArmRotVel && extractedData.peakArmRotVelStdDev)
+        ? ((1 - extractedData.peakArmRotVelStdDev / extractedData.peakArmRotVel) * 100) : 0;
+      const overallConsistency = (pelvisConsistency + shoulderConsistency + armConsistency) / 3;
+      const totalPelvisRotation = Math.abs((extractedData.pelvisDirectionStance || 0) - (extractedData.pelvisDirectionImpact || 0));
+      const totalShoulderRotation = Math.abs((extractedData.shoulderDirectionStance || 0) - (extractedData.shoulderDirectionImpact || 0));
+
       return new Response(
         JSON.stringify({ 
-          success: false,
-          error: 'PDF auto-extraction is temporarily unavailable. Please manually enter your Reboot data or contact support for assistance.',
-          details: 'The AI extraction feature requires additional configuration.'
+          success: true,
+          timing: {
+            negativeMoveTime: extractedData.negativeMoveTime,
+            maxPelvisTurnTime: extractedData.maxPelvisTurnTime,
+            maxShoulderTurnTime: extractedData.maxShoulderTurnTime,
+            maxXFactorTime: extractedData.maxXFactorTime,
+            loadDuration,
+            fireDuration,
+            tempoRatio,
+            pelvisShoulderGap
+          },
+          biomechanics: {
+            xFactorAngle: extractedData.xFactorMaxXFactor || extractedData.xFactorAngle,
+            peakPelvisRotVel: extractedData.peakPelvisRotVel,
+            peakShoulderRotVel: extractedData.peakShoulderRotVel,
+            peakArmRotVel: extractedData.peakArmRotVel,
+            ...(extractedData.attackAngle !== undefined && extractedData.attackAngle !== null && { attackAngle: extractedData.attackAngle }),
+            ...(extractedData.peakBatSpeed !== undefined && extractedData.peakBatSpeed !== null && { peakBatSpeed: extractedData.peakBatSpeed })
+          },
+          consistency: {
+            peakPelvisRotVelStdDev: extractedData.peakPelvisRotVelStdDev,
+            peakShoulderRotVelStdDev: extractedData.peakShoulderRotVelStdDev,
+            peakArmRotVelStdDev: extractedData.peakArmRotVelStdDev,
+            pelvisConsistency,
+            shoulderConsistency,
+            armConsistency,
+            overallConsistency
+          },
+          rotation: {
+            pelvisDirectionStance: extractedData.pelvisDirectionStance,
+            pelvisDirectionNegMove: extractedData.pelvisDirectionNegMove,
+            pelvisDirectionMaxPelvis: extractedData.pelvisDirectionMaxPelvis,
+            pelvisDirectionImpact: extractedData.pelvisDirectionImpact,
+            shoulderDirectionStance: extractedData.shoulderDirectionStance,
+            shoulderDirectionNegMove: extractedData.shoulderDirectionNegMove,
+            shoulderDirectionMaxShoulder: extractedData.shoulderDirectionMaxShoulder,
+            shoulderDirectionImpact: extractedData.shoulderDirectionImpact,
+            totalPelvisRotation,
+            totalShoulderRotation
+          },
+          xFactorProgression: {
+            xFactorStance: extractedData.xFactorStance,
+            xFactorNegMove: extractedData.xFactorNegMove,
+            xFactorMaxPelvis: extractedData.xFactorMaxPelvis,
+            xFactorImpact: extractedData.xFactorImpact
+          },
+          mlbComparison: {
+            mlbAvgPelvisRotVel: extractedData.mlbAvgPelvisRotVel,
+            mlbAvgShoulderRotVel: extractedData.mlbAvgShoulderRotVel,
+            mlbAvgArmRotVel: extractedData.mlbAvgArmRotVel,
+            mlbAvgMaxPelvisTurn: extractedData.mlbAvgMaxPelvisTurn,
+            mlbAvgMaxShoulderTurn: extractedData.mlbAvgMaxShoulderTurn,
+            mlbAvgXFactor: extractedData.mlbAvgXFactor
+          },
+          posture: {
+            frontalTiltFootDown: extractedData.frontalTiltFootDown,
+            frontalTiltMaxHandVelo: extractedData.frontalTiltMaxHandVelo,
+            lateralTiltFootDown: extractedData.lateralTiltFootDown,
+            lateralTiltMaxHandVelo: extractedData.lateralTiltMaxHandVelo
+          },
+          comPosition: {
+            comDistNegMove: extractedData.comDistNegMove,
+            comDistFootDown: extractedData.comDistFootDown,
+            comDistMaxForward: extractedData.comDistMaxForward,
+            strideLengthMeters: extractedData.strideLengthMeters,
+            strideLengthPctHeight: extractedData.strideLengthPctHeight,
+            weightShift
+          },
+          comVelocity: {
+            peakCOMVelocity: extractedData.peakCOMVelocity,
+            minCOMVelocity: extractedData.minCOMVelocity,
+            comAvgAccelRate: extractedData.comAvgAccelRate,
+            comAvgDecelRate: extractedData.comAvgDecelRate,
+            bracingEfficiency
+          },
+          power: {
+            rotationalPower: extractedData.rotationalPower,
+            linearPower: extractedData.linearPower,
+            totalPower: extractedData.totalPower
+          },
+          reportDate: extractedData.reportDate,
+          rawAiResponse: content
         }),
         { 
-          status: 503,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
-
-      /*
-      // NOTE: PDF vision extraction is disabled until proper API is available
-      **CRITICAL INSTRUCTIONS:**
-1. Extract from TABLES ONLY, not graphs or charts
-2. Use absolute values for all angular measurements (remove negative signs)
-3. If a value is not in a table, omit it from the response
-4. Return ONLY valid JSON with no markdown formatting
-5. For bat speed or attack angle, if the value is "nan" or not available, omit it completely
-
-**PAGE 1 - KINEMATIC SEQUENCE TABLE**
-
-Find the "Kinematic Sequence" table with columns:
-- Event
-- Avg Time Before Impact (sec)
-- Max Angular Velocity - Avg (deg/s)
-- Max Angular Velocity - Std Dev (deg/s)
-- Max Angular Velocity - MLB Avg (deg/s)
-
-Extract these EXACT values from the table rows:
-
-Row "Pelvis":
-- peakPelvisRotVel: [Max Angular Velocity - Avg column]
-- peakPelvisRotVelStdDev: [Std Dev column]
-- mlbAvgPelvisRotVel: [MLB Avg column]
-- maxPelvisTurnTime: [Avg Time Before Impact column, in seconds]
-
-Row "Upper Torso" or "Torso":
-- peakShoulderRotVel: [Max Angular Velocity - Avg column]
-- peakShoulderRotVelStdDev: [Std Dev column]
-- mlbAvgShoulderRotVel: [MLB Avg column]
-- maxShoulderTurnTime: [Avg Time Before Impact column, in seconds]
-
-Row "Arm" or "Lead Arm":
-- peakArmRotVel: [Max Angular Velocity - Avg column]
-- peakArmRotVelStdDev: [Std Dev column]
-- mlbAvgArmRotVel: [MLB Avg column]
-
-Row "Bat":
-- peakBatSpeed: [Max Angular Velocity - Avg column] (ONLY include if valid number, NOT "nan")
-- mlbAvgBatSpeed: [MLB Avg column] (ONLY include if valid number, NOT "nan")
-
-**PAGE 2 - TORSO DIRECTIONS AND ROTATIONS TABLE**
-
-Find table with columns: Event | Stance | Negative Move | Max Pelvis Turn | Max Shoulder Turn | Max X Factor | Impact | Avg Time Before Impact
-
-Row "Pelvis Direction (deg)":
-- pelvisDirectionStance: [Stance column, ABSOLUTE VALUE]
-- pelvisDirectionNegMove: [Negative Move column, ABSOLUTE VALUE]
-- pelvisDirectionMaxPelvis: [Max Pelvis Turn column, ABSOLUTE VALUE]
-- pelvisDirectionImpact: [Impact column, ABSOLUTE VALUE]
-
-Row "Shoulder Direction (deg)":
-- shoulderDirectionStance: [Stance column, ABSOLUTE VALUE]
-- shoulderDirectionNegMove: [Negative Move column, ABSOLUTE VALUE]
-- shoulderDirectionMaxShoulder: [Max Shoulder Turn column, ABSOLUTE VALUE]
-- shoulderDirectionImpact: [Impact column, ABSOLUTE VALUE]
-
-Row "X Factor at" (degrees):
-- xFactorStance: [Stance column, ABSOLUTE VALUE]
-- xFactorNegMove: [Negative Move column, ABSOLUTE VALUE]
-- xFactorMaxPelvis: [Max Pelvis Turn column, ABSOLUTE VALUE]
-- xFactorMaxXFactor: [Max X Factor column, ABSOLUTE VALUE] - THIS IS THE TRUE X-FACTOR SEPARATION
-- xFactorImpact: [Impact column, ABSOLUTE VALUE]
-
-Row "Negative Move" in time column:
-- negativeMoveTime: [Avg Time Before Impact column]
-
-Row "Max X Factor" in time column:
-- maxXFactorTime: [Avg Time Before Impact column]
-
-**PAGE 2 - MLB AVERAGES TABLE**
-
-Find a table or section labeled "MLB Averages" or "MLB Mean" with these values:
-- mlbAvgMaxPelvisTurn: [Max Pelvis Turn value, ABSOLUTE]
-- mlbAvgMaxShoulderTurn: [Max Shoulder Turn value, ABSOLUTE]
-- mlbAvgXFactor: [Max X Factor or X-Factor value, ABSOLUTE]
-
-**PAGE 3 - POSITION METRIC AVERAGES TABLE**
-
-Find table with "Position Metric Averages" section:
-- comDistNegMove: [COM Dist. - Negative Move, as percentage]
-- comDistFootDown: [COM Dist. - Foot Down, as percentage]
-- comDistMaxForward: [COM Dist. - Max Forward, as percentage]
-- strideLengthMeters: [Stride Length in meters]
-- strideLengthPctHeight: [Stride_length (% Height)]
-
-**PAGE 3 - VELOCITY METRIC AVERAGES TABLE**
-
-Find table with "Velocity Metric Averages" section:
-- peakCOMVelocity: [Max COM Velocity in m/s]
-- minCOMVelocity: [Min COM Velocity in m/s, can be negative]
-- comAvgAccelRate: [COM Avg Accel Rate in m/s²]
-- comAvgDecelRate: [COM Avg Decel Rate in m/s², usually negative]
-
-**PAGE 3 - SWING POSTURE (if available)**
-- frontalTiltFootDown: [Frontal Plane Tilt - Foot Down, ABSOLUTE]
-- frontalTiltMaxHandVelo: [Frontal Plane Tilt - Max Hand Velo, ABSOLUTE]
-- lateralTiltFootDown: [Lateral Plane Tilt - Foot Down]
-- lateralTiltMaxHandVelo: [Lateral Plane Tilt - Max Hand Velo]
-
-**BAT PATH METRICS (if available)**
-- attackAngle: [Attack Angle in degrees] (ONLY include if valid number exists in table, NOT "nan")
-
-**REPORT DATE**
-Look for date in format MM/DD/YYYY in header:
-- reportDate: "YYYY-MM-DD"
-
-**RESPONSE FORMAT:**
-Return ONLY this JSON structure with NO markdown code blocks:
-{
-  "negativeMoveTime": 0.000,
-  "maxPelvisTurnTime": 0.000,
-  "maxShoulderTurnTime": 0.000,
-  "maxXFactorTime": 0.000,
-  "xFactorMaxXFactor": 0.0,
-  "peakPelvisRotVel": 0.0,
-  "peakShoulderRotVel": 0.0,
-  "peakArmRotVel": 0.0,
-  "peakPelvisRotVelStdDev": 0.0,
-  "peakShoulderRotVelStdDev": 0.0,
-  "peakArmRotVelStdDev": 0.0,
-  "mlbAvgPelvisRotVel": 0.0,
-  "mlbAvgShoulderRotVel": 0.0,
-  "mlbAvgArmRotVel": 0.0,
-  "pelvisDirectionStance": 0.0,
-  "pelvisDirectionNegMove": 0.0,
-  "pelvisDirectionMaxPelvis": 0.0,
-  "pelvisDirectionImpact": 0.0,
-  "shoulderDirectionStance": 0.0,
-  "shoulderDirectionNegMove": 0.0,
-  "shoulderDirectionMaxShoulder": 0.0,
-  "shoulderDirectionImpact": 0.0,
-  "xFactorStance": 0.0,
-  "xFactorNegMove": 0.0,
-  "xFactorMaxPelvis": 0.0,
-  "xFactorImpact": 0.0,
-  "mlbAvgMaxPelvisTurn": 0.0,
-  "mlbAvgMaxShoulderTurn": 0.0,
-  "mlbAvgXFactor": 0.0,
-  "comDistNegMove": 0.0,
-  "comDistFootDown": 0.0,
-  "comDistMaxForward": 0.0,
-  "strideLengthMeters": 0.0,
-  "strideLengthPctHeight": 0.0,
-  "peakCOMVelocity": 0.0,
-  "minCOMVelocity": 0.0,
-  "comAvgAccelRate": 0.0,
-  "comAvgDecelRate": 0.0,
-  "frontalTiltFootDown": 0.0,
-  "frontalTiltMaxHandVelo": 0.0,
-  "lateralTiltFootDown": 0.0,
-  "lateralTiltMaxHandVelo": 0.0,
-  "reportDate": "2025-01-01"
-}
-
-IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric values in the tables. Omit them if "nan" or not present. Omit any other fields where data is not found in tables. Use 0 as placeholder in this example only.
-      */
     }
 
-    // If extractTiming is false, return error - we only support timing extraction now
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: 'extractTiming must be true. Legacy metrics extraction is no longer supported.'
+        error: 'extractTiming must be true.'
       }),
       { 
         status: 400,
