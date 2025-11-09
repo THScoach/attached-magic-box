@@ -138,6 +138,7 @@ export default function RebootAnalysis() {
   const [enableBatTracking, setEnableBatTracking] = useState(false);
   const [enableAudioDetection, setEnableAudioDetection] = useState(false);
   const [analyzingVideo, setAnalyzingVideo] = useState(false);
+  const [justAnalyzedVideo, setJustAnalyzedVideo] = useState(false);
 
   // Get selected player ID on mount
   useEffect(() => {
@@ -225,6 +226,9 @@ export default function RebootAnalysis() {
 
       toast.dismiss('analyze');
       toast.success('Video analyzed successfully!');
+      
+      // Mark that we just analyzed a video
+      setJustAnalyzedVideo(true);
       
       // Reload reports to show new analysis
       await loadReports();
@@ -819,50 +823,67 @@ export default function RebootAnalysis() {
               </Card>
             ) : (
               <>
-            {/* Upload Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Reboot Motion Report</CardTitle>
-                <CardDescription>
-                  Upload your Reboot Motion PDF report to automatically extract timing data and calculate tempo metrics
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary transition-colors">
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="reboot-upload"
-                    disabled={uploading}
-                  />
-                  <label
-                    htmlFor="reboot-upload"
-                    className="cursor-pointer flex flex-col items-center gap-3"
-                  >
-                    <Upload className="h-12 w-12 text-muted-foreground" />
-                    <div>
-                      <p className="text-lg font-medium">
-                        {uploading ? 'Processing...' : 'Click to upload PDF'}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Drag and drop or click to select
-                      </p>
-                    </div>
-                  </label>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Show upload card only if no reports or user hasn't just uploaded a video */}
+            {!justAnalyzedVideo && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Upload Reboot Motion Report</CardTitle>
+                  <CardDescription>
+                    Upload your Reboot Motion PDF report to automatically extract timing data and calculate tempo metrics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary transition-colors">
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="reboot-upload"
+                      disabled={uploading}
+                    />
+                    <label
+                      htmlFor="reboot-upload"
+                      className="cursor-pointer flex flex-col items-center gap-3"
+                    >
+                      <Upload className="h-12 w-12 text-muted-foreground" />
+                      <div>
+                        <p className="text-lg font-medium">
+                          {uploading ? 'Processing...' : 'Click to upload PDF'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Drag and drop or click to select
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Latest Report */}
             {reports.length > 0 && (() => {
               const latest = reports[reports.length - 1];
               return (
                    <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">Latest Analysis</h2>
+                   <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">
+                      {justAnalyzedVideo ? 'Your Video Analysis Results' : 'Latest Analysis'}
+                    </h2>
                     <div className="flex items-center gap-4">
+                      {justAnalyzedVideo && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setJustAnalyzedVideo(false);
+                            navigate('/upload-video');
+                          }}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Another Video
+                        </Button>
+                      )}
                       <Button
                         variant="destructive"
                         size="sm"
@@ -880,6 +901,7 @@ export default function RebootAnalysis() {
                             toast.error('Failed to delete report');
                           } else {
                             toast.success('Report deleted');
+                            setJustAnalyzedVideo(false);
                             loadReports();
                           }
                         }}
