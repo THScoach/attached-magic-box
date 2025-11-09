@@ -1030,6 +1030,134 @@ export type Database = {
           },
         ]
       }
+      hitrax_sessions: {
+        Row: {
+          avg_exit_velo: number | null
+          avg_launch_angle: number | null
+          barrel_rate: number | null
+          created_at: string
+          ev90: number | null
+          fly_ball_rate: number | null
+          ground_ball_rate: number | null
+          hard_hit_rate: number | null
+          home_runs: number | null
+          id: string
+          line_drive_rate: number | null
+          max_exit_velo: number | null
+          player_id: string | null
+          session_date: string
+          sweet_spot_rate: number | null
+          total_hits: number
+          total_swings: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_exit_velo?: number | null
+          avg_launch_angle?: number | null
+          barrel_rate?: number | null
+          created_at?: string
+          ev90?: number | null
+          fly_ball_rate?: number | null
+          ground_ball_rate?: number | null
+          hard_hit_rate?: number | null
+          home_runs?: number | null
+          id?: string
+          line_drive_rate?: number | null
+          max_exit_velo?: number | null
+          player_id?: string | null
+          session_date: string
+          sweet_spot_rate?: number | null
+          total_hits?: number
+          total_swings?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_exit_velo?: number | null
+          avg_launch_angle?: number | null
+          barrel_rate?: number | null
+          created_at?: string
+          ev90?: number | null
+          fly_ball_rate?: number | null
+          ground_ball_rate?: number | null
+          hard_hit_rate?: number | null
+          home_runs?: number | null
+          id?: string
+          line_drive_rate?: number | null
+          max_exit_velo?: number | null
+          player_id?: string | null
+          session_date?: string
+          sweet_spot_rate?: number | null
+          total_hits?: number
+          total_swings?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hitrax_swings: {
+        Row: {
+          at_bat: number | null
+          created_at: string
+          distance: number | null
+          exit_velo: number | null
+          hit_type: string | null
+          horiz_angle: number | null
+          id: string
+          is_barrel: boolean | null
+          launch_angle: number | null
+          pitch_number: number
+          points: number | null
+          result: string | null
+          session_id: string
+          spray_chart_x: number | null
+          spray_chart_z: number | null
+        }
+        Insert: {
+          at_bat?: number | null
+          created_at?: string
+          distance?: number | null
+          exit_velo?: number | null
+          hit_type?: string | null
+          horiz_angle?: number | null
+          id?: string
+          is_barrel?: boolean | null
+          launch_angle?: number | null
+          pitch_number: number
+          points?: number | null
+          result?: string | null
+          session_id: string
+          spray_chart_x?: number | null
+          spray_chart_z?: number | null
+        }
+        Update: {
+          at_bat?: number | null
+          created_at?: string
+          distance?: number | null
+          exit_velo?: number | null
+          hit_type?: string | null
+          horiz_angle?: number | null
+          id?: string
+          is_barrel?: boolean | null
+          launch_angle?: number | null
+          pitch_number?: number
+          points?: number | null
+          result?: string | null
+          session_id?: string
+          spray_chart_x?: number | null
+          spray_chart_z?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hitrax_swings_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "hitrax_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_base: {
         Row: {
           category: string

@@ -30,6 +30,7 @@ export default function BallDashboard() {
   const navigate = useNavigate();
   const [player, setPlayer] = useState<Player | null>(null);
   const [ballData, setBallData] = useState<BallData | null>(null);
+  const [sessions, setSessions] = useState<HitTraxSession[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
