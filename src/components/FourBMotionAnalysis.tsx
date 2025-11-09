@@ -3,10 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronDown, Upload } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, Upload, Calendar } from "lucide-react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { RebootProgressionTracker } from "./RebootProgressionTracker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RebootData {
   kinematicSequence?: {
@@ -31,6 +33,12 @@ interface RebootData {
   timestamp?: string;
 }
 
+interface RebootDataRecord {
+  id: string;
+  created_at: string;
+  data: RebootData;
+}
+
 interface FourBMotionAnalysisProps {
   rebootData?: RebootData;
   playerId?: string;
@@ -39,9 +47,61 @@ interface FourBMotionAnalysisProps {
 
 export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMotionAnalysisProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [allRebootData, setAllRebootData] = useState<RebootDataRecord[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [currentData, setCurrentData] = useState<RebootData | undefined>(rebootData);
+
+  // Load all Reboot data for this player
+  useEffect(() => {
+    if (playerId) {
+      loadAllRebootData();
+    }
+  }, [playerId]);
+
+  // Update current data when rebootData prop changes or selected date changes
+  useEffect(() => {
+    if (selectedDate && allRebootData.length > 0) {
+      const selected = allRebootData.find(r => r.id === selectedDate);
+      if (selected) {
+        setCurrentData(selected.data);
+      }
+    } else if (rebootData) {
+      setCurrentData(rebootData);
+    }
+  }, [rebootData, selectedDate, allRebootData]);
+
+  const loadAllRebootData = async () => {
+    if (!playerId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('external_session_data')
+        .select('id, created_at, extracted_metrics')
+        .eq('player_id', playerId)
+        .eq('data_source', 'reboot_motion')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const records: RebootDataRecord[] = (data || []).map(record => ({
+        id: record.id,
+        created_at: record.created_at,
+        data: record.extracted_metrics as RebootData
+      }));
+
+      setAllRebootData(records);
+
+      // Auto-select the most recent if not already selected
+      if (records.length > 0 && !selectedDate) {
+        setSelectedDate(records[0].id);
+      }
+    } catch (error) {
+      console.error('Error loading Reboot data:', error);
+    }
+  };
 
   // No data state
-  if (!rebootData) {
+  if (!currentData && allRebootData.length === 0) {
     return (
       <Card className="p-8 text-center">
         <CardHeader>
@@ -60,7 +120,8 @@ export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMot
 
   // Calculate overall quality
   const getOverallQuality = (): { label: string; emoji: string; color: string; description: string } => {
-    const { kinematicSequence, centerOfMass } = rebootData;
+    if (!currentData) return { label: "No Data", emoji: "⚪", color: "text-muted-foreground", description: "Upload data to see analysis" };
+    const { kinematicSequence, centerOfMass } = currentData;
     
     // Check sequence order
     const sequenceCorrect = kinematicSequence && 
@@ -99,7 +160,8 @@ export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMot
 
   // Sequence analysis
   const getSequenceAnalysis = () => {
-    const { kinematicSequence } = rebootData;
+    if (!currentData) return null;
+    const { kinematicSequence } = currentData;
     if (!kinematicSequence) return null;
 
     const parts = [
@@ -117,7 +179,8 @@ export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMot
 
   // COM analysis
   const getCOMAnalysis = () => {
-    const { centerOfMass } = rebootData;
+    if (!currentData) return null;
+    const { centerOfMass } = currentData;
     if (!centerOfMass) return null;
 
     const forward = centerOfMass.maxForward;
@@ -137,7 +200,8 @@ export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMot
 
   // Posture analysis
   const getPostureAnalysis = () => {
-    const { swingPosture } = rebootData;
+    if (!currentData) return null;
+    const { swingPosture } = currentData;
     if (!swingPosture) return null;
 
     const frontalStatus = Math.abs(swingPosture.frontalTilt) < 45 ? "Stable" : "Monitor";
@@ -153,21 +217,51 @@ export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMot
   const sequence = getSequenceAnalysis();
   const com = getCOMAnalysis();
   const posture = getPostureAnalysis();
-  const { xFactor, timestamp } = rebootData;
+  const xFactor = currentData?.xFactor;
+  const timestamp = currentData?.timestamp;
 
   return (
     <div className="space-y-6">
       {/* 1. 4B Motion Summary */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>4B Motion Analysis</CardTitle>
-              <CardDescription>
-                Source: Reboot Motion | {timestamp ? format(new Date(timestamp), 'MMM dd, yyyy') : 'Recent'}
-              </CardDescription>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>4B Motion Analysis</CardTitle>
+                <CardDescription>
+                  Source: Reboot Motion
+                </CardDescription>
+              </div>
+              <Badge variant="outline">4B Pillar: Body</Badge>
             </div>
-            <Badge variant="outline">4B Pillar: Body</Badge>
+            
+            {/* Date Selector */}
+            {allRebootData.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Select value={selectedDate} onValueChange={setSelectedDate}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select date" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allRebootData.map((record) => (
+                      <SelectItem key={record.id} value={record.id}>
+                        {format(new Date(record.created_at), 'MMM dd, yyyy h:mm a')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={onUpload}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload New
+                </Button>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -334,8 +428,8 @@ export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMot
       )}
 
       {/* Progress Over Time */}
-      {playerId && (
-        <RebootProgressionTracker playerId={playerId} currentData={rebootData} />
+      {playerId && currentData && (
+        <RebootProgressionTracker playerId={playerId} currentData={currentData} />
       )}
 
       {/* 4. Advanced Coach View */}

@@ -126,7 +126,7 @@ export function AthleteProgressOverview({ athleteId, athleteEmail }: AthleteProg
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => navigate(`/player-profile?id=${athleteId}`)}
+            onClick={() => navigate(`/player/${athleteId}`)}
             className="h-8"
           >
             View Profile
