@@ -506,7 +506,7 @@ export default function RebootAnalysis() {
           load_duration: timingData.loadDuration ?? metrics.loadDuration,
           fire_duration: timingData.fireDuration ?? metrics.fireDuration,
           tempo_ratio: timingData.tempoRatio ?? metrics.tempoRatio,
-          kinematic_sequence_gap: metrics.kinematicSequenceGap,
+          kinematic_sequence_gap: metrics.kinematicSequenceGap ?? 0,
           pelvis_shoulder_gap: timingData.pelvisShoulderGap ?? null,
           // Core biomechanics
           x_factor_angle: biomechanicsData.xFactorAngle ?? null,
