@@ -491,36 +491,14 @@ IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric 
       );
     }
 
-    // Standard Reboot metrics extraction (existing functionality)
-    const metrics = {
-      kinematicSequence: {
-        pelvis: { timing: 33, peakVelocity: 680 },
-        torso: { timing: 15, peakVelocity: 920 },
-        leadArm: { timing: 5, peakVelocity: 1650 },
-        bat: { timing: 0, peakVelocity: 71 }
-      },
-      centerOfMass: {
-        maxForward: 58.9,
-        maxLateral: 3.5,
-        maxVertical: 2.1
-      },
-      swingPosture: {
-        frontalTilt: 36.9,
-        sideTilt: -9.7
-      },
-      xFactor: {
-        separation: 24.3,
-        maxCoil: 32.1
-      },
-      timestamp: new Date().toISOString()
-    };
-
+    // If extractTiming is false, return error - we only support timing extraction now
     return new Response(
       JSON.stringify({ 
-        success: true,
-        metrics 
+        success: false,
+        error: 'extractTiming must be true. Legacy metrics extraction is no longer supported.'
       }),
       { 
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
