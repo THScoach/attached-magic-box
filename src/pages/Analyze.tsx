@@ -839,10 +839,22 @@ export default function Analyze() {
             {/* Player Selection - Required */}
             {!selectedPlayerId ? (
               <Card className="p-4 border-2 border-yellow-500/50 bg-yellow-500/5">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500 mb-2">
-                    <span className="text-lg">👤</span>
-                    <span className="text-sm font-semibold">Step 1: Select a player to continue</span>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
+                      <span className="text-lg">👤</span>
+                      <span className="text-sm font-semibold">Step 1: Select a player to continue</span>
+                    </div>
+                    {(isCoach || isAdmin) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate('/coach-roster')}
+                        className="text-xs h-7"
+                      >
+                        View All Players →
+                      </Button>
+                    )}
                   </div>
                   <PlayerSelector 
                     selectedPlayerId={selectedPlayerId}
@@ -862,16 +874,28 @@ export default function Analyze() {
                       <p className="font-semibold">{selectedPlayerName || 'Loading...'}</p>
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedPlayerId(null);
-                      setSelectedPlayerName(null);
-                    }}
-                  >
-                    Change
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {(isCoach || isAdmin) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate('/coach-roster')}
+                        className="text-xs h-8"
+                      >
+                        All Players
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedPlayerId(null);
+                        setSelectedPlayerName(null);
+                      }}
+                    >
+                      Change
+                    </Button>
+                  </div>
                 </div>
               </Card>
             )}

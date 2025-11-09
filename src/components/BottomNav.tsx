@@ -1,15 +1,17 @@
-import { Home, Camera, TrendingUp, Target, User, FileText, Award, BarChart3 } from "lucide-react";
+import { Home, Camera, TrendingUp, Target, User, FileText, Award, BarChart3, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./NotificationBell";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isCoach } = useUserRole();
 
   const navItems = [
     { icon: Home, label: "Home", path: "/dashboard" },
-    { icon: Award, label: "4 B's", path: "/4bs" },
+    { icon: Users, label: "Players", path: "/coach-roster", coachOnly: true },
     { icon: Camera, label: "Analyze", path: "/analyze" },
     { icon: BarChart3, label: "Motion", path: "/reboot-analysis" },
     { icon: User, label: "Profile", path: "/profile" }
@@ -23,11 +25,17 @@ export function BottomNav() {
     navigate(path);
   };
 
+  // Filter nav items based on user role
+  const visibleNavItems = navItems.filter(item => {
+    if (item.coachOnly && !isCoach) return false;
+    return true;
+  });
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
       <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-2">
         <div className="flex items-center justify-around flex-1">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             
