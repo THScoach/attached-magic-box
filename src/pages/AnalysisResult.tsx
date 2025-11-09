@@ -794,6 +794,21 @@ export default function AnalysisResult() {
       <PlayerProfileHeader playerId={playerId} />
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            if (playerId) {
+              navigate(`/player/${playerId}`);
+            } else {
+              navigate(-1);
+            }
+          }}
+          className="mb-4"
+        >
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Back to Profile
+        </Button>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <h1 className="text-2xl font-bold mb-2">

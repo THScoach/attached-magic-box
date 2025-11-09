@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BottomNav } from "@/components/BottomNav";
 import { PlayerAnalysisHistory } from "@/components/PlayerAnalysisHistory";
+import { PlayerRebootReports } from "@/components/PlayerRebootReports";
+import { Player4BScorecards } from "@/components/Player4BScorecards";
 import { ExternalSessionDataView } from "@/components/ExternalSessionDataView";
 import { ExternalSessionUpload } from "@/components/ExternalSessionUpload";
 import { AthleteScheduleCalendar } from "@/components/AthleteScheduleCalendar";
@@ -41,7 +43,7 @@ export default function PlayerProfile() {
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<string>(
-    (location.state as any)?.tab || 'activity'
+    (location.state as any)?.tab || 'video'
   );
 
   useEffect(() => {
@@ -168,15 +170,27 @@ export default function PlayerProfile() {
       {/* Tabs */}
       <div className="px-6 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 text-xs">
-            <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 text-xs mb-2">
+            <TabsTrigger value="video">Video</TabsTrigger>
+            <TabsTrigger value="reboot">Reboot</TabsTrigger>
+            <TabsTrigger value="4bs">4 B's</TabsTrigger>
+          </TabsList>
+          <TabsList className="grid w-full grid-cols-3 text-xs">
             <TabsTrigger value="schedule">Schedule</TabsTrigger>
             <TabsTrigger value="items">Programs</TabsTrigger>
             <TabsTrigger value="comms">Comms</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="activity" className="space-y-4 mt-6">
+          <TabsContent value="video" className="space-y-4 mt-6">
             <PlayerAnalysisHistory playerId={playerId!} />
+          </TabsContent>
+
+          <TabsContent value="reboot" className="space-y-4 mt-6">
+            <PlayerRebootReports playerId={playerId!} />
+          </TabsContent>
+
+          <TabsContent value="4bs" className="space-y-4 mt-6">
+            <Player4BScorecards playerId={playerId!} />
           </TabsContent>
 
           <TabsContent value="schedule" className="space-y-4 mt-6">
