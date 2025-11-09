@@ -14,6 +14,7 @@ import { KeyBiomechanics } from "@/components/KeyBiomechanics";
 import { MomentumAnalysis } from "@/components/MomentumAnalysis";
 import { PowerGeneration } from "@/components/PowerGeneration";
 import { RebootComparisonView } from "@/components/RebootComparisonView";
+import { CoachRickInsightCard } from "@/components/CoachRickInsightCard";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -43,6 +44,10 @@ interface RebootReport {
     peakPelvisRotVelStdDev?: number;
     peakShoulderRotVelStdDev?: number;
     peakArmRotVelStdDev?: number;
+    pelvisConsistency?: number;
+    shoulderConsistency?: number;
+    armConsistency?: number;
+    overallConsistency?: number;
     // Rotation progression
     pelvisDirectionStance?: number;
     pelvisDirectionNegMove?: number;
@@ -52,12 +57,17 @@ interface RebootReport {
     shoulderDirectionNegMove?: number;
     shoulderDirectionMaxShoulder?: number;
     shoulderDirectionImpact?: number;
+    totalPelvisRotation?: number;
+    totalShoulderRotation?: number;
     // X-Factor progression
     xFactorStance?: number;
     xFactorNegMove?: number;
     xFactorMaxPelvis?: number;
     xFactorImpact?: number;
     // MLB comparison
+    mlbAvgPelvisRotVel?: number;
+    mlbAvgShoulderRotVel?: number;
+    mlbAvgArmRotVel?: number;
     mlbAvgMaxPelvisTurn?: number;
     mlbAvgMaxShoulderTurn?: number;
     mlbAvgXFactor?: number;
@@ -72,11 +82,13 @@ interface RebootReport {
     comDistMaxForward?: number;
     strideLengthMeters?: number;
     strideLengthPctHeight?: number;
+    weightShift?: number;
     // COM velocity
     peakCOMVelocity?: number;
     minCOMVelocity?: number;
     comAvgAccelRate?: number;
     comAvgDecelRate?: number;
+    bracingEfficiency?: number;
     // Player physical
     height?: number;
     weight?: number;
@@ -109,11 +121,21 @@ export default function RebootAnalysis() {
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<RebootReport[]>([]);
   const [selectedReportIds, setSelectedReportIds] = useState<[string | null, string | null]>([null, null]);
+  const [coachRickInsights, setCoachRickInsights] = useState<any>(null);
+  const [loadingInsights, setLoadingInsights] = useState(false);
 
   // Load reports from database on mount
   useEffect(() => {
     loadReports();
   }, []);
+
+  // Generate Coach Rick insights when latest report changes
+  useEffect(() => {
+    if (reports.length > 0 && !loadingInsights && !coachRickInsights) {
+      const latest = reports[reports.length - 1];
+      generateCoachRickInsights(latest);
+    }
+  }, [reports]);
 
   const loadReports = async () => {
     try {
@@ -244,10 +266,62 @@ export default function RebootAnalysis() {
       if (error) throw error;
 
       toast.success('Report deleted successfully');
+      setCoachRickInsights(null); // Clear insights when report deleted
       await loadReports();
     } catch (error: any) {
       console.error('Error deleting report:', error);
       toast.error('Failed to delete report');
+    }
+  };
+
+  const generateCoachRickInsights = async (report: RebootReport) => {
+    if (!report) return;
+    
+    setLoadingInsights(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('coach-rick-analysis', {
+        body: {
+          reportData: {
+            loadDuration: report.metrics.loadDuration,
+            fireDuration: report.metrics.fireDuration,
+            tempoRatio: report.metrics.tempoRatio,
+            pelvisShoulderGap: report.metrics.kinematicSequenceGap,
+            peakPelvisRotVel: report.metrics.peakPelvisRotVel,
+            peakShoulderRotVel: report.metrics.peakShoulderRotVel,
+            peakArmRotVel: report.metrics.peakArmRotVel,
+            xFactor: report.metrics.xFactor,
+            totalPelvisRotation: report.metrics.totalPelvisRotation,
+            totalShoulderRotation: report.metrics.totalShoulderRotation,
+            comAvgDecelRate: report.metrics.comAvgDecelRate,
+            comAvgAccelRate: report.metrics.comAvgAccelRate,
+            bracingEfficiency: report.metrics.bracingEfficiency,
+            weightShift: report.metrics.weightShift,
+            comDistNegMove: report.metrics.comDistNegMove,
+            comDistFootDown: report.metrics.comDistFootDown,
+            comDistMaxForward: report.metrics.comDistMaxForward,
+            peakCOMVelocity: report.metrics.peakCOMVelocity,
+            overallConsistency: report.metrics.overallConsistency,
+            pelvisConsistency: report.metrics.pelvisConsistency,
+            shoulderConsistency: report.metrics.shoulderConsistency,
+            armConsistency: report.metrics.armConsistency,
+            mlbAvgPelvisRotVel: report.metrics.mlbAvgPelvisRotVel,
+            mlbAvgShoulderRotVel: report.metrics.mlbAvgShoulderRotVel,
+            mlbAvgArmRotVel: report.metrics.mlbAvgArmRotVel,
+          },
+          context: 'Reboot Analysis - Latest Report'
+        }
+      });
+
+      if (error) throw error;
+      
+      if (data?.insights) {
+        setCoachRickInsights(data.insights);
+      }
+    } catch (error: any) {
+      console.error('Error generating Coach Rick insights:', error);
+      // Don't show error toast, just silently fail
+    } finally {
+      setLoadingInsights(false);
     }
   };
 
@@ -491,6 +565,12 @@ export default function RebootAnalysis() {
       // Reload reports from database
       await loadReports();
       
+      // Generate Coach Rick insights for the new report
+      const latestReport = reports[reports.length - 1];
+      if (latestReport) {
+        generateCoachRickInsights(latestReport);
+      }
+      
       toast.dismiss();
       toast.success('Report processed and saved successfully!');
     } catch (error: any) {
@@ -714,11 +794,19 @@ export default function RebootAnalysis() {
                           {latest.scores.archetype}
                         </Badge>
                       </CardContent>
-                    </Card>
-                  </div>
+                     </Card>
+                   </div>
 
-                  {/* Kinematic Sequence Bar Chart */}
-                  <KinematicSequenceBarChart metrics={latest.metrics} />
+                   {/* Coach Rick Insights */}
+                   <CoachRickInsightCard 
+                     insights={coachRickInsights || {
+                       mainMessage: "Analyzing your latest swing...",
+                     }}
+                     loading={loadingInsights}
+                   />
+
+                   {/* Kinematic Sequence Bar Chart */}
+                   <KinematicSequenceBarChart metrics={latest.metrics} />
 
                   {/* Key Biomechanics */}
                   <KeyBiomechanics metrics={latest.metrics} />

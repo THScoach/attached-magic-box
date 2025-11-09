@@ -6,6 +6,12 @@ verify_jwt = false
 [functions.coach-rick-chat]
 verify_jwt = false
 
+[functions.coach-rick-analysis]
+verify_jwt = true
+
+[functions.parse-reboot-pdf]
+verify_jwt = true
+
 [functions.send-coach-message]
 verify_jwt = false
 
