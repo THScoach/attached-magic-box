@@ -22,8 +22,10 @@ import Terms from "./pages/Terms";
 import RequestDemo from "./pages/RequestDemo";
 import BookCall from "./pages/BookCall";
 import Dashboard from "./pages/Dashboard";
-import Analyze from "./pages/Analyze";
 import AnalysisResult from "./pages/AnalysisResult";
+import RecordSwing from "./pages/RecordSwing";
+import UploadRebootPDF from "./pages/UploadRebootPDF";
+import UploadVideo from "./pages/UploadVideo";
 import Progress from "./pages/Progress";
 import Comparison from "./pages/Comparison";
 import Reports from "@/pages/Reports";
@@ -288,10 +290,15 @@ const App = () => {
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             {/* Legacy free onboarding - redirect to main onboarding */}
             <Route path="/free-onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-            <Route path="/analyze" element={<ProtectedRoute><Analyze /></ProtectedRoute>} />
+            {/* Legacy analyze route - redirect to dashboard */}
+            <Route path="/analyze" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/result/:id" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
             <Route path="/player/:playerId" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
             <Route path="/player/:playerId/analysis/:analysisId" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
+            {/* New streamlined upload routes */}
+            <Route path="/record/:playerId" element={<ProtectedRoute><RecordSwing /></ProtectedRoute>} />
+            <Route path="/upload/reboot/:playerId" element={<ProtectedRoute><UploadRebootPDF /></ProtectedRoute>} />
+            <Route path="/upload/video/:playerId" element={<ProtectedRoute><UploadVideo /></ProtectedRoute>} />
             <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
             <Route path="/comparison" element={<ProtectedRoute><Comparison /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />

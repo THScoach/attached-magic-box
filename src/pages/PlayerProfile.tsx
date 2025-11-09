@@ -155,15 +155,27 @@ export default function PlayerProfile() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 mt-4">
-          <Button onClick={() => {
-            if (!playerId) return;
-            console.log('[PlayerProfile] Setting player ID for analyze:', playerId);
-            sessionStorage.setItem('selectedPlayerId', playerId);
-            setTimeout(() => navigate('/analyze'), 100);
-          }} className="w-full">
-            <Video className="mr-2 h-4 w-4" />
-            Record Swing
-          </Button>
+          {isAdmin ? (
+            <>
+              <Button onClick={() => navigate(`/upload/reboot/${playerId}`)} variant="default" className="w-full">
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Reboot PDF
+              </Button>
+              <Button onClick={() => navigate(`/upload/video/${playerId}`)} variant="outline" className="w-full">
+                <Video className="mr-2 h-4 w-4" />
+                Upload Video
+              </Button>
+            </>
+          ) : (
+            <Button onClick={() => {
+              if (!playerId) return;
+              sessionStorage.setItem('selectedPlayerId', playerId);
+              navigate(`/record/${playerId}`);
+            }} className="w-full col-span-2">
+              <Video className="mr-2 h-4 w-4" />
+              Record Swing
+            </Button>
+          )}
         </div>
       </div>
 
