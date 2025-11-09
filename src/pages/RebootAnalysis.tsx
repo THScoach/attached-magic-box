@@ -21,41 +21,79 @@ import { toast } from "sonner";
 interface RebootReport {
   id: string;
   label: string;
-  uploadDate: Date; // When the PDF was uploaded
-  reportDate: Date; // Date extracted from the PDF report itself
+  uploadDate: Date;
+  reportDate: Date;
   metrics: {
-    negativeMoveTime: number; // seconds before impact
+    negativeMoveTime: number;
     maxPelvisTurnTime: number;
     maxShoulderTurnTime: number;
     maxXFactorTime: number;
-    loadDuration: number; // ms
-    fireDuration: number; // ms
+    loadDuration: number;
+    fireDuration: number;
     tempoRatio: number;
     kinematicSequenceGap: number;
-    // Biomechanics
-    peakPelvisRotVel?: number; // °/s
-    peakShoulderRotVel?: number; // °/s
-    peakArmRotVel?: number; // °/s
-    peakBatSpeed?: number; // mph
-    xFactor?: number; // degrees (X-Factor separation angle)
-    hipShoulderSeparation?: number; // ms
-    attackAngle?: number; // degrees
-    verticalBatAngle?: number; // degrees
-    connectionAtImpact?: number; // percentage
-    postureAngle?: number; // degrees
-    earlyConnection?: number; // percentage
-    // Momentum
-    height?: number; // inches
-    weight?: number; // lbs
-    peakCOMVelocity?: number; // m/s
-    momentumDirectionAngle?: number; // degrees
-    forwardMomentumPct?: number; // percentage
-    transferEfficiency?: number; // percentage
+    // Core biomechanics
+    peakPelvisRotVel?: number;
+    peakShoulderRotVel?: number;
+    peakArmRotVel?: number;
+    peakBatSpeed?: number;
+    xFactor?: number;
+    attackAngle?: number;
+    // Consistency metrics
+    peakPelvisRotVelStdDev?: number;
+    peakShoulderRotVelStdDev?: number;
+    peakArmRotVelStdDev?: number;
+    // Rotation progression
+    pelvisDirectionStance?: number;
+    pelvisDirectionNegMove?: number;
+    pelvisDirectionMaxPelvis?: number;
+    pelvisDirectionImpact?: number;
+    shoulderDirectionStance?: number;
+    shoulderDirectionNegMove?: number;
+    shoulderDirectionMaxShoulder?: number;
+    shoulderDirectionImpact?: number;
+    // X-Factor progression
+    xFactorStance?: number;
+    xFactorNegMove?: number;
+    xFactorMaxPelvis?: number;
+    xFactorImpact?: number;
+    // MLB comparison
+    mlbAvgMaxPelvisTurn?: number;
+    mlbAvgMaxShoulderTurn?: number;
+    mlbAvgXFactor?: number;
+    // Posture
+    frontalTiltFootDown?: number;
+    frontalTiltMaxHandVelo?: number;
+    lateralTiltFootDown?: number;
+    lateralTiltMaxHandVelo?: number;
+    // COM position
+    comDistNegMove?: number;
+    comDistFootDown?: number;
+    comDistMaxForward?: number;
+    strideLengthMeters?: number;
+    strideLengthPctHeight?: number;
+    // COM velocity
+    peakCOMVelocity?: number;
+    minCOMVelocity?: number;
+    comAvgAccelRate?: number;
+    comAvgDecelRate?: number;
+    // Player physical
+    height?: number;
+    weight?: number;
     // Power
-    rotationalPower?: number; // Watts
-    linearPower?: number; // Watts
-    totalPower?: number; // Watts
-    energyTransferEfficiency?: number; // percentage
+    rotationalPower?: number;
+    linearPower?: number;
+    totalPower?: number;
+    // Legacy fields
+    hipShoulderSeparation?: number;
+    verticalBatAngle?: number;
+    connectionAtImpact?: number;
+    postureAngle?: number;
+    earlyConnection?: number;
+    momentumDirectionAngle?: number;
+    forwardMomentumPct?: number;
+    transferEfficiency?: number;
+    energyTransferEfficiency?: number;
   };
   scores: {
     fireDurationScore: number;
@@ -104,26 +142,67 @@ export default function RebootAnalysis() {
           fireDuration: row.fire_duration,
           tempoRatio: row.tempo_ratio,
           kinematicSequenceGap: row.kinematic_sequence_gap,
-          xFactor: row.x_factor_angle ?? row.x_factor, // Use extracted angle, fallback to old field
+          // Core biomechanics
+          xFactor: row.x_factor_angle ?? row.x_factor,
           peakPelvisRotVel: row.peak_pelvis_rot_vel,
           peakShoulderRotVel: row.peak_shoulder_rot_vel,
           peakArmRotVel: row.peak_arm_rot_vel,
           peakBatSpeed: row.peak_bat_speed,
-          hipShoulderSeparation: row.hip_shoulder_separation,
           attackAngle: row.attack_angle,
+          // Consistency
+          peakPelvisRotVelStdDev: row.peak_pelvis_rot_vel_std_dev,
+          peakShoulderRotVelStdDev: row.peak_shoulder_rot_vel_std_dev,
+          peakArmRotVelStdDev: row.peak_arm_rot_vel_std_dev,
+          // Rotation progression
+          pelvisDirectionStance: row.pelvis_direction_stance,
+          pelvisDirectionNegMove: row.pelvis_direction_neg_move,
+          pelvisDirectionMaxPelvis: row.pelvis_direction_max_pelvis,
+          pelvisDirectionImpact: row.pelvis_direction_impact,
+          shoulderDirectionStance: row.shoulder_direction_stance,
+          shoulderDirectionNegMove: row.shoulder_direction_neg_move,
+          shoulderDirectionMaxShoulder: row.shoulder_direction_max_shoulder,
+          shoulderDirectionImpact: row.shoulder_direction_impact,
+          // X-Factor progression
+          xFactorStance: row.x_factor_stance,
+          xFactorNegMove: row.x_factor_neg_move,
+          xFactorMaxPelvis: row.x_factor_max_pelvis,
+          xFactorImpact: row.x_factor_impact,
+          // MLB comparison
+          mlbAvgMaxPelvisTurn: row.mlb_avg_max_pelvis_turn,
+          mlbAvgMaxShoulderTurn: row.mlb_avg_max_shoulder_turn,
+          mlbAvgXFactor: row.mlb_avg_x_factor,
+          // Posture
+          frontalTiltFootDown: row.frontal_tilt_foot_down,
+          frontalTiltMaxHandVelo: row.frontal_tilt_max_hand_velo,
+          lateralTiltFootDown: row.lateral_tilt_foot_down,
+          lateralTiltMaxHandVelo: row.lateral_tilt_max_hand_velo,
+          // COM position
+          comDistNegMove: row.com_dist_neg_move,
+          comDistFootDown: row.com_dist_foot_down,
+          comDistMaxForward: row.com_dist_max_forward,
+          strideLengthMeters: row.stride_length_meters,
+          strideLengthPctHeight: row.stride_length_pct_height,
+          // COM velocity
+          peakCOMVelocity: row.peak_com_velocity,
+          minCOMVelocity: row.min_com_velocity,
+          comAvgAccelRate: row.com_avg_accel_rate,
+          comAvgDecelRate: row.com_avg_decel_rate,
+          // Player physical
+          height: row.height,
+          weight: row.weight,
+          // Power
+          rotationalPower: row.rotational_power,
+          linearPower: row.linear_power,
+          totalPower: row.total_power,
+          // Legacy fields
+          hipShoulderSeparation: row.hip_shoulder_separation,
           verticalBatAngle: row.vertical_bat_angle,
           connectionAtImpact: row.connection_at_impact,
           postureAngle: row.posture_angle,
           earlyConnection: row.early_connection,
-          height: row.height,
-          weight: row.weight,
-          peakCOMVelocity: row.peak_com_velocity,
           momentumDirectionAngle: row.momentum_direction_angle,
           forwardMomentumPct: row.forward_momentum_pct,
           transferEfficiency: row.transfer_efficiency,
-          rotationalPower: row.rotational_power,
-          linearPower: row.linear_power,
-          totalPower: row.total_power,
           energyTransferEfficiency: row.energy_transfer_efficiency,
         },
         scores: {
@@ -281,26 +360,17 @@ export default function RebootAnalysis() {
       
       const playerData = players?.[0];
 
-      // Process extracted timing data
-      const timingData = parsedData?.timing || {
-        negativeMoveTime: 0.956,
-        maxPelvisTurnTime: 0.241,
-        maxShoulderTurnTime: 0.189,
-        maxXFactorTime: 0.156
-      };
-
-      // Use ONLY extracted biomechanics data (no defaults)
+      // Process extracted data
+      const timingData = parsedData?.timing || {};
       const biomechanicsData = parsedData?.biomechanics || {};
-
-      // Use ONLY extracted power data (no defaults)
+      const consistencyData = parsedData?.consistency || {};
+      const rotationData = parsedData?.rotation || {};
+      const xFactorProgressionData = parsedData?.xFactorProgression || {};
+      const mlbComparisonData = parsedData?.mlbComparison || {};
+      const postureData = parsedData?.posture || {};
+      const comPositionData = parsedData?.comPosition || {};
+      const comVelocityData = parsedData?.comVelocity || {};
       const powerData = parsedData?.power || {};
-
-      // Use ONLY extracted momentum data, plus player height/weight
-      const momentumData = {
-        ...parsedData?.momentum,
-        height: playerData?.height,
-        weight: playerData?.weight
-      };
 
       // Get the report date from the PDF or use today as fallback
       const reportDateStr = parsedData?.reportDate || new Date().toISOString().split('T')[0];
@@ -314,7 +384,7 @@ export default function RebootAnalysis() {
         .from('swing-videos')
         .getPublicUrl(fileName);
 
-      // Save to database
+      // Save to database with ALL extracted data
       const { data: savedReport, error: saveError } = await supabase
         .from('reboot_reports')
         .insert({
@@ -322,30 +392,68 @@ export default function RebootAnalysis() {
           pdf_url: publicUrl,
           label: `Report ${reports.length + 1}`,
           report_date: reportDate.toISOString().split('T')[0],
-          negative_move_time: timingData.negativeMoveTime,
-          max_pelvis_turn_time: timingData.maxPelvisTurnTime,
-          max_shoulder_turn_time: timingData.maxShoulderTurnTime,
-          max_x_factor_time: timingData.maxXFactorTime,
+          // Timing data
+          negative_move_time: timingData.negativeMoveTime ?? null,
+          max_pelvis_turn_time: timingData.maxPelvisTurnTime ?? null,
+          max_shoulder_turn_time: timingData.maxShoulderTurnTime ?? null,
+          max_x_factor_time: timingData.maxXFactorTime ?? null,
           load_duration: metrics.loadDuration,
           fire_duration: metrics.fireDuration,
           tempo_ratio: metrics.tempoRatio,
           kinematic_sequence_gap: metrics.kinematicSequenceGap,
-          // Only save biomechanics if extracted
+          // Core biomechanics
           x_factor_angle: biomechanicsData.xFactorAngle ?? null,
           peak_pelvis_rot_vel: biomechanicsData.peakPelvisRotVel ?? null,
           peak_shoulder_rot_vel: biomechanicsData.peakShoulderRotVel ?? null,
           peak_arm_rot_vel: biomechanicsData.peakArmRotVel ?? null,
           peak_bat_speed: biomechanicsData.peakBatSpeed ?? null,
           attack_angle: biomechanicsData.attackAngle ?? null,
-          // Height and weight from player profile
-          height: momentumData.height ?? null,
-          weight: momentumData.weight ?? null,
-          peak_com_velocity: momentumData.peakCOMVelocity ?? null,
-          // Only save power if extracted
+          // Consistency metrics
+          peak_pelvis_rot_vel_std_dev: consistencyData.peakPelvisRotVelStdDev ?? null,
+          peak_shoulder_rot_vel_std_dev: consistencyData.peakShoulderRotVelStdDev ?? null,
+          peak_arm_rot_vel_std_dev: consistencyData.peakArmRotVelStdDev ?? null,
+          // Rotation progression
+          pelvis_direction_stance: rotationData.pelvisDirectionStance ?? null,
+          pelvis_direction_neg_move: rotationData.pelvisDirectionNegMove ?? null,
+          pelvis_direction_max_pelvis: rotationData.pelvisDirectionMaxPelvis ?? null,
+          pelvis_direction_impact: rotationData.pelvisDirectionImpact ?? null,
+          shoulder_direction_stance: rotationData.shoulderDirectionStance ?? null,
+          shoulder_direction_neg_move: rotationData.shoulderDirectionNegMove ?? null,
+          shoulder_direction_max_shoulder: rotationData.shoulderDirectionMaxShoulder ?? null,
+          shoulder_direction_impact: rotationData.shoulderDirectionImpact ?? null,
+          // X-Factor progression
+          x_factor_stance: xFactorProgressionData.xFactorStance ?? null,
+          x_factor_neg_move: xFactorProgressionData.xFactorNegMove ?? null,
+          x_factor_max_pelvis: xFactorProgressionData.xFactorMaxPelvis ?? null,
+          x_factor_impact: xFactorProgressionData.xFactorImpact ?? null,
+          // MLB comparison
+          mlb_avg_max_pelvis_turn: mlbComparisonData.mlbAvgMaxPelvisTurn ?? null,
+          mlb_avg_max_shoulder_turn: mlbComparisonData.mlbAvgMaxShoulderTurn ?? null,
+          mlb_avg_x_factor: mlbComparisonData.mlbAvgXFactor ?? null,
+          // Posture
+          frontal_tilt_foot_down: postureData.frontalTiltFootDown ?? null,
+          frontal_tilt_max_hand_velo: postureData.frontalTiltMaxHandVelo ?? null,
+          lateral_tilt_foot_down: postureData.lateralTiltFootDown ?? null,
+          lateral_tilt_max_hand_velo: postureData.lateralTiltMaxHandVelo ?? null,
+          // COM position
+          com_dist_neg_move: comPositionData.comDistNegMove ?? null,
+          com_dist_foot_down: comPositionData.comDistFootDown ?? null,
+          com_dist_max_forward: comPositionData.comDistMaxForward ?? null,
+          stride_length_meters: comPositionData.strideLengthMeters ?? null,
+          stride_length_pct_height: comPositionData.strideLengthPctHeight ?? null,
+          // COM velocity
+          peak_com_velocity: comVelocityData.peakCOMVelocity ?? null,
+          min_com_velocity: comVelocityData.minCOMVelocity ?? null,
+          com_avg_accel_rate: comVelocityData.comAvgAccelRate ?? null,
+          com_avg_decel_rate: comVelocityData.comAvgDecelRate ?? null,
+          // Player physical data
+          height: playerData?.height ?? null,
+          weight: playerData?.weight ?? null,
+          // Power
           rotational_power: powerData.rotationalPower ?? null,
           linear_power: powerData.linearPower ?? null,
           total_power: powerData.totalPower ?? null,
-          energy_transfer_efficiency: powerData.energyTransferEfficiency ?? null,
+          // Scores
           fire_duration_score: scores.fireDurationScore,
           tempo_ratio_score: scores.tempoRatioScore,
           body_score: scores.bodyScore,

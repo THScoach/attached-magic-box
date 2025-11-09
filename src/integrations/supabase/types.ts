@@ -1677,6 +1677,11 @@ export type Database = {
           archetype: string
           attack_angle: number | null
           body_score: number
+          com_avg_accel_rate: number | null
+          com_avg_decel_rate: number | null
+          com_dist_foot_down: number | null
+          com_dist_max_forward: number | null
+          com_dist_neg_move: number | null
           connection_at_impact: number | null
           created_at: string
           early_connection: number | null
@@ -1684,28 +1689,49 @@ export type Database = {
           fire_duration: number
           fire_duration_score: number
           forward_momentum_pct: number | null
+          frontal_tilt_foot_down: number | null
+          frontal_tilt_max_hand_velo: number | null
           height: number | null
           hip_shoulder_separation: number | null
           id: string
           kinematic_sequence_gap: number
           label: string
+          lateral_tilt_foot_down: number | null
+          lateral_tilt_max_hand_velo: number | null
           linear_power: number | null
           load_duration: number
           max_pelvis_turn_time: number
           max_shoulder_turn_time: number
           max_x_factor_time: number
+          min_com_velocity: number | null
+          mlb_avg_max_pelvis_turn: number | null
+          mlb_avg_max_shoulder_turn: number | null
+          mlb_avg_x_factor: number | null
           momentum_direction_angle: number | null
           negative_move_time: number
           pdf_url: string
           peak_arm_rot_vel: number | null
+          peak_arm_rot_vel_std_dev: number | null
           peak_bat_speed: number | null
           peak_com_velocity: number | null
           peak_pelvis_rot_vel: number | null
+          peak_pelvis_rot_vel_std_dev: number | null
           peak_shoulder_rot_vel: number | null
+          peak_shoulder_rot_vel_std_dev: number | null
+          pelvis_direction_impact: number | null
+          pelvis_direction_max_pelvis: number | null
+          pelvis_direction_neg_move: number | null
+          pelvis_direction_stance: number | null
           player_id: string | null
           posture_angle: number | null
           report_date: string
           rotational_power: number | null
+          shoulder_direction_impact: number | null
+          shoulder_direction_max_shoulder: number | null
+          shoulder_direction_neg_move: number | null
+          shoulder_direction_stance: number | null
+          stride_length_meters: number | null
+          stride_length_pct_height: number | null
           tempo_ratio: number
           tempo_ratio_score: number
           total_power: number | null
@@ -1717,11 +1743,20 @@ export type Database = {
           weight: number | null
           x_factor: number | null
           x_factor_angle: number | null
+          x_factor_impact: number | null
+          x_factor_max_pelvis: number | null
+          x_factor_neg_move: number | null
+          x_factor_stance: number | null
         }
         Insert: {
           archetype: string
           attack_angle?: number | null
           body_score: number
+          com_avg_accel_rate?: number | null
+          com_avg_decel_rate?: number | null
+          com_dist_foot_down?: number | null
+          com_dist_max_forward?: number | null
+          com_dist_neg_move?: number | null
           connection_at_impact?: number | null
           created_at?: string
           early_connection?: number | null
@@ -1729,28 +1764,49 @@ export type Database = {
           fire_duration: number
           fire_duration_score: number
           forward_momentum_pct?: number | null
+          frontal_tilt_foot_down?: number | null
+          frontal_tilt_max_hand_velo?: number | null
           height?: number | null
           hip_shoulder_separation?: number | null
           id?: string
           kinematic_sequence_gap: number
           label: string
+          lateral_tilt_foot_down?: number | null
+          lateral_tilt_max_hand_velo?: number | null
           linear_power?: number | null
           load_duration: number
           max_pelvis_turn_time: number
           max_shoulder_turn_time: number
           max_x_factor_time: number
+          min_com_velocity?: number | null
+          mlb_avg_max_pelvis_turn?: number | null
+          mlb_avg_max_shoulder_turn?: number | null
+          mlb_avg_x_factor?: number | null
           momentum_direction_angle?: number | null
           negative_move_time: number
           pdf_url: string
           peak_arm_rot_vel?: number | null
+          peak_arm_rot_vel_std_dev?: number | null
           peak_bat_speed?: number | null
           peak_com_velocity?: number | null
           peak_pelvis_rot_vel?: number | null
+          peak_pelvis_rot_vel_std_dev?: number | null
           peak_shoulder_rot_vel?: number | null
+          peak_shoulder_rot_vel_std_dev?: number | null
+          pelvis_direction_impact?: number | null
+          pelvis_direction_max_pelvis?: number | null
+          pelvis_direction_neg_move?: number | null
+          pelvis_direction_stance?: number | null
           player_id?: string | null
           posture_angle?: number | null
           report_date: string
           rotational_power?: number | null
+          shoulder_direction_impact?: number | null
+          shoulder_direction_max_shoulder?: number | null
+          shoulder_direction_neg_move?: number | null
+          shoulder_direction_stance?: number | null
+          stride_length_meters?: number | null
+          stride_length_pct_height?: number | null
           tempo_ratio: number
           tempo_ratio_score: number
           total_power?: number | null
@@ -1762,11 +1818,20 @@ export type Database = {
           weight?: number | null
           x_factor?: number | null
           x_factor_angle?: number | null
+          x_factor_impact?: number | null
+          x_factor_max_pelvis?: number | null
+          x_factor_neg_move?: number | null
+          x_factor_stance?: number | null
         }
         Update: {
           archetype?: string
           attack_angle?: number | null
           body_score?: number
+          com_avg_accel_rate?: number | null
+          com_avg_decel_rate?: number | null
+          com_dist_foot_down?: number | null
+          com_dist_max_forward?: number | null
+          com_dist_neg_move?: number | null
           connection_at_impact?: number | null
           created_at?: string
           early_connection?: number | null
@@ -1774,28 +1839,49 @@ export type Database = {
           fire_duration?: number
           fire_duration_score?: number
           forward_momentum_pct?: number | null
+          frontal_tilt_foot_down?: number | null
+          frontal_tilt_max_hand_velo?: number | null
           height?: number | null
           hip_shoulder_separation?: number | null
           id?: string
           kinematic_sequence_gap?: number
           label?: string
+          lateral_tilt_foot_down?: number | null
+          lateral_tilt_max_hand_velo?: number | null
           linear_power?: number | null
           load_duration?: number
           max_pelvis_turn_time?: number
           max_shoulder_turn_time?: number
           max_x_factor_time?: number
+          min_com_velocity?: number | null
+          mlb_avg_max_pelvis_turn?: number | null
+          mlb_avg_max_shoulder_turn?: number | null
+          mlb_avg_x_factor?: number | null
           momentum_direction_angle?: number | null
           negative_move_time?: number
           pdf_url?: string
           peak_arm_rot_vel?: number | null
+          peak_arm_rot_vel_std_dev?: number | null
           peak_bat_speed?: number | null
           peak_com_velocity?: number | null
           peak_pelvis_rot_vel?: number | null
+          peak_pelvis_rot_vel_std_dev?: number | null
           peak_shoulder_rot_vel?: number | null
+          peak_shoulder_rot_vel_std_dev?: number | null
+          pelvis_direction_impact?: number | null
+          pelvis_direction_max_pelvis?: number | null
+          pelvis_direction_neg_move?: number | null
+          pelvis_direction_stance?: number | null
           player_id?: string | null
           posture_angle?: number | null
           report_date?: string
           rotational_power?: number | null
+          shoulder_direction_impact?: number | null
+          shoulder_direction_max_shoulder?: number | null
+          shoulder_direction_neg_move?: number | null
+          shoulder_direction_stance?: number | null
+          stride_length_meters?: number | null
+          stride_length_pct_height?: number | null
           tempo_ratio?: number
           tempo_ratio_score?: number
           total_power?: number | null
@@ -1807,6 +1893,10 @@ export type Database = {
           weight?: number | null
           x_factor?: number | null
           x_factor_angle?: number | null
+          x_factor_impact?: number | null
+          x_factor_max_pelvis?: number | null
+          x_factor_neg_move?: number | null
+          x_factor_stance?: number | null
         }
         Relationships: [
           {

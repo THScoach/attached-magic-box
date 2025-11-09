@@ -14,17 +14,56 @@ interface TimingData {
 }
 
 interface ExtractedData extends TimingData {
-  reportDate?: string; // ISO date string extracted from PDF
-  xFactorAngle?: number; // X-Factor separation angle in degrees
+  reportDate?: string;
+  // Core biomechanics
+  xFactorAngle?: number;
   peakPelvisRotVel?: number;
   peakShoulderRotVel?: number;
   peakArmRotVel?: number;
   attackAngle?: number;
   peakBatSpeed?: number;
+  // Consistency metrics (std deviations)
+  peakPelvisRotVelStdDev?: number;
+  peakShoulderRotVelStdDev?: number;
+  peakArmRotVelStdDev?: number;
+  // Direction/rotation at key events
+  pelvisDirectionStance?: number;
+  pelvisDirectionNegMove?: number;
+  pelvisDirectionMaxPelvis?: number;
+  pelvisDirectionImpact?: number;
+  shoulderDirectionStance?: number;
+  shoulderDirectionNegMove?: number;
+  shoulderDirectionMaxShoulder?: number;
+  shoulderDirectionImpact?: number;
+  // X-Factor progression
+  xFactorStance?: number;
+  xFactorNegMove?: number;
+  xFactorMaxPelvis?: number;
+  xFactorImpact?: number;
+  // MLB comparisons
+  mlbAvgMaxPelvisTurn?: number;
+  mlbAvgMaxShoulderTurn?: number;
+  mlbAvgXFactor?: number;
+  // Posture
+  frontalTiltFootDown?: number;
+  frontalTiltMaxHandVelo?: number;
+  lateralTiltFootDown?: number;
+  lateralTiltMaxHandVelo?: number;
+  // COM position
+  comDistNegMove?: number;
+  comDistFootDown?: number;
+  comDistMaxForward?: number;
+  strideLengthMeters?: number;
+  strideLengthPctHeight?: number;
+  // COM velocity
+  peakCOMVelocity?: number;
+  minCOMVelocity?: number;
+  comAvgAccelRate?: number;
+  comAvgDecelRate?: number;
+  // Power
   rotationalPower?: number;
   linearPower?: number;
   totalPower?: number;
-  peakCOMVelocity?: number;
 }
 
 serve(async (req) => {
@@ -105,52 +144,102 @@ serve(async (req) => {
             role: 'user',
             content: [{
               type: 'text',
-              text: `You are extracting data from a Reboot Motion PDF report. Read the exact values from the tables shown.
+              text: `You are extracting comprehensive data from a Reboot Motion PDF report. Extract EXACT values from the tables - do not calculate or estimate.
 
-CRITICAL: Extract EXACT values only - do not calculate or estimate anything.
+**CRITICAL: Use absolute values for all angular measurements (no negative signs).**
 
-**TABLE 1: "Torso Directions and Rotations (deg)" - Look for column "Avg Time Before Impact (sec)"**
-Extract these rows EXACTLY as shown:
-- Row "Negative Move": Extract the time value (in seconds)
-- Row "Max Pelvis Turn": Extract the time value (in seconds)  
-- Row "Max Shoulder Turn": Extract the time value (in seconds)
-- Row "Max X Factor": Extract time value (in seconds) AND the "X Factor at Max X Factor" angle value (in degrees)
+**TABLE 1: "Torso Directions and Rotations (deg)" - "Avg Time Before Impact (sec)" column**
+- Row "Negative Move": Extract time (seconds)
+- Row "Max Pelvis Turn": Extract time (seconds)
+- Row "Max Shoulder Turn": Extract time (seconds)  
+- Row "Max X Factor": Extract time (seconds) AND "X Factor at Max X Factor" value (degrees, ABSOLUTE VALUE)
 
-**TABLE 2: Kinematic Sequence Table with "Max Angular Velocity (deg/s)" column**
-Extract EXACT values from this table:
-- Row "Pelvis": Extract Max Angular Velocity value (deg/s)
-- Row "Upper Torso" or "Torso": Extract Max Angular Velocity value (deg/s)
-- Row "Arm": Extract Max Angular Velocity value (deg/s)
+**TABLE 2: Kinematic Sequence - "Max Angular Velocity (deg/s)" AND "Std Dev (deg/s)" columns**
+- Row "Pelvis": Max velocity AND standard deviation
+- Row "Upper Torso"/"Torso": Max velocity AND standard deviation
+- Row "Arm": Max velocity AND standard deviation
+- Row "Bat": Max velocity if available
 
-**TABLE 3: "Velocity Metric Averages"**
-- Look for "Max COM Velocity" row, extract value (m/s)
+**TABLE 3: "Torso Directions and Rotations" - Extract ALL direction values (degrees, ABSOLUTE VALUES)**
+Look for rows: "Pelvis Direction", "Shoulder Direction", "X Factor at"
+Look for columns: "Stance", "Negative Move", "Max Pelvis Turn", "Max Shoulder Turn", "Max X Factor", "Impact"
 
-**TABLE 4: Bat Path or Swing Metrics (if visible)**
+**TABLE 4: MLB Comparison Table (usually at bottom)**
+Look for "MLB Mean" or "Average" columns with:
+- Max Pelvis Turn
+- Max Shoulder Turn  
+- Max X Factor
+
+**TABLE 5: Swing Posture Section**
+- "Frontal Plane Tilt - Foot Down" (degrees, ABSOLUTE VALUE)
+- "Frontal Plane Tilt - Max Hand Velo" (degrees, ABSOLUTE VALUE)
+- "Lateral Plane Tilt - Foot Down" (degrees, can be negative)
+- "Lateral Plane Tilt - Max Hand Velo" (degrees, can be negative)
+
+**TABLE 6: "Position Metric Averages"**
+- "COM Dist. - Negative Move" (percentage)
+- "COM Dist. - Foot Down" (percentage)
+- "COM Dist. - Max Forward" (percentage)
+- "Stride Length" (meters)
+- "Stride Length (% Height)" (percentage)
+
+**TABLE 7: "Velocity Metric Averages"**
+- "Max COM Velocity" (m/s)
+- "Min COM Velocity" (m/s, can be negative)
+- "COM Avg Accel Rate" (m/s²)
+- "COM Avg Decel Rate" (m/s², usually negative)
+
+**TABLE 8: Bat Path/Metrics (if visible)**
 - Attack Angle (degrees)
 - Bat Speed (mph)
 
-**Report Date**: Look at top of document for date (MM/DD/YYYY format)
+**Report Date**: Look at document header (MM/DD/YYYY format)
 
-Return ONLY valid JSON. Omit any field not found in the PDF (do not use null, 0, or guess):
+Return ONLY valid JSON. Omit fields not found. Use absolute values for angles unless specifically noted:
 {
   "negativeMoveTime": [seconds],
   "maxPelvisTurnTime": [seconds],
   "maxShoulderTurnTime": [seconds],
   "maxXFactorTime": [seconds],
-  "xFactorAngle": [degrees - absolute value],
+  "xFactorAngle": [degrees, ABSOLUTE],
   "peakPelvisRotVel": [deg/s],
   "peakShoulderRotVel": [deg/s],
   "peakArmRotVel": [deg/s],
+  "peakPelvisRotVelStdDev": [deg/s],
+  "peakShoulderRotVelStdDev": [deg/s],
+  "peakArmRotVelStdDev": [deg/s],
+  "pelvisDirectionStance": [degrees, ABSOLUTE],
+  "pelvisDirectionNegMove": [degrees, ABSOLUTE],
+  "pelvisDirectionMaxPelvis": [degrees, ABSOLUTE],
+  "pelvisDirectionImpact": [degrees, ABSOLUTE],
+  "shoulderDirectionStance": [degrees, ABSOLUTE],
+  "shoulderDirectionNegMove": [degrees, ABSOLUTE],
+  "shoulderDirectionMaxShoulder": [degrees, ABSOLUTE],
+  "shoulderDirectionImpact": [degrees, ABSOLUTE],
+  "xFactorStance": [degrees, ABSOLUTE],
+  "xFactorNegMove": [degrees, ABSOLUTE],
+  "xFactorMaxPelvis": [degrees, ABSOLUTE],
+  "xFactorImpact": [degrees, ABSOLUTE],
+  "mlbAvgMaxPelvisTurn": [degrees, ABSOLUTE],
+  "mlbAvgMaxShoulderTurn": [degrees, ABSOLUTE],
+  "mlbAvgXFactor": [degrees, ABSOLUTE],
+  "frontalTiltFootDown": [degrees, ABSOLUTE],
+  "frontalTiltMaxHandVelo": [degrees, ABSOLUTE],
+  "lateralTiltFootDown": [degrees],
+  "lateralTiltMaxHandVelo": [degrees],
+  "comDistNegMove": [percentage],
+  "comDistFootDown": [percentage],
+  "comDistMaxForward": [percentage],
+  "strideLengthMeters": [meters],
+  "strideLengthPctHeight": [percentage],
+  "peakCOMVelocity": [m/s],
+  "minCOMVelocity": [m/s],
+  "comAvgAccelRate": [m/s²],
+  "comAvgDecelRate": [m/s²],
   "attackAngle": [degrees],
   "peakBatSpeed": [mph],
-  "peakCOMVelocity": [m/s],
   "reportDate": "YYYY-MM-DD"
-}
-
-VALIDATION: 
-- Pelvis velocity typically 300-800 deg/s
-- Shoulder velocity typically 600-1200 deg/s
-- If values seem wrong, look again at the table carefully`
+}`
             }, {
               type: 'image_url',
               image_url: {
@@ -231,13 +320,55 @@ VALIDATION:
             attackAngle: extractedData.attackAngle,
             peakBatSpeed: extractedData.peakBatSpeed
           },
+          consistency: {
+            peakPelvisRotVelStdDev: extractedData.peakPelvisRotVelStdDev,
+            peakShoulderRotVelStdDev: extractedData.peakShoulderRotVelStdDev,
+            peakArmRotVelStdDev: extractedData.peakArmRotVelStdDev
+          },
+          rotation: {
+            pelvisDirectionStance: extractedData.pelvisDirectionStance,
+            pelvisDirectionNegMove: extractedData.pelvisDirectionNegMove,
+            pelvisDirectionMaxPelvis: extractedData.pelvisDirectionMaxPelvis,
+            pelvisDirectionImpact: extractedData.pelvisDirectionImpact,
+            shoulderDirectionStance: extractedData.shoulderDirectionStance,
+            shoulderDirectionNegMove: extractedData.shoulderDirectionNegMove,
+            shoulderDirectionMaxShoulder: extractedData.shoulderDirectionMaxShoulder,
+            shoulderDirectionImpact: extractedData.shoulderDirectionImpact
+          },
+          xFactorProgression: {
+            xFactorStance: extractedData.xFactorStance,
+            xFactorNegMove: extractedData.xFactorNegMove,
+            xFactorMaxPelvis: extractedData.xFactorMaxPelvis,
+            xFactorImpact: extractedData.xFactorImpact
+          },
+          mlbComparison: {
+            mlbAvgMaxPelvisTurn: extractedData.mlbAvgMaxPelvisTurn,
+            mlbAvgMaxShoulderTurn: extractedData.mlbAvgMaxShoulderTurn,
+            mlbAvgXFactor: extractedData.mlbAvgXFactor
+          },
+          posture: {
+            frontalTiltFootDown: extractedData.frontalTiltFootDown,
+            frontalTiltMaxHandVelo: extractedData.frontalTiltMaxHandVelo,
+            lateralTiltFootDown: extractedData.lateralTiltFootDown,
+            lateralTiltMaxHandVelo: extractedData.lateralTiltMaxHandVelo
+          },
+          comPosition: {
+            comDistNegMove: extractedData.comDistNegMove,
+            comDistFootDown: extractedData.comDistFootDown,
+            comDistMaxForward: extractedData.comDistMaxForward,
+            strideLengthMeters: extractedData.strideLengthMeters,
+            strideLengthPctHeight: extractedData.strideLengthPctHeight
+          },
+          comVelocity: {
+            peakCOMVelocity: extractedData.peakCOMVelocity,
+            minCOMVelocity: extractedData.minCOMVelocity,
+            comAvgAccelRate: extractedData.comAvgAccelRate,
+            comAvgDecelRate: extractedData.comAvgDecelRate
+          },
           power: {
             rotationalPower: extractedData.rotationalPower,
             linearPower: extractedData.linearPower,
             totalPower: extractedData.totalPower
-          },
-          momentum: {
-            peakCOMVelocity: extractedData.peakCOMVelocity
           },
           reportDate: extractedData.reportDate,
           rawAiResponse: content
