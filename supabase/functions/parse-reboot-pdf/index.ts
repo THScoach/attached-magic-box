@@ -15,8 +15,10 @@ interface TimingData {
 
 interface ExtractedData extends TimingData {
   reportDate?: string; // ISO date string extracted from PDF
+  xFactorAngle?: number; // X-Factor separation angle in degrees
   peakPelvisRotVel?: number;
   peakShoulderRotVel?: number;
+  peakArmRotVel?: number;
   attackAngle?: number;
   peakBatSpeed?: number;
   rotationalPower?: number;
@@ -103,52 +105,52 @@ serve(async (req) => {
             role: 'user',
             content: [{
               type: 'text',
-              text: `Extract ALL available data from this Reboot Motion PDF report.
+              text: `You are extracting data from a Reboot Motion PDF report. Read the exact values from the tables shown.
 
-              Look for these sections and extract ONLY values that are clearly visible:
+CRITICAL: Extract EXACT values only - do not calculate or estimate anything.
 
-              1. TORSO KINEMATICS TABLE - "Avg Time Before Impact" row:
-                 - Negative Move (seconds)
-                 - Max Pelvis Turn (seconds)
-                 - Max Shoulder Turn (seconds)
-                 - Max X Factor (seconds)
-              
-              2. TORSO KINEMATICS TABLE - "Max Angular Velocity" row:
-                 - Pelvis rotation velocity (°/s)
-                 - Shoulder rotation velocity (°/s)
-              
-              3. BAT PATH TABLE:
-                 - Attack Angle (degrees)
-                 - Bat Speed (mph)
-              
-              4. POWER TABLE (if visible):
-                 - Rotational Power (W)
-                 - Linear Power (W)
-                 - Total Power (W)
-              
-              5. CENTER OF MASS TABLE (if visible):
-                 - Peak COM velocity (m/s)
-              
-              6. Report Date (usually at top or header)
-              
-              Return ONLY a JSON object. If a value is not visible in the PDF, omit that field entirely (do not use null or 0):
-              {
-                "negativeMoveTime": X,
-                "maxPelvisTurnTime": Y,
-                "maxShoulderTurnTime": Z,
-                "maxXFactorTime": W,
-                "peakPelvisRotVel": A,
-                "peakShoulderRotVel": B,
-                "attackAngle": C,
-                "peakBatSpeed": D,
-                "rotationalPower": E,
-                "linearPower": F,
-                "totalPower": G,
-                "peakCOMVelocity": H,
-                "reportDate": "YYYY-MM-DD"
-              }
-              
-              IMPORTANT: Only include fields where you can clearly see the value in the PDF. Skip fields you cannot find.`
+**TABLE 1: "Torso Directions and Rotations (deg)" - Look for column "Avg Time Before Impact (sec)"**
+Extract these rows EXACTLY as shown:
+- Row "Negative Move": Extract the time value (in seconds)
+- Row "Max Pelvis Turn": Extract the time value (in seconds)  
+- Row "Max Shoulder Turn": Extract the time value (in seconds)
+- Row "Max X Factor": Extract time value (in seconds) AND the "X Factor at Max X Factor" angle value (in degrees)
+
+**TABLE 2: Kinematic Sequence Table with "Max Angular Velocity (deg/s)" column**
+Extract EXACT values from this table:
+- Row "Pelvis": Extract Max Angular Velocity value (deg/s)
+- Row "Upper Torso" or "Torso": Extract Max Angular Velocity value (deg/s)
+- Row "Arm": Extract Max Angular Velocity value (deg/s)
+
+**TABLE 3: "Velocity Metric Averages"**
+- Look for "Max COM Velocity" row, extract value (m/s)
+
+**TABLE 4: Bat Path or Swing Metrics (if visible)**
+- Attack Angle (degrees)
+- Bat Speed (mph)
+
+**Report Date**: Look at top of document for date (MM/DD/YYYY format)
+
+Return ONLY valid JSON. Omit any field not found in the PDF (do not use null, 0, or guess):
+{
+  "negativeMoveTime": [seconds],
+  "maxPelvisTurnTime": [seconds],
+  "maxShoulderTurnTime": [seconds],
+  "maxXFactorTime": [seconds],
+  "xFactorAngle": [degrees - absolute value],
+  "peakPelvisRotVel": [deg/s],
+  "peakShoulderRotVel": [deg/s],
+  "peakArmRotVel": [deg/s],
+  "attackAngle": [degrees],
+  "peakBatSpeed": [mph],
+  "peakCOMVelocity": [m/s],
+  "reportDate": "YYYY-MM-DD"
+}
+
+VALIDATION: 
+- Pelvis velocity typically 300-800 deg/s
+- Shoulder velocity typically 600-1200 deg/s
+- If values seem wrong, look again at the table carefully`
             }, {
               type: 'image_url',
               image_url: {
@@ -222,8 +224,10 @@ serve(async (req) => {
             maxXFactorTime: extractedData.maxXFactorTime
           },
           biomechanics: {
+            xFactorAngle: extractedData.xFactorAngle,
             peakPelvisRotVel: extractedData.peakPelvisRotVel,
             peakShoulderRotVel: extractedData.peakShoulderRotVel,
+            peakArmRotVel: extractedData.peakArmRotVel,
             attackAngle: extractedData.attackAngle,
             peakBatSpeed: extractedData.peakBatSpeed
           },
