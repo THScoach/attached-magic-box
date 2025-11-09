@@ -28,7 +28,7 @@ export function TodaysProgramCard({ program }: TodaysProgramCardProps) {
             <p className="text-sm text-muted-foreground">Complete an analysis to get your training program</p>
           </div>
         </div>
-        <Button className="w-full" onClick={() => navigate('/analyze')}>
+        <Button className="w-full" onClick={() => navigate('/reboot-analysis')}>
           Start Analysis
         </Button>
       </Card>

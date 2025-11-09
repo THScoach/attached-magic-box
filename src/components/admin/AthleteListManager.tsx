@@ -240,8 +240,7 @@ export function AthleteListManager() {
                   variant="outline" 
                   size="sm"
                   onClick={() => {
-                    sessionStorage.setItem('selectedPlayerId', athlete.id);
-                    navigate('/analyze');
+                    navigate(`/player/${athlete.id}`);
                   }}
                 >
                   <Upload className="h-4 w-4 mr-2" />

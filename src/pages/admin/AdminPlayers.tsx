@@ -252,8 +252,7 @@ export default function AdminPlayers() {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        sessionStorage.setItem('selectedPlayerId', player.id);
-                        navigate('/analyze');
+                        navigate(`/player/${player.id}`);
                       }}
                     >
                       <Upload className="h-4 w-4" />

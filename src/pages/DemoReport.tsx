@@ -724,7 +724,7 @@ export default function DemoReport() {
           <h4>🚀 Ready to Get Your Full Analysis?</h4>
           <p>Upload your swing video and get instant feedback on all three pillars.</p>
           <div className="cta-button-container">
-            <button className="cta-button" onClick={() => navigate('/analyze')}>
+            <button className="cta-button" onClick={() => navigate('/reboot-analysis')}>
               Analyze My Swing Now
             </button>
           </div>

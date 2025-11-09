@@ -386,8 +386,7 @@ export default function AdminPlayerDetail() {
                   <div className="flex gap-2">
                     <Button
                       onClick={() => {
-                        sessionStorage.setItem('selectedPlayerId', id!);
-                        navigate('/analyze');
+                        navigate('/reboot-analysis');
                       }}
                       size="sm"
                       className="gap-2"

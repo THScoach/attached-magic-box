@@ -42,7 +42,7 @@ export function DashboardTabs() {
             <Button 
               className="w-full" 
               size="lg"
-              onClick={() => navigate("/analyze")}
+              onClick={() => navigate("/reboot-analysis")}
             >
               <Upload className="mr-2 h-5 w-5" />
               Analyze My Swing

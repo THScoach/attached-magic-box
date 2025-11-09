@@ -327,7 +327,7 @@ export default function Progress() {
               <Button 
                 size="lg"
                 className="w-full"
-                onClick={() => window.location.href = '/analyze'}
+                onClick={() => navigate('/reboot-analysis')}
               >
                 Record New Swing
               </Button>

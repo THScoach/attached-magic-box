@@ -42,7 +42,7 @@ export function TaskListView({ tasks, onComplete }: TaskListViewProps) {
 
   const handleQuickAction = (task: WeeklyTask) => {
     if (task.task_type === 'swing_upload') {
-      navigate('/analyze');
+      navigate('/reboot-analysis');
     } else if (task.task_type === 'drills') {
       navigate('/drills');
     } else if (task.task_type === 'live_coaching') {

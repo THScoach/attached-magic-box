@@ -128,7 +128,7 @@ export default function SimpleTempoReport() {
         {/* Bottom Navigation */}
         <div className="mt-8 text-center">
           <Button
-            onClick={() => navigate("/analyze")}
+            onClick={() => navigate("/reboot-analysis")}
             className="bg-primary hover:bg-primary/90"
           >
             Analyze Another Swing

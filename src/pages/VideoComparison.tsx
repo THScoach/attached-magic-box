@@ -110,7 +110,7 @@ export default function VideoComparison() {
               <p className="text-muted-foreground mb-4">
                 You need at least 2 swing analyses with videos to use comparison
               </p>
-              <Button onClick={() => navigate("/analyze")}>
+              <Button onClick={() => navigate("/reboot-analysis")}>
                 Analyze a Swing
               </Button>
             </CardContent>

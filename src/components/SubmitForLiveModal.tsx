@@ -84,8 +84,8 @@ export function SubmitForLiveModal({
         submissionDeadline,
       }));
 
-      // Navigate to analyze page
-      navigate("/analyze");
+      // Navigate to reboot analysis page
+      navigate("/reboot-analysis");
       onOpenChange(false);
     } catch (error) {
       console.error("Error preparing submission:", error);

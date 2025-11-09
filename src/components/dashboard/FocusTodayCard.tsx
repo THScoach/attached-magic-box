@@ -44,7 +44,7 @@ export function FocusTodayCard({
             <Button
               size="lg"
               className="w-full justify-start gap-3 h-auto py-4"
-              onClick={() => navigate("/analyze")}
+              onClick={() => navigate("/reboot-analysis")}
             >
               <Upload className="h-5 w-5 shrink-0" />
               <div className="text-left">

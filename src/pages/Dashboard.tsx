@@ -304,7 +304,7 @@ export default function Dashboard() {
               <Button 
                 size="lg" 
                 className="gap-2"
-                onClick={() => navigate('/analyze')}
+                onClick={() => navigate('/reboot-analysis')}
               >
                 <Camera className="h-5 w-5" />
                 Analyze Your Swing
@@ -324,7 +324,7 @@ export default function Dashboard() {
                 </p>
               </div>
               <Button 
-                onClick={() => navigate('/analyze')}
+                onClick={() => navigate('/reboot-analysis')}
                 className="gap-2"
               >
                 <Camera className="h-4 w-4" />

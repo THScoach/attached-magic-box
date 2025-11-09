@@ -26,8 +26,8 @@ export function AnalyzePlayerModal({ open, onOpenChange }: AnalyzePlayerModalPro
     // Store the selected player in sessionStorage
     sessionStorage.setItem('selectedPlayerId', selectedPlayerId);
 
-    // Navigate to analyze page
-    navigate('/analyze');
+    // Navigate to reboot analysis page
+    navigate('/reboot-analysis');
     
     // Close the modal
     onOpenChange(false);

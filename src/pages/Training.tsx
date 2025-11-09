@@ -173,7 +173,7 @@ export default function Training() {
             <p className="text-muted-foreground mb-4">
               Complete a swing analysis to get your personalized 4-week training program!
             </p>
-            <Button onClick={() => navigate('/analyze')}>
+            <Button onClick={() => navigate('/reboot-analysis')}>
               Start Analysis
             </Button>
           </Card>

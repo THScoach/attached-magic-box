@@ -97,7 +97,7 @@ export default function FourBsScorecard() {
             </div>
             <Button 
               size="lg"
-              onClick={() => navigate('/analyze')}
+              onClick={() => navigate('/reboot-analysis')}
             >
               <Camera className="h-5 w-5 mr-2" />
               Analyze Your Swing
@@ -179,7 +179,7 @@ export default function FourBsScorecard() {
           <Button 
             className="flex-1"
             variant="outline"
-            onClick={() => navigate('/analyze')}
+            onClick={() => navigate('/reboot-analysis')}
           >
             <Camera className="h-4 w-4 mr-2" />
             New Analysis

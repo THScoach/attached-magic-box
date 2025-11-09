@@ -32,7 +32,7 @@ export function PlayerAnalysisHistory({ playerId }: PlayerAnalysisHistoryProps) 
           <CardDescription>No swing analyses recorded yet</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => navigate('/analyze')} className="w-full">
+          <Button onClick={() => navigate('/reboot-analysis')} className="w-full">
             <Video className="mr-2 h-4 w-4" />
             Record First Swing
           </Button>

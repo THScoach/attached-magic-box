@@ -238,7 +238,7 @@ export default function AnalysisResult() {
     } catch (error) {
       console.error('Error loading latest analysis:', error);
       toast.error('Failed to load latest analysis');
-      navigate('/analyze');
+      navigate('/dashboard');
     }
   };
 
@@ -377,7 +377,7 @@ export default function AnalysisResult() {
       if (storedPlayerId) {
         navigate(`/player/${storedPlayerId}`);
       } else {
-        navigate('/analyze');
+        navigate('/dashboard');
       }
     }
   };
@@ -1248,7 +1248,7 @@ export default function AnalysisResult() {
             size="lg"
             variant="outline"
             className="w-full"
-            onClick={() => navigate('/analyze')}
+            onClick={() => navigate('/reboot-analysis')}
           >
             Analyze Another Swing
           </Button>
