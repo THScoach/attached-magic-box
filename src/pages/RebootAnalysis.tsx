@@ -723,16 +723,42 @@ export default function RebootAnalysis() {
             {reports.length > 0 && (() => {
               const latest = reports[reports.length - 1];
               return (
-                <div className="space-y-4">
+                   <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold">Latest Analysis</h2>
-                    <div className="text-sm text-muted-foreground">
-                      Report Date: <span className="font-semibold">{latest.reportDate.toLocaleDateString()}</span>
-                      {latest.uploadDate.toDateString() !== latest.reportDate.toDateString() && (
-                        <span className="ml-2 text-xs">
-                          (Uploaded: {latest.uploadDate.toLocaleDateString()})
-                        </span>
-                      )}
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={async () => {
+                          const confirmDelete = confirm('Delete this report? This cannot be undone.');
+                          if (!confirmDelete) return;
+                          
+                          toast.loading('Deleting report...');
+                          const { error } = await supabase
+                            .from('reboot_reports')
+                            .delete()
+                            .eq('id', latest.id);
+                          
+                          if (error) {
+                            toast.error('Failed to delete report');
+                          } else {
+                            toast.success('Report deleted');
+                            loadReports();
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Report
+                      </Button>
+                      <div className="text-sm text-muted-foreground">
+                        Report Date: <span className="font-semibold">{latest.reportDate.toLocaleDateString()}</span>
+                        {latest.uploadDate.toDateString() !== latest.reportDate.toDateString() && (
+                          <span className="ml-2 text-xs">
+                            (Uploaded: {latest.uploadDate.toLocaleDateString()})
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
