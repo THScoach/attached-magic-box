@@ -139,6 +139,7 @@ export default function RebootAnalysis() {
   const [enableAudioDetection, setEnableAudioDetection] = useState(false);
   const [analyzingVideo, setAnalyzingVideo] = useState(false);
   const [justAnalyzedVideo, setJustAnalyzedVideo] = useState(false);
+  const [activeTab, setActiveTab] = useState("upload");
 
   // Get selected player ID on mount
   useEffect(() => {
@@ -236,6 +237,9 @@ export default function RebootAnalysis() {
       
       // Mark that we just analyzed a video
       setJustAnalyzedVideo(true);
+      
+      // Switch to history tab to show the new analysis
+      setActiveTab("history");
       
       // Reload reports to show new analysis
       await loadReports();
@@ -794,7 +798,7 @@ export default function RebootAnalysis() {
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <Tabs defaultValue="upload" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="upload">Upload PDF</TabsTrigger>
             <TabsTrigger value="video">Video Capture</TabsTrigger>
