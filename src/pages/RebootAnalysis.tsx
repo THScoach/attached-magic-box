@@ -1580,11 +1580,10 @@ export default function RebootAnalysis() {
             ) : reports.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <p className="text-muted-foreground mb-4">No analyses yet</p>
-                  <Button onClick={() => document.querySelector<HTMLElement>('[value="video"]')?.click()}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload First Video
-                  </Button>
+                  <p className="text-muted-foreground text-lg mb-2">No analyses yet</p>
+                  <p className="text-sm text-muted-foreground">
+                    Go to the Capture tab to record a video, upload a video, or upload a PDF report
+                  </p>
                 </CardContent>
               </Card>
             ) : (
