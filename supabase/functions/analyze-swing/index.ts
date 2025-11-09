@@ -851,14 +851,14 @@ Provide detailed scores and analysis in this exact JSON format:
       validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is longer than typical (150-300ms) - May include some pre-swing movement`);
     }
 
-    // Constraint 3: Fire Duration (0.13 to 0.30 seconds) - UPDATED for backward timing with relaxed minimum
+    // Constraint 3: Fire Duration (0.10 to 0.50 seconds) - VERY RELAXED for backward timing with real-world swings
     const fireDuration = fireStartAbs;
-    if (fireDuration < 130) {
-      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms below minimum 130ms - Physiologically impossible, Fire Start detected too late or video missing key frames`);
+    if (fireDuration < 100) {
+      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms below minimum 100ms - Physiologically impossible, Fire Start detected too late or video missing key frames`);
     } else if (fireDuration < 150) {
-      validationWarnings.push(`⚠️ Fire duration ${fireDuration}ms is short (typical: 180-250ms) - May indicate late detection or rapid swing`);
-    } else if (fireDuration > 300) {
-      validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms exceeds maximum 300ms - Fire Start detected too early`);
+      validationWarnings.push(`⚠️ Fire duration ${fireDuration}ms is short (typical: 180-300ms) - May indicate late detection or rapid swing`);
+    } else if (fireDuration > 500) {
+      validationWarnings.push(`⚠️ Fire duration ${fireDuration}ms exceeds typical range (180-300ms) - Fire Start may be detected early in pre-swing setup`);
     }
 
     // Constraint 4: Total Swing Time (0.20 to 1.50 seconds) - VERY RELAXED for real-world capture including setup and follow-through
