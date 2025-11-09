@@ -143,31 +143,43 @@ serve(async (req) => {
           model: 'google/gemini-2.5-flash',
           messages: [{
             role: 'user',
-            content: `You are a data extraction specialist analyzing Reboot Motion swing report text. Extract EXACT numerical values from TABLES ONLY.
+            content: `You are a data extraction specialist analyzing Reboot Motion swing report text. Extract EXACT numerical values from specific tables.
 
 **TEXT FROM PDF:**
 ${pdfText}
 
-**INSTRUCTIONS:**
-1. Extract from TABLES ONLY, not graphs
-2. Use absolute values for angular measurements (remove negative signs)
-3. Return ONLY valid JSON with no markdown
-4. Omit fields if value is "nan" or not in tables
+**CRITICAL: FIND THESE EXACT TABLES:**
 
-**EXTRACT:**
-- negativeMoveTime, maxPelvisTurnTime, maxShoulderTurnTime, maxXFactorTime (seconds)
-- peakPelvisRotVel, peakShoulderRotVel, peakArmRotVel (deg/s) + StdDev + MLB Avg
-- pelvisDirection/shoulderDirection at: Stance, NegMove, MaxPelvis/MaxShoulder, Impact (degrees, absolute)
-- xFactor at: Stance, NegMove, MaxPelvis, MaxXFactor, Impact (degrees, absolute)
-- MLB averages: MaxPelvisTurn, MaxShoulderTurn, XFactor (degrees, absolute)
-- COM: DistNegMove, DistFootDown, DistMaxForward (%), strideLengthMeters, strideLengthPctHeight
-- COM velocity: peak, min (m/s), avgAccelRate, avgDecelRate (m/s²)
-- Posture: frontalTilt/lateralTilt at FootDown/MaxHandVelo (degrees)
-- attackAngle, peakBatSpeed (only if valid numbers, not "nan")
-- reportDate: "YYYY-MM-DD" from header
+1. "Max Angular Velocity - Avg (deg/s)" table:
+   Extract: Pelvis, Upper Torso, Arm values
+   
+2. "Torso Kinematics" table:
+   Extract X Factor value from "Max Pelvis" column (3rd column)
 
-**RESPONSE FORMAT:**
-{"negativeMoveTime":0.0,"maxPelvisTurnTime":0.0,"maxShoulderTurnTime":0.0,"maxXFactorTime":0.0,"xFactorMaxXFactor":0.0,"peakPelvisRotVel":0.0,"peakShoulderRotVel":0.0,"peakArmRotVel":0.0,"peakPelvisRotVelStdDev":0.0,"peakShoulderRotVelStdDev":0.0,"peakArmRotVelStdDev":0.0,"mlbAvgPelvisRotVel":0.0,"mlbAvgShoulderRotVel":0.0,"mlbAvgArmRotVel":0.0,"pelvisDirectionStance":0.0,"pelvisDirectionNegMove":0.0,"pelvisDirectionMaxPelvis":0.0,"pelvisDirectionImpact":0.0,"shoulderDirectionStance":0.0,"shoulderDirectionNegMove":0.0,"shoulderDirectionMaxShoulder":0.0,"shoulderDirectionImpact":0.0,"xFactorStance":0.0,"xFactorNegMove":0.0,"xFactorMaxPelvis":0.0,"xFactorImpact":0.0,"mlbAvgMaxPelvisTurn":0.0,"mlbAvgMaxShoulderTurn":0.0,"mlbAvgXFactor":0.0,"comDistNegMove":0.0,"comDistFootDown":0.0,"comDistMaxForward":0.0,"strideLengthMeters":0.0,"strideLengthPctHeight":0.0,"peakCOMVelocity":0.0,"minCOMVelocity":0.0,"comAvgAccelRate":0.0,"comAvgDecelRate":0.0,"frontalTiltFootDown":0.0,"frontalTiltMaxHandVelo":0.0,"lateralTiltFootDown":0.0,"lateralTiltMaxHandVelo":0.0,"reportDate":"2025-01-01"}`
+**EXTRACTION RULES:**
+- Extract raw numbers from tables (e.g., 339.4, 715.1, 751.1)
+- For "Upper Torso" use field name "peakShoulderRotVel" (shoulder = upper torso)
+- For "Arm" use field name "peakArmRotVel"
+- For X Factor at Max Pelvis, use "xFactorMaxPelvis"
+- PRESERVE negative signs for X-Factor values
+- Use absolute values for directions/rotations
+- If value is "nan" or missing, omit field entirely
+- Return ONLY valid JSON, no markdown
+
+**EXTRACT ALL FIELDS:**
+- Timing: negativeMoveTime, maxPelvisTurnTime, maxShoulderTurnTime, maxXFactorTime (seconds)
+- Velocities: peakPelvisRotVel (Pelvis), peakShoulderRotVel (Upper Torso), peakArmRotVel (Arm) in deg/s
+- Std Dev: peakPelvisRotVelStdDev, peakShoulderRotVelStdDev, peakArmRotVelStdDev
+- Directions: pelvisDirection/shoulderDirection at Stance, NegMove, MaxPelvis/MaxShoulder, Impact
+- X-Factor: xFactorStance, xFactorNegMove, xFactorMaxPelvis, xFactorImpact (KEEP negative signs)
+- COM: comDistNegMove, comDistFootDown, comDistMaxForward (%), strideLengthMeters, strideLengthPctHeight
+- COM velocity: peakCOMVelocity, minCOMVelocity (m/s), comAvgAccelRate, comAvgDecelRate (m/s²)
+- Posture: frontalTiltFootDown, frontalTiltMaxHandVelo, lateralTiltFootDown, lateralTiltMaxHandVelo
+- Optional: attackAngle, peakBatSpeed (only if valid numbers)
+- reportDate: "YYYY-MM-DD"
+
+**RESPONSE FORMAT (valid JSON only):**
+{"negativeMoveTime":0.0,"maxPelvisTurnTime":0.0,"maxShoulderTurnTime":0.0,"maxXFactorTime":0.0,"peakPelvisRotVel":0.0,"peakShoulderRotVel":0.0,"peakArmRotVel":0.0,"peakPelvisRotVelStdDev":0.0,"peakShoulderRotVelStdDev":0.0,"peakArmRotVelStdDev":0.0,"pelvisDirectionStance":0.0,"pelvisDirectionNegMove":0.0,"pelvisDirectionMaxPelvis":0.0,"pelvisDirectionImpact":0.0,"shoulderDirectionStance":0.0,"shoulderDirectionNegMove":0.0,"shoulderDirectionMaxShoulder":0.0,"shoulderDirectionImpact":0.0,"xFactorStance":0.0,"xFactorNegMove":0.0,"xFactorMaxPelvis":0.0,"xFactorImpact":0.0,"comDistNegMove":0.0,"comDistFootDown":0.0,"comDistMaxForward":0.0,"strideLengthMeters":0.0,"strideLengthPctHeight":0.0,"peakCOMVelocity":0.0,"minCOMVelocity":0.0,"comAvgAccelRate":0.0,"comAvgDecelRate":0.0,"frontalTiltFootDown":0.0,"frontalTiltMaxHandVelo":0.0,"lateralTiltFootDown":0.0,"lateralTiltMaxHandVelo":0.0,"reportDate":"2025-01-01"}`
           }],
           max_tokens: 2000
         })
