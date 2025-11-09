@@ -125,11 +125,20 @@ export default function RebootAnalysis() {
   const [selectedReportIds, setSelectedReportIds] = useState<[string | null, string | null]>([null, null]);
   const [coachRickInsights, setCoachRickInsights] = useState<any>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
-  // Load reports from database on mount
+  // Get selected player ID on mount
   useEffect(() => {
-    loadReports();
+    const playerId = sessionStorage.getItem('selectedPlayerId');
+    setSelectedPlayerId(playerId);
   }, []);
+
+  // Load reports when player changes
+  useEffect(() => {
+    if (selectedPlayerId !== null) {
+      loadReports();
+    }
+  }, [selectedPlayerId]);
 
   // Generate Coach Rick insights when latest report changes
   useEffect(() => {
@@ -144,10 +153,13 @@ export default function RebootAnalysis() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Use selected player ID if available, otherwise use current user ID
+      const targetUserId = selectedPlayerId || user.id;
+
       const { data, error } = await supabase
         .from('reboot_reports')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', targetUserId)
         .order('report_date', { ascending: false });
 
       if (error) throw error;
@@ -656,7 +668,7 @@ export default function RebootAnalysis() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <PlayerProfileHeader />
+      <PlayerProfileHeader playerId={selectedPlayerId} />
       {/* Header */}
       <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-background px-6 pt-8 pb-6 border-b">
         <Button
