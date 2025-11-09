@@ -466,8 +466,17 @@ export default function RebootAnalysis() {
         toast.warning('Player height/weight not found. Please update in your profile for accurate analysis.');
       }
 
-      // Process extracted data
-      const timingData = parsedData?.timing || {};
+      // Process extracted data with safe defaults
+      const timingData = {
+        negativeMoveTime: parsedData?.timing?.negativeMoveTime ?? 0,
+        maxPelvisTurnTime: parsedData?.timing?.maxPelvisTurnTime ?? 0,
+        maxShoulderTurnTime: parsedData?.timing?.maxShoulderTurnTime ?? 0,
+        maxXFactorTime: parsedData?.timing?.maxXFactorTime ?? 0,
+        loadDuration: parsedData?.timing?.loadDuration ?? 0,
+        fireDuration: parsedData?.timing?.fireDuration ?? 0,
+        tempoRatio: parsedData?.timing?.tempoRatio ?? 0,
+        pelvisShoulderGap: parsedData?.timing?.pelvisShoulderGap ?? null,
+      };
       const biomechanicsData = parsedData?.biomechanics || {};
       const consistencyData = parsedData?.consistency || {};
       const rotationData = parsedData?.rotation || {};
