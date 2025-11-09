@@ -1503,11 +1503,137 @@ export default function RebootAnalysis() {
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2">Analysis History</h2>
               <p className="text-muted-foreground">
-                All Past Swings
+                View all past swing analyses (last 10)
               </p>
             </div>
 
-            <FourBMotionAnalysis playerId={selectedPlayerId ?? undefined} onUpload={undefined} />
+            {loading ? (
+              <Card>
+                <CardContent className="py-12">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <span className="ml-3 text-muted-foreground">Loading history...</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : reports.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground mb-4">No analyses yet</p>
+                  <Button onClick={() => document.querySelector<HTMLElement>('[value="video"]')?.click()}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload First Video
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {reports.slice(0, 10).map((report, index) => (
+                  <Card key={report.id} className="hover:border-primary transition-colors cursor-pointer">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="font-semibold text-lg flex items-center gap-2">
+                            {report.label}
+                            {index === 0 && <Badge variant="default">Latest</Badge>}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {report.reportDate.toLocaleDateString('en-US', { 
+                              weekday: 'short', 
+                              year: 'numeric', 
+                              month: 'short', 
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={async () => {
+                            const confirmDelete = confirm('Delete this analysis? This cannot be undone.');
+                            if (!confirmDelete) return;
+                            
+                            toast.loading('Deleting analysis...');
+                            const { error } = await supabase
+                              .from('reboot_reports')
+                              .delete()
+                              .eq('id', report.id);
+                            
+                            if (error) {
+                              toast.error('Failed to delete analysis');
+                            } else {
+                              toast.success('Analysis deleted');
+                              loadReports();
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {/* Tempo Ratio */}
+                        <div className="flex flex-col">
+                          <span className="text-xs text-muted-foreground mb-1">Tempo Ratio</span>
+                          <span className="text-2xl font-bold">{report.metrics.tempoRatio}:1</span>
+                          <Badge 
+                            variant="outline" 
+                            className="mt-1 w-fit text-xs"
+                          >
+                            {report.scores.archetype}
+                          </Badge>
+                        </div>
+
+                        {/* Load Duration */}
+                        <div className="flex flex-col">
+                          <span className="text-xs text-muted-foreground mb-1">Load</span>
+                          <span className="text-xl font-semibold">{report.metrics.loadDuration}ms</span>
+                        </div>
+
+                        {/* Fire Duration */}
+                        <div className="flex flex-col">
+                          <span className="text-xs text-muted-foreground mb-1">Fire</span>
+                          <span className="text-xl font-semibold">{report.metrics.fireDuration}ms</span>
+                        </div>
+
+                        {/* Body Score */}
+                        <div className="flex flex-col">
+                          <span className="text-xs text-muted-foreground mb-1">Body Score</span>
+                          <span className="text-xl font-semibold">{report.scores.bodyScore}/100</span>
+                          <Progress value={report.scores.bodyScore} className="h-2 mt-1" />
+                        </div>
+                      </div>
+
+                      {/* Additional Metrics Row */}
+                      {(report.metrics.peakPelvisRotVel || report.metrics.peakShoulderRotVel || report.metrics.peakCOMVelocity) && (
+                        <div className="mt-4 pt-4 border-t grid grid-cols-3 gap-4 text-sm">
+                          {report.metrics.peakPelvisRotVel && (
+                            <div>
+                              <span className="text-muted-foreground">Pelvis: </span>
+                              <span className="font-medium">{Math.round(report.metrics.peakPelvisRotVel)}°/s</span>
+                            </div>
+                          )}
+                          {report.metrics.peakShoulderRotVel && (
+                            <div>
+                              <span className="text-muted-foreground">Shoulder: </span>
+                              <span className="font-medium">{Math.round(report.metrics.peakShoulderRotVel)}°/s</span>
+                            </div>
+                          )}
+                          {report.metrics.peakCOMVelocity && (
+                            <div>
+                              <span className="text-muted-foreground">COM: </span>
+                              <span className="font-medium">{report.metrics.peakCOMVelocity.toFixed(2)} m/s</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
