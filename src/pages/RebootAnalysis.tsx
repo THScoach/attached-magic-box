@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -126,6 +126,7 @@ interface RebootReport {
 
 export default function RebootAnalysis() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<RebootReport[]>([]);
@@ -136,12 +137,21 @@ export default function RebootAnalysis() {
   const [impactSyncRecording, setImpactSyncRecording] = useState<any | null>(null);
   const [enableBatTracking, setEnableBatTracking] = useState(false);
   const [enableAudioDetection, setEnableAudioDetection] = useState(false);
+  const [analyzingVideo, setAnalyzingVideo] = useState(false);
 
   // Get selected player ID on mount
   useEffect(() => {
     const playerId = sessionStorage.getItem('selectedPlayerId');
     setSelectedPlayerId(playerId);
   }, []);
+
+  // Check for video upload data and auto-analyze
+  useEffect(() => {
+    const videoData = location.state as any;
+    if (videoData?.autoAnalyze && videoData?.videoUrl) {
+      handleVideoAnalysis(videoData);
+    }
+  }, [location.state]);
 
   // Load reports when player changes
   useEffect(() => {
@@ -157,6 +167,81 @@ export default function RebootAnalysis() {
       generateCoachRickInsights(latest);
     }
   }, [reports]);
+
+  const handleVideoAnalysis = async (videoData: any) => {
+    setAnalyzingVideo(true);
+    toast.loading('Analyzing video...');
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Fetch video from URL
+      toast.loading('Loading video...', { id: 'analyze' });
+      const response = await fetch(videoData.videoUrl);
+      if (!response.ok) throw new Error('Failed to fetch video');
+      
+      const videoBlob = await response.blob();
+      const videoFile = new File([videoBlob], 'swing-video.mp4', { type: videoBlob.type });
+      
+      // Import videoAnalysis functions dynamically
+      toast.loading('Extracting frames...', { id: 'analyze' });
+      const { detectPoseInFrames } = await import('@/lib/videoAnalysis');
+      
+      // Extract pose keypoints from video
+      const poseData = await detectPoseInFrames(videoFile, (progress) => {
+        console.log('Pose detection progress:', progress);
+      });
+      
+      if (!poseData || poseData.length === 0) {
+        throw new Error('No pose data detected in video');
+      }
+
+      // Convert pose data to frames format expected by analyze-swing
+      const frames = poseData.map(frame => ({
+        timestamp: frame.timestamp,
+        keypoints: frame.keypoints.map(kp => ({
+          name: kp.name,
+          x: kp.x,
+          y: kp.y,
+          confidence: kp.score
+        }))
+      }));
+
+      // Call analyze-swing edge function with frames
+      toast.loading('Analyzing swing mechanics...', { id: 'analyze' });
+      const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-swing', {
+        body: {
+          frames,
+          videoUrl: videoData.videoUrl,
+          playerId: videoData.playerId || selectedPlayerId,
+          swingType: videoData.swingType,
+          notes: videoData.notes,
+          videoType: videoData.swingType
+        }
+      });
+
+      if (analysisError) throw analysisError;
+
+      toast.dismiss('analyze');
+      toast.success('Video analyzed successfully!');
+      
+      // Reload reports to show new analysis
+      await loadReports();
+      
+      // Clear sessionStorage
+      sessionStorage.removeItem('uploadedVideoUrl');
+      sessionStorage.removeItem('uploadedVideoType');
+      sessionStorage.removeItem('uploadedVideoNotes');
+      
+    } catch (error: any) {
+      console.error('Analysis error:', error);
+      toast.dismiss('analyze');
+      toast.error(error.message || 'Failed to analyze video');
+    } finally {
+      setAnalyzingVideo(false);
+    }
+  };
 
   const loadReports = async () => {
     try {
@@ -721,12 +806,14 @@ export default function RebootAnalysis() {
               </Badge>
             </div>
 
-            {loading ? (
+            {loading || analyzingVideo ? (
               <Card>
                 <CardContent className="py-12">
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <span className="ml-3 text-muted-foreground">Loading reports...</span>
+                    <span className="ml-3 text-muted-foreground">
+                      {analyzingVideo ? 'Analyzing video...' : 'Loading reports...'}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
