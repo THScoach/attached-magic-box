@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import * as pdfjs from "https://esm.sh/pdfjs-dist@3.11.174/build/pdf.mjs";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -104,24 +105,44 @@ serve(async (req) => {
         );
       }
 
-      // Convert PDF to base64 for AI vision analysis (chunked to avoid stack overflow)
-      console.log('Converting PDF to base64...');
+      // Extract text from PDF using pdfjs
+      console.log('Extracting text from PDF...');
       const arrayBuffer = await fileData.arrayBuffer();
-      const buffer = new Uint8Array(arrayBuffer);
       
-      // Convert to base64 in chunks to avoid stack overflow
-      let binary = '';
-      const chunkSize = 8192;
-      for (let i = 0; i < buffer.length; i += chunkSize) {
-        const chunk = buffer.subarray(i, Math.min(i + chunkSize, buffer.length));
-        binary += String.fromCharCode(...chunk);
+      let pdfText = '';
+      try {
+        // Load PDF document
+        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+        console.log(`✅ PDF loaded, ${pdf.numPages} pages`);
+        
+        // Extract text from all pages
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item: any) => item.str).join(' ');
+          pdfText += pageText + '\n';
+        }
+        
+        console.log('✅ PDF text extracted, length:', pdfText.length);
+        console.log('📄 First 500 chars:', pdfText.substring(0, 500));
+      } catch (pdfError) {
+        console.error('❌ PDF parsing error:', pdfError);
+        return new Response(
+          JSON.stringify({ 
+            success: false,
+            error: 'Failed to extract text from PDF. The file may be corrupted or unsupported.',
+            details: pdfError instanceof Error ? pdfError.message : 'PDF parsing failed'
+          }),
+          { 
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
       }
-      const base64Pdf = btoa(binary);
-      
-      console.log('✅ PDF converted to base64, size:', base64Pdf.length);
 
-      // Use Lovable AI with vision to extract structured data from PDF
-      console.log('Calling Lovable AI API with PDF document...');
+      // Use Lovable AI to extract structured data from the text
+      console.log('Calling Lovable AI API...');
       const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -132,10 +153,10 @@ serve(async (req) => {
           model: 'google/gemini-2.5-flash',
           messages: [{
             role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: `You are a data extraction specialist analyzing a Reboot Motion swing report PDF. Extract EXACT numerical values from TABLES ONLY.
+            content: `You are a data extraction specialist analyzing Reboot Motion swing report text. Extract EXACT numerical values from TABLES ONLY.
+
+**TEXT FROM PDF:**
+${pdfText}
 
 **INSTRUCTIONS:**
 1. Extract from TABLES ONLY, not graphs
@@ -157,14 +178,6 @@ serve(async (req) => {
 
 **RESPONSE FORMAT:**
 {"negativeMoveTime":0.0,"maxPelvisTurnTime":0.0,"maxShoulderTurnTime":0.0,"maxXFactorTime":0.0,"xFactorMaxXFactor":0.0,"peakPelvisRotVel":0.0,"peakShoulderRotVel":0.0,"peakArmRotVel":0.0,"peakPelvisRotVelStdDev":0.0,"peakShoulderRotVelStdDev":0.0,"peakArmRotVelStdDev":0.0,"mlbAvgPelvisRotVel":0.0,"mlbAvgShoulderRotVel":0.0,"mlbAvgArmRotVel":0.0,"pelvisDirectionStance":0.0,"pelvisDirectionNegMove":0.0,"pelvisDirectionMaxPelvis":0.0,"pelvisDirectionImpact":0.0,"shoulderDirectionStance":0.0,"shoulderDirectionNegMove":0.0,"shoulderDirectionMaxShoulder":0.0,"shoulderDirectionImpact":0.0,"xFactorStance":0.0,"xFactorNegMove":0.0,"xFactorMaxPelvis":0.0,"xFactorImpact":0.0,"mlbAvgMaxPelvisTurn":0.0,"mlbAvgMaxShoulderTurn":0.0,"mlbAvgXFactor":0.0,"comDistNegMove":0.0,"comDistFootDown":0.0,"comDistMaxForward":0.0,"strideLengthMeters":0.0,"strideLengthPctHeight":0.0,"peakCOMVelocity":0.0,"minCOMVelocity":0.0,"comAvgAccelRate":0.0,"comAvgDecelRate":0.0,"frontalTiltFootDown":0.0,"frontalTiltMaxHandVelo":0.0,"lateralTiltFootDown":0.0,"lateralTiltMaxHandVelo":0.0,"reportDate":"2025-01-01"}`
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:application/pdf;base64,${base64Pdf}`
-                }
-              }
-            ]
           }],
           max_tokens: 2000
         })
