@@ -134,6 +134,7 @@ export default function RebootAnalysis() {
         uploadDate: new Date(row.upload_date),
         reportDate: new Date(row.report_date),
         metrics: {
+          // Use calculated values from edge function where available
           negativeMoveTime: row.negative_move_time,
           maxPelvisTurnTime: row.max_pelvis_turn_time,
           maxShoulderTurnTime: row.max_shoulder_turn_time,
@@ -141,7 +142,7 @@ export default function RebootAnalysis() {
           loadDuration: row.load_duration,
           fireDuration: row.fire_duration,
           tempoRatio: row.tempo_ratio,
-          kinematicSequenceGap: row.kinematic_sequence_gap,
+          kinematicSequenceGap: row.kinematic_sequence_gap ?? row.pelvis_shoulder_gap,
           // Core biomechanics
           xFactor: row.x_factor_angle ?? row.x_factor,
           peakPelvisRotVel: row.peak_pelvis_rot_vel,
@@ -153,6 +154,10 @@ export default function RebootAnalysis() {
           peakPelvisRotVelStdDev: row.peak_pelvis_rot_vel_std_dev,
           peakShoulderRotVelStdDev: row.peak_shoulder_rot_vel_std_dev,
           peakArmRotVelStdDev: row.peak_arm_rot_vel_std_dev,
+          pelvisConsistency: row.pelvis_consistency,
+          shoulderConsistency: row.shoulder_consistency,
+          armConsistency: row.arm_consistency,
+          overallConsistency: row.overall_consistency,
           // Rotation progression
           pelvisDirectionStance: row.pelvis_direction_stance,
           pelvisDirectionNegMove: row.pelvis_direction_neg_move,
@@ -162,12 +167,17 @@ export default function RebootAnalysis() {
           shoulderDirectionNegMove: row.shoulder_direction_neg_move,
           shoulderDirectionMaxShoulder: row.shoulder_direction_max_shoulder,
           shoulderDirectionImpact: row.shoulder_direction_impact,
+          totalPelvisRotation: row.total_pelvis_rotation,
+          totalShoulderRotation: row.total_shoulder_rotation,
           // X-Factor progression
           xFactorStance: row.x_factor_stance,
           xFactorNegMove: row.x_factor_neg_move,
           xFactorMaxPelvis: row.x_factor_max_pelvis,
           xFactorImpact: row.x_factor_impact,
           // MLB comparison
+          mlbAvgPelvisRotVel: row.mlb_avg_pelvis_rot_vel,
+          mlbAvgShoulderRotVel: row.mlb_avg_shoulder_rot_vel,
+          mlbAvgArmRotVel: row.mlb_avg_arm_rot_vel,
           mlbAvgMaxPelvisTurn: row.mlb_avg_max_pelvis_turn,
           mlbAvgMaxShoulderTurn: row.mlb_avg_max_shoulder_turn,
           mlbAvgXFactor: row.mlb_avg_x_factor,
@@ -182,11 +192,13 @@ export default function RebootAnalysis() {
           comDistMaxForward: row.com_dist_max_forward,
           strideLengthMeters: row.stride_length_meters,
           strideLengthPctHeight: row.stride_length_pct_height,
+          weightShift: row.weight_shift,
           // COM velocity
           peakCOMVelocity: row.peak_com_velocity,
           minCOMVelocity: row.min_com_velocity,
           comAvgAccelRate: row.com_avg_accel_rate,
           comAvgDecelRate: row.com_avg_decel_rate,
+          bracingEfficiency: row.bracing_efficiency,
           // Player physical
           height: row.height,
           weight: row.weight,
@@ -397,10 +409,11 @@ export default function RebootAnalysis() {
           max_pelvis_turn_time: timingData.maxPelvisTurnTime ?? null,
           max_shoulder_turn_time: timingData.maxShoulderTurnTime ?? null,
           max_x_factor_time: timingData.maxXFactorTime ?? null,
-          load_duration: metrics.loadDuration,
-          fire_duration: metrics.fireDuration,
-          tempo_ratio: metrics.tempoRatio,
+          load_duration: timingData.loadDuration ?? metrics.loadDuration,
+          fire_duration: timingData.fireDuration ?? metrics.fireDuration,
+          tempo_ratio: timingData.tempoRatio ?? metrics.tempoRatio,
           kinematic_sequence_gap: metrics.kinematicSequenceGap,
+          pelvis_shoulder_gap: timingData.pelvisShoulderGap ?? null,
           // Core biomechanics
           x_factor_angle: biomechanicsData.xFactorAngle ?? null,
           peak_pelvis_rot_vel: biomechanicsData.peakPelvisRotVel ?? null,
@@ -412,6 +425,10 @@ export default function RebootAnalysis() {
           peak_pelvis_rot_vel_std_dev: consistencyData.peakPelvisRotVelStdDev ?? null,
           peak_shoulder_rot_vel_std_dev: consistencyData.peakShoulderRotVelStdDev ?? null,
           peak_arm_rot_vel_std_dev: consistencyData.peakArmRotVelStdDev ?? null,
+          pelvis_consistency: consistencyData.pelvisConsistency ?? null,
+          shoulder_consistency: consistencyData.shoulderConsistency ?? null,
+          arm_consistency: consistencyData.armConsistency ?? null,
+          overall_consistency: consistencyData.overallConsistency ?? null,
           // Rotation progression
           pelvis_direction_stance: rotationData.pelvisDirectionStance ?? null,
           pelvis_direction_neg_move: rotationData.pelvisDirectionNegMove ?? null,
@@ -421,12 +438,17 @@ export default function RebootAnalysis() {
           shoulder_direction_neg_move: rotationData.shoulderDirectionNegMove ?? null,
           shoulder_direction_max_shoulder: rotationData.shoulderDirectionMaxShoulder ?? null,
           shoulder_direction_impact: rotationData.shoulderDirectionImpact ?? null,
+          total_pelvis_rotation: rotationData.totalPelvisRotation ?? null,
+          total_shoulder_rotation: rotationData.totalShoulderRotation ?? null,
           // X-Factor progression
           x_factor_stance: xFactorProgressionData.xFactorStance ?? null,
           x_factor_neg_move: xFactorProgressionData.xFactorNegMove ?? null,
           x_factor_max_pelvis: xFactorProgressionData.xFactorMaxPelvis ?? null,
           x_factor_impact: xFactorProgressionData.xFactorImpact ?? null,
           // MLB comparison
+          mlb_avg_pelvis_rot_vel: mlbComparisonData.mlbAvgPelvisRotVel ?? null,
+          mlb_avg_shoulder_rot_vel: mlbComparisonData.mlbAvgShoulderRotVel ?? null,
+          mlb_avg_arm_rot_vel: mlbComparisonData.mlbAvgArmRotVel ?? null,
           mlb_avg_max_pelvis_turn: mlbComparisonData.mlbAvgMaxPelvisTurn ?? null,
           mlb_avg_max_shoulder_turn: mlbComparisonData.mlbAvgMaxShoulderTurn ?? null,
           mlb_avg_x_factor: mlbComparisonData.mlbAvgXFactor ?? null,
@@ -441,11 +463,13 @@ export default function RebootAnalysis() {
           com_dist_max_forward: comPositionData.comDistMaxForward ?? null,
           stride_length_meters: comPositionData.strideLengthMeters ?? null,
           stride_length_pct_height: comPositionData.strideLengthPctHeight ?? null,
+          weight_shift: comPositionData.weightShift ?? null,
           // COM velocity
           peak_com_velocity: comVelocityData.peakCOMVelocity ?? null,
           min_com_velocity: comVelocityData.minCOMVelocity ?? null,
           com_avg_accel_rate: comVelocityData.comAvgAccelRate ?? null,
           com_avg_decel_rate: comVelocityData.comAvgDecelRate ?? null,
+          bracing_efficiency: comVelocityData.bracingEfficiency ?? null,
           // Player physical data
           height: playerData?.height ?? null,
           weight: playerData?.weight ?? null,
