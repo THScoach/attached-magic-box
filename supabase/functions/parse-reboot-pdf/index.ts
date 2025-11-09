@@ -41,7 +41,16 @@ serve(async (req) => {
     // If timing extraction requested, use Lovable AI to extract from PDF
     if (extractTiming) {
       const arrayBuffer = await fileData.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      
+      // Convert to base64 in chunks to avoid call stack overflow
+      const bytes = new Uint8Array(arrayBuffer);
+      const chunkSize = 8192;
+      let binary = '';
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.slice(i, i + chunkSize);
+        binary += String.fromCharCode.apply(null, Array.from(chunk));
+      }
+      const base64 = btoa(binary);
 
       // Use Lovable AI to extract timing data from the PDF
       const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
