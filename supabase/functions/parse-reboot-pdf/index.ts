@@ -104,11 +104,19 @@ serve(async (req) => {
         );
       }
 
-      // Convert PDF to base64 for AI vision analysis
+      // Convert PDF to base64 for AI vision analysis (chunked to avoid stack overflow)
       console.log('Converting PDF to base64...');
       const arrayBuffer = await fileData.arrayBuffer();
       const buffer = new Uint8Array(arrayBuffer);
-      const base64Pdf = btoa(String.fromCharCode(...buffer));
+      
+      // Convert to base64 in chunks to avoid stack overflow
+      let binary = '';
+      const chunkSize = 8192;
+      for (let i = 0; i < buffer.length; i += chunkSize) {
+        const chunk = buffer.subarray(i, Math.min(i + chunkSize, buffer.length));
+        binary += String.fromCharCode(...chunk);
+      }
+      const base64Pdf = btoa(binary);
       
       console.log('✅ PDF converted to base64, size:', base64Pdf.length);
 
