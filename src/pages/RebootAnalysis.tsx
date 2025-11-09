@@ -593,9 +593,9 @@ export default function RebootAnalysis() {
                   {/* Power Generation */}
                   <PowerGeneration 
                     metrics={{
-                      ...latest.metrics,
-                      momentumAlignmentAngle: latest.metrics.momentumDirectionAngle,
-                      kinematicSequenceProper: (latest.metrics.kinematicSequenceGap || 0) > 0,
+                      rotationalPower: latest.metrics.rotationalPower,
+                      linearPower: latest.metrics.linearPower,
+                      totalPower: latest.metrics.totalPower,
                     }} 
                   />
 
