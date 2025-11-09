@@ -15,4 +15,15 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      external: [
+        '@tensorflow/tfjs-backend-webgpu',
+        '@tensorflow/tfjs-backend-wasm'
+      ],
+    },
+  },
+  optimizeDeps: {
+    exclude: ['@tensorflow/tfjs-backend-webgpu', '@tensorflow/tfjs-backend-wasm'],
+  },
 }));
