@@ -672,11 +672,16 @@ Provide detailed scores and analysis in this exact JSON format:
       console.log('Extracted JSON (first 200 chars):', jsonStr.substring(0, 200));
       
       // Step 3: Fix common JSON issues from AI responses
+      // Fix: Remove garbage text before quoted property names (e.g., "ano  \"armMaxVelocity\"" -> "\"armMaxVelocity\"")
+      jsonStr = jsonStr.replace(/\n\s*[a-zA-Z]+\s+("[\w]+"\s*:)/g, '\n  $1');
+      
       // Fix: Missing quotes before property names (e.g., annaMaxVelocity" -> "armMaxVelocity")
       jsonStr = jsonStr.replace(/\n\s*([a-zA-Z_][a-zA-Z0-9_]*")\s*:/g, '\n  "$1:');
       
       // Fix: Property name without opening quote (e.g., annaMaxVelocity -> "armMaxVelocity")
       jsonStr = jsonStr.replace(/\n\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '\n  "$1":');
+      
+      console.log('Cleaned JSON (first 300 chars):', jsonStr.substring(0, 300));
       
       // Step 4: Parse the cleaned JSON
       analysis = JSON.parse(jsonStr);
@@ -695,8 +700,15 @@ Provide detailed scores and analysis in this exact JSON format:
         
         const match = lastDitchContent.match(/\{[\s\S]*\}/);
         if (match) {
+          let fixed = match[0];
+          
+          // Remove garbage text before quoted property names
+          fixed = fixed.replace(/([,\n]\s*)[a-zA-Z]+\s+("[\w]+"\s*:)/g, '$1$2');
+          
           // Fix all unquoted property names
-          let fixed = match[0].replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)(\s*:)/g, '$1"$2"$3');
+          fixed = fixed.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)(\s*:)/g, '$1"$2"$3');
+          
+          console.log('Attempting parse with cleaned JSON (first 300 chars):', fixed.substring(0, 300));
           analysis = JSON.parse(fixed);
           console.log('Successfully parsed with aggressive cleaning');
         } else {
