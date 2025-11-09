@@ -839,14 +839,14 @@ Provide detailed scores and analysis in this exact JSON format:
       validationErrors.push(`CRITICAL: Tempo ratio ${analysis.tempoRatio.toFixed(2)}:1 exceeds maximum 5.0:1 - Unrealistic tempo indicates detection error`);
     }
 
-    // Constraint 2: Load Duration (0.10 to 0.50 seconds) - UPDATED for backward timing with relaxed maximum
+    // Constraint 2: Load Duration (0.10 to 0.80 seconds) - RELAXED for real-world swings
     const loadDuration = loadStartAbs - fireStartAbs;
     if (loadDuration < 100) {
       validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms below minimum 100ms - Load Start detected too late or too close to Fire`);
     } else if (loadDuration < 150) {
       validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is short (typical: 150-300ms) - May indicate aggressive swing or partial video capture`);
-    } else if (loadDuration > 500) {
-      validationErrors.push(`CRITICAL: Load duration ${loadDuration}ms exceeds maximum 500ms - Load Start detected too early or including pre-swing setup`);
+    } else if (loadDuration > 800) {
+      validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is longer than typical (150-300ms) - May include deliberate setup or pre-swing movement`);
     } else if (loadDuration > 400) {
       validationWarnings.push(`⚠️ Load duration ${loadDuration}ms is longer than typical (150-300ms) - May include some pre-swing movement`);
     }
@@ -861,14 +861,14 @@ Provide detailed scores and analysis in this exact JSON format:
       validationErrors.push(`CRITICAL: Fire duration ${fireDuration}ms exceeds maximum 300ms - Fire Start detected too early`);
     }
 
-    // Constraint 4: Total Swing Time (0.25 to 0.80 seconds) - RELAXED to accommodate different capture styles
+    // Constraint 4: Total Swing Time (0.25 to 1.20 seconds) - RELAXED for real-world capture including setup and follow-through
     const totalSwingTime = loadStartAbs;
     if (totalSwingTime < 250) {
       validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms below minimum 250ms - Missing early load phase or detection failure`);
     } else if (totalSwingTime < 350) {
       validationWarnings.push(`⚠️ Total swing time ${totalSwingTime}ms is short (typical: 450-650ms) - May indicate partial video or late LoadStart detection`);
-    } else if (totalSwingTime > 800) {
-      validationErrors.push(`CRITICAL: Total swing time ${totalSwingTime}ms exceeds maximum 800ms - Including pre-swing setup or multiple pitches`);
+    } else if (totalSwingTime > 1200) {
+      validationWarnings.push(`⚠️ Total swing time ${totalSwingTime}ms exceeds typical range (450-800ms) - May include pre-swing setup or follow-through`);
     }
 
     // Constraint 5: Marker Ordering (LoadStart > FireStart > Contact when using absolute values)
