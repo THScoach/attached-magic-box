@@ -149,10 +149,10 @@ export default function RebootAnalysis() {
   // Check for video upload data and auto-analyze
   useEffect(() => {
     const videoData = location.state as any;
-    if (videoData?.autoAnalyze && videoData?.videoUrl) {
+    if (videoData?.autoAnalyze && videoData?.videoUrl && !analyzingVideo) {
       handleVideoAnalysis(videoData);
     }
-  }, [location.state]);
+  }, [location.state, analyzingVideo]);
 
   // Load reports when player changes
   useEffect(() => {
@@ -222,7 +222,14 @@ export default function RebootAnalysis() {
         }
       });
 
-      if (analysisError) throw analysisError;
+      if (analysisError) {
+        console.error('Analysis error:', analysisError);
+        throw new Error(analysisError.message || 'Failed to analyze swing mechanics');
+      }
+
+      if (!analysisData) {
+        throw new Error('No analysis data returned');
+      }
 
       toast.dismiss('analyze');
       toast.success('Video analyzed successfully!');
