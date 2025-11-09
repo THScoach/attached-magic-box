@@ -13,13 +13,12 @@ export function RoleBasedRedirect({ children }: RoleBasedRedirectProps) {
 
   useEffect(() => {
     if (!loading && role) {
-      // Redirect based on role
       if (role === "admin") {
         navigate("/coach-dashboard", { replace: true });
       } else if (role === "coach") {
         navigate("/coach-dashboard", { replace: true });
       } else if (role === "athlete") {
-        navigate("/dashboard", { replace: true });
+        navigate("/home", { replace: true });
       }
     }
   }, [role, loading, navigate]);

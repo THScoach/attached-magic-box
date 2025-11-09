@@ -56,6 +56,8 @@ import FourBsScorecard from "./pages/FourBsScorecard";
 import FourBApp from "./pages/FourBApp";
 import BrainDashboard from "./pages/BrainDashboard";
 import SimpleTempoReport from "./pages/SimpleTempoReport";
+import HomeDashboard from "./pages/HomeDashboard";
+import Menu from "./pages/Menu";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
@@ -286,6 +288,8 @@ const App = () => {
             />
             
             {/* Athlete/General Protected Routes */}
+            <Route path="/home" element={<ProtectedRoute><HomeDashboard /></ProtectedRoute>} />
+            <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             {/* Legacy free onboarding - redirect to main onboarding */}

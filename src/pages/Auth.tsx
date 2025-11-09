@@ -56,7 +56,7 @@ export default function Auth() {
     } else if (roleData?.role === "coach") {
       navigate("/coach-dashboard", { replace: true });
     } else {
-      navigate("/dashboard", { replace: true });
+      navigate("/home", { replace: true });
     }
   };
 

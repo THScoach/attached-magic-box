@@ -26,8 +26,8 @@ export default function WhopAuth() {
   const checkSupabaseAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      // Already authenticated, go to dashboard
-      navigate('/dashboard');
+      // Already authenticated, go to home
+      navigate('/home');
     }
   };
 
@@ -79,7 +79,7 @@ export default function WhopAuth() {
         if (error) throw error;
 
         toast.success("Signed in successfully!");
-        navigate('/dashboard');
+        navigate('/home');
       }
     } catch (error: any) {
       console.error('Auth error:', error);

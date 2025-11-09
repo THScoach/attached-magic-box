@@ -59,7 +59,7 @@ export default function Onboarding() {
         .single();
 
       if (profile?.onboarding_completed) {
-        navigate("/dashboard");
+        navigate("/home");
       }
     } catch (error) {
       console.error("Error checking onboarding:", error);
@@ -145,7 +145,7 @@ export default function Onboarding() {
         description: "Your profile has been created successfully.",
       });
 
-      navigate("/dashboard");
+      navigate("/home");
     } catch (error) {
       console.error("Error completing onboarding:", error);
       toast.error("Failed to save profile. Please try again.");
