@@ -17,8 +17,12 @@ interface BallData {
   id: string;
   created_at: string;
   exit_velocity: number;
+  exit_velocity_grade: number | null;
   hard_hit_percentage: number | null;
   launch_angle_grade: number | null;
+  ground_ball_percentage: number | null;
+  fly_ball_percentage: number | null;
+  line_drive_percentage: number | null;
 }
 
 export default function BallDashboard() {
@@ -150,62 +154,144 @@ export default function BallDashboard() {
           </CardContent>
         </Card>
 
+        {/* Upload Section */}
+        {!ballData && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">📤 Upload Ball Tracking Data</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Connect your ball tracking system to analyze exit velocity, launch angle, and more.
+              </p>
+              
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-muted/50 rounded-lg p-3 text-center">
+                  <div className="text-3xl mb-2">📊</div>
+                  <h4 className="font-semibold text-sm mb-1">HitTrax</h4>
+                  <p className="text-xs text-muted-foreground">CSV export</p>
+                </div>
+                
+                <div className="bg-muted/50 rounded-lg p-3 text-center">
+                  <div className="text-3xl mb-2">⚾</div>
+                  <h4 className="font-semibold text-sm mb-1">Rapsodo</h4>
+                  <p className="text-xs text-muted-foreground">CSV export</p>
+                </div>
+                
+                <div className="bg-muted/50 rounded-lg p-3 text-center">
+                  <div className="text-3xl mb-2">🎯</div>
+                  <h4 className="font-semibold text-sm mb-1">TrackMan</h4>
+                  <p className="text-xs text-muted-foreground">CSV export</p>
+                </div>
+              </div>
+              
+              <Button 
+                className="w-full"
+                onClick={() => navigate(`/external-session-upload`)}
+              >
+                📤 Upload HitTrax CSV
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Ball Metrics */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center justify-between text-base">
-              <span>Latest Ball Metrics</span>
-              {ballData && (
-                <span className="text-xs text-muted-foreground">
-                  {new Date(ballData.created_at).toLocaleDateString()}
-                </span>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {ballData ? (
-              <>
-                <div className="grid grid-cols-2 gap-3">
+        {ballData && (
+          <>
+            <div className="flex justify-end mb-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(`/external-session-upload`)}
+              >
+                📤 Upload New Session
+              </Button>
+            </div>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between text-base">
+                  <span>Latest Ball Metrics</span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(ballData.created_at).toLocaleDateString()}
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Exit Velocity Metrics */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="bg-muted/50 rounded-lg p-3">
                     <p className="text-xs text-muted-foreground mb-1">Exit Velocity</p>
                     <p className="text-lg font-bold">{ballData.exit_velocity} mph</p>
                     {ballData.exit_velocity >= 95 && (
-                      <p className="text-xs text-green-500 mt-1">✓ Elite MLB Range</p>
+                      <p className="text-xs text-green-500 mt-1">✓ Elite</p>
                     )}
                   </div>
-                  {ballData.hard_hit_percentage !== null && (
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <p className="text-xs text-muted-foreground mb-1">Hard Hit %</p>
-                      <p className="text-lg font-bold">{ballData.hard_hit_percentage}%</p>
-                    </div>
-                  )}
+                  
+                  <div className="bg-muted/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Hard Hit %</p>
+                    <p className="text-lg font-bold">{ballData.hard_hit_percentage || 0}%</p>
+                    <p className="text-xs text-muted-foreground mt-1">95+ mph</p>
+                  </div>
+                  
+                  <div className="bg-muted/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Launch Angle</p>
+                    <p className="text-lg font-bold">{ballData.launch_angle_grade || "—"}°</p>
+                    {ballData.launch_angle_grade && ballData.launch_angle_grade >= 10 && ballData.launch_angle_grade <= 25 && (
+                      <p className="text-xs text-green-500 mt-1">✓ Optimal</p>
+                    )}
+                  </div>
+                  
+                  <div className="bg-muted/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Exit Velocity Grade</p>
+                    <p className="text-lg font-bold">{ballData.exit_velocity_grade || "—"}</p>
+                  </div>
                 </div>
 
                 <p className="text-xs text-muted-foreground">
                   Ball metrics are calculated from external sensors. Connect HitTrax, Rapsodo, or similar for full tracking.
                 </p>
-              </>
-            ) : (
-              <div className="space-y-3">
-                <div className="bg-muted/30 rounded-lg p-4 text-center">
-                  <Target className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-                  <p className="text-sm text-muted-foreground mb-3">
-                    No ball tracking data yet. Connect exit velocity sensors to track ball metrics.
-                  </p>
-                  <div className="space-y-2 text-xs text-left bg-background rounded-lg p-3">
-                    <p className="font-semibold">Supported Ball Tracking Systems:</p>
-                    <ul className="space-y-1 ml-4">
-                      <li>• <strong>HitTrax:</strong> Exit velo, launch angle, distance, spray chart</li>
-                      <li>• <strong>Rapsodo:</strong> Exit velo, launch angle, spin rate</li>
-                      <li>• <strong>Pocket Radar:</strong> Exit velocity</li>
-                      <li>• <strong>Stalker:</strong> Exit velocity</li>
-                    </ul>
+              </CardContent>
+            </Card>
+
+            {/* Hit Distribution */}
+            {(ballData.line_drive_percentage !== null || ballData.fly_ball_percentage !== null || ballData.ground_ball_percentage !== null) && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Hit Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-muted/50 rounded-lg p-3 text-center">
+                      <div className="text-3xl mb-2">📈</div>
+                      <p className="text-xs text-muted-foreground mb-2">Line Drives</p>
+                      <p className="text-lg font-bold">{ballData.line_drive_percentage?.toFixed(1) || 0}%</p>
+                      <p className="text-xs text-muted-foreground mt-1">10-25° LA</p>
+                    </div>
+                    
+                    <div className="bg-muted/50 rounded-lg p-3 text-center">
+                      <div className="text-3xl mb-2">🚀</div>
+                      <p className="text-xs text-muted-foreground mb-2">Fly Balls</p>
+                      <p className="text-lg font-bold">{ballData.fly_ball_percentage?.toFixed(1) || 0}%</p>
+                      <p className="text-xs text-muted-foreground mt-1">25-50° LA</p>
+                    </div>
+                    
+                    <div className="bg-muted/50 rounded-lg p-3 text-center">
+                      <div className="text-3xl mb-2">⚾</div>
+                      <p className="text-xs text-muted-foreground mb-2">Ground Balls</p>
+                      <p className="text-lg font-bold">{ballData.ground_ball_percentage?.toFixed(1) || 0}%</p>
+                      <p className="text-xs text-muted-foreground mt-1">&lt; 10° LA</p>
+                    </div>
                   </div>
-                </div>
-              </div>
+                  
+                  <div className="bg-primary/10 border-l-4 border-primary p-3 rounded italic text-sm mt-4">
+                    "Elite hitters optimize for line drives (10-25°) and fly balls (25-50°) to maximize hard contact and distance."
+                  </div>
+                </CardContent>
+              </Card>
             )}
-          </CardContent>
-        </Card>
+          </>
+        )}
 
         {/* Ball Flight Trajectory */}
         <Card>
@@ -253,11 +339,11 @@ export default function BallDashboard() {
                 <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary/80 mx-auto flex items-center justify-center text-2xl mb-2">
                   🎯
                 </div>
-                <p className="font-semibold text-sm mb-1">Impact</p>
+                <p className="font-semibold text-sm mb-1">Landing</p>
                 <p className="text-xs text-muted-foreground mb-2">Landing point</p>
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Result</p>
-                  <p className="text-sm font-bold">Hit</p>
+                  <p className="text-xs text-muted-foreground">Distance</p>
+                  <p className="text-sm font-bold">—</p>
                 </div>
               </div>
             </div>
@@ -278,36 +364,85 @@ export default function BallDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="border rounded-lg p-3">
-                <h4 className="font-semibold text-sm mb-1">Exit Velocity</h4>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Increase exit velocity to elite levels
-                </p>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Target: 95+ mph</span>
-                  <span className="font-medium">{ballData ? `${ballData.exit_velocity} mph` : "Not Measured"}</span>
+              <div className="flex items-center justify-between border rounded-lg p-3">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-sm mb-1">Exit Velocity</h4>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Increase exit velocity to elite levels
+                  </p>
+                  <p className="text-xs text-muted-foreground">Target: 95+ mph</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold">
+                    {ballData ? `${ballData.exit_velocity}` : "—"} mph
+                  </p>
+                  {ballData && ballData.exit_velocity >= 95 && (
+                    <span className="text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded mt-1 inline-block">
+                      Elite
+                    </span>
+                  )}
                 </div>
               </div>
 
-              <div className="border rounded-lg p-3">
-                <h4 className="font-semibold text-sm mb-1">Launch Angle</h4>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Optimize launch angle for line drives
-                </p>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Target: 10-25°</span>
-                  <span className="font-medium">Not Measured</span>
+              <div className="flex items-center justify-between border rounded-lg p-3">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-sm mb-1">Launch Angle</h4>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Optimize launch angle for line drives
+                  </p>
+                  <p className="text-xs text-muted-foreground">Target: 10-25°</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold">
+                    {ballData?.launch_angle_grade ? `${ballData.launch_angle_grade}°` : "—"}
+                  </p>
+                  {ballData?.launch_angle_grade && 
+                   ballData.launch_angle_grade >= 10 && 
+                   ballData.launch_angle_grade <= 25 && (
+                    <span className="text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded mt-1 inline-block">
+                      Optimal
+                    </span>
+                  )}
                 </div>
               </div>
 
-              <div className="border rounded-lg p-3">
-                <h4 className="font-semibold text-sm mb-1">Hard Hit %</h4>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Increase percentage of hard-hit balls
-                </p>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Target: 50%+</span>
-                  <span className="font-medium">{ballData?.hard_hit_percentage ? `${ballData.hard_hit_percentage}%` : "Not Measured"}</span>
+              <div className="flex items-center justify-between border rounded-lg p-3">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-sm mb-1">Hard Hit %</h4>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Increase percentage of hard-hit balls
+                  </p>
+                  <p className="text-xs text-muted-foreground">Target: 50%+ (95+ mph)</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold">
+                    {ballData?.hard_hit_percentage ? `${ballData.hard_hit_percentage}%` : "—"}
+                  </p>
+                  {ballData?.hard_hit_percentage && ballData.hard_hit_percentage >= 50 && (
+                    <span className="text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded mt-1 inline-block">
+                      Elite
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border rounded-lg p-3">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-sm mb-1">Line Drive Rate</h4>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Maximize line drives for consistent contact
+                  </p>
+                  <p className="text-xs text-muted-foreground">Target: 25%+ (10-25° LA)</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold">
+                    {ballData?.line_drive_percentage ? `${ballData.line_drive_percentage.toFixed(1)}%` : "—"}
+                  </p>
+                  {ballData?.line_drive_percentage && ballData.line_drive_percentage >= 25 && (
+                    <span className="text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded mt-1 inline-block">
+                      Elite
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
