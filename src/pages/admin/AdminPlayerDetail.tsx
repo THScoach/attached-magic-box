@@ -383,18 +383,31 @@ export default function AdminPlayerDetail() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>All Swing Analyses ({analyses.length})</CardTitle>
-                  <Button
-                    onClick={() => {
-                      sessionStorage.setItem('selectedPlayerId', id!);
-                      navigate('/reboot-analysis');
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                  >
-                    <Target className="h-4 w-4" />
-                    4B Motion Analysis
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        sessionStorage.setItem('selectedPlayerId', id!);
+                        navigate('/analyze');
+                      }}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
+                      Analyze Video
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        sessionStorage.setItem('selectedPlayerId', id!);
+                        navigate('/reboot-analysis');
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Target className="h-4 w-4" />
+                      4B Motion Analysis
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
