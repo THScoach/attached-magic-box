@@ -6,9 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock } from "lucide-react";
+import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock, Activity, Gauge } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
+import { KinematicSequenceGraph } from "@/components/KinematicSequenceGraph";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -325,7 +327,10 @@ export default function RebootAnalysis() {
                       <CardContent className="pt-6">
                         <div className="flex items-center justify-between mb-2">
                           <Clock className="h-5 w-5 text-primary" />
-                          <Badge variant="outline">Load</Badge>
+                          <div className="flex items-center gap-1">
+                            <Badge variant="outline">Load</Badge>
+                            <InfoTooltip content="Load Duration is the time from initial movement to maximum pelvis rotation. Optimal range: 400-700ms. This represents the energy storage phase of the swing." />
+                          </div>
                         </div>
                         <div className="text-3xl font-bold">{latest.metrics.loadDuration}ms</div>
                         <p className="text-sm text-muted-foreground">Load Duration</p>
@@ -336,7 +341,10 @@ export default function RebootAnalysis() {
                       <CardContent className="pt-6">
                         <div className="flex items-center justify-between mb-2">
                           <Zap className="h-5 w-5 text-orange-500" />
-                          <Badge variant="outline">Fire</Badge>
+                          <div className="flex items-center gap-1">
+                            <Badge variant="outline">Fire</Badge>
+                            <InfoTooltip content="Fire Duration is the time from maximum pelvis rotation to contact. Elite range: 130-150ms. This is the explosive energy release phase where power is transferred through the kinetic chain." />
+                          </div>
                         </div>
                         <div className="text-3xl font-bold">{latest.metrics.fireDuration}ms</div>
                         <p className="text-sm text-muted-foreground">Fire Duration</p>
@@ -354,7 +362,10 @@ export default function RebootAnalysis() {
                       <CardContent className="pt-6">
                         <div className="flex items-center justify-between mb-2">
                           <Target className="h-5 w-5 text-green-500" />
-                          <Badge variant="outline">Ratio</Badge>
+                          <div className="flex items-center gap-1">
+                            <Badge variant="outline">Ratio</Badge>
+                            <InfoTooltip content="Tempo Ratio = Load Duration ÷ Fire Duration. Optimal: 2.0-2.6:1, Elite: 2.6-3.5:1. This ratio indicates timing efficiency and power accumulation. Too low = rushed, too high = over-whip." />
+                          </div>
                         </div>
                         <div className="text-3xl font-bold">{latest.metrics.tempoRatio}:1</div>
                         <p className="text-sm text-muted-foreground">Tempo Ratio</p>
@@ -373,7 +384,10 @@ export default function RebootAnalysis() {
                       <CardContent className="pt-6">
                         <div className="flex items-center justify-between mb-2">
                           <TrendingUp className="h-5 w-5 text-blue-500" />
-                          <Badge variant="outline">4B</Badge>
+                          <div className="flex items-center gap-1">
+                            <Badge variant="outline">4B</Badge>
+                            <InfoTooltip content="Body Score is calculated from Fire Duration and Tempo Ratio scores. This composite metric reflects overall swing efficiency and timing quality in the BODY pillar of the 4 B's framework." />
+                          </div>
                         </div>
                         <div className="text-3xl font-bold">{latest.scores.bodyScore}</div>
                         <p className="text-sm text-muted-foreground">Body Score</p>
@@ -383,6 +397,59 @@ export default function RebootAnalysis() {
                       </CardContent>
                     </Card>
                   </div>
+
+                  {/* Additional Technical Metrics */}
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <Activity className="h-5 w-5 text-purple-500" />
+                          <InfoTooltip content="Kinematic Sequence Gap measures the time between peak pelvis and shoulder rotation. Positive values indicate proper proximal-to-distal sequencing. Optimal: 30-50ms." />
+                        </div>
+                        <div className="text-3xl font-bold">{latest.metrics.kinematicSequenceGap}ms</div>
+                        <p className="text-sm text-muted-foreground">Sequence Gap</p>
+                        <p className={`text-xs mt-1 font-semibold ${latest.metrics.kinematicSequenceGap > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {latest.metrics.kinematicSequenceGap > 0 ? '✓ Proximal-to-Distal' : '⚠ Reversed Sequence'}
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <Clock className="h-5 w-5 text-cyan-500" />
+                          <InfoTooltip content="Time from initial negative move (stride foot down) to ball contact. Elite hitters: 250-350ms. Reflects overall swing timing from recognition to contact." />
+                        </div>
+                        <div className="text-3xl font-bold">{(latest.metrics.negativeMoveTime * 1000).toFixed(0)}ms</div>
+                        <p className="text-sm text-muted-foreground">Total Swing Time</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <Gauge className="h-5 w-5 text-indigo-500" />
+                          <InfoTooltip content="Maximum X-Factor time represents peak trunk rotation separation between pelvis and shoulders. This creates elastic energy storage. Earlier timing indicates better load mechanics." />
+                        </div>
+                        <div className="text-3xl font-bold">{(latest.metrics.maxXFactorTime * 1000).toFixed(0)}ms</div>
+                        <p className="text-sm text-muted-foreground">Max X-Factor Time</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <Target className="h-5 w-5 text-pink-500" />
+                          <InfoTooltip content="Peak pelvis rotational velocity timing. This represents the transition point between Load and Fire phases. Elite timing: 130-200ms before contact." />
+                        </div>
+                        <div className="text-3xl font-bold">{(latest.metrics.maxPelvisTurnTime * 1000).toFixed(0)}ms</div>
+                        <p className="text-sm text-muted-foreground">Peak Pelvis Time</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Kinematic Sequence Graph */}
+                  <KinematicSequenceGraph metrics={latest.metrics} />
 
                   {/* Detailed Breakdown */}
                   <Card>
