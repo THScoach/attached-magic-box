@@ -468,7 +468,13 @@ export default function RebootAnalysis() {
                   <MomentumAnalysis metrics={latest.metrics} />
 
                   {/* Power Generation */}
-                  <PowerGeneration metrics={latest.metrics} />
+                  <PowerGeneration 
+                    metrics={{
+                      ...latest.metrics,
+                      momentumAlignmentAngle: latest.metrics.momentumDirectionAngle,
+                      kinematicSequenceProper: (latest.metrics.kinematicSequenceGap || 0) > 0,
+                    }} 
+                  />
 
                   {/* Detailed Breakdown */}
                   <Card>
