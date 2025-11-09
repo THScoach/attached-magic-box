@@ -102,9 +102,10 @@ export function KinematicSequenceBarChart({ metrics }: KinematicSequenceBarChart
                 <LabelList 
                   dataKey="timing" 
                   position="right" 
-                  formatter={(value: number, entry: any) => {
+                  formatter={(value: number, entry: any, index: number) => {
                     const label = `${value.toFixed(0)}ms`;
-                    return entry.isActual ? label : `${label}*`;
+                    const dataEntry = sequenceData[index];
+                    return dataEntry?.isActual ? label : `${label}*`;
                   }}
                   style={{ fill: 'hsl(var(--foreground))', fontSize: '12px', fontWeight: 'bold' }}
                 />
