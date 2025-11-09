@@ -1697,6 +1697,7 @@ export type Database = {
           momentum_direction_angle: number | null
           negative_move_time: number
           pdf_url: string
+          peak_arm_rot_vel: number | null
           peak_bat_speed: number | null
           peak_com_velocity: number | null
           peak_pelvis_rot_vel: number | null
@@ -1715,6 +1716,7 @@ export type Database = {
           vertical_bat_angle: number | null
           weight: number | null
           x_factor: number | null
+          x_factor_angle: number | null
         }
         Insert: {
           archetype: string
@@ -1740,6 +1742,7 @@ export type Database = {
           momentum_direction_angle?: number | null
           negative_move_time: number
           pdf_url: string
+          peak_arm_rot_vel?: number | null
           peak_bat_speed?: number | null
           peak_com_velocity?: number | null
           peak_pelvis_rot_vel?: number | null
@@ -1758,6 +1761,7 @@ export type Database = {
           vertical_bat_angle?: number | null
           weight?: number | null
           x_factor?: number | null
+          x_factor_angle?: number | null
         }
         Update: {
           archetype?: string
@@ -1783,6 +1787,7 @@ export type Database = {
           momentum_direction_angle?: number | null
           negative_move_time?: number
           pdf_url?: string
+          peak_arm_rot_vel?: number | null
           peak_bat_speed?: number | null
           peak_com_velocity?: number | null
           peak_pelvis_rot_vel?: number | null
@@ -1801,6 +1806,7 @@ export type Database = {
           vertical_bat_angle?: number | null
           weight?: number | null
           x_factor?: number | null
+          x_factor_angle?: number | null
         }
         Relationships: [
           {

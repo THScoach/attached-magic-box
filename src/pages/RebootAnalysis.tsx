@@ -35,8 +35,9 @@ interface RebootReport {
     // Biomechanics
     peakPelvisRotVel?: number; // °/s
     peakShoulderRotVel?: number; // °/s
+    peakArmRotVel?: number; // °/s
     peakBatSpeed?: number; // mph
-    xFactor?: number; // degrees
+    xFactor?: number; // degrees (X-Factor separation angle)
     hipShoulderSeparation?: number; // ms
     attackAngle?: number; // degrees
     verticalBatAngle?: number; // degrees
@@ -103,10 +104,11 @@ export default function RebootAnalysis() {
           fireDuration: row.fire_duration,
           tempoRatio: row.tempo_ratio,
           kinematicSequenceGap: row.kinematic_sequence_gap,
+          xFactor: row.x_factor_angle ?? row.x_factor, // Use extracted angle, fallback to old field
           peakPelvisRotVel: row.peak_pelvis_rot_vel,
           peakShoulderRotVel: row.peak_shoulder_rot_vel,
+          peakArmRotVel: row.peak_arm_rot_vel,
           peakBatSpeed: row.peak_bat_speed,
-          xFactor: row.x_factor,
           hipShoulderSeparation: row.hip_shoulder_separation,
           attackAngle: row.attack_angle,
           verticalBatAngle: row.vertical_bat_angle,
@@ -329,8 +331,10 @@ export default function RebootAnalysis() {
           tempo_ratio: metrics.tempoRatio,
           kinematic_sequence_gap: metrics.kinematicSequenceGap,
           // Only save biomechanics if extracted
+          x_factor_angle: biomechanicsData.xFactorAngle ?? null,
           peak_pelvis_rot_vel: biomechanicsData.peakPelvisRotVel ?? null,
           peak_shoulder_rot_vel: biomechanicsData.peakShoulderRotVel ?? null,
+          peak_arm_rot_vel: biomechanicsData.peakArmRotVel ?? null,
           peak_bat_speed: biomechanicsData.peakBatSpeed ?? null,
           attack_angle: biomechanicsData.attackAngle ?? null,
           // Height and weight from player profile
