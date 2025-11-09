@@ -29,13 +29,18 @@ import { BallMetricsView } from "@/components/BallMetricsView";
 import { SimplifiedSequenceBar } from "@/components/SimplifiedSequenceBar";
 import { SimplifiedBatSummary } from "@/components/SimplifiedBatSummary";
 import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
+import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
+import { MomentumAnalysis } from "@/components/MomentumAnalysis";
+import { PowerGeneration } from "@/components/PowerGeneration";
+import { KeyBiomechanics } from "@/components/KeyBiomechanics";
+import { KinematicSequenceBarChart } from "@/components/KinematicSequenceBarChart";
 import { VideoTempoOverlay } from "@/components/VideoTempoOverlay";
 import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { detectSwingPhases, type PhaseDetectionResult } from "@/lib/swingPhaseDetection";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward, BarChart3 } from "lucide-react";
+import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward, BarChart3, Clock } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { mockDrills } from "@/lib/mockAnalysis";
@@ -1059,57 +1064,87 @@ export default function AnalysisResult() {
           />
         )}
 
-        {/* 4 B's Performance Breakdown */}
+        {/* 4 B's Performance Breakdown - Reboot Style */}
         <section className="space-y-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Your Swing Breakdown</h2>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowDetailedMetrics(true)}
-            >
-              View Pro Data
-            </Button>
+            <h2 className="text-2xl font-bold">Comprehensive Biomechanics</h2>
+            <Badge variant="outline" className="text-xs">
+              Reboot Motion Style Analysis
+            </Badge>
           </div>
 
+          {/* Tempo & Timing Analysis */}
+          <Card className="p-6">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Tempo & Kinematic Sequence
+            </h3>
+            <div className="space-y-6">
+              <TempoRatioCard
+                tempoRatio={analysis.tempoRatio || 3.0}
+                loadStartTiming={analysis.loadStartTiming}
+                fireStartTiming={analysis.fireStartTiming}
+                dataSource="hits_video"
+              />
+              {analysis.pelvisMaxVelocity && analysis.torsoMaxVelocity && (
+                <KinematicSequenceBarChart
+                  metrics={{
+                    maxPelvisTurnTime: analysis.pelvisTiming || 0,
+                    maxShoulderTurnTime: analysis.torsoTiming || 0,
+                    peakPelvisRotVel: analysis.pelvisMaxVelocity,
+                    peakShoulderRotVel: analysis.torsoMaxVelocity,
+                    peakArmRotVel: analysis.armMaxVelocity,
+                  }}
+                />
+              )}
+            </div>
+          </Card>
 
-          {/* BODY - Mechanics/Movement */}
-          <SimplifiedSequenceBar
-            legsTiming="good"
-            coreTiming="good"
-            armsTiming="good"
-            batTiming="good"
-            tempoRatio={analysis.tempoRatio || 3.0}
-          />
+          {/* Reboot-Style Metrics */}
+          <RebootStyleMetrics analysis={analysis} />
 
-          {/* BAT - Tool */}
-          <SimplifiedBatSummary
-            batSpeed={analysis.batMaxVelocity || 70}
-            attackAngle={analysis.attackAngle || 15}
-            timeInZone={analysis.timingScore || 85}
-            level="High School"
-            overallGrade={calculateGrade(analysis.whipScore || 75)}
-            batSpeedPercentage={(() => {
-              const benchmarks = getBenchmarksForLevel("High School");
-              return calculateMetricPercentage(
-                analysis.batMaxVelocity || 70,
-                benchmarks.batSpeed,
-                true
-              );
-            })()}
-            attackAnglePercentage={(() => {
-              const ideal = 12;
-              const deviation = Math.abs((analysis.attackAngle || 15) - ideal);
-              return Math.max(0, 100 - (deviation * 10));
-            })()}
-            timeInZonePercentage={(() => {
-              const benchmarks = getBenchmarksForLevel("High School");
-              return calculateMetricPercentage(
-                (analysis.timingScore || 85) / 1000, // Convert ms to seconds
-                benchmarks.timeInZone,
-                true
-              );
-            })()}
+          {/* Momentum Analysis */}
+          {(analysis.pelvisMaxVelocity || analysis.torsoMaxVelocity) && (
+            <MomentumAnalysis
+              metrics={{
+                height: 72, // TODO: Get from player profile
+                weight: 180, // TODO: Get from player profile
+                peakPelvisRotVel: analysis.pelvisMaxVelocity,
+                peakShoulderRotVel: analysis.torsoMaxVelocity,
+                peakArmRotVel: analysis.armMaxVelocity,
+                peakCOMVelocity: analysis.comMaxVelocity,
+              }}
+            />
+          )}
+
+          {/* Power Generation */}
+          {analysis.pelvisMaxVelocity && (
+            <PowerGeneration
+              metrics={{
+                rotationalPower: null,
+                linearPower: null,
+                totalPower: null,
+              }}
+            />
+          )}
+
+          {/* Key Biomechanics */}
+          {(analysis.xFactor || analysis.pelvisRotation) && (
+            <KeyBiomechanics
+              metrics={{
+                peakPelvisRotVel: analysis.pelvisMaxVelocity,
+                peakShoulderRotVel: analysis.torsoMaxVelocity,
+                peakArmRotVel: analysis.armMaxVelocity,
+                peakBatSpeed: analysis.batMaxVelocity,
+                attackAngle: analysis.attackAngle,
+                xFactorMaxPelvis: analysis.xFactor,
+              }}
+            />
+          )}
+
+          {/* Research Benchmarks Comparison */}
+          <ResearchBenchmarks
+            analysis={analysis}
           />
 
         </section>
