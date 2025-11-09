@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { extractVideoMetadata } from "@/lib/videoAnalysis";
 import { Pose } from "@mediapipe/pose";
 import { VideoTagModal } from "@/components/VideoTagModal";
+import { VideoFrameRateValidator, validateFrameRate, type FrameRateValidation } from "@/components/VideoFrameRateValidator";
+import { RecordingInstructions } from "@/components/RecordingInstructions";
 
 interface BatchVideoUploadProps {
   playerId: string;
@@ -18,7 +20,7 @@ interface BatchVideoUploadProps {
 
 interface VideoUploadStatus {
   file: File;
-  status: 'pending' | 'tagging' | 'uploading' | 'analyzing' | 'completed' | 'error';
+  status: 'pending' | 'tagging' | 'uploading' | 'analyzing' | 'completed' | 'error' | 'rejected';
   progress: number;
   error?: string;
   analysisId?: string;
@@ -33,6 +35,7 @@ interface VideoUploadStatus {
   currentStep?: string;
   estimatedTimeRemaining?: number;
   processingWarning?: string;
+  frameRateValidation?: FrameRateValidation;
 }
 
 export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: BatchVideoUploadProps) {
@@ -42,6 +45,7 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
   const [isCancelling, setIsCancelling] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
   const [currentTaggingIndex, setCurrentTaggingIndex] = useState<number | null>(null);
+  const [showInstructions, setShowInstructions] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cancelRef = useRef<boolean>(false);
@@ -86,6 +90,9 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         try {
           const metadata = await extractVideoMetadata(file);
           
+          // Validate frame rate
+          const validation = validateFrameRate(metadata.frameRate);
+          
           // Generate warning for high frame rate videos
           let warning = undefined;
           if (metadata.frameRate > 240) {
@@ -94,24 +101,41 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
             warning = "⚠️ High frame rate detected. Processing may take 2-3 minutes.";
           }
           
+          // Auto-reject videos that don't meet minimum requirements
+          const shouldReject = !validation.isAcceptable;
+          
           setVideos(prev => prev.map((v, idx) => 
             idx === startIndex + i 
               ? { 
-                  ...v, 
+                  ...v,
+                  status: shouldReject ? 'rejected' : 'tagging',
                   frameRate: metadata.frameRate,
                   width: metadata.width,
                   height: metadata.height,
                   duration: metadata.duration,
                   isExtractingMetadata: false,
-                  processingWarning: warning
+                  processingWarning: warning,
+                  frameRateValidation: validation,
+                  error: shouldReject ? validation.message : undefined
                 }
               : v
-          ));
+           ));
+          
+          // Show instructions if video was rejected
+          if (shouldReject) {
+            setShowInstructions(true);
+            toast.error(`${file.name}: ${validation.message}`);
+          }
         } catch (error) {
           console.error(`Error extracting metadata for ${file.name}:`, error);
           setVideos(prev => prev.map((v, idx) => 
             idx === startIndex + i 
-              ? { ...v, isExtractingMetadata: false }
+              ? { 
+                  ...v, 
+                  isExtractingMetadata: false,
+                  status: 'error',
+                  error: "Could not extract video metadata"
+                }
               : v
           ));
         }
@@ -522,6 +546,7 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
       case 'completed':
         return <CheckCircle2 className="h-5 w-5 text-green-500" />;
       case 'error':
+      case 'rejected':
         return <XCircle className="h-5 w-5 text-red-500" />;
       case 'uploading':
       case 'analyzing':
@@ -531,8 +556,10 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
     }
   };
 
-  const getStatusText = (status: VideoUploadStatus['status']) => {
-    switch (status) {
+  const getStatusText = (video: VideoUploadStatus) => {
+    if (video.currentStep) return video.currentStep;
+    
+    switch (video.status) {
       case 'tagging':
         return 'Needs tagging';
       case 'pending':
@@ -543,8 +570,12 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
         return 'Analyzing...';
       case 'completed':
         return 'Complete';
+      case 'rejected':
+        return 'Frame rate too low';
       case 'error':
         return 'Failed';
+      default:
+        return 'Unknown';
     }
   };
 
@@ -578,6 +609,11 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
             Select Videos (Max 100MB each)
           </Button>
         </div>
+
+        {/* Recording Instructions */}
+        {showInstructions && (
+          <RecordingInstructions />
+        )}
 
         {/* Video list */}
         {videos.length > 0 && (
@@ -639,7 +675,7 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
                             </>
                           ) : null}
                           <span>•</span>
-                          <span>{getStatusText(video.status)}</span>
+                          <span>{getStatusText(video)}</span>
                         </div>
                         
                         {/* Current processing step */}
@@ -655,6 +691,16 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
                             {video.processingWarning}
                           </p>
                         )}
+                        
+                        {/* Frame Rate Validation */}
+                        {video.frameRateValidation && (video.status === 'rejected' || video.status === 'pending') && (
+                          <div className="mt-2">
+                            <VideoFrameRateValidator 
+                              validation={video.frameRateValidation}
+                              onShowInstructions={() => setShowInstructions(true)}
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -667,10 +713,10 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
                           View
                         </Button>
                       )}
-                      {video.status === 'pending' && !isProcessing && (
+                      {(video.status === 'pending' || video.status === 'rejected' || video.status === 'tagging') && !isProcessing && (
                         <Button
                           size="sm"
-                          variant="ghost"
+                          variant={video.status === 'rejected' ? "destructive" : "ghost"}
                           onClick={() => handleRemoveVideo(index)}
                         >
                           Remove
@@ -700,11 +746,17 @@ export function BatchVideoUpload({ playerId, playerName, onUploadComplete }: Bat
             {!isProcessing && (
               <Button
                 onClick={handleStartProcessing}
-                disabled={videos.every(v => v.status !== 'pending') || videos.some(v => v.status === 'tagging')}
+                disabled={
+                  videos.every(v => v.status !== 'pending') || 
+                  videos.some(v => v.status === 'tagging') ||
+                  videos.some(v => v.status === 'rejected')
+                }
                 className="flex-1"
               >
                 {videos.some(v => v.status === 'tagging') ? (
                   <>Complete tagging before processing</>
+                ) : videos.some(v => v.status === 'rejected') ? (
+                  <>Remove rejected videos before processing</>
                 ) : (
                   <>
                     <Upload className="mr-2 h-4 w-4" />
