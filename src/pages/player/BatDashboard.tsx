@@ -190,13 +190,20 @@ export default function BatDashboard() {
                   Bat metrics are calculated from video analysis. Connect a bat sensor for more precise measurements.
                 </p>
                 
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/player/${id}/csv-import?type=bat`)}
+                  >
+                    📤 Upload CSV
+                  </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => navigate(`/external-session-upload`)}
                   >
-                    📤 Upload New Data
+                    Manual Entry
                   </Button>
                 </div>
               </>
@@ -231,12 +238,20 @@ export default function BatDashboard() {
                     </div>
                   </div>
                   
-                  <Button 
-                    className="w-full"
-                    onClick={() => navigate(`/external-session-upload`)}
-                  >
-                    📤 Upload Bat Sensor Data
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button 
+                      className="flex-1"
+                      onClick={() => navigate(`/player/${id}/csv-import?type=bat`)}
+                    >
+                      📤 Upload CSV
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => navigate(`/external-session-upload`)}
+                    >
+                      Manual Entry
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}

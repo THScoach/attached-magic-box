@@ -185,12 +185,20 @@ export default function BallDashboard() {
                 </div>
               </div>
               
-              <Button 
-                className="w-full"
-                onClick={() => navigate(`/external-session-upload`)}
-              >
-                📤 Upload HitTrax CSV
-              </Button>
+              <div className="flex gap-3">
+                <Button 
+                  className="flex-1"
+                  onClick={() => navigate(`/player/${id}/csv-import?type=ball`)}
+                >
+                  📤 Upload HitTrax CSV
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => navigate(`/external-session-upload`)}
+                >
+                  Manual Entry
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -198,13 +206,20 @@ export default function BallDashboard() {
         {/* Ball Metrics */}
         {ballData && (
           <>
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-end gap-2 mb-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(`/player/${id}/csv-import?type=ball`)}
+              >
+                📤 Upload CSV
+              </Button>
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => navigate(`/external-session-upload`)}
               >
-                📤 Upload New Session
+                Manual Entry
               </Button>
             </div>
 

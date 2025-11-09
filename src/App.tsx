@@ -59,6 +59,7 @@ import BrainDashboardPlayer from "./pages/player/BrainDashboard";
 import BodyDashboard from "./pages/player/BodyDashboard";
 import BatDashboardPlayer from "./pages/player/BatDashboard";
 import BallDashboardPlayer from "./pages/player/BallDashboard";
+import CSVImportPage from "./pages/CSVImportPage";
 import SimpleTempoReport from "./pages/SimpleTempoReport";
 import HomeDashboard from "./pages/HomeDashboard";
 import Menu from "./pages/Menu";
@@ -306,6 +307,7 @@ const App = () => {
             <Route path="/player/:id/body" element={<ProtectedRoute><BodyDashboard /></ProtectedRoute>} />
             <Route path="/player/:id/bat" element={<ProtectedRoute><BatDashboardPlayer /></ProtectedRoute>} />
             <Route path="/player/:id/ball" element={<ProtectedRoute><BallDashboardPlayer /></ProtectedRoute>} />
+            <Route path="/player/:id/csv-import" element={<ProtectedRoute><CSVImportPage /></ProtectedRoute>} />
             {/* New streamlined upload routes */}
             <Route path="/record/:playerId" element={<ProtectedRoute><RecordSwing /></ProtectedRoute>} />
             <Route path="/upload/reboot/:playerId" element={<ProtectedRoute><UploadRebootPDF /></ProtectedRoute>} />
