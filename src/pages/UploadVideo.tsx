@@ -141,18 +141,31 @@ export default function UploadVideo() {
             {/* File Upload */}
             <div className="space-y-2">
               <Label htmlFor="file">Video File</Label>
-              <Input
-                id="file"
-                type="file"
-                accept="video/mp4,video/mov,video/avi,video/webm"
-                onChange={handleFileChange}
-                disabled={uploading}
-              />
-              {file && (
-                <p className="text-sm text-muted-foreground">
-                  Selected: {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
-                </p>
-              )}
+              <div 
+                className="border-2 border-dashed border-border hover:border-primary/50 rounded-lg p-8 text-center cursor-pointer transition-colors"
+                onClick={() => document.getElementById('file')?.click()}
+              >
+                <Video className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">
+                    {file ? file.name : 'Click to upload video'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {file 
+                      ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` 
+                      : 'Drag and drop or click to select'
+                    }
+                  </p>
+                </div>
+                <Input
+                  id="file"
+                  type="file"
+                  accept="video/mp4,video/mov,video/avi,video/webm"
+                  onChange={handleFileChange}
+                  disabled={uploading}
+                  className="hidden"
+                />
+              </div>
             </div>
 
             {/* Swing Type */}
