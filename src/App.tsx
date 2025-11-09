@@ -45,6 +45,7 @@ import TeamAnalytics from "./pages/TeamAnalytics";
 import PlayerProfile from "./pages/PlayerProfile";
 import Goals from "./pages/Goals";
 import FreeOnboarding from "./pages/FreeOnboarding";
+import RebootAnalysis from "./pages/RebootAnalysis";
 import Challenges from "./pages/Challenges";
 import VideoLibrary from "./pages/VideoLibrary";
 import Timeline from "./pages/Timeline";
@@ -302,6 +303,7 @@ const App = () => {
             <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
             <Route path="/timeline" element={<ProtectedRoute><Timeline /></ProtectedRoute>} />
             <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+            <Route path="/reboot-analysis" element={<ProtectedRoute><RebootAnalysis /></ProtectedRoute>} />
             <Route path="/4bs" element={<ProtectedRoute><FourBsScorecard /></ProtectedRoute>} />
             <Route path="/scorecard" element={<ProtectedRoute><FourBsScorecard /></ProtectedRoute>} />
             <Route path="/brain/:playerId" element={<ProtectedRoute><BrainDashboard /></ProtectedRoute>} />

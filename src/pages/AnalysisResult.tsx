@@ -34,7 +34,7 @@ import { detectSwingPhases, type PhaseDetectionResult } from "@/lib/swingPhaseDe
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
+import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward, BarChart3 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { mockDrills } from "@/lib/mockAnalysis";
@@ -55,7 +55,6 @@ export default function AnalysisResult() {
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [playerName, setPlayerName] = useState<string>('');
   const [playerId, setPlayerId] = useState<string>('');
-  const [rebootData, setRebootData] = useState<any>(null);
   const [analysisCreatedAt, setAnalysisCreatedAt] = useState<string>('');
   const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
@@ -72,12 +71,10 @@ export default function AnalysisResult() {
   const [videoContainerSize, setVideoContainerSize] = useState({ width: 0, height: 0 });
   const [phaseDetection, setPhaseDetection] = useState<PhaseDetectionResult | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string>('');
-  const [uploadingReboot, setUploadingReboot] = useState(false);
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const frameCallbackIdRef = useRef<number | null>(null);
-  const rebootFileInputRef = useRef<HTMLInputElement>(null);
   const FPS = 30; // Frames per second
 
   useEffect(() => {
@@ -133,8 +130,6 @@ export default function AnalysisResult() {
       // Set player ID
       if (data.player_id) {
         setPlayerId(data.player_id);
-        // Fetch Reboot data for this player
-        fetchRebootData(data.player_id);
       }
 
       // Set player name
@@ -230,128 +225,6 @@ export default function AnalysisResult() {
     }
   };
 
-  const handleRebootUpload = async () => {
-    rebootFileInputRef.current?.click();
-  };
-
-  const fetchRebootData = async (playerIdToFetch: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Fetch the most recent Reboot Motion data for this player
-      const { data, error } = await supabase
-        .from('external_session_data')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('player_id', playerIdToFetch)
-        .eq('data_source', 'reboot_motion')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error fetching Reboot data:', error);
-        return;
-      }
-
-      if (data && data.extracted_metrics) {
-        setRebootData(data.extracted_metrics);
-      }
-    } catch (error) {
-      console.error('Error fetching Reboot data:', error);
-    }
-  };
-
-  const handleRebootFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!playerId) {
-      toast.error('Player ID not found');
-      return;
-    }
-
-    // Check file type
-    const isJSON = file.name.toLowerCase().endsWith('.json');
-    const isPDF = file.name.toLowerCase().endsWith('.pdf');
-    
-    if (!isJSON && !isPDF) {
-      toast.error('Please upload a JSON or PDF file from Reboot Motion');
-      return;
-    }
-
-    setUploadingReboot(true);
-    toast.loading('Processing Reboot Motion file...');
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      let rebootData: any = null;
-
-      if (isJSON) {
-        // Parse JSON file
-        const text = await file.text();
-        rebootData = JSON.parse(text);
-      } else {
-        // Upload PDF to storage first
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}/${playerId}/reboot-${Date.now()}.${fileExt}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('swing-videos')
-          .upload(fileName, file);
-
-        if (uploadError) throw uploadError;
-
-        // Get the file path for parsing
-        const filePath = `swing-videos/${fileName}`;
-        
-        // Parse PDF to extract Reboot data
-        const { data: parsedData, error: parseError } = await supabase.functions
-          .invoke('parse-reboot-pdf', {
-            body: { filePath }
-          });
-
-        if (parseError) throw parseError;
-        
-        rebootData = parsedData?.metrics || {};
-      }
-
-      // Save to database
-      const { error: dbError } = await supabase
-        .from('external_session_data')
-        .insert({
-          user_id: user.id,
-          player_id: playerId,
-          data_source: 'reboot_motion',
-          extracted_metrics: rebootData,
-          notes: `Uploaded ${file.name}`
-        });
-
-      if (dbError) throw dbError;
-
-      toast.dismiss();
-      toast.success('Reboot Motion data uploaded successfully');
-      
-      // Reload Reboot data
-      if (playerId) {
-        await fetchRebootData(playerId);
-      }
-    } catch (error: any) {
-      console.error('Reboot upload error:', error);
-      toast.dismiss();
-      toast.error(error.message || 'Failed to upload Reboot data');
-    } finally {
-      setUploadingReboot(false);
-      // Reset file input
-      if (rebootFileInputRef.current) {
-        rebootFileInputRef.current.value = '';
-      }
-    }
-  };
-
   const loadAnalysisFromDatabase = async (id: string) => {
     try {
       const { data, error } = await supabase
@@ -368,8 +241,6 @@ export default function AnalysisResult() {
       // Set player ID
       if (data.player_id) {
         setPlayerId(data.player_id);
-        // Fetch Reboot data for this player
-        fetchRebootData(data.player_id);
       }
 
       // Set player name
@@ -972,12 +843,11 @@ export default function AnalysisResult() {
           </Button>
         </div>
 
-        {/* Video Player and 3D Motion Tabs */}
+        {/* Video Player Tabs */}
         <div id="video-section">
           <Tabs defaultValue="video" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="video">Video Analysis</TabsTrigger>
-            <TabsTrigger value="motion">4B Motion Analysis</TabsTrigger>
             <TabsTrigger value="markup">Markup Tools</TabsTrigger>
           </TabsList>
           
@@ -1156,22 +1026,6 @@ export default function AnalysisResult() {
           </Card>
           </TabsContent>
 
-          {/* 4B Motion Analysis Tab */}
-          <TabsContent value="motion" className="mt-4">
-            <input
-              ref={rebootFileInputRef}
-              type="file"
-              accept=".json,.pdf"
-              onChange={handleRebootFileSelect}
-              style={{ display: 'none' }}
-            />
-            <FourBMotionAnalysis 
-              rebootData={rebootData}
-              playerId={playerId}
-              onUpload={handleRebootUpload}
-            />
-          </TabsContent>
-
           {/* Markup Tools Tab */}
           <TabsContent value="markup" className="mt-4">
             {analysis.videoUrl ? (
@@ -1324,6 +1178,15 @@ export default function AnalysisResult() {
             onClick={() => navigate('/analyze')}
           >
             Analyze Another Swing
+          </Button>
+          <Button 
+            size="lg"
+            variant="outline"
+            className="w-full gap-2"
+            onClick={() => navigate('/reboot-analysis')}
+          >
+            <BarChart3 className="h-5 w-5" />
+            4B Motion Analysis
           </Button>
           <Button 
             size="lg"

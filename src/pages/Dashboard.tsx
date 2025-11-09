@@ -21,7 +21,7 @@ import { WhopSyncBanner } from "@/components/WhopSyncBanner";
 import { calculateBatGrade, calculateBodyGrade, calculateBallGrade, calculateBrainGrade, calculateOverallGrade } from "@/lib/gradingSystem";
 import { getBenchmarksForLevel } from "@/lib/benchmarks";
 import { useQuery } from "@tanstack/react-query";
-import { User, TrendingUp, Target, Zap, Trophy, Camera, LayoutDashboard } from "lucide-react";
+import { User, TrendingUp, Target, Zap, Trophy, Camera, LayoutDashboard, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -382,6 +382,15 @@ export default function Dashboard() {
             </div>
             <p className="text-3xl font-bold text-primary">--</p>
             <p className="text-xs text-muted-foreground mt-1">Set & track goals</p>
+          </Card>
+
+          <Card className="p-4 cursor-pointer hover:bg-accent transition-colors" onClick={() => navigate('/reboot-analysis')}>
+            <div className="flex items-center gap-2 mb-2">
+              <BarChart3 className="h-4 w-4 text-purple-500" />
+              <p className="text-sm text-muted-foreground">4B Motion</p>
+            </div>
+            <p className="text-3xl font-bold text-purple-600">📊</p>
+            <p className="text-xs text-muted-foreground mt-1">Reboot Analysis</p>
           </Card>
 
           <Card className="p-4">
