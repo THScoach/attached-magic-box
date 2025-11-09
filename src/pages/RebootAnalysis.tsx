@@ -21,6 +21,7 @@ import { TempoHero } from "@/components/tempo/TempoHero";
 import { TempoContext } from "@/components/tempo/TempoContext";
 import { TempoTrainingPlan } from "@/components/tempo/TempoTrainingPlan";
 import { ImpactSyncRecorder } from "@/components/ImpactSyncRecorder";
+import { ImpactSyncAnalysis } from "@/components/ImpactSyncAnalysis";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 

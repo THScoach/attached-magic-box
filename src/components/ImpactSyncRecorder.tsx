@@ -3,13 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Target, Circle, Zap, Info } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Target, Circle, Zap, Info, Mic } from "lucide-react";
 import { toast } from "sonner";
+import { AudioImpactDetector } from "@/lib/audioImpactDetection";
 
 interface ImpactSyncRecorderProps {
   onRecordingComplete: (recording: RecordingData) => void;
   frameRate?: number;
   bufferSeconds?: number;
+  enableAudioDetection?: boolean;
 }
 
 interface RecordingData {
@@ -27,18 +31,24 @@ interface RecordingData {
 export function ImpactSyncRecorder({ 
   onRecordingComplete, 
   frameRate = 120, // Use 120fps for better compatibility (240fps not widely supported)
-  bufferSeconds = 2 
+  bufferSeconds = 2,
+  enableAudioDetection = false
 }: ImpactSyncRecorderProps) {
   const [isBuffering, setIsBuffering] = useState(false);
   const [isCapturingPost, setIsCapturingPost] = useState(false);
   const [bufferProgress, setBufferProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [audioDetectionEnabled, setAudioDetectionEnabled] = useState(enableAudioDetection);
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [isListeningForImpact, setIsListeningForImpact] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const bufferStartTimeRef = useRef<number>(0);
   const impactTimeRef = useRef<number>(0);
+  const audioDetectorRef = useRef<AudioImpactDetector | null>(null);
+  const audioLevelIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -98,6 +108,29 @@ export function ImpactSyncRecorder({
       bufferStartTimeRef.current = Date.now();
       setIsBuffering(true);
 
+      // Initialize audio detection if enabled
+      if (audioDetectionEnabled) {
+        audioDetectorRef.current = new AudioImpactDetector(0.75);
+        await audioDetectorRef.current.startListening(stream);
+        setIsListeningForImpact(true);
+        
+        // Start audio level monitoring for UI
+        audioLevelIntervalRef.current = setInterval(() => {
+          if (audioDetectorRef.current) {
+            const level = audioDetectorRef.current.getCurrentLevel();
+            setAudioLevel(level);
+          }
+        }, 50);
+        
+        // Auto-detect impact
+        audioDetectorRef.current.detectImpact().then((result) => {
+          if (result.detected && isBuffering) {
+            toast.info(`Impact auto-detected! Confidence: ${(result.confidence * 100).toFixed(0)}%`);
+            captureImpact();
+          }
+        });
+      }
+
       // Update buffer progress
       const progressInterval = setInterval(() => {
         if (!isBuffering) {
@@ -110,7 +143,10 @@ export function ImpactSyncRecorder({
         setBufferProgress(progress);
       }, 100);
 
-      toast.success('Recording buffer started! Press IMPACT when ball strikes bat.');
+      const message = audioDetectionEnabled 
+        ? 'Listening for impact sound...' 
+        : 'Recording buffer started! Press IMPACT when ball strikes bat.';
+      toast.success(message);
     } catch (err: any) {
       console.error('Error starting buffer:', err);
       setError(err.message || 'Failed to access camera');
@@ -198,10 +234,23 @@ export function ImpactSyncRecorder({
       mediaRecorderRef.current = null;
     }
 
+    // Stop audio detection
+    if (audioDetectorRef.current) {
+      audioDetectorRef.current.stopListening();
+      audioDetectorRef.current = null;
+    }
+    
+    if (audioLevelIntervalRef.current) {
+      clearInterval(audioLevelIntervalRef.current);
+      audioLevelIntervalRef.current = null;
+    }
+
     chunksRef.current = [];
     setIsBuffering(false);
     setIsCapturingPost(false);
     setBufferProgress(0);
+    setIsListeningForImpact(false);
+    setAudioLevel(0);
   };
 
   return (
@@ -216,12 +265,55 @@ export function ImpactSyncRecorder({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Audio Detection Toggle */}
+        <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Mic className="h-4 w-4" />
+            <div>
+              <Label htmlFor="audio-detection" className="font-medium">
+                Auto-detect Impact (Phase 4)
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Automatically capture when ball contact sound is detected
+              </p>
+            </div>
+          </div>
+          <Switch
+            id="audio-detection"
+            checked={audioDetectionEnabled}
+            onCheckedChange={setAudioDetectionEnabled}
+            disabled={isBuffering}
+          />
+        </div>
+
+        {/* Audio Level Indicator */}
+        {isListeningForImpact && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Audio Level</span>
+              <span className={audioLevel > 0.7 ? "text-primary font-medium" : ""}>
+                {(audioLevel * 100).toFixed(0)}%
+              </span>
+            </div>
+            <Progress 
+              value={audioLevel * 100} 
+              className="h-2"
+            />
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <Mic className="h-3 w-3" />
+              Listening for ball contact sound...
+            </p>
+          </div>
+        )}
+        
         {/* How it works */}
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription className="text-xs">
-            <strong>How it works:</strong> Start buffering, then press IMPACT when you hear ball contact. 
-            Captures {bufferSeconds}s before + 0.5s after impact for accurate analysis.
+            <strong>How it works:</strong> {audioDetectionEnabled 
+              ? `Audio detection will automatically capture impact. Manual override available.`
+              : `Start buffering, then press IMPACT when you hear ball contact.`}
+            {' '}Captures {bufferSeconds}s before + 0.5s after impact.
           </AlertDescription>
         </Alert>
 
