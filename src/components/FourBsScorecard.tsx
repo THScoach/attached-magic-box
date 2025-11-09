@@ -6,6 +6,7 @@ import { MembershipTier, getBCategoryInfo, BCategory, calculateBGrade, hasMetric
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface FourBsScorecardProps {
   userTier: MembershipTier;
@@ -13,6 +14,7 @@ interface FourBsScorecardProps {
   analysisId?: string;
   compact?: boolean;
   bypassTierRestrictions?: boolean;
+  playerId?: string;
 }
 
 export function FourBsScorecard({
@@ -21,9 +23,17 @@ export function FourBsScorecard({
   analysisId,
   compact = false,
   bypassTierRestrictions = false,
+  playerId,
 }: FourBsScorecardProps) {
+  const navigate = useNavigate();
   const categories: BCategory[] = ['brain', 'body', 'bat', 'ball'];
   const [selectedCategory, setSelectedCategory] = useState<BCategory | null>(null);
+  
+  const handleCardClick = (category: BCategory) => {
+    if (playerId) {
+      navigate(`/player/${playerId}/${category}`);
+    }
+  };
   
   // Calculate grades for each B
   const categoryGrades: Record<BCategory, number> = {
@@ -181,7 +191,7 @@ export function FourBsScorecard({
         <Card 
           key={category} 
           className="hover:shadow-lg transition-shadow border-2 border-dashed border-primary/30 cursor-pointer"
-          onClick={() => setSelectedCategory(category)}
+          onClick={() => handleCardClick(category)}
         >
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
@@ -259,7 +269,7 @@ export function FourBsScorecard({
         <Card 
           key={category} 
           className="relative overflow-hidden border-2 border-dashed border-muted hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => setSelectedCategory(category)}
+          onClick={() => handleCardClick(category)}
         >
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
@@ -290,7 +300,7 @@ export function FourBsScorecard({
       <Card 
         key={category} 
         className="hover:shadow-lg transition-shadow cursor-pointer"
-        onClick={() => setSelectedCategory(category)}
+        onClick={() => handleCardClick(category)}
       >
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">

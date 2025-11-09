@@ -275,6 +275,7 @@ export default function AdminPlayerDetail() {
               }}
               analysisId={latestAnalysis.id}
               bypassTierRestrictions={true}
+              playerId={id}
             />
           ) : (
             <Card>

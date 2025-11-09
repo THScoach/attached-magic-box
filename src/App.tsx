@@ -55,6 +55,10 @@ import TierDemo from "./pages/TierDemo";
 import FourBsScorecard from "./pages/FourBsScorecard";
 import FourBApp from "./pages/FourBApp";
 import BrainDashboard from "./pages/BrainDashboard";
+import BrainDashboardPlayer from "./pages/player/BrainDashboard";
+import BodyDashboard from "./pages/player/BodyDashboard";
+import BatDashboardPlayer from "./pages/player/BatDashboard";
+import BallDashboardPlayer from "./pages/player/BallDashboard";
 import SimpleTempoReport from "./pages/SimpleTempoReport";
 import HomeDashboard from "./pages/HomeDashboard";
 import Menu from "./pages/Menu";
@@ -297,6 +301,11 @@ const App = () => {
             <Route path="/result/:id" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
             <Route path="/player/:playerId" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
             <Route path="/player/:playerId/analysis/:analysisId" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
+            {/* 4 B's Individual Dashboards */}
+            <Route path="/player/:id/brain" element={<ProtectedRoute><BrainDashboardPlayer /></ProtectedRoute>} />
+            <Route path="/player/:id/body" element={<ProtectedRoute><BodyDashboard /></ProtectedRoute>} />
+            <Route path="/player/:id/bat" element={<ProtectedRoute><BatDashboardPlayer /></ProtectedRoute>} />
+            <Route path="/player/:id/ball" element={<ProtectedRoute><BallDashboardPlayer /></ProtectedRoute>} />
             {/* New streamlined upload routes */}
             <Route path="/record/:playerId" element={<ProtectedRoute><RecordSwing /></ProtectedRoute>} />
             <Route path="/upload/reboot/:playerId" element={<ProtectedRoute><UploadRebootPDF /></ProtectedRoute>} />
