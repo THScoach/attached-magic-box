@@ -5,41 +5,48 @@ import { CheckCircle, AlertCircle } from "lucide-react";
 
 interface KinematicSequenceBarChartProps {
   metrics: {
-    maxPelvisTurnTime: number;
-    maxShoulderTurnTime: number;
+    negativeMoveTime?: number; // seconds
+    maxPelvisTurnTime: number; // seconds
+    maxShoulderTurnTime: number; // seconds
+    maxXFactorTime?: number; // seconds
+    peakPelvisRotVel?: number; // °/s
+    peakShoulderRotVel?: number; // °/s
+    peakArmRotVel?: number; // °/s
   };
 }
 
 export function KinematicSequenceBarChart({ metrics }: KinematicSequenceBarChartProps) {
-  // Convert to milliseconds before impact
-  const leadLegTiming = 480; // Estimated ~480ms before impact
+  // Convert to milliseconds before impact (PDF data is in seconds before impact)
+  const negativeMoveTiming = metrics.negativeMoveTime ? metrics.negativeMoveTime * 1000 : null;
   const pelvisTiming = metrics.maxPelvisTurnTime * 1000;
   const shoulderTiming = metrics.maxShoulderTurnTime * 1000;
-  const handsTiming = 135; // Estimated ~135ms before impact
-  const batTiming = 0; // Impact
+  const maxXFactorTiming = metrics.maxXFactorTime ? metrics.maxXFactorTime * 1000 : null;
+  
+  // Bat is always at impact (0ms)
+  const batTiming = 0;
 
+  // Build sequence data with available metrics
   const sequenceData = [
-    { segment: "Lead Leg", timing: leadLegTiming, order: 1 },
-    { segment: "Pelvis", timing: pelvisTiming, order: 2 },
-    { segment: "Shoulders", timing: shoulderTiming, order: 3 },
-    { segment: "Hands", timing: handsTiming, order: 4 },
-    { segment: "Bat", timing: batTiming, order: 5 },
+    ...(negativeMoveTiming ? [{ segment: "Negative Move", timing: negativeMoveTiming, order: 1, isActual: true }] : []),
+    { segment: "Pelvis", timing: pelvisTiming, order: 2, isActual: true, velocity: metrics.peakPelvisRotVel },
+    { segment: "Shoulders", timing: shoulderTiming, order: 3, isActual: true, velocity: metrics.peakShoulderRotVel },
+    ...(metrics.peakArmRotVel ? [{ segment: "Arm", timing: shoulderTiming / 2, order: 4, isActual: false, velocity: metrics.peakArmRotVel }] : []),
+    { segment: "Bat", timing: batTiming, order: 5, isActual: true },
   ];
 
-  // Check if sequence is proper (descending order)
+  // Check if sequence is proper (descending order for actual data points)
   const isProperSequence = 
-    leadLegTiming > pelvisTiming && 
-    pelvisTiming > shoulderTiming && 
-    shoulderTiming > handsTiming;
+    (!negativeMoveTiming || negativeMoveTiming > pelvisTiming) &&
+    pelvisTiming > shoulderTiming;
 
-  // Calculate gaps
+  // Calculate gaps between consecutive segments
   const pelvisShoulderGap = pelvisTiming - shoulderTiming;
-  const shoulderHandsGap = shoulderTiming - handsTiming;
 
-  // Color based on sequence correctness
-  const getBarColor = (index: number) => {
+  // Color based on whether data is actual or estimated, and sequence correctness
+  const getBarColor = (entry: any) => {
+    if (!entry.isActual) return "#94a3b8"; // Gray for estimated data
     if (!isProperSequence) return "#ef4444"; // Red if sequence is wrong
-    return "#22c55e"; // Green if proper
+    return "#22c55e"; // Green if proper and actual
   };
 
   return (
@@ -90,32 +97,60 @@ export function KinematicSequenceBarChart({ metrics }: KinematicSequenceBarChart
               />
               <Bar dataKey="timing" fill="#22c55e">
                 {sequenceData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={getBarColor(index)} />
+                  <Cell key={`cell-${index}`} fill={getBarColor(entry)} />
                 ))}
                 <LabelList 
                   dataKey="timing" 
                   position="right" 
-                  formatter={(value: number) => `${value.toFixed(0)}ms`}
+                  formatter={(value: number, entry: any) => {
+                    const label = `${value.toFixed(0)}ms`;
+                    return entry.isActual ? label : `${label}*`;
+                  }}
                   style={{ fill: 'hsl(var(--foreground))', fontSize: '12px', fontWeight: 'bold' }}
                 />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
 
-          {/* Timing Gaps */}
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+          {/* Timing Gaps and Velocities */}
+          <div className="space-y-3 pt-4 border-t">
             <div className="bg-muted/50 p-3 rounded-lg">
               <div className="text-xs text-muted-foreground mb-1">Pelvis → Shoulder Gap</div>
               <div className={`text-xl font-bold ${pelvisShoulderGap > 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {pelvisShoulderGap > 0 ? '+' : ''}{pelvisShoulderGap.toFixed(0)}ms
               </div>
             </div>
-            <div className="bg-muted/50 p-3 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Shoulder → Hands Gap</div>
-              <div className={`text-xl font-bold ${shoulderHandsGap > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {shoulderHandsGap > 0 ? '+' : ''}{shoulderHandsGap.toFixed(0)}ms
+            
+            {/* Velocity data if available */}
+            {(metrics.peakPelvisRotVel || metrics.peakShoulderRotVel || metrics.peakArmRotVel) && (
+              <div className="grid grid-cols-3 gap-3">
+                {metrics.peakPelvisRotVel && (
+                  <div className="bg-muted/50 p-2 rounded-lg">
+                    <div className="text-xs text-muted-foreground mb-1">Pelvis</div>
+                    <div className="text-sm font-bold">{metrics.peakPelvisRotVel.toFixed(0)}°/s</div>
+                  </div>
+                )}
+                {metrics.peakShoulderRotVel && (
+                  <div className="bg-muted/50 p-2 rounded-lg">
+                    <div className="text-xs text-muted-foreground mb-1">Shoulder</div>
+                    <div className="text-sm font-bold">{metrics.peakShoulderRotVel.toFixed(0)}°/s</div>
+                  </div>
+                )}
+                {metrics.peakArmRotVel && (
+                  <div className="bg-muted/50 p-2 rounded-lg">
+                    <div className="text-xs text-muted-foreground mb-1">Arm</div>
+                    <div className="text-sm font-bold">{metrics.peakArmRotVel.toFixed(0)}°/s</div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
+            
+            {/* Legend for estimated data */}
+            {sequenceData.some(d => !d.isActual) && (
+              <div className="text-xs text-muted-foreground italic">
+                * = Estimated value (not from PDF)
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

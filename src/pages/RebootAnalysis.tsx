@@ -92,6 +92,7 @@ interface RebootReport {
     // Player physical
     height?: number;
     weight?: number;
+    bodyMass?: number;
     // Power
     rotationalPower?: number;
     linearPower?: number;
@@ -222,8 +223,9 @@ export default function RebootAnalysis() {
           comAvgDecelRate: row.com_avg_decel_rate,
           bracingEfficiency: row.bracing_efficiency,
           // Player physical
-          height: row.height,
-          weight: row.weight,
+          height: row.player_height ?? row.height,
+          weight: row.player_weight ?? row.weight,
+          bodyMass: row.body_mass,
           // Power
           rotationalPower: row.rotational_power,
           linearPower: row.linear_power,
@@ -437,7 +439,7 @@ export default function RebootAnalysis() {
 
       if (parseError) throw parseError;
 
-      // Get player profile for height/weight
+      // Get player profile for height/weight as fallback
       const { data: players } = await supabase
         .from('players')
         .select('height, weight')
@@ -445,6 +447,12 @@ export default function RebootAnalysis() {
         .limit(1);
       
       const playerData = players?.[0];
+      
+      // Use player info from PDF if available, otherwise fall back to player profile
+      const playerInfoData = parsedData?.playerInfo || {};
+      const playerHeight = playerInfoData.height ?? playerData?.height ?? null;
+      const playerWeight = playerInfoData.weight ?? playerData?.weight ?? null;
+      const bodyMass = playerInfoData.bodyMass ?? (playerWeight ? playerWeight * 0.453592 : null);
 
       // Process extracted data
       const timingData = parsedData?.timing || {};
@@ -544,9 +552,13 @@ export default function RebootAnalysis() {
           com_avg_accel_rate: comVelocityData.comAvgAccelRate ?? null,
           com_avg_decel_rate: comVelocityData.comAvgDecelRate ?? null,
           bracing_efficiency: comVelocityData.bracingEfficiency ?? null,
-          // Player physical data
-          height: playerData?.height ?? null,
-          weight: playerData?.weight ?? null,
+          // Player physical data (from PDF or player profile)
+          player_height: playerHeight,
+          player_weight: playerWeight,
+          body_mass: bodyMass,
+          // Legacy player fields
+          height: playerHeight,
+          weight: playerWeight,
           // Power
           rotational_power: powerData.rotationalPower ?? null,
           linear_power: powerData.linearPower ?? null,

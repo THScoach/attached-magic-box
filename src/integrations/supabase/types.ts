@@ -1677,6 +1677,7 @@ export type Database = {
           archetype: string
           arm_consistency: number | null
           attack_angle: number | null
+          body_mass: number | null
           body_score: number
           bracing_efficiency: number | null
           com_avg_accel_rate: number | null
@@ -1730,7 +1731,9 @@ export type Database = {
           pelvis_direction_neg_move: number | null
           pelvis_direction_stance: number | null
           pelvis_shoulder_gap: number | null
+          player_height: number | null
           player_id: string | null
+          player_weight: number | null
           posture_angle: number | null
           report_date: string
           rotational_power: number | null
@@ -1764,6 +1767,7 @@ export type Database = {
           archetype: string
           arm_consistency?: number | null
           attack_angle?: number | null
+          body_mass?: number | null
           body_score: number
           bracing_efficiency?: number | null
           com_avg_accel_rate?: number | null
@@ -1817,7 +1821,9 @@ export type Database = {
           pelvis_direction_neg_move?: number | null
           pelvis_direction_stance?: number | null
           pelvis_shoulder_gap?: number | null
+          player_height?: number | null
           player_id?: string | null
+          player_weight?: number | null
           posture_angle?: number | null
           report_date: string
           rotational_power?: number | null
@@ -1851,6 +1857,7 @@ export type Database = {
           archetype?: string
           arm_consistency?: number | null
           attack_angle?: number | null
+          body_mass?: number | null
           body_score?: number
           bracing_efficiency?: number | null
           com_avg_accel_rate?: number | null
@@ -1904,7 +1911,9 @@ export type Database = {
           pelvis_direction_neg_move?: number | null
           pelvis_direction_stance?: number | null
           pelvis_shoulder_gap?: number | null
+          player_height?: number | null
           player_id?: string | null
+          player_weight?: number | null
           posture_angle?: number | null
           report_date?: string
           rotational_power?: number | null
