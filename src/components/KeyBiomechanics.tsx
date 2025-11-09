@@ -4,10 +4,10 @@ import { CheckCircle, AlertCircle, XCircle } from "lucide-react";
 
 interface KeyBiomechanicsProps {
   metrics: {
-    peakPelvisRotVel?: number; // °/s
-    peakShoulderRotVel?: number; // °/s
-    peakBatSpeed?: number; // mph
-    attackAngle?: number; // degrees
+    peakPelvisRotVel?: number | null; // °/s
+    peakShoulderRotVel?: number | null; // °/s
+    peakBatSpeed?: number | null; // mph
+    attackAngle?: number | null; // degrees
   };
 }
 
@@ -22,8 +22,8 @@ export function KeyBiomechanics({ metrics }: KeyBiomechanicsProps) {
     return null; // Don't render if no data
   }
 
-  const getStatus = (value: number | undefined, optimal: [number, number], developing: [number, number]) => {
-    if (value === undefined) return "N/A";
+  const getStatus = (value: number | undefined | null, optimal: [number, number], developing: [number, number]) => {
+    if (value === undefined || value === null) return "N/A";
     if (value >= optimal[0] && value <= optimal[1]) return "optimal";
     if (value >= developing[0] && value <= developing[1]) return "developing";
     return "needs-work";
@@ -44,12 +44,12 @@ export function KeyBiomechanics({ metrics }: KeyBiomechanicsProps) {
     tooltip 
   }: { 
     label: string; 
-    value: number | undefined; 
+    value: number | undefined | null; 
     unit: string; 
     status: string;
     tooltip: string;
   }) => {
-    if (value === undefined) return null; // Don't render row if no data
+    if (value === undefined || value === null) return null; // Don't render row if no data
     
     return (
       <div className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">

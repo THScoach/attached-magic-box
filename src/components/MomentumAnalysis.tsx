@@ -3,17 +3,17 @@ import { InfoTooltip } from "@/components/ui/info-tooltip";
 
 interface MomentumAnalysisProps {
   metrics: {
-    height?: number; // inches
-    weight?: number; // lbs
-    peakCOMVelocity?: number; // m/s
+    height?: number | null; // inches
+    weight?: number | null; // lbs
+    peakCOMVelocity?: number | null; // m/s
   };
 }
 
 export function MomentumAnalysis({ metrics }: MomentumAnalysisProps) {
   // Only show if we have height, weight, AND peakCOMVelocity
-  const hasData = metrics.height !== undefined && 
-                  metrics.weight !== undefined && 
-                  metrics.peakCOMVelocity !== undefined;
+  const hasData = metrics.height !== undefined && metrics.height !== null && 
+                  metrics.weight !== undefined && metrics.weight !== null && 
+                  metrics.peakCOMVelocity !== undefined && metrics.peakCOMVelocity !== null;
 
   if (!hasData) {
     return null; // Don't render if missing data

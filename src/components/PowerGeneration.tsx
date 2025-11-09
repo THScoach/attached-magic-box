@@ -5,23 +5,23 @@ import { Zap, CheckCircle, AlertCircle, XCircle } from "lucide-react";
 
 interface PowerGenerationProps {
   metrics: {
-    rotationalPower?: number; // Watts
-    linearPower?: number; // Watts
-    totalPower?: number; // Watts
+    rotationalPower?: number | null; // Watts
+    linearPower?: number | null; // Watts
+    totalPower?: number | null; // Watts
   };
 }
 
 export function PowerGeneration({ metrics }: PowerGenerationProps) {
   // Only show if we have power data
-  const hasData = metrics.rotationalPower !== undefined || 
-                  metrics.linearPower !== undefined || 
-                  metrics.totalPower !== undefined;
+  const hasData = (metrics.rotationalPower !== undefined && metrics.rotationalPower !== null) || 
+                  (metrics.linearPower !== undefined && metrics.linearPower !== null) || 
+                  (metrics.totalPower !== undefined && metrics.totalPower !== null);
 
   if (!hasData) {
     return null; // Don't render if no data
   }
-  const getStatus = (value: number | undefined, thresholds: { elite: number; good: number }) => {
-    if (value === undefined) return "unknown";
+  const getStatus = (value: number | undefined | null, thresholds: { elite: number; good: number }) => {
+    if (value === undefined || value === null) return "unknown";
     if (value >= thresholds.elite) return "elite";
     if (value >= thresholds.good) return "good";
     return "developing";
@@ -58,7 +58,7 @@ export function PowerGeneration({ metrics }: PowerGenerationProps) {
     tooltip
   }: {
     label: string;
-    value: number | undefined;
+    value: number | undefined | null;
     unit: string;
     icon: React.ReactNode;
     status: string;
@@ -82,7 +82,7 @@ export function PowerGeneration({ metrics }: PowerGenerationProps) {
         <span className="text-muted-foreground">{unit}</span>
       </div>
 
-      {value !== undefined && (
+      {value !== undefined && value !== null && (
         <>
           <Progress 
             value={(value / benchmark) * 100} 
@@ -116,7 +116,7 @@ export function PowerGeneration({ metrics }: PowerGenerationProps) {
       <CardContent className="space-y-6">
         {/* DETAILED METRICS GRID */}
         <div className="grid gap-4 md:grid-cols-2">
-          {metrics.rotationalPower !== undefined && (
+          {metrics.rotationalPower !== undefined && metrics.rotationalPower !== null && (
             <PowerMetric
               label="Rotational Power"
               value={metrics.rotationalPower}
@@ -130,7 +130,7 @@ export function PowerGeneration({ metrics }: PowerGenerationProps) {
             />
           )}
 
-          {metrics.linearPower !== undefined && (
+          {metrics.linearPower !== undefined && metrics.linearPower !== null && (
             <PowerMetric
               label="Linear Power"
               value={metrics.linearPower}
@@ -144,7 +144,7 @@ export function PowerGeneration({ metrics }: PowerGenerationProps) {
             />
           )}
 
-          {metrics.totalPower !== undefined && (
+          {metrics.totalPower !== undefined && metrics.totalPower !== null && (
             <PowerMetric
               label="Total Power Generated"
               value={metrics.totalPower}
