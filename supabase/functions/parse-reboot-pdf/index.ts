@@ -13,6 +13,10 @@ interface TimingData {
   maxXFactorTime: number;
 }
 
+interface ExtractedData extends TimingData {
+  reportDate?: string; // ISO date string extracted from PDF
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -77,7 +81,7 @@ serve(async (req) => {
       const base64 = btoa(binary);
       console.log('PDF converted to base64, length:', base64.length);
 
-      // Use Lovable AI to extract timing data from the PDF
+      // Use Lovable AI to extract timing data AND report date from the PDF
       console.log('Calling Lovable AI API...');
       const aiResponse = await fetch('https://api.lovable.dev/v1/ai/chat/completions', {
         method: 'POST',
@@ -91,14 +95,27 @@ serve(async (req) => {
             role: 'user',
             content: [{
               type: 'text',
-              text: `Extract timing data from this Reboot Motion PDF. Look for the "Torso Kinematics" table and extract values from the "Avg Time Before Impact" row for:
-              1. Negative Move (seconds before impact)
-              2. Max Pelvis Turn (seconds before impact)  
-              3. Max Shoulder Turn (seconds before impact)
-              4. Max X Factor (seconds before impact)
+              text: `Extract timing data AND the report date from this Reboot Motion PDF report.
+
+              1. Look for the "Torso Kinematics" table and extract values from the "Avg Time Before Impact" row for:
+                 - Negative Move (seconds before impact)
+                 - Max Pelvis Turn (seconds before impact)  
+                 - Max Shoulder Turn (seconds before impact)
+                 - Max X Factor (seconds before impact)
               
-              Return ONLY a JSON object with these numeric values: {"negativeMoveTime": X, "maxPelvisTurnTime": Y, "maxShoulderTurnTime": Z, "maxXFactorTime": W}
-              If you cannot find exact values, provide best estimates based on similar timing metrics in the document.`
+              2. Find the date of the report (usually at the top of the report or in the header)
+              
+              Return ONLY a JSON object with these values:
+              {
+                "negativeMoveTime": X,
+                "maxPelvisTurnTime": Y,
+                "maxShoulderTurnTime": Z,
+                "maxXFactorTime": W,
+                "reportDate": "YYYY-MM-DD"
+              }
+              
+              If you cannot find exact values, provide best estimates based on similar metrics in the document.
+              If you cannot find the report date, use today's date.`
             }, {
               type: 'image_url',
               image_url: {
@@ -137,28 +154,41 @@ serve(async (req) => {
       console.log('AI response received:', JSON.stringify(aiResult));
       const content = aiResult.choices[0]?.message?.content || '{}';
       
-      // Parse extracted timing data
-      let timing: TimingData;
+      // Parse extracted timing data and report date
+      let extractedData: ExtractedData;
       try {
         // Try to extract JSON from markdown code blocks or plain text
         const jsonMatch = content.match(/\{[\s\S]*\}/);
-        timing = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
-        console.log('Successfully parsed timing data:', timing);
+        extractedData = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+        console.log('Successfully parsed extracted data:', extractedData);
+        
+        // Ensure we have a valid report date
+        if (!extractedData.reportDate || !extractedData.reportDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          extractedData.reportDate = new Date().toISOString().split('T')[0];
+          console.warn('Invalid or missing report date, using today:', extractedData.reportDate);
+        }
       } catch (parseError) {
         // Fallback to placeholder data
         console.warn('Could not parse AI response, using placeholder data. Parse error:', parseError);
-        timing = {
+        extractedData = {
           negativeMoveTime: 0.956,
           maxPelvisTurnTime: 0.241,
           maxShoulderTurnTime: 0.189,
-          maxXFactorTime: 0.156
+          maxXFactorTime: 0.156,
+          reportDate: new Date().toISOString().split('T')[0]
         };
       }
 
       return new Response(
         JSON.stringify({ 
           success: true,
-          timing,
+          timing: {
+            negativeMoveTime: extractedData.negativeMoveTime,
+            maxPelvisTurnTime: extractedData.maxPelvisTurnTime,
+            maxShoulderTurnTime: extractedData.maxShoulderTurnTime,
+            maxXFactorTime: extractedData.maxXFactorTime
+          },
+          reportDate: extractedData.reportDate,
           rawAiResponse: content
         }),
         { 

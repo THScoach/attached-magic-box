@@ -15,7 +15,8 @@ import { toast } from "sonner";
 interface RebootReport {
   id: string;
   label: string;
-  uploadDate: Date;
+  uploadDate: Date; // When the PDF was uploaded
+  reportDate: Date; // Date extracted from the PDF report itself
   metrics: {
     negativeMoveTime: number; // seconds before impact
     maxPelvisTurnTime: number;
@@ -160,6 +161,10 @@ export default function RebootAnalysis() {
         maxXFactorTime: 0.156
       };
 
+      // Get the report date from the PDF or use today as fallback
+      const reportDateStr = parsedData?.reportDate || new Date().toISOString().split('T')[0];
+      const reportDate = new Date(reportDateStr);
+
       const metrics = calculateMetrics(timingData);
       const scores = calculateScores(metrics);
 
@@ -167,6 +172,7 @@ export default function RebootAnalysis() {
         id: Date.now().toString(),
         label: `Report ${reports.length + 1}`,
         uploadDate: new Date(),
+        reportDate: reportDate, // Date from the PDF report itself
         metrics: {
           ...timingData,
           ...metrics
@@ -301,7 +307,17 @@ export default function RebootAnalysis() {
               const latest = reports[reports.length - 1];
               return (
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-bold">Latest Analysis</h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">Latest Analysis</h2>
+                    <div className="text-sm text-muted-foreground">
+                      Report Date: <span className="font-semibold">{latest.reportDate.toLocaleDateString()}</span>
+                      {latest.uploadDate.toDateString() !== latest.reportDate.toDateString() && (
+                        <span className="ml-2 text-xs">
+                          (Uploaded: {latest.uploadDate.toLocaleDateString()})
+                        </span>
+                      )}
+                    </div>
+                  </div>
                   
                   {/* Metrics Overview */}
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -486,7 +502,7 @@ export default function RebootAnalysis() {
                         <option value="">Select report...</option>
                         {reports.map(r => (
                           <option key={r.id} value={r.id}>
-                            {r.label} - {r.uploadDate.toLocaleDateString()}
+                            {r.label} - {r.reportDate.toLocaleDateString()}
                           </option>
                         ))}
                       </select>
@@ -524,7 +540,7 @@ export default function RebootAnalysis() {
                       <Card>
                         <CardHeader>
                           <CardTitle className="text-lg">Before</CardTitle>
-                          <CardDescription>{comparison.before.uploadDate.toLocaleDateString()}</CardDescription>
+                          <CardDescription>{comparison.before.reportDate.toLocaleDateString()}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <div className="flex justify-between">
@@ -550,7 +566,7 @@ export default function RebootAnalysis() {
                       <Card>
                         <CardHeader>
                           <CardTitle className="text-lg">After</CardTitle>
-                          <CardDescription>{comparison.after.uploadDate.toLocaleDateString()}</CardDescription>
+                          <CardDescription>{comparison.after.reportDate.toLocaleDateString()}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <div className="flex justify-between">
