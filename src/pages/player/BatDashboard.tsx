@@ -175,7 +175,7 @@ export default function BatDashboard() {
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3">
                     <p className="text-xs text-muted-foreground mb-1">Time in Zone</p>
-                    <p className="text-lg font-bold">{batData.time_in_zone} ms</p>
+                    <p className="text-lg font-bold">{Math.round(batData.time_in_zone)}ms</p>
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3">
                     <p className="text-xs text-muted-foreground mb-1">Attack Angle</p>
@@ -189,23 +189,54 @@ export default function BatDashboard() {
                 <p className="text-xs text-muted-foreground">
                   Bat metrics are calculated from video analysis. Connect a bat sensor for more precise measurements.
                 </p>
+                
+                <div className="flex justify-end">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/external-session-upload`)}
+                  >
+                    📤 Upload New Data
+                  </Button>
+                </div>
               </>
             ) : (
               <div className="space-y-3">
                 <div className="bg-muted/30 rounded-lg p-4 text-center">
                   <Target className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
                   <p className="text-sm text-muted-foreground mb-3">
-                    No bat sensor data yet. Bat metrics are estimated from video analysis or tracked with external sensors.
+                    No bat sensor data yet. Upload bat sensor data to track bat metrics.
                   </p>
-                  <div className="space-y-2 text-xs text-left bg-background rounded-lg p-3">
-                    <p className="font-semibold">Supported Bat Sensors:</p>
-                    <ul className="space-y-1 ml-4">
-                      <li>• <strong>Blast Motion:</strong> Bat speed, attack angle, time to contact</li>
-                      <li>• <strong>Diamond Kinetics:</strong> Bat speed, swing plane, power</li>
-                      <li>• <strong>Zepp:</strong> Bat speed, hand speed, attack angle</li>
-                      <li>• <strong>HitTrax:</strong> Integrated bat + ball metrics</li>
-                    </ul>
+                  
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <h4 className="font-semibold text-sm mb-1">🏏 Blast Motion</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Upload CSV from Blast app
+                      </p>
+                    </div>
+                    
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <h4 className="font-semibold text-sm mb-1">⚾ Diamond Kinetics</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Upload CSV from DK app
+                      </p>
+                    </div>
+                    
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <h4 className="font-semibold text-sm mb-1">📊 K-Motion</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Upload CSV from K-Motion
+                      </p>
+                    </div>
                   </div>
+                  
+                  <Button 
+                    className="w-full"
+                    onClick={() => navigate(`/external-session-upload`)}
+                  >
+                    📤 Upload Bat Sensor Data
+                  </Button>
                 </div>
               </div>
             )}
@@ -251,7 +282,7 @@ export default function BatDashboard() {
                 </p>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Target: Maximize</span>
-                  <span className="font-medium">{batData ? `${batData.time_in_zone}ms` : "Not Measured"}</span>
+                  <span className="font-medium">{batData ? `${Math.round(batData.time_in_zone)}ms` : "Not Measured"}</span>
                 </div>
               </div>
             </div>

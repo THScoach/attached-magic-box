@@ -93,6 +93,75 @@ export default function BodyDashboard() {
           <MomentumMetrics analysis={latest} />
         )}
 
+        {latest && metrics?.momentum && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Kinematic Sequence</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                The body generates power through sequential rotation:
+              </p>
+              
+              <div className="flex items-center justify-center gap-2 md:gap-4 mb-4">
+                <div className="flex-1 text-center">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-blue-500 mx-auto flex items-center justify-center text-2xl mb-2">
+                    🔄
+                  </div>
+                  <p className="font-semibold text-sm">Pelvis</p>
+                  <p className="text-xs text-muted-foreground mb-1">First to rotate</p>
+                  <p className="text-sm font-bold">
+                    {metrics.momentum.pelvis_peak_velocity || "—"} deg/s
+                  </p>
+                </div>
+                
+                <span className="text-2xl text-muted-foreground">→</span>
+                
+                <div className="flex-1 text-center">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-green-500 mx-auto flex items-center justify-center text-2xl mb-2">
+                    💪
+                  </div>
+                  <p className="font-semibold text-sm">Upper Torso</p>
+                  <p className="text-xs text-muted-foreground mb-1">Second to rotate</p>
+                  <p className="text-sm font-bold">
+                    {metrics.momentum.upper_torso_peak_velocity || "—"} deg/s
+                  </p>
+                </div>
+                
+                <span className="text-2xl text-muted-foreground">→</span>
+                
+                <div className="flex-1 text-center">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-yellow-500 mx-auto flex items-center justify-center text-2xl mb-2">
+                    💪
+                  </div>
+                  <p className="font-semibold text-sm">Arm</p>
+                  <p className="text-xs text-muted-foreground mb-1">Third to rotate</p>
+                  <p className="text-sm font-bold">
+                    {metrics.momentum.arm_peak_velocity || "—"} deg/s
+                  </p>
+                </div>
+                
+                <span className="text-2xl text-muted-foreground">→</span>
+                
+                <div className="flex-1 text-center">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-red-500 mx-auto flex items-center justify-center text-2xl mb-2">
+                    🏏
+                  </div>
+                  <p className="font-semibold text-sm">Bat</p>
+                  <p className="text-xs text-muted-foreground mb-1">Last to accelerate</p>
+                  <p className="text-sm font-bold">
+                    {metrics.momentum.bat_peak_velocity || "—"} mph
+                  </p>
+                </div>
+              </div>
+              
+              <div className="bg-primary/10 border-l-4 border-primary p-3 rounded italic text-sm">
+                "Elite hitters generate power from the ground up. The pelvis leads, torso follows, then arms, and finally the bat whips through the zone."
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {!latest && (
           <Card>
             <CardContent className="p-8 text-center">

@@ -207,44 +207,64 @@ export default function BallDashboard() {
           </CardContent>
         </Card>
 
-        {/* The Chain */}
+        {/* Ball Flight Trajectory */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">The Kinematic Chain</CardTitle>
+            <CardTitle className="text-base">Ball Flight Trajectory</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
-              The ball is the final result of the entire kinematic chain:
+              From contact to landing, tracking the ball's path:
             </p>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-3">
-                <span className="text-2xl">🧠</span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Brain decides WHEN to swing</p>
+            <div className="flex items-center justify-center gap-2 md:gap-4 mb-4">
+              <div className="flex-1 text-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary mx-auto flex items-center justify-center text-2xl mb-2">
+                  🚀
+                </div>
+                <p className="font-semibold text-sm mb-1">Launch</p>
+                <p className="text-xs text-muted-foreground mb-2">Contact point</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Exit Velo</p>
+                  <p className="text-sm font-bold">
+                    {ballData?.exit_velocity || "—"} mph
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-3">
-                <span className="text-2xl">💪</span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Body generates rotational power</p>
+              
+              <span className="text-2xl text-muted-foreground">→</span>
+              
+              <div className="flex-1 text-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary/60 mx-auto flex items-center justify-center text-2xl mb-2">
+                  ⚾
+                </div>
+                <p className="font-semibold text-sm mb-1">Flight</p>
+                <p className="text-xs text-muted-foreground mb-2">In the air</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Launch Angle</p>
+                  <p className="text-sm font-bold">
+                    {ballData?.launch_angle_grade ? `${ballData.launch_angle_grade}°` : "—"}
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-3">
-                <span className="text-2xl">🏏</span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Bat delivers energy to ball</p>
+              
+              <span className="text-2xl text-muted-foreground">→</span>
+              
+              <div className="flex-1 text-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary/80 mx-auto flex items-center justify-center text-2xl mb-2">
+                  🎯
                 </div>
-              </div>
-              <div className="flex items-center gap-3 bg-primary/10 rounded-lg p-3 border-2 border-primary">
-                <span className="text-2xl">⚾</span>
-                <div className="flex-1">
-                  <p className="text-sm font-bold">Ball exits at high velocity</p>
+                <p className="font-semibold text-sm mb-1">Impact</p>
+                <p className="text-xs text-muted-foreground mb-2">Landing point</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Result</p>
+                  <p className="text-sm font-bold">Hit</p>
                 </div>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-4">
-              To improve ball flight, we must optimize each link in the chain!
-            </p>
+            
+            <div className="bg-primary/10 border-l-4 border-primary p-3 rounded italic text-sm">
+              "Optimal launch conditions: 90+ mph exit velo, 15-30° launch angle for line drives and fly balls."
+            </div>
           </CardContent>
         </Card>
 
