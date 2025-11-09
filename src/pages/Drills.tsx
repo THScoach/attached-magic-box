@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { DrillCard } from "@/components/DrillCard";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
+import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -72,6 +73,7 @@ export default function Drills() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <PlayerProfileHeader playerId={selectedPlayerId} />
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
         <h1 className="text-2xl font-bold mb-2">Drill Library</h1>

@@ -12,6 +12,7 @@ import { AthleteScheduleCalendar } from "@/components/AthleteScheduleCalendar";
 import { AthleteCommunications } from "@/components/AthleteCommunications";
 import { AthletePrograms } from "@/components/AthletePrograms";
 import { AthleteItems } from "@/components/AthleteItems";
+import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { ArrowLeft, User, TrendingUp, Upload, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -108,6 +109,7 @@ export default function PlayerProfile() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <PlayerProfileHeader playerId={playerId} />
       {/* Header */}
       <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-background px-6 pt-8 pb-6">
         <Button

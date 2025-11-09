@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { BatMetricsView } from "@/components/BatMetricsView";
 import { BodyMetricsView } from "@/components/BodyMetricsView";
@@ -172,6 +173,7 @@ export default function Progress() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <PlayerProfileHeader />
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
         <div className="flex items-center justify-between mb-2">

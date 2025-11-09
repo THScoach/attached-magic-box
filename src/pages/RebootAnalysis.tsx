@@ -16,6 +16,7 @@ import { PowerGeneration } from "@/components/PowerGeneration";
 import { RebootComparisonView } from "@/components/RebootComparisonView";
 import { CoachRickInsightCard } from "@/components/CoachRickInsightCard";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
+import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -655,6 +656,7 @@ export default function RebootAnalysis() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <PlayerProfileHeader />
       {/* Header */}
       <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-background px-6 pt-8 pb-6 border-b">
         <Button

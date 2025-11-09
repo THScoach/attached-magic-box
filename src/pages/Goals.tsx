@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Target, TrendingUp, ArrowLeft } from "lucide-react";
 import { GoalSetting } from "@/components/GoalSetting";
 import { GoalTracker } from "@/components/GoalTracker";
+import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { BottomNav } from "@/components/BottomNav";
@@ -88,6 +89,7 @@ export default function Goals() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <PlayerProfileHeader />
       {/* Header */}
       <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-background px-6 pt-8 pb-6">
         <div className="flex items-center gap-4 mb-4">

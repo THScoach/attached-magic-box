@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { PlayerSelector } from "@/components/PlayerSelector";
 import { SyncRecording } from "@/components/SyncRecording";
 import { VideoTagModal } from "@/components/VideoTagModal";
+import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { Upload, Camera, Loader2, X, Circle, Square, SwitchCamera, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -805,6 +806,7 @@ export default function Analyze() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <PlayerProfileHeader playerId={selectedPlayerId} />
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
         <h1 className="text-2xl font-bold mb-2">Analyze Your Swing</h1>

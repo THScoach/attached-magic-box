@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VideoReportCard } from "@/components/VideoReportCard";
 import { ProgressReportGenerator } from "@/components/ProgressReportGenerator";
+import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { usePlayerAnalyses } from "@/hooks/usePlayerAnalyses";
 import { useReportSchedules } from "@/hooks/useReportSchedules";
@@ -167,6 +168,7 @@ export default function Reports() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <PlayerProfileHeader playerId={selectedPlayerId} />
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
         <h1 className="text-2xl font-bold mb-2">Progress Reports</h1>
         <p className="text-muted-foreground">

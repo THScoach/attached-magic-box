@@ -30,6 +30,7 @@ import { SimplifiedSequenceBar } from "@/components/SimplifiedSequenceBar";
 import { SimplifiedBatSummary } from "@/components/SimplifiedBatSummary";
 import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
 import { VideoTempoOverlay } from "@/components/VideoTempoOverlay";
+import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { detectSwingPhases, type PhaseDetectionResult } from "@/lib/swingPhaseDetection";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -764,6 +765,7 @@ export default function AnalysisResult() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
+      <PlayerProfileHeader playerId={playerId} />
       {/* Header */}
       <div className="bg-gradient-to-br from-engine/20 via-anchor/10 to-whip/10 px-6 pt-8 pb-6">
         <div className="flex items-start justify-between gap-4">
