@@ -28,19 +28,16 @@ import { BatMetricsView } from "@/components/BatMetricsView";
 import { BallMetricsView } from "@/components/BallMetricsView";
 import { SimplifiedSequenceBar } from "@/components/SimplifiedSequenceBar";
 import { SimplifiedBatSummary } from "@/components/SimplifiedBatSummary";
-import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
-import { RebootStyleMetrics } from "@/components/RebootStyleMetrics";
 import { MomentumAnalysis } from "@/components/MomentumAnalysis";
 import { PowerGeneration } from "@/components/PowerGeneration";
 import { KeyBiomechanics } from "@/components/KeyBiomechanics";
-import { KinematicSequenceBarChart } from "@/components/KinematicSequenceBarChart";
 import { VideoTempoOverlay } from "@/components/VideoTempoOverlay";
 import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { detectSwingPhases, type PhaseDetectionResult } from "@/lib/swingPhaseDetection";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward, BarChart3, Clock } from "lucide-react";
+import { ChevronDown, ChevronUp, Target, Play, Pause, MessageCircle, TrendingUp, ChevronLeft, ChevronRight, SkipBack, SkipForward, BarChart3 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { SwingAnalysis } from "@/types/swing";
 import { mockDrills } from "@/lib/mockAnalysis";
@@ -1088,44 +1085,22 @@ export default function AnalysisResult() {
           />
         )}
 
-        {/* 4 B's Performance Breakdown - Reboot Style */}
+        {/* Video Analysis Biomechanics */}
         <section className="space-y-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Comprehensive Biomechanics</h2>
+            <h2 className="text-2xl font-bold">Video Analysis Biomechanics</h2>
             <Badge variant="outline" className="text-xs">
-              Reboot Motion Style Analysis
+              From H.I.T.S. Video Analysis
             </Badge>
           </div>
 
-          {/* Tempo & Timing Analysis */}
-          <Card className="p-6">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Tempo & Kinematic Sequence
-            </h3>
-            <div className="space-y-6">
-              <TempoRatioCard
-                tempoRatio={analysis.tempoRatio || 3.0}
-                loadStartTiming={analysis.loadStartTiming}
-                fireStartTiming={analysis.fireStartTiming}
-                dataSource="hits_video"
-              />
-              {analysis.pelvisMaxVelocity && analysis.torsoMaxVelocity && (
-                <KinematicSequenceBarChart
-                  metrics={{
-                    maxPelvisTurnTime: analysis.pelvisTiming || 0,
-                    maxShoulderTurnTime: analysis.torsoTiming || 0,
-                    peakPelvisRotVel: analysis.pelvisMaxVelocity,
-                    peakShoulderRotVel: analysis.torsoMaxVelocity,
-                    peakArmRotVel: analysis.armMaxVelocity,
-                  }}
-                />
-              )}
-            </div>
-          </Card>
-
-          {/* Reboot-Style Metrics */}
-          <RebootStyleMetrics analysis={analysis} />
+          {/* Tempo Analysis */}
+          <TempoRatioCard
+            tempoRatio={analysis.tempoRatio || 3.0}
+            loadStartTiming={analysis.loadStartTiming}
+            fireStartTiming={analysis.fireStartTiming}
+            dataSource="hits_video"
+          />
 
           {/* Momentum Analysis */}
           {(analysis.pelvisMaxVelocity || analysis.torsoMaxVelocity) && (
