@@ -156,14 +156,18 @@ export default function RebootAnalysis() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Use selected player ID if available, otherwise use current user ID
-      const targetUserId = selectedPlayerId || user.id;
-
-      const { data, error } = await supabase
+      // Build query based on whether a player is selected
+      let query = supabase
         .from('reboot_reports')
         .select('*')
-        .eq('user_id', targetUserId)
-        .order('report_date', { ascending: false });
+        .eq('user_id', user.id); // Always filter by the authenticated user
+      
+      // If a player is selected, also filter by player_id
+      if (selectedPlayerId) {
+        query = query.eq('player_id', selectedPlayerId);
+      }
+      
+      const { data, error } = await query.order('report_date', { ascending: false });
 
       if (error) throw error;
 
