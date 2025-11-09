@@ -53,6 +53,7 @@ import TierDemo from "./pages/TierDemo";
 import FourBsScorecard from "./pages/FourBsScorecard";
 import FourBApp from "./pages/FourBApp";
 import BrainDashboard from "./pages/BrainDashboard";
+import SimpleTempoReport from "./pages/SimpleTempoReport";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
@@ -307,6 +308,7 @@ const App = () => {
             <Route path="/4bs" element={<ProtectedRoute><FourBsScorecard /></ProtectedRoute>} />
             <Route path="/scorecard" element={<ProtectedRoute><FourBsScorecard /></ProtectedRoute>} />
             <Route path="/brain/:playerId" element={<ProtectedRoute><BrainDashboard /></ProtectedRoute>} />
+            <Route path="/simple-tempo" element={<SimpleTempoReport />} />
             <Route path="/tier-demo" element={<TierDemo />} />
             
             <Route path="*" element={<NotFound />} />
