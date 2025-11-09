@@ -92,14 +92,15 @@ export default function CSVImport({ playerId, importType, onSuccess }: CSVImport
 
   const mapCSVToBallMetrics = (row: any) => {
     // Map common CSV column names to our schema
+    // HitTrax uses "Velo" for exit velocity, "LA" for launch angle, "Dist" for distance
     return {
-      exit_velocity: row['exit_velocity'] || row['exit_velo'] || row['exitvelocity'] || row['ev'],
+      exit_velocity: row['exit_velocity'] || row['exit_velo'] || row['exitvelocity'] || row['ev'] || row['velo'],
       launch_angle: row['launch_angle'] || row['launchangle'] || row['la'],
       distance: row['distance'] || row['dist'],
-      hard_hit_percentage: row['hard_hit_percentage'] || row['hardhit%'],
-      line_drive_percentage: row['line_drive_percentage'] || row['ld%'],
-      fly_ball_percentage: row['fly_ball_percentage'] || row['fb%'],
-      ground_ball_percentage: row['ground_ball_percentage'] || row['gb%'],
+      hard_hit_percentage: row['hard_hit_percentage'] || row['hardhit%'] || row['hard_hit_%'],
+      line_drive_percentage: row['line_drive_percentage'] || row['ld%'] || row['line_drive_%'],
+      fly_ball_percentage: row['fly_ball_percentage'] || row['fb%'] || row['fly_ball_%'],
+      ground_ball_percentage: row['ground_ball_percentage'] || row['gb%'] || row['ground_ball_%'],
     };
   };
 
@@ -135,6 +136,12 @@ export default function CSVImport({ playerId, importType, onSuccess }: CSVImport
         try {
           if (importType === "ball") {
             const mapped = mapCSVToBallMetrics(rows[i]);
+            
+            // Skip rows with no exit velocity data
+            if (!mapped.exit_velocity || mapped.exit_velocity === 0) {
+              continue;
+            }
+            
             const validated = ballMetricsSchema.parse(mapped);
 
             const { error } = await supabase.from("ball_metrics").insert({
@@ -151,6 +158,12 @@ export default function CSVImport({ playerId, importType, onSuccess }: CSVImport
             if (error) throw error;
           } else {
             const mapped = mapCSVToBatMetrics(rows[i]);
+            
+            // Skip rows with no bat speed data
+            if (!mapped.bat_speed || mapped.bat_speed === 0) {
+              continue;
+            }
+            
             const validated = batMetricsSchema.parse(mapped);
 
             const { error } = await supabase.from("bat_metrics").insert({
@@ -169,6 +182,17 @@ export default function CSVImport({ playerId, importType, onSuccess }: CSVImport
           errorCount++;
           validationErrors.push(`Row ${i + 1}: ${error.message}`);
         }
+      }
+      
+      // Provide helpful feedback if no data was imported
+      if (successCount === 0 && errorCount === 0) {
+        if (importType === "ball") {
+          toast.error("No exit velocity data found in CSV. Please ensure your export includes ball tracking metrics.");
+        } else {
+          toast.error("No bat speed data found in CSV. Please ensure your export includes bat sensor metrics.");
+        }
+        setLoading(false);
+        return;
       }
 
       if (successCount > 0) {
@@ -191,9 +215,9 @@ export default function CSVImport({ playerId, importType, onSuccess }: CSVImport
   const getExpectedColumns = () => {
     if (importType === "ball") {
       return [
-        { name: "exit_velocity", required: true, example: "92.5" },
-        { name: "launch_angle", required: false, example: "15.2" },
-        { name: "distance", required: false, example: "320" },
+        { name: "exit_velocity (or 'velo', 'ev')", required: true, example: "92.5" },
+        { name: "launch_angle (or 'la')", required: false, example: "15.2" },
+        { name: "distance (or 'dist')", required: false, example: "320" },
         { name: "hard_hit_percentage", required: false, example: "65.5" },
         { name: "line_drive_percentage", required: false, example: "25.0" },
         { name: "fly_ball_percentage", required: false, example: "45.0" },
@@ -201,9 +225,9 @@ export default function CSVImport({ playerId, importType, onSuccess }: CSVImport
       ];
     } else {
       return [
-        { name: "bat_speed", required: true, example: "72.3" },
-        { name: "time_in_zone", required: false, example: "87" },
-        { name: "attack_angle", required: false, example: "15.5" },
+        { name: "bat_speed (or 'speed')", required: true, example: "72.3" },
+        { name: "time_in_zone (or 'tiz')", required: false, example: "87" },
+        { name: "attack_angle (or 'aa')", required: false, example: "15.5" },
       ];
     }
   };
@@ -251,9 +275,9 @@ export default function CSVImport({ playerId, importType, onSuccess }: CSVImport
                   </tr>
                 </thead>
                 <tbody>
-                  {getExpectedColumns().map((col) => (
-                    <tr key={col.name} className="border-b">
-                      <td className="p-2 font-mono">{col.name}</td>
+                  {getExpectedColumns().map((col, idx) => (
+                    <tr key={idx} className="border-b">
+                      <td className="p-2 font-mono text-xs">{col.name}</td>
                       <td className="p-2">
                         {col.required ? (
                           <span className="text-red-500">Yes</span>
@@ -267,9 +291,21 @@ export default function CSVImport({ playerId, importType, onSuccess }: CSVImport
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-muted-foreground mt-3">
-              Note: Column names are case-insensitive. Alternative names are supported (e.g., "exit_velo", "ev").
-            </p>
+            <div className="mt-3 space-y-2">
+              <p className="text-xs text-muted-foreground">
+                Column names are case-insensitive. Alternative names shown in parentheses.
+              </p>
+              {importType === "ball" && (
+                <Alert className="bg-blue-500/10 border-blue-500/20">
+                  <AlertCircle className="h-4 w-4 text-blue-500" />
+                  <AlertDescription className="text-xs">
+                    <strong>HitTrax Users:</strong> Ensure your export includes exit velocity data. 
+                    Some HitTrax exports only include pitch data. You need ball tracking metrics 
+                    (exit velocity, launch angle, distance) from the swing analysis export.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
           </div>
 
           {/* Preview */}
