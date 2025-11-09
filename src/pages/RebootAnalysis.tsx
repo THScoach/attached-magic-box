@@ -695,34 +695,32 @@ export default function RebootAnalysis() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">4B Motion Analysis</h1>
-            <p className="text-muted-foreground">
-              Reboot Motion 3D Tempo Calculator & Progress Tracker
-            </p>
-          </div>
-          <Badge variant="outline" className="text-xs">
-            📊 Powered by Reboot Motion
-          </Badge>
-        </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <Tabs defaultValue="upload" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="upload">Upload PDF</TabsTrigger>
-            <TabsTrigger value="video">
-              <Target className="h-4 w-4 mr-2" />
-              Video Capture
-            </TabsTrigger>
+            <TabsTrigger value="video">Video Capture</TabsTrigger>
             <TabsTrigger value="compare">Compare</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
 
           {/* Upload Tab */}
           <TabsContent value="upload" className="space-y-6">
+            {/* Tab Header */}
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">4B Motion Analysis</h2>
+                <p className="text-muted-foreground">
+                  Reboot Motion 3D Tempo Calculator & Progress Tracker
+                </p>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                📊 Powered by Reboot Motion
+              </Badge>
+            </div>
+
             {loading ? (
               <Card>
                 <CardContent className="py-12">
@@ -1020,6 +1018,19 @@ export default function RebootAnalysis() {
 
           {/* Video Capture Tab */}
           <TabsContent value="video" className="space-y-6">
+            {/* Tab Header */}
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-2">Video Analysis</h2>
+                <p className="text-muted-foreground">
+                  AI-Powered Swing Analysis from Video
+                </p>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                🤖 Powered by 4B Motion AI
+              </Badge>
+            </div>
+
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
@@ -1170,10 +1181,54 @@ export default function RebootAnalysis() {
                 }}
               />
             )}
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or
+                </span>
+              </div>
+            </div>
+
+            {/* Upload Existing Video */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload Existing Video</CardTitle>
+                <CardDescription>
+                  Upload a pre-recorded video for analysis
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={() => navigate(selectedPlayerId ? `/upload/video/${selectedPlayerId}` : '/upload/video')}
+                  variant="outline"
+                  className="w-full"
+                  size="lg"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Video File
+                </Button>
+                <p className="text-sm text-muted-foreground mt-3">
+                  💡 240fps recommended, but we'll do our best with any frame rate!
+                </p>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Compare Tab */}
           <TabsContent value="compare" className="space-y-6">
+            {/* Tab Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">Compare Swings</h2>
+              <p className="text-muted-foreground">
+                Side-by-Side Analysis
+              </p>
+            </div>
+
             {reports.length < 2 ? (
               <Card>
                 <CardContent className="py-12 text-center">
@@ -1335,7 +1390,15 @@ export default function RebootAnalysis() {
 
           {/* History Tab */}
           <TabsContent value="history" className="space-y-6">
-            <FourBMotionAnalysis playerId={undefined} />
+            {/* Tab Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">Analysis History</h2>
+              <p className="text-muted-foreground">
+                All Past Swings
+              </p>
+            </div>
+
+            <FourBMotionAnalysis playerId={selectedPlayerId ?? undefined} onUpload={undefined} />
           </TabsContent>
         </Tabs>
       </div>

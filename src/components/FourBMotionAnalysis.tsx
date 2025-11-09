@@ -106,14 +106,21 @@ export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMot
       <Card className="p-8 text-center">
         <CardHeader>
           <CardTitle>4B Motion Analysis</CardTitle>
-          <CardDescription>Upload your Reboot Motion file to unlock 4B Motion Analysis</CardDescription>
+          <CardDescription>
+            {onUpload 
+              ? 'Upload your Reboot Motion file to unlock 4B Motion Analysis'
+              : 'No Reboot Motion reports uploaded yet. Go to the Upload PDF tab to add reports.'
+            }
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Button onClick={onUpload} className="mt-4">
-            <Upload className="h-4 w-4 mr-2" />
-            Upload Reboot Report
-          </Button>
-        </CardContent>
+        {onUpload && (
+          <CardContent>
+            <Button onClick={onUpload} className="mt-4">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Reboot Report
+            </Button>
+          </CardContent>
+        )}
       </Card>
     );
   }
@@ -252,14 +259,16 @@ export function FourBMotionAnalysis({ rebootData, playerId, onUpload }: FourBMot
                     ))}
                   </SelectContent>
                 </Select>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={onUpload}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload New
-                </Button>
+                {onUpload && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={onUpload}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload New
+                  </Button>
+                )}
               </div>
             )}
           </div>
