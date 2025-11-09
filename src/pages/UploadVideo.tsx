@@ -70,35 +70,29 @@ export default function UploadVideo() {
       if (uploadError) throw uploadError;
 
       toast.dismiss();
-      toast.loading('Analyzing video...');
-
+      toast.success('Video uploaded successfully!');
+      
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('swing-videos')
         .getPublicUrl(fileName);
 
-      // Call analysis edge function
-      const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-swing', {
-        body: { 
-          videoUrl: publicUrl,
-          playerId: playerId,
-          swingType: swingType,
-          notes: notes,
-          fileName: fileName
-        }
-      });
-
-      if (analysisError) throw analysisError;
-
-      toast.dismiss();
-      toast.success('Video analyzed successfully!');
+      // Navigate to RebootAnalysis with video info to trigger analysis
+      // Store the video data in sessionStorage so RebootAnalysis can pick it up
+      sessionStorage.setItem('uploadedVideoUrl', publicUrl);
+      sessionStorage.setItem('uploadedVideoType', swingType);
+      sessionStorage.setItem('uploadedVideoNotes', notes);
+      sessionStorage.setItem('selectedPlayerId', playerId);
       
-      // Navigate to analysis result
-      if (analysisData?.analysisId) {
-        navigate(`/result/${analysisData.analysisId}`);
-      } else {
-        navigate(`/player/${playerId}`, { state: { tab: 'video' } });
-      }
+      navigate('/reboot-analysis', { 
+        state: { 
+          videoUrl: publicUrl,
+          swingType,
+          notes,
+          playerId,
+          autoAnalyze: true 
+        } 
+      });
     } catch (error: any) {
       console.error('Upload error:', error);
       toast.dismiss();
@@ -218,7 +212,7 @@ export default function UploadVideo() {
               {uploading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
+                  Uploading...
                 </>
               ) : (
                 <>
