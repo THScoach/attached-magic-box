@@ -381,11 +381,8 @@ export default function AdminPlayerDetail() {
           {analyses.length > 0 ? (
             <Card>
               <CardHeader>
-                <CardTitle>All Swing Analyses ({analyses.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {/* Toolbar */}
-                <div className="flex items-center gap-2 mb-4 pb-4 border-b">
+                <div className="flex items-center justify-between">
+                  <CardTitle>All Swing Analyses ({analyses.length})</CardTitle>
                   <Button
                     onClick={() => navigate('/reboot-analysis')}
                     variant="outline"
@@ -396,6 +393,8 @@ export default function AdminPlayerDetail() {
                     4B Motion Analysis
                   </Button>
                 </div>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-3">
                   {analyses.map(analysis => (
                     <div
