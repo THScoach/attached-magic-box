@@ -997,11 +997,12 @@ export default function RebootAnalysis() {
                         
                         try {
                           setAnalyzingVideo(true);
-                          toast.loading('Uploading video...');
+                          toast.loading('Uploading video...', { id: 'upload-video' });
                           
                           const { data: { user } } = await supabase.auth.getUser();
                           if (!user) throw new Error('Not authenticated');
                           
+                          // Upload video to storage
                           const fileName = `${user.id}/${Date.now()}_${file.name}`;
                           const { error: uploadError } = await supabase.storage
                             .from('swing-videos')
@@ -1013,9 +1014,35 @@ export default function RebootAnalysis() {
                             .from('swing-videos')
                             .getPublicUrl(fileName);
                           
+                          // Extract frames from video
+                          toast.loading('Extracting frames...', { id: 'upload-video' });
+                          const { detectPoseInFrames } = await import('@/lib/videoAnalysis');
+                          
+                          const poseData = await detectPoseInFrames(file, (progress) => {
+                            console.log('Pose detection progress:', progress);
+                          });
+                          
+                          if (!poseData || poseData.length === 0) {
+                            throw new Error('No pose data detected in video');
+                          }
+                          
+                          // Convert pose data to frames format
+                          const frames = poseData.map(frame => ({
+                            timestamp: frame.timestamp,
+                            keypoints: frame.keypoints.map(kp => ({
+                              name: kp.name,
+                              x: kp.x,
+                              y: kp.y,
+                              confidence: kp.score
+                            }))
+                          }));
+                          
+                          // Analyze swing with frames
+                          toast.loading('Analyzing swing mechanics...', { id: 'upload-video' });
                           const { error: analysisError } = await supabase.functions
                             .invoke('analyze-swing', {
                               body: {
+                                frames,
                                 videoUrl: publicUrl,
                                 playerId: selectedPlayerId,
                                 userId: user.id,
@@ -1024,6 +1051,7 @@ export default function RebootAnalysis() {
                           
                           if (analysisError) throw analysisError;
                           
+                          toast.dismiss('upload-video');
                           toast.success('Video uploaded and analyzed!');
                           setCaptureMode(null);
                           setActiveTab('history');
@@ -1031,6 +1059,7 @@ export default function RebootAnalysis() {
                           
                         } catch (error) {
                           console.error('Error uploading video:', error);
+                          toast.dismiss('upload-video');
                           toast.error('Failed to upload video');
                         } finally {
                           setAnalyzingVideo(false);
