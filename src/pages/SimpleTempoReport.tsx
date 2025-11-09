@@ -110,7 +110,6 @@ export default function SimpleTempoReport() {
             loadMs={tempoData.loadMs}
             fireMs={tempoData.fireMs}
             ratio={tempoData.ratio}
-            zone={tempoData.zone}
           />
 
           {/* Section 2: What This Means (Context) */}

@@ -17,6 +17,9 @@ import { RebootComparisonView } from "@/components/RebootComparisonView";
 import { CoachRickInsightCard } from "@/components/CoachRickInsightCard";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
+import { TempoHero } from "@/components/tempo/TempoHero";
+import { TempoContext } from "@/components/tempo/TempoContext";
+import { TempoTrainingPlan } from "@/components/tempo/TempoTrainingPlan";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -878,6 +881,24 @@ export default function RebootAnalysis() {
                      }}
                      loading={loadingInsights}
                    />
+
+                   {/* Tempo Visualization */}
+                   <div className="space-y-4">
+                     <TempoHero 
+                       loadMs={latest.metrics.loadDuration}
+                       fireMs={latest.metrics.fireDuration}
+                       ratio={latest.metrics.tempoRatio}
+                     />
+                     <TempoContext 
+                       context="practice"
+                       ratio={latest.metrics.tempoRatio}
+                     />
+                     <TempoTrainingPlan 
+                       currentZone={latest.scores.archetype === "Elite Whipper" ? 3 : 
+                                    latest.scores.archetype === "Spinner" ? 2 : 1}
+                       currentRatio={latest.metrics.tempoRatio}
+                     />
+                   </div>
 
                    {/* Kinematic Sequence Bar Chart */}
                    <KinematicSequenceBarChart metrics={latest.metrics} />

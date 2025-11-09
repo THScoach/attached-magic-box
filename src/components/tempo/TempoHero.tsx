@@ -5,10 +5,9 @@ interface TempoHeroProps {
   loadMs: number;
   fireMs: number;
   ratio: number;
-  zone: number;
 }
 
-export function TempoHero({ loadMs, fireMs, ratio, zone }: TempoHeroProps) {
+export function TempoHero({ loadMs, fireMs, ratio }: TempoHeroProps) {
   // Calculate bar widths based on load and fire times
   const totalMs = loadMs + fireMs;
   const loadWidth = (loadMs / totalMs) * 100;
