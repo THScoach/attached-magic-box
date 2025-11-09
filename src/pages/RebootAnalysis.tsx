@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock, Trash2, Info } from "lucide-react";
+import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock, Trash2, Info, Video, FileText, AlertCircle, Loader2 } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
 import { KinematicSequenceBarChart } from "@/components/KinematicSequenceBarChart";
@@ -26,6 +26,11 @@ import { ImpactSyncRecorder } from "@/components/ImpactSyncRecorder";
 import { ImpactSyncAnalysis } from "@/components/ImpactSyncAnalysis";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CardFooter } from "@/components/ui/card";
+import { AlertTitle } from "@/components/ui/alert";
 
 interface RebootReport {
   id: string;
@@ -139,13 +144,47 @@ export default function RebootAnalysis() {
   const [enableAudioDetection, setEnableAudioDetection] = useState(false);
   const [analyzingVideo, setAnalyzingVideo] = useState(false);
   const [justAnalyzedVideo, setJustAnalyzedVideo] = useState(false);
-  const [activeTab, setActiveTab] = useState("upload");
+  const [activeTab, setActiveTab] = useState("capture");
+  const [captureMode, setCaptureMode] = useState<null | 'video-capture' | 'video-upload' | 'pdf-upload'>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [swingType, setSwingType] = useState("batting practice");
+  const [reportDate, setReportDate] = useState(new Date().toISOString().split('T')[0]);
+  const [notes, setNotes] = useState("");
 
   // Get selected player ID on mount
   useEffect(() => {
     const playerId = sessionStorage.getItem('selectedPlayerId');
     setSelectedPlayerId(playerId);
   }, []);
+
+  // Handler for Impact-Sync recording complete
+  const handleImpactSyncRecording = (recording: any) => {
+    setImpactSyncRecording(recording);
+    toast.success('Recording captured! Starting analysis...');
+  };
+
+  // Handler for analysis complete
+  const handleAnalysisComplete = async (result: any) => {
+    try {
+      toast.success('Analysis complete!');
+      
+      // Clear recording state
+      setImpactSyncRecording(null);
+      setCaptureMode(null);
+      
+      // Switch to history tab
+      setActiveTab('history');
+      
+      // Reload reports
+      await loadReports();
+      
+      // Mark as just analyzed
+      setJustAnalyzedVideo(true);
+    } catch (error) {
+      console.error('Error handling analysis complete:', error);
+      toast.error('Failed to process analysis result');
+    }
+  };
 
   // Check for video upload data and auto-analyze
   useEffect(() => {
@@ -239,6 +278,7 @@ export default function RebootAnalysis() {
       setJustAnalyzedVideo(true);
       
       // Switch to history tab to show the new analysis
+      setCaptureMode(null);
       setActiveTab("history");
       
       // Reload reports to show new analysis
@@ -799,340 +839,350 @@ export default function RebootAnalysis() {
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="upload">Upload PDF</TabsTrigger>
-            <TabsTrigger value="video">Video Capture</TabsTrigger>
-            <TabsTrigger value="compare">Compare</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="capture">Capture</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
+            <TabsTrigger value="compare">Compare</TabsTrigger>
           </TabsList>
 
-          {/* Upload Tab */}
-          <TabsContent value="upload" className="space-y-6">
-            {/* Tab Header */}
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold mb-2">4B Motion Analysis</h2>
-                <p className="text-muted-foreground">
-                  Reboot Motion 3D Tempo Calculator & Progress Tracker
-                </p>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                📊 Powered by Reboot Motion
-              </Badge>
-            </div>
+          <TabsContent value="capture" className="space-y-6">
+            {captureMode && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setCaptureMode(null);
+                  setImpactSyncRecording(null);
+                }}
+                className="mb-4"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Capture Options
+              </Button>
+            )}
 
-            {loading || analyzingVideo ? (
-              <Card>
-                <CardContent className="py-12">
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <span className="ml-3 text-muted-foreground">
-                      {analyzingVideo ? 'Analyzing video...' : 'Loading reports...'}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
+            {!captureMode && (
+              <div className="grid gap-6 md:grid-cols-3">
+                {/* Capture Video Card */}
+                <Card
+                  className="cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => setCaptureMode('video-capture')}
+                >
+                  <CardHeader>
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                      <Video className="h-6 w-6 text-primary" />
+                    </div>
+                    <CardTitle>🎥 Capture Video</CardTitle>
+                    <CardDescription>
+                      Record live swing with Impact-Sync technology
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• 2s before impact capture</li>
+                      <li>• Audio detection available</li>
+                      <li>• Instant analysis</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Upload Video Card */}
+                <Card
+                  className="cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => setCaptureMode('video-upload')}
+                >
+                  <CardHeader>
+                    <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center mb-3">
+                      <Upload className="h-6 w-6 text-blue-500" />
+                    </div>
+                    <CardTitle>📹 Upload Video</CardTitle>
+                    <CardDescription>
+                      Upload existing video file for analysis
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• Any video file format</li>
+                      <li>• 240fps recommended</li>
+                      <li>• Full swing required</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Upload PDF Card */}
+                <Card
+                  className="cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => setCaptureMode('pdf-upload')}
+                >
+                  <CardHeader>
+                    <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center mb-3">
+                      <FileText className="h-6 w-6 text-orange-500" />
+                    </div>
+                    <CardTitle>📄 Upload PDF</CardTitle>
+                    <CardDescription>
+                      Import Reboot Motion PDF report
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• Reboot Motion reports</li>
+                      <li>• Auto-extract metrics</li>
+                      <li>• Track progress</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {captureMode === 'video-capture' && (
               <>
-            {/* Show upload card only if no reports or user hasn't just uploaded a video */}
-            {!justAnalyzedVideo && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Impact-Sync Recording</AlertTitle>
+                  <AlertDescription>
+                    Position camera to capture full swing. Recording will automatically save 2 seconds before bat-ball contact when audio detection is enabled.
+                  </AlertDescription>
+                </Alert>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recording Options</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Enable Audio Detection</p>
+                        <p className="text-sm text-muted-foreground">
+                          Automatically detect bat-ball contact via audio
+                        </p>
+                      </div>
+                      <Switch
+                        checked={enableAudioDetection}
+                        onCheckedChange={setEnableAudioDetection}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <ImpactSyncRecorder
+                  onRecordingComplete={handleImpactSyncRecording}
+                  enableAudioDetection={enableAudioDetection}
+                />
+
+                {impactSyncRecording && (
+                  <ImpactSyncAnalysis
+                    recording={impactSyncRecording}
+                    enableBatTracking={enableBatTracking}
+                    onAnalysisComplete={handleAnalysisComplete}
+                  />
+                )}
+              </>
+            )}
+
+            {captureMode === 'video-upload' && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Upload Reboot Motion Report</CardTitle>
+                  <CardTitle>Upload Video File</CardTitle>
                   <CardDescription>
-                    Upload your Reboot Motion PDF report to automatically extract timing data and calculate tempo metrics
+                    Select a video file from your device for analysis
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary transition-colors">
                     <input
                       type="file"
-                      accept=".pdf"
-                      onChange={handleFileUpload}
+                      accept="video/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        
+                        try {
+                          setAnalyzingVideo(true);
+                          toast.loading('Uploading video...');
+                          
+                          const { data: { user } } = await supabase.auth.getUser();
+                          if (!user) throw new Error('Not authenticated');
+                          
+                          const fileName = `${user.id}/${Date.now()}_${file.name}`;
+                          const { error: uploadError } = await supabase.storage
+                            .from('swing-videos')
+                            .upload(fileName, file);
+                          
+                          if (uploadError) throw uploadError;
+                          
+                          const { data: { publicUrl } } = supabase.storage
+                            .from('swing-videos')
+                            .getPublicUrl(fileName);
+                          
+                          const { error: analysisError } = await supabase.functions
+                            .invoke('analyze-swing', {
+                              body: {
+                                videoUrl: publicUrl,
+                                playerId: selectedPlayerId,
+                                userId: user.id,
+                              }
+                            });
+                          
+                          if (analysisError) throw analysisError;
+                          
+                          toast.success('Video uploaded and analyzed!');
+                          setCaptureMode(null);
+                          setActiveTab('history');
+                          await loadReports();
+                          
+                        } catch (error) {
+                          console.error('Error uploading video:', error);
+                          toast.error('Failed to upload video');
+                        } finally {
+                          setAnalyzingVideo(false);
+                        }
+                      }}
                       className="hidden"
-                      id="reboot-upload"
-                      disabled={uploading}
+                      id="video-upload"
                     />
-                    <label
-                      htmlFor="reboot-upload"
-                      className="cursor-pointer flex flex-col items-center gap-3"
-                    >
-                      <Upload className="h-12 w-12 text-muted-foreground" />
-                      <div>
-                        <p className="text-lg font-medium">
-                          {uploading ? 'Processing...' : 'Click to upload PDF'}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Drag and drop or click to select
-                        </p>
-                      </div>
+                    <label htmlFor="video-upload" className="cursor-pointer">
+                      <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-lg font-medium mb-2">Click to upload video</p>
+                      <p className="text-sm text-muted-foreground">MP4, MOV, or AVI • 240fps recommended</p>
                     </label>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Latest Report */}
-            {reports.length > 0 && (() => {
-              const latest = reports[reports.length - 1];
-              return (
-                   <div className="space-y-4">
-                   <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">
-                      {justAnalyzedVideo ? 'Your Video Analysis Results' : 'Latest Analysis'}
-                    </h2>
-                    <div className="flex items-center gap-4">
-                      {justAnalyzedVideo && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setJustAnalyzedVideo(false);
-                            navigate('/upload-video');
-                          }}
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload Another Video
-                        </Button>
-                      )}
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={async () => {
-                          const confirmDelete = confirm('Delete this report? This cannot be undone.');
-                          if (!confirmDelete) return;
-                          
-                          toast.loading('Deleting report...');
-                          const { error } = await supabase
-                            .from('reboot_reports')
-                            .delete()
-                            .eq('id', latest.id);
-                          
-                          if (error) {
-                            toast.error('Failed to delete report');
-                          } else {
-                            toast.success('Report deleted');
-                            setJustAnalyzedVideo(false);
-                            loadReports();
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Report
-                      </Button>
-                      <div className="text-sm text-muted-foreground">
-                        Report Date: <span className="font-semibold">{latest.reportDate.toLocaleDateString()}</span>
-                        {latest.uploadDate.toDateString() !== latest.reportDate.toDateString() && (
-                          <span className="ml-2 text-xs">
-                            (Uploaded: {latest.uploadDate.toLocaleDateString()})
-                          </span>
-                        )}
-                      </div>
-                    </div>
+            {captureMode === 'pdf-upload' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Upload Reboot Motion Report
+                  </CardTitle>
+                  <CardDescription>
+                    Upload a Reboot Motion PDF report to track your swing mechanics over time
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pdf-file">PDF Report</Label>
+                    <Input
+                      id="pdf-file"
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                      disabled={uploading}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Select a Reboot Motion PDF report from your device
+                    </p>
                   </div>
-                  
-                  {/* Metrics Overview */}
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <Clock className="h-5 w-5 text-primary" />
-                          <div className="flex items-center gap-1">
-                            <Badge variant="outline">Load</Badge>
-                            <InfoTooltip content="Load Duration is the time from initial movement to maximum pelvis rotation. Optimal range: 400-700ms. This represents the energy storage phase of the swing." />
-                          </div>
-                        </div>
-                        <div className="text-3xl font-bold">{latest.metrics.loadDuration}ms</div>
-                        <p className="text-sm text-muted-foreground">Load Duration</p>
-                      </CardContent>
-                    </Card>
 
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <Zap className="h-5 w-5 text-orange-500" />
-                          <div className="flex items-center gap-1">
-                            <Badge variant="outline">Fire</Badge>
-                            <InfoTooltip content="Fire Duration is the time from maximum pelvis rotation to contact. Elite range: 130-150ms. This is the explosive energy release phase where power is transferred through the kinetic chain." />
-                          </div>
-                        </div>
-                        <div className="text-3xl font-bold">{latest.metrics.fireDuration}ms</div>
-                        <p className="text-sm text-muted-foreground">Fire Duration</p>
-                        <div className="mt-2">
-                          <Progress value={latest.scores.fireDurationScore} className="h-2" />
-                          <p className={`text-xs mt-1 font-semibold ${getScoreColor(latest.scores.fireDurationScore)}`}>
-                            {latest.scores.fireDurationScore >= 90 ? 'Excellent' : 
-                             latest.scores.fireDurationScore >= 75 ? 'Good' : 'Developing'}
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <div className="space-y-2">
+                    <Label htmlFor="swing-type">Swing Type</Label>
+                    <Select value={swingType} onValueChange={setSwingType}>
+                      <SelectTrigger id="swing-type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="batting practice">Batting Practice</SelectItem>
+                        <SelectItem value="live at-bat">Live At-Bat</SelectItem>
+                        <SelectItem value="tee work">Tee Work</SelectItem>
+                        <SelectItem value="soft toss">Soft Toss</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <Target className="h-5 w-5 text-green-500" />
-                          <div className="flex items-center gap-1">
-                            <Badge variant="outline">Ratio</Badge>
-                            <InfoTooltip content="Tempo Ratio = Load Duration ÷ Fire Duration. Optimal: 2.0-2.6:1, Elite: 2.6-3.5:1. This ratio indicates timing efficiency and power accumulation. Too low = rushed, too high = over-whip." />
-                          </div>
-                        </div>
-                        <div className="text-3xl font-bold">{latest.metrics.tempoRatio}:1</div>
-                        <p className="text-sm text-muted-foreground">Tempo Ratio</p>
-                        <div className="mt-2">
-                          <Progress value={latest.scores.tempoRatioScore} className="h-2" />
-                          <p className={`text-xs mt-1 font-semibold ${getScoreColor(latest.scores.tempoRatioScore)}`}>
-                            {latest.metrics.tempoRatio >= 2.0 && latest.metrics.tempoRatio <= 2.6 ? 'Optimal' :
-                             latest.metrics.tempoRatio > 2.6 && latest.metrics.tempoRatio <= 3.5 ? 'Elite' : 
-                             latest.metrics.tempoRatio < 2.0 ? 'Rushed' : 'Over-whip'}
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <div className="space-y-2">
+                    <Label htmlFor="report-date">Report Date</Label>
+                    <Input
+                      id="report-date"
+                      type="date"
+                      value={reportDate}
+                      onChange={(e) => setReportDate(e.target.value)}
+                      disabled={uploading}
+                    />
+                  </div>
 
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <TrendingUp className="h-5 w-5 text-blue-500" />
-                          <div className="flex items-center gap-1">
-                            <Badge variant="outline">4B</Badge>
-                            <InfoTooltip content="Body Score is calculated from Fire Duration and Tempo Ratio scores. This composite metric reflects overall swing efficiency and timing quality in the BODY pillar of the 4 B's framework." />
-                          </div>
-                        </div>
-                        <div className="text-3xl font-bold">{latest.scores.bodyScore}</div>
-                        <p className="text-sm text-muted-foreground">Body Score</p>
-                        <Badge className={`mt-2 ${getArchetypeColor(latest.scores.archetype)}`}>
-                          {latest.scores.archetype}
-                        </Badge>
-                      </CardContent>
-                     </Card>
-                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes (Optional)</Label>
+                    <Textarea
+                      id="notes"
+                      placeholder="Add any notes about this report..."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      disabled={uploading}
+                      rows={3}
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    onClick={async () => {
+                      if (!pdfFile) {
+                        toast.error('Please select a PDF file');
+                        return;
+                      }
 
-                   {/* Coach Rick Insights */}
-                   <CoachRickInsightCard 
-                     insights={coachRickInsights || {
-                       mainMessage: "Analyzing your latest swing...",
-                     }}
-                     loading={loadingInsights}
-                   />
+                      try {
+                        setUploading(true);
+                        
+                        const { data: { user } } = await supabase.auth.getUser();
+                        if (!user) throw new Error('Not authenticated');
+                        
+                        const fileName = `${user.id}/${Date.now()}_${pdfFile.name}`;
+                        
+                        const { error: uploadError } = await supabase.storage
+                          .from('reboot-reports')
+                          .upload(fileName, pdfFile);
 
-                   {/* Tempo Visualization */}
-                   <div className="space-y-4">
-                     <TempoHero 
-                       loadMs={latest.metrics.loadDuration}
-                       fireMs={latest.metrics.fireDuration}
-                       ratio={latest.metrics.tempoRatio}
-                     />
-                     <TempoContext 
-                       context="practice"
-                       ratio={latest.metrics.tempoRatio}
-                     />
-                     <TempoTrainingPlan 
-                       currentZone={latest.scores.archetype === "Elite Whipper" ? 3 : 
-                                    latest.scores.archetype === "Spinner" ? 2 : 1}
-                       currentRatio={latest.metrics.tempoRatio}
-                     />
-                   </div>
+                        if (uploadError) throw uploadError;
 
-                   {/* Kinematic Sequence Bar Chart */}
-                   <KinematicSequenceBarChart metrics={latest.metrics} />
+                        const { data: { publicUrl } } = supabase.storage
+                          .from('reboot-reports')
+                          .getPublicUrl(fileName);
 
-                  {/* Key Biomechanics */}
-                  <KeyBiomechanics metrics={latest.metrics} />
+                        const { error: parseError } = await supabase.functions.invoke('parse-reboot-pdf', {
+                          body: {
+                            pdfUrl: publicUrl,
+                            userId: user.id,
+                            playerId: selectedPlayerId,
+                            swingType,
+                            reportDate,
+                            notes,
+                          }
+                        });
 
-                  {/* Momentum Analysis */}
-                  <MomentumAnalysis metrics={latest.metrics} />
+                        if (parseError) throw parseError;
 
-                  {/* Power Generation */}
-                  <PowerGeneration 
-                    metrics={{
-                      rotationalPower: latest.metrics.rotationalPower,
-                      linearPower: latest.metrics.linearPower,
-                      totalPower: latest.metrics.totalPower,
-                    }} 
-                  />
+                        toast.success('PDF uploaded and processed successfully!');
+                        setPdfFile(null);
+                        setNotes('');
+                        setCaptureMode(null);
+                        setActiveTab('history');
+                        await loadReports();
 
-                  {/* Detailed Breakdown */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Detailed Breakdown</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                          <h4 className="font-semibold mb-2">Extracted Timing Data</h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Negative Move:</span>
-                              <span className="font-medium">{latest.metrics.negativeMoveTime.toFixed(3)}s</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Max Pelvis Turn:</span>
-                              <span className="font-medium">{latest.metrics.maxPelvisTurnTime.toFixed(3)}s</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Max Shoulder Turn:</span>
-                              <span className="font-medium">{latest.metrics.maxShoulderTurnTime.toFixed(3)}s</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Max X Factor:</span>
-                              <span className="font-medium">{latest.metrics.maxXFactorTime.toFixed(3)}s</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="font-semibold mb-2">Calculated Metrics</h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Load Duration:</span>
-                              <span className="font-medium">{latest.metrics.loadDuration}ms</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Fire Duration:</span>
-                              <span className="font-medium">{latest.metrics.fireDuration}ms</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Tempo Ratio:</span>
-                              <span className="font-medium">{latest.metrics.tempoRatio}:1</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Sequence Gap:</span>
-                              <span className="font-medium">{latest.metrics.kinematicSequenceGap}ms</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Coaching Recommendations */}
-                      <Alert>
-                        <AlertDescription>
-                          <h4 className="font-semibold mb-2">💡 Coaching Recommendations:</h4>
-                          {latest.scores.archetype === "Elite Whipper" && (
-                            <p>Excellent tempo! Your fire duration is explosive ({latest.metrics.fireDuration}ms) and tempo ratio is optimal. Focus on maintaining this elite timing pattern.</p>
-                          )}
-                          {latest.scores.archetype === "Spinner" && (
-                            <p>Good balanced approach. Your tempo ratio ({latest.metrics.tempoRatio}:1) is in the optimal range. Work on reducing fire duration to break into elite territory.</p>
-                          )}
-                          {latest.scores.archetype === "Rushed" && (
-                            <p>Your tempo ratio is below optimal ({latest.metrics.tempoRatio}:1). Focus on extending your load phase to build more energy before firing.</p>
-                          )}
-                          {latest.scores.archetype === "Over-whip" && (
-                            <p>Your load phase may be too long ({latest.metrics.loadDuration}ms). Work on more explosive hip rotation to reduce your tempo ratio.</p>
-                          )}
-                        </AlertDescription>
-                      </Alert>
-                    </CardContent>
-                  </Card>
-
-                  {/* Comparison View - Only if multiple reports */}
-                  {reports.length >= 2 && (
-                    <RebootComparisonView reports={reports} />
-                  )}
-                </div>
-              );
-            })()}
-              </>
+                      } catch (error: any) {
+                        console.error('Error uploading PDF:', error);
+                        toast.error(error.message || 'Failed to upload PDF');
+                      } finally {
+                        setUploading(false);
+                      }
+                    }}
+                    disabled={!pdfFile || uploading}
+                    className="w-full"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Report
+                      </>
+                    )}
+                  </Button>
+                </CardFooter>
+              </Card>
             )}
           </TabsContent>
 
