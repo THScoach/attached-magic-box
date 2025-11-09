@@ -303,18 +303,59 @@ export default function RebootAnalysis() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Build query based on whether a player is selected
-      let query = supabase
+      // Fetch from BOTH reboot_reports AND swing_analyses
+      let rebootQuery = supabase
         .from('reboot_reports')
         .select('*')
-        .eq('user_id', user.id); // Always filter by the authenticated user
+        .eq('user_id', user.id);
+      
+      let swingQuery = supabase
+        .from('swing_analyses')
+        .select('*')
+        .eq('user_id', user.id);
       
       // If a player is selected, also filter by player_id
       if (selectedPlayerId) {
-        query = query.eq('player_id', selectedPlayerId);
+        rebootQuery = rebootQuery.eq('player_id', selectedPlayerId);
+        swingQuery = swingQuery.eq('player_id', selectedPlayerId);
       }
       
-      const { data, error } = await query.order('report_date', { ascending: false });
+      const [rebootResult, swingResult] = await Promise.all([
+        rebootQuery.order('report_date', { ascending: false }),
+        swingQuery.order('created_at', { ascending: false })
+      ]);
+
+      const { data: rebootData, error: rebootError } = rebootResult;
+      const { data: swingData, error: swingError } = swingResult;
+
+      if (rebootError) throw rebootError;
+      if (swingError) throw swingError;
+
+      // Combine data from both sources
+      const combinedData = [
+        ...(rebootData || []),
+        ...(swingData || []).map((analysis: any) => ({
+          ...analysis,
+          // Map swing_analyses fields to reboot_reports format
+          report_date: analysis.created_at,
+          upload_date: analysis.created_at,
+          label: `Video Analysis - ${analysis.video_type || 'Practice'}`,
+          // Extract metrics from JSON if they exist
+          load_duration: analysis.metrics?.tempo?.load_time,
+          fire_duration: analysis.metrics?.tempo?.fire_time,
+          tempo_ratio: analysis.metrics?.tempo?.load_time && analysis.metrics?.tempo?.fire_time 
+            ? analysis.metrics.tempo.load_time / analysis.metrics.tempo.fire_time 
+            : null,
+          peak_pelvis_rot_vel: analysis.metrics?.momentum?.pelvis_speed,
+          peak_shoulder_rot_vel: analysis.metrics?.momentum?.torso_speed,
+          peak_arm_rot_vel: analysis.metrics?.momentum?.arm_speed,
+          body_score: analysis.body_score,
+          overall_score: analysis.overall_score,
+        }))
+      ];
+
+      const data = combinedData;
+      const error = null;
 
       if (error) throw error;
 
