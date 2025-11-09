@@ -62,6 +62,8 @@ export default function AnalysisResult() {
   const [analysis, setAnalysis] = useState<SwingAnalysis | null>(null);
   const [playerName, setPlayerName] = useState<string>('');
   const [playerId, setPlayerId] = useState<string>('');
+  const [playerHeight, setPlayerHeight] = useState<number | null>(null); // in inches
+  const [playerWeight, setPlayerWeight] = useState<number | null>(null); // in lbs
   const [analysisCreatedAt, setAnalysisCreatedAt] = useState<string>('');
   const [jointData, setJointData] = useState<FrameJointData[]>([]);
   const [showDrills, setShowDrills] = useState(false);
@@ -134,13 +136,24 @@ export default function AnalysisResult() {
       // Store created_at for ReanalyzeButton
       setAnalysisCreatedAt(data.created_at);
 
-      // Set player ID
+      // Set player ID and fetch full player data
       if (data.player_id) {
         setPlayerId(data.player_id);
-      }
-
-      // Set player name
-      if (data.players) {
+        
+        // Fetch full player data for height/weight
+        const { data: playerData, error: playerError } = await supabase
+          .from('players')
+          .select('first_name, last_name, height, weight')
+          .eq('id', data.player_id)
+          .single();
+        
+        if (!playerError && playerData) {
+          setPlayerName(`${playerData.first_name} ${playerData.last_name}`.trim());
+          setPlayerHeight(playerData.height);
+          setPlayerWeight(playerData.weight);
+        }
+      } else if (data.players) {
+        // Fallback to players join if available
         const player = data.players as any;
         setPlayerName(`${player.first_name} ${player.last_name}`.trim());
       }
@@ -245,13 +258,24 @@ export default function AnalysisResult() {
       // Store created_at for ReanalyzeButton
       setAnalysisCreatedAt(data.created_at);
 
-      // Set player ID
+      // Set player ID and fetch full player data
       if (data.player_id) {
         setPlayerId(data.player_id);
-      }
-
-      // Set player name
-      if (data.players) {
+        
+        // Fetch full player data for height/weight
+        const { data: playerData, error: playerError } = await supabase
+          .from('players')
+          .select('first_name, last_name, height, weight')
+          .eq('id', data.player_id)
+          .single();
+        
+        if (!playerError && playerData) {
+          setPlayerName(`${playerData.first_name} ${playerData.last_name}`.trim());
+          setPlayerHeight(playerData.height);
+          setPlayerWeight(playerData.weight);
+        }
+      } else if (data.players) {
+        // Fallback to players join if available
         const player = data.players as any;
         setPlayerName(`${player.first_name} ${player.last_name}`.trim());
       }
@@ -1107,8 +1131,8 @@ export default function AnalysisResult() {
           {(analysis.pelvisMaxVelocity || analysis.torsoMaxVelocity) && (
             <MomentumAnalysis
               metrics={{
-                height: 72, // TODO: Get from player profile
-                weight: 180, // TODO: Get from player profile
+                height: playerHeight,
+                weight: playerWeight,
                 peakPelvisRotVel: analysis.pelvisMaxVelocity,
                 peakShoulderRotVel: analysis.torsoMaxVelocity,
                 peakArmRotVel: analysis.armMaxVelocity,

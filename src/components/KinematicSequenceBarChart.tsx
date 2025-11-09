@@ -25,6 +25,16 @@ export function KinematicSequenceBarChart({ metrics }: KinematicSequenceBarChart
   // Bat is always at impact (0ms)
   const batTiming = 0;
 
+  // Validate timing data - timings should be reasonable (0-1000ms before impact)
+  const hasValidTimings = 
+    pelvisTiming >= 0 && pelvisTiming <= 1000 &&
+    shoulderTiming >= 0 && shoulderTiming <= 1000;
+
+  // Don't render if timings are clearly incorrect
+  if (!hasValidTimings) {
+    return null;
+  }
+
   // Build sequence data with available metrics
   const sequenceData = [
     ...(negativeMoveTiming ? [{ segment: "Negative Move", timing: negativeMoveTiming, order: 1, isActual: true }] : []),
