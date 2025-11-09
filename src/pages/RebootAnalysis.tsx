@@ -9,7 +9,11 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
-import { KinematicSequenceGraph } from "@/components/KinematicSequenceGraph";
+import { KinematicSequenceBarChart } from "@/components/KinematicSequenceBarChart";
+import { KeyBiomechanics } from "@/components/KeyBiomechanics";
+import { MomentumAnalysis } from "@/components/MomentumAnalysis";
+import { PowerGeneration } from "@/components/PowerGeneration";
+import { RebootComparisonView } from "@/components/RebootComparisonView";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -28,6 +32,29 @@ interface RebootReport {
     fireDuration: number; // ms
     tempoRatio: number;
     kinematicSequenceGap: number;
+    // Biomechanics
+    peakPelvisRotVel?: number; // °/s
+    peakShoulderRotVel?: number; // °/s
+    peakBatSpeed?: number; // mph
+    xFactor?: number; // degrees
+    hipShoulderSeparation?: number; // ms
+    attackAngle?: number; // degrees
+    verticalBatAngle?: number; // degrees
+    connectionAtImpact?: number; // percentage
+    postureAngle?: number; // degrees
+    earlyConnection?: number; // percentage
+    // Momentum
+    height?: number; // inches
+    weight?: number; // lbs
+    peakCOMVelocity?: number; // m/s
+    momentumDirectionAngle?: number; // degrees
+    forwardMomentumPct?: number; // percentage
+    transferEfficiency?: number; // percentage
+    // Power
+    rotationalPower?: number; // Watts
+    linearPower?: number; // Watts
+    totalPower?: number; // Watts
+    energyTransferEfficiency?: number; // percentage
   };
   scores: {
     fireDurationScore: number;
@@ -163,6 +190,36 @@ export default function RebootAnalysis() {
         maxXFactorTime: 0.156
       };
 
+      // Extract additional metrics from PDF (with defaults for demo)
+      const biomechanicsData = parsedData?.biomechanics || {
+        peakPelvisRotVel: 850,
+        peakShoulderRotVel: 920,
+        peakBatSpeed: 72,
+        xFactor: 52,
+        hipShoulderSeparation: 52,
+        attackAngle: 12,
+        verticalBatAngle: 18,
+        connectionAtImpact: 85,
+        postureAngle: 38,
+        earlyConnection: 78
+      };
+
+      const momentumData = parsedData?.momentum || {
+        height: 72,
+        weight: 185,
+        peakCOMVelocity: 1.15,
+        momentumDirectionAngle: 12,
+        forwardMomentumPct: 82,
+        transferEfficiency: 78
+      };
+
+      const powerData = parsedData?.power || {
+        rotationalPower: 2200,
+        linearPower: 1400,
+        totalPower: 3600,
+        energyTransferEfficiency: 76
+      };
+
       // Get the report date from the PDF or use today as fallback
       const reportDateStr = parsedData?.reportDate || new Date().toISOString().split('T')[0];
       const reportDate = new Date(reportDateStr);
@@ -177,7 +234,10 @@ export default function RebootAnalysis() {
         reportDate: reportDate, // Date from the PDF report itself
         metrics: {
           ...timingData,
-          ...metrics
+          ...metrics,
+          ...biomechanicsData,
+          ...momentumData,
+          ...powerData
         },
         scores
       };
@@ -398,6 +458,18 @@ export default function RebootAnalysis() {
                     </Card>
                   </div>
 
+                  {/* Kinematic Sequence Bar Chart */}
+                  <KinematicSequenceBarChart metrics={latest.metrics} />
+
+                  {/* Key Biomechanics */}
+                  <KeyBiomechanics metrics={latest.metrics} />
+
+                  {/* Momentum Analysis */}
+                  <MomentumAnalysis metrics={latest.metrics} />
+
+                  {/* Power Generation */}
+                  <PowerGeneration metrics={latest.metrics} />
+
                   {/* Detailed Breakdown */}
                   <Card>
                     <CardHeader>
@@ -471,8 +543,10 @@ export default function RebootAnalysis() {
                     </CardContent>
                   </Card>
 
-                  {/* Kinematic Sequence Graph */}
-                  <KinematicSequenceGraph metrics={latest.metrics} />
+                  {/* Comparison View - Only if multiple reports */}
+                  {reports.length >= 2 && (
+                    <RebootComparisonView reports={reports} />
+                  )}
                 </div>
               );
             })()}
