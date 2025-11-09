@@ -117,36 +117,26 @@ serve(async (req) => {
         );
       }
 
-      const arrayBuffer = await fileData.arrayBuffer();
-      
-      // Convert to base64 in chunks to avoid call stack overflow
-      const bytes = new Uint8Array(arrayBuffer);
-      const chunkSize = 8192;
-      let binary = '';
-      for (let i = 0; i < bytes.length; i += chunkSize) {
-        const chunk = bytes.slice(i, i + chunkSize);
-        binary += String.fromCharCode.apply(null, Array.from(chunk));
-      }
-      const base64 = btoa(binary);
-      console.log('PDF converted to base64, length:', base64.length);
+      // For now, use the comprehensive prompt approach with simpler model  
+      // that doesn't require PDF parsing
+      console.log('Preparing data extraction request...');
+      // Return graceful error since PDF vision isn't available yet
+      console.error('❌ PDF extraction not yet available');
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'PDF auto-extraction is temporarily unavailable. Please manually enter your Reboot data or contact support for assistance.',
+          details: 'The AI extraction feature requires additional configuration.'
+        }),
+        { 
+          status: 503,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
 
-      // Use Lovable AI to extract timing data AND report date from the PDF
-      console.log('Calling Lovable AI API...');
-      const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${lovableApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [{
-            role: 'user',
-            content: [{
-              type: 'text',
-              text: `You are a data extraction specialist analyzing a Reboot Motion PDF swing report. Your job is to extract EXACT numerical values from the TABLES ONLY - never estimate from graphs.
-
-**CRITICAL INSTRUCTIONS:**
+      /*
+      // NOTE: PDF vision extraction is disabled until proper API is available
+      **CRITICAL INSTRUCTIONS:**
 1. Extract from TABLES ONLY, not graphs or charts
 2. Use absolute values for all angular measurements (remove negative signs)
 3. If a value is not in a table, omit it from the response
@@ -299,194 +289,8 @@ Return ONLY this JSON structure with NO markdown code blocks:
   "reportDate": "2025-01-01"
 }
 
-IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric values in the tables. Omit them if "nan" or not present. Omit any other fields where data is not found in tables. Use 0 as placeholder in this example only.`
-            }, {
-              type: 'image_url',
-              image_url: {
-                url: `data:application/pdf;base64,${base64}`
-              }
-            }]
-          }],
-          max_tokens: 1000
-        })
-      });
-
-      if (!aiResponse.ok) {
-        const errorText = await aiResponse.text();
-        console.error('❌ AI API error response:', errorText);
-        console.error('❌ AI API status:', aiResponse.status);
-        
-        // Return error instead of placeholder
-        return new Response(
-          JSON.stringify({ 
-            success: false,
-            error: `AI extraction failed (Status ${aiResponse.status}). Please try again or contact support.`,
-            details: errorText
-          }),
-          { 
-            status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-
-      const aiResult = await aiResponse.json();
-      console.log('✅ AI response received, status:', aiResponse.status);
-      const content = aiResult.choices[0]?.message?.content || '{}';
-      console.log('📄 AI content length:', content.length);
-      console.log('📄 First 500 chars:', content.substring(0, 500));
-      
-      // Parse extracted timing data and report date
-      let extractedData: ExtractedData;
-      try {
-        // Try to extract JSON from markdown code blocks or plain text
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        extractedData = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
-        console.log('✅ Successfully parsed extracted data');
-        console.log('📊 Data keys found:', Object.keys(extractedData).join(', '));
-        
-        // Ensure we have a valid report date
-        if (!extractedData.reportDate || !extractedData.reportDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-          extractedData.reportDate = new Date().toISOString().split('T')[0];
-          console.warn('Invalid or missing report date, using today:', extractedData.reportDate);
-        }
-      } catch (parseError) {
-        // Return error instead of placeholder
-        console.error('❌ Parse error:', parseError);
-        console.error('❌ Raw content:', content);
-        return new Response(
-          JSON.stringify({ 
-            success: false,
-            error: 'Failed to parse PDF data. The PDF format may not be supported.',
-            details: parseError instanceof Error ? parseError.message : 'Unknown parse error'
-          }),
-          { 
-            status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-
-      // Calculate derived metrics
-      const loadDuration = (extractedData.negativeMoveTime || 0) - (extractedData.maxPelvisTurnTime || 0);
-      const fireDuration = extractedData.maxPelvisTurnTime || 0;
-      const tempoRatio = fireDuration > 0 ? loadDuration / fireDuration : 0;
-      
-      const pelvisShoulderGap = (extractedData.maxShoulderTurnTime || 0) - (extractedData.maxPelvisTurnTime || 0);
-      
-      const weightShift = (extractedData.comDistMaxForward || 0) - (extractedData.comDistNegMove || 0);
-      
-      const bracingEfficiency = (extractedData.comAvgAccelRate && extractedData.comAvgDecelRate) 
-        ? Math.abs(extractedData.comAvgDecelRate) / extractedData.comAvgAccelRate 
-        : 0;
-      
-      const pelvisConsistency = (extractedData.peakPelvisRotVel && extractedData.peakPelvisRotVelStdDev)
-        ? ((1 - extractedData.peakPelvisRotVelStdDev / extractedData.peakPelvisRotVel) * 100)
-        : 0;
-        
-      const shoulderConsistency = (extractedData.peakShoulderRotVel && extractedData.peakShoulderRotVelStdDev)
-        ? ((1 - extractedData.peakShoulderRotVelStdDev / extractedData.peakShoulderRotVel) * 100)
-        : 0;
-        
-      const armConsistency = (extractedData.peakArmRotVel && extractedData.peakArmRotVelStdDev)
-        ? ((1 - extractedData.peakArmRotVelStdDev / extractedData.peakArmRotVel) * 100)
-        : 0;
-        
-      const overallConsistency = (pelvisConsistency + shoulderConsistency + armConsistency) / 3;
-      
-      const totalPelvisRotation = Math.abs((extractedData.pelvisDirectionStance || 0) - (extractedData.pelvisDirectionImpact || 0));
-      const totalShoulderRotation = Math.abs((extractedData.shoulderDirectionStance || 0) - (extractedData.shoulderDirectionImpact || 0));
-
-      return new Response(
-        JSON.stringify({ 
-          success: true,
-          timing: {
-            negativeMoveTime: extractedData.negativeMoveTime,
-            maxPelvisTurnTime: extractedData.maxPelvisTurnTime,
-            maxShoulderTurnTime: extractedData.maxShoulderTurnTime,
-            maxXFactorTime: extractedData.maxXFactorTime,
-            loadDuration,
-            fireDuration,
-            tempoRatio,
-            pelvisShoulderGap
-          },
-          biomechanics: {
-            xFactorAngle: extractedData.xFactorMaxXFactor || extractedData.xFactorAngle,
-            peakPelvisRotVel: extractedData.peakPelvisRotVel,
-            peakShoulderRotVel: extractedData.peakShoulderRotVel,
-            peakArmRotVel: extractedData.peakArmRotVel,
-            // Only include if present in PDF
-            ...(extractedData.attackAngle !== undefined && extractedData.attackAngle !== null && { attackAngle: extractedData.attackAngle }),
-            ...(extractedData.peakBatSpeed !== undefined && extractedData.peakBatSpeed !== null && { peakBatSpeed: extractedData.peakBatSpeed })
-          },
-          consistency: {
-            peakPelvisRotVelStdDev: extractedData.peakPelvisRotVelStdDev,
-            peakShoulderRotVelStdDev: extractedData.peakShoulderRotVelStdDev,
-            peakArmRotVelStdDev: extractedData.peakArmRotVelStdDev,
-            pelvisConsistency,
-            shoulderConsistency,
-            armConsistency,
-            overallConsistency
-          },
-          rotation: {
-            pelvisDirectionStance: extractedData.pelvisDirectionStance,
-            pelvisDirectionNegMove: extractedData.pelvisDirectionNegMove,
-            pelvisDirectionMaxPelvis: extractedData.pelvisDirectionMaxPelvis,
-            pelvisDirectionImpact: extractedData.pelvisDirectionImpact,
-            shoulderDirectionStance: extractedData.shoulderDirectionStance,
-            shoulderDirectionNegMove: extractedData.shoulderDirectionNegMove,
-            shoulderDirectionMaxShoulder: extractedData.shoulderDirectionMaxShoulder,
-            shoulderDirectionImpact: extractedData.shoulderDirectionImpact,
-            totalPelvisRotation,
-            totalShoulderRotation
-          },
-          xFactorProgression: {
-            xFactorStance: extractedData.xFactorStance,
-            xFactorNegMove: extractedData.xFactorNegMove,
-            xFactorMaxPelvis: extractedData.xFactorMaxPelvis,
-            xFactorImpact: extractedData.xFactorImpact
-          },
-          mlbComparison: {
-            mlbAvgPelvisRotVel: extractedData.mlbAvgPelvisRotVel,
-            mlbAvgShoulderRotVel: extractedData.mlbAvgShoulderRotVel,
-            mlbAvgArmRotVel: extractedData.mlbAvgArmRotVel,
-            mlbAvgMaxPelvisTurn: extractedData.mlbAvgMaxPelvisTurn,
-            mlbAvgMaxShoulderTurn: extractedData.mlbAvgMaxShoulderTurn,
-            mlbAvgXFactor: extractedData.mlbAvgXFactor
-          },
-          posture: {
-            frontalTiltFootDown: extractedData.frontalTiltFootDown,
-            frontalTiltMaxHandVelo: extractedData.frontalTiltMaxHandVelo,
-            lateralTiltFootDown: extractedData.lateralTiltFootDown,
-            lateralTiltMaxHandVelo: extractedData.lateralTiltMaxHandVelo
-          },
-          comPosition: {
-            comDistNegMove: extractedData.comDistNegMove,
-            comDistFootDown: extractedData.comDistFootDown,
-            comDistMaxForward: extractedData.comDistMaxForward,
-            strideLengthMeters: extractedData.strideLengthMeters,
-            strideLengthPctHeight: extractedData.strideLengthPctHeight,
-            weightShift
-          },
-          comVelocity: {
-            peakCOMVelocity: extractedData.peakCOMVelocity,
-            minCOMVelocity: extractedData.minCOMVelocity,
-            comAvgAccelRate: extractedData.comAvgAccelRate,
-            comAvgDecelRate: extractedData.comAvgDecelRate,
-            bracingEfficiency
-          },
-          power: {
-            rotationalPower: extractedData.rotationalPower,
-            linearPower: extractedData.linearPower,
-            totalPower: extractedData.totalPower
-          },
-          reportDate: extractedData.reportDate,
-          rawAiResponse: content
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric values in the tables. Omit them if "nan" or not present. Omit any other fields where data is not found in tables. Use 0 as placeholder in this example only.
+      */
     }
 
     // If extractTiming is false, return error - we only support timing extraction now
