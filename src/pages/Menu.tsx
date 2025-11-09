@@ -66,17 +66,17 @@ export default function Menu() {
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="bg-card border-b border-border p-6">
+      <div className="bg-gradient-to-br from-primary/20 to-primary/5 px-4 py-6">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => navigate('/home')}
-          className="mb-4"
+          className="mb-3 -ml-2"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold text-center text-foreground">⚾ The Hitting Skool</h1>
+        <h1 className="text-xl font-bold text-center">⚾ The Hitting Skool</h1>
       </div>
 
       <div className="p-4 space-y-6">

@@ -78,49 +78,45 @@ export default function HomeDashboard() {
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="bg-card border-b border-border p-6">
+      <div className="bg-gradient-to-br from-primary/20 to-primary/5 px-4 py-6">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold text-foreground">⚾ The Hitting Skool</h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
+          <h1 className="text-xl font-bold">⚾ The Hitting Skool</h1>
+          <button
             onClick={() => navigate('/profile')}
+            className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors flex items-center justify-center text-primary font-semibold"
           >
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-              {userName.charAt(0) || 'U'}
-            </div>
-          </Button>
+            {userName.charAt(0) || 'U'}
+          </button>
         </div>
-        <p className="text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Keep crushing it, {userName || 'Player'}!
         </p>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div className="px-4 py-4 space-y-4">
         {/* Tempo Metrics */}
         {tempoData && (
           <Card>
-            <CardHeader>
-              <CardTitle>Your Swing Tempo</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">YOUR SWING TEMPO</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted/50 rounded-lg p-4 text-center">
-                  <p className="text-sm text-muted-foreground mb-1">Load Time</p>
-                  <p className="text-2xl font-bold text-foreground">{tempoData.load_time}ms</p>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-muted/50 rounded-lg p-3 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Load Time</p>
+                  <p className="text-xl font-bold">{tempoData.load_time}ms</p>
                 </div>
-                <div className="bg-muted/50 rounded-lg p-4 text-center">
-                  <p className="text-sm text-muted-foreground mb-1">Fire Time</p>
-                  <p className="text-2xl font-bold text-foreground">{tempoData.fire_time}ms</p>
+                <div className="bg-muted/50 rounded-lg p-3 text-center">
+                  <p className="text-xs text-muted-foreground mb-1">Fire Time</p>
+                  <p className="text-xl font-bold">{tempoData.fire_time}ms</p>
                 </div>
               </div>
               
               {tempoRatio && tempoZone && (
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-2">Tempo Ratio</p>
-                  <p className="text-3xl font-bold text-foreground mb-2">{tempoRatio.toFixed(1)}:1</p>
-                  <Badge className={`${tempoZone.color} text-white`}>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Tempo Ratio</p>
+                  <p className="text-2xl font-bold mb-2">{tempoRatio.toFixed(1)}:1</p>
+                  <Badge className={`${tempoZone.color} text-white text-xs`}>
                     {tempoZone.zone} ⚡
                   </Badge>
                 </div>
@@ -132,29 +128,29 @@ export default function HomeDashboard() {
         {/* Momentum Analysis */}
         {momentumData && (
           <Card>
-            <CardHeader>
-              <CardTitle>Momentum Analysis</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">MOMENTUM ANALYSIS</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-1">Pelvis</p>
-                  <p className="text-xl font-bold text-foreground">{momentumData.pelvis_speed} deg/s</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Pelvis</p>
+                  <p className="text-lg font-bold">{momentumData.pelvis_speed} deg/s</p>
                   <p className="text-xs text-green-500 mt-1">Elite ✅</p>
                 </div>
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-1">Upper Torso</p>
-                  <p className="text-xl font-bold text-foreground">{momentumData.torso_speed} deg/s</p>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Upper Torso</p>
+                  <p className="text-lg font-bold">{momentumData.torso_speed} deg/s</p>
                   <p className="text-xs text-green-500 mt-1">Elite ✅</p>
                 </div>
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-1">Arm</p>
-                  <p className="text-xl font-bold text-foreground">{momentumData.arm_speed} deg/s</p>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Arm</p>
+                  <p className="text-lg font-bold">{momentumData.arm_speed} deg/s</p>
                   <p className="text-xs text-green-500 mt-1">Elite ✅</p>
                 </div>
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-1">4B Score</p>
-                  <p className="text-xl font-bold text-foreground">{latestAnalysis?.overall_score || 'N/A'}</p>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">4B Score</p>
+                  <p className="text-lg font-bold">{latestAnalysis?.overall_score?.toFixed(0) || 'N/A'}</p>
                   <p className="text-xs text-green-500 mt-1">Excellent</p>
                 </div>
               </div>
@@ -163,64 +159,58 @@ export default function HomeDashboard() {
         )}
 
         {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-4 gap-4">
-              <button
-                onClick={() => navigate('/reboot-analysis')}
-                className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <Upload className="h-6 w-6 text-primary" />
-                <span className="text-xs text-center text-foreground">Upload PDF</span>
-              </button>
-              <button
-                onClick={() => navigate('/reboot-analysis')}
-                className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <Video className="h-6 w-6 text-primary" />
-                <span className="text-xs text-center text-foreground">Record Video</span>
-              </button>
-              <button
-                onClick={() => navigate('/progress')}
-                className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <TrendingUp className="h-6 w-6 text-primary" />
-                <span className="text-xs text-center text-foreground">Progress Track</span>
-              </button>
-              <button
-                onClick={() => navigate('/comparison')}
-                className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <GitCompare className="h-6 w-6 text-primary" />
-                <span className="text-xs text-center text-foreground">Compare Swings</span>
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-1">QUICK ACTIONS</h3>
+          <div className="grid grid-cols-4 gap-2">
+            <button
+              onClick={() => navigate('/reboot-analysis')}
+              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-card hover:bg-accent transition-colors border border-border"
+            >
+              <Upload className="h-5 w-5 text-primary" />
+              <span className="text-xs text-center">Upload PDF</span>
+            </button>
+            <button
+              onClick={() => navigate('/reboot-analysis')}
+              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-card hover:bg-accent transition-colors border border-border"
+            >
+              <Video className="h-5 w-5 text-primary" />
+              <span className="text-xs text-center">Record Video</span>
+            </button>
+            <button
+              onClick={() => navigate('/progress')}
+              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-card hover:bg-accent transition-colors border border-border"
+            >
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <span className="text-xs text-center">Progress</span>
+            </button>
+            <button
+              onClick={() => navigate('/comparison')}
+              className="flex flex-col items-center gap-2 p-3 rounded-lg bg-card hover:bg-accent transition-colors border border-border"
+            >
+              <GitCompare className="h-5 w-5 text-primary" />
+              <span className="text-xs text-center">Compare</span>
+            </button>
+          </div>
+        </div>
 
         {/* Latest Analysis */}
         {latestAnalysis && (
           <Card>
-            <CardHeader>
-              <CardTitle>Latest Analysis</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">LATEST ANALYSIS</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <p className="font-semibold text-foreground">📊 Motion Analysis</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(latestAnalysis.created_at).toLocaleDateString()} | {latestAnalysis.video_type || 'Practice'}
-                    {tempoRatio && ` | Tempo: ${tempoRatio.toFixed(1)}:1`}
-                  </p>
-                </div>
+            <CardContent className="space-y-3">
+              <div>
+                <p className="font-semibold">📊 Reboot Motion Analysis</p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(latestAnalysis.created_at).toLocaleDateString()} | {latestAnalysis.video_type || 'Practice'}
+                  {tempoRatio && ` | Tempo: ${tempoRatio.toFixed(1)}:1`}
+                </p>
               </div>
               <Button 
                 variant="outline" 
                 className="w-full"
-                onClick={() => navigate(`/analysis/${latestAnalysis.id}`)}
+                onClick={() => navigate(`/result/${latestAnalysis.id}`)}
               >
                 View Full Report <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -231,12 +221,12 @@ export default function HomeDashboard() {
         {/* Training Recommendation */}
         {tempoRatio && (
           <Card>
-            <CardHeader>
-              <CardTitle>Training Recommendation</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">TRAINING RECOMMENDATION</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-sm text-foreground">
-                Your tempo ratio ({tempoRatio.toFixed(1)}:1) shows {tempoRatio < 1.5 ? 'excellent reaction speed' : 'good power generation'}! 
+              <p className="text-sm">
+                Your game tempo ({tempoRatio.toFixed(1)}:1) shows {tempoRatio < 1.5 ? 'excellent transfer' : 'good power generation'}! 
                 Keep training in Zone {tempoRatio >= 2.5 ? '1' : tempoRatio >= 1.8 ? '2' : '3'} to maintain this.
               </p>
               <Button 
@@ -252,12 +242,12 @@ export default function HomeDashboard() {
 
         {/* Tempo Trainer CTA */}
         <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="pt-6">
+          <CardContent className="py-4">
             <div className="flex items-center gap-3 mb-3">
-              <div className="text-3xl">🎵</div>
-              <div>
-                <h3 className="font-semibold text-foreground">Tempo Trainer</h3>
-                <p className="text-sm text-muted-foreground">Practice tempo with audio cues</p>
+              <div className="text-2xl">🎵</div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm">Tempo Trainer</h3>
+                <p className="text-xs text-muted-foreground">Practice 2:1 tempo with audio cues</p>
               </div>
             </div>
             <Button 
