@@ -439,7 +439,7 @@ export default function RebootAnalysis() {
 
       if (parseError) throw parseError;
 
-      // Get player profile for height/weight as fallback
+      // Get player profile for height/weight
       const { data: players } = await supabase
         .from('players')
         .select('height, weight')
@@ -448,11 +448,15 @@ export default function RebootAnalysis() {
       
       const playerData = players?.[0];
       
-      // Use player info from PDF if available, otherwise fall back to player profile
-      const playerInfoData = parsedData?.playerInfo || {};
-      const playerHeight = playerInfoData.height ?? playerData?.height ?? null;
-      const playerWeight = playerInfoData.weight ?? playerData?.weight ?? null;
-      const bodyMass = playerInfoData.bodyMass ?? (playerWeight ? playerWeight * 0.453592 : null);
+      // Use player data from system only
+      const playerHeight = playerData?.height ?? null;
+      const playerWeight = playerData?.weight ?? null;
+      const bodyMass = playerWeight ? playerWeight * 0.453592 : null;
+      
+      // Notify user if height/weight is missing
+      if (!playerHeight || !playerWeight) {
+        toast.warning('Player height/weight not found. Please update in your profile for accurate analysis.');
+      }
 
       // Process extracted data
       const timingData = parsedData?.timing || {};

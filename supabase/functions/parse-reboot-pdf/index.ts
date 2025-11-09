@@ -15,9 +15,6 @@ interface TimingData {
 
 interface ExtractedData extends TimingData {
   reportDate?: string;
-  // Player physical data
-  playerHeight?: number; // inches
-  playerWeight?: number; // lbs
   // Core biomechanics
   xFactorAngle?: number;
   xFactorMaxXFactor?: number; // The true X-Factor separation at Max X Factor
@@ -162,12 +159,6 @@ serve(async (req) => {
 4. Return ONLY valid JSON with no markdown formatting
 5. For bat speed or attack angle, if the value is "nan" or not available, omit it completely
 
-**PLAYER INFORMATION**
-
-Look for player height and weight (usually in header or player info section):
-- playerHeight: [Height in inches]
-- playerWeight: [Weight in lbs]
-
 **PAGE 1 - KINEMATIC SEQUENCE TABLE**
 
 Find the "Kinematic Sequence" table with columns:
@@ -269,8 +260,6 @@ Look for date in format MM/DD/YYYY in header:
 **RESPONSE FORMAT:**
 Return ONLY this JSON structure with NO markdown code blocks:
 {
-  "playerHeight": 0.0,
-  "playerWeight": 0.0,
   "negativeMoveTime": 0.000,
   "maxPelvisTurnTime": 0.000,
   "maxShoulderTurnTime": 0.000,
@@ -409,9 +398,6 @@ IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric 
       
       const totalPelvisRotation = Math.abs((extractedData.pelvisDirectionStance || 0) - (extractedData.pelvisDirectionImpact || 0));
       const totalShoulderRotation = Math.abs((extractedData.shoulderDirectionStance || 0) - (extractedData.shoulderDirectionImpact || 0));
-      
-      // Calculate body mass from weight (convert lbs to kg)
-      const bodyMass = extractedData.playerWeight ? extractedData.playerWeight * 0.453592 : null;
 
       return new Response(
         JSON.stringify({ 
@@ -425,11 +411,6 @@ IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric 
             fireDuration,
             tempoRatio,
             pelvisShoulderGap
-          },
-          playerInfo: {
-            height: extractedData.playerHeight,
-            weight: extractedData.playerWeight,
-            bodyMass
           },
           biomechanics: {
             xFactorAngle: extractedData.xFactorMaxXFactor || extractedData.xFactorAngle,
