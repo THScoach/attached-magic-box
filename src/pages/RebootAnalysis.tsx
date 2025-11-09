@@ -345,11 +345,12 @@ export default function RebootAnalysis() {
     // Kinematic Sequence Gap = Max Pelvis Turn Time - Max Shoulder Turn Time
     const kinematicSequenceGap = (data.maxPelvisTurnTime - data.maxShoulderTurnTime) * 1000;
 
+    // Ensure all values are valid numbers, default to 0 if NaN
     return {
-      loadDuration: Math.round(loadDuration),
-      fireDuration: Math.round(fireDuration),
-      tempoRatio: Math.round(tempoRatio * 100) / 100,
-      kinematicSequenceGap: Math.round(kinematicSequenceGap)
+      loadDuration: isNaN(loadDuration) ? 0 : Math.round(loadDuration),
+      fireDuration: isNaN(fireDuration) ? 0 : Math.round(fireDuration),
+      tempoRatio: isNaN(tempoRatio) ? 0 : Math.round(tempoRatio * 100) / 100,
+      kinematicSequenceGap: isNaN(kinematicSequenceGap) ? 0 : Math.round(kinematicSequenceGap)
     };
   };
 
