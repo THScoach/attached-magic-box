@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import * as pdfjs from "https://esm.sh/pdfjs-dist@3.11.174/build/pdf.mjs";
+import { extractText } from "https://esm.sh/unpdf@0.11.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -105,24 +105,14 @@ serve(async (req) => {
         );
       }
 
-      // Extract text from PDF using pdfjs
+      // Extract text from PDF using unpdf
       console.log('Extracting text from PDF...');
       const arrayBuffer = await fileData.arrayBuffer();
       
       let pdfText = '';
       try {
-        // Load PDF document
-        const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
-        const pdf = await loadingTask.promise;
-        console.log(`✅ PDF loaded, ${pdf.numPages} pages`);
-        
-        // Extract text from all pages
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-          const page = await pdf.getPage(pageNum);
-          const textContent = await page.getTextContent();
-          const pageText = textContent.items.map((item: any) => item.str).join(' ');
-          pdfText += pageText + '\n';
-        }
+        const result = await extractText(new Uint8Array(arrayBuffer));
+        pdfText = Array.isArray(result.text) ? result.text.join('\n') : result.text;
         
         console.log('✅ PDF text extracted, length:', pdfText.length);
         console.log('📄 First 500 chars:', pdfText.substring(0, 500));
