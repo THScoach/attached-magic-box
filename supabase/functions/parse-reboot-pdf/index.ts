@@ -104,20 +104,14 @@ serve(async (req) => {
       // Check if API key is available
       const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
       if (!lovableApiKey) {
-        console.error('LOVABLE_API_KEY not found in environment');
-        // Return placeholder data if API key is missing
+        console.error('❌ LOVABLE_API_KEY not found in environment');
         return new Response(
           JSON.stringify({ 
-            success: true,
-            timing: {
-              negativeMoveTime: 0.956,
-              maxPelvisTurnTime: 0.241,
-              maxShoulderTurnTime: 0.189,
-              maxXFactorTime: 0.156
-            },
-            note: 'Using default values - AI extraction not configured'
+            success: false,
+            error: 'AI extraction not configured. Please contact support.'
           }),
           { 
+            status: 500,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           }
         );
@@ -319,30 +313,28 @@ IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric 
 
       if (!aiResponse.ok) {
         const errorText = await aiResponse.text();
-        console.error('AI API error response:', errorText);
-        console.error('AI API status:', aiResponse.status);
+        console.error('❌ AI API error response:', errorText);
+        console.error('❌ AI API status:', aiResponse.status);
         
-        // Return placeholder data on API error
+        // Return error instead of placeholder
         return new Response(
           JSON.stringify({ 
-            success: true,
-            timing: {
-              negativeMoveTime: 0.956,
-              maxPelvisTurnTime: 0.241,
-              maxShoulderTurnTime: 0.189,
-              maxXFactorTime: 0.156
-            },
-            note: 'Using default values - AI extraction failed'
+            success: false,
+            error: `AI extraction failed (Status ${aiResponse.status}). Please try again or contact support.`,
+            details: errorText
           }),
           { 
+            status: 500,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           }
         );
       }
 
       const aiResult = await aiResponse.json();
-      console.log('AI response received:', JSON.stringify(aiResult));
+      console.log('✅ AI response received, status:', aiResponse.status);
       const content = aiResult.choices[0]?.message?.content || '{}';
+      console.log('📄 AI content length:', content.length);
+      console.log('📄 First 500 chars:', content.substring(0, 500));
       
       // Parse extracted timing data and report date
       let extractedData: ExtractedData;
@@ -350,7 +342,8 @@ IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric 
         // Try to extract JSON from markdown code blocks or plain text
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         extractedData = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
-        console.log('Successfully parsed extracted data:', extractedData);
+        console.log('✅ Successfully parsed extracted data');
+        console.log('📊 Data keys found:', Object.keys(extractedData).join(', '));
         
         // Ensure we have a valid report date
         if (!extractedData.reportDate || !extractedData.reportDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -358,15 +351,20 @@ IMPORTANT: Only include attackAngle and peakBatSpeed if they have valid numeric 
           console.warn('Invalid or missing report date, using today:', extractedData.reportDate);
         }
       } catch (parseError) {
-        // Fallback to placeholder data
-        console.warn('Could not parse AI response, using placeholder data. Parse error:', parseError);
-        extractedData = {
-          negativeMoveTime: 0.956,
-          maxPelvisTurnTime: 0.241,
-          maxShoulderTurnTime: 0.189,
-          maxXFactorTime: 0.156,
-          reportDate: new Date().toISOString().split('T')[0]
-        };
+        // Return error instead of placeholder
+        console.error('❌ Parse error:', parseError);
+        console.error('❌ Raw content:', content);
+        return new Response(
+          JSON.stringify({ 
+            success: false,
+            error: 'Failed to parse PDF data. The PDF format may not be supported.',
+            details: parseError instanceof Error ? parseError.message : 'Unknown parse error'
+          }),
+          { 
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
       }
 
       // Calculate derived metrics

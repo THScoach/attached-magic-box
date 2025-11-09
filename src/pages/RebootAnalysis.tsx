@@ -437,7 +437,15 @@ export default function RebootAnalysis() {
           body: { filePath, extractTiming: true }
         });
 
-      if (parseError) throw parseError;
+      if (parseError) {
+        console.error('Parse error:', parseError);
+        throw parseError;
+      }
+
+      if (!parsedData || !parsedData.success) {
+        console.error('Parse failed:', parsedData);
+        throw new Error(parsedData?.error || 'Failed to parse PDF');
+      }
 
       // Get player profile for height/weight
       const { data: players } = await supabase
