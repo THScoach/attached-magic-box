@@ -12,7 +12,11 @@ export function BottomNav() {
   const navItems = [
     { icon: Home, label: "Home", path: "/dashboard" },
     { icon: Users, label: "Players", path: "/coach-roster", coachOnly: true },
-    { icon: Camera, label: "Analyze", path: "/analyze" },
+    { 
+      icon: Camera, 
+      label: "Analyze", 
+      path: isCoach ? "/admin/players" : "/reboot-analysis" 
+    },
     { icon: BarChart3, label: "Motion", path: "/reboot-analysis" },
     { icon: User, label: "Profile", path: "/profile" }
   ];

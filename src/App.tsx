@@ -290,8 +290,6 @@ const App = () => {
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             {/* Legacy free onboarding - redirect to main onboarding */}
             <Route path="/free-onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-            {/* Legacy analyze route - redirect to dashboard */}
-            <Route path="/analyze" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/result/:id" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
             <Route path="/player/:playerId" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
             <Route path="/player/:playerId/analysis/:analysisId" element={<ProtectedRoute><AnalysisResult /></ProtectedRoute>} />
