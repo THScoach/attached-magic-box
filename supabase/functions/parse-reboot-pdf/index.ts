@@ -132,7 +132,7 @@ serve(async (req) => {
 
       // Use Lovable AI to extract timing data AND report date from the PDF
       console.log('Calling Lovable AI API...');
-      const aiResponse = await fetch('https://api.lovable.dev/v1/ai/chat/completions', {
+      const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${lovableApiKey}`,
