@@ -15,6 +15,14 @@ interface TimingData {
 
 interface ExtractedData extends TimingData {
   reportDate?: string; // ISO date string extracted from PDF
+  peakPelvisRotVel?: number;
+  peakShoulderRotVel?: number;
+  attackAngle?: number;
+  peakBatSpeed?: number;
+  rotationalPower?: number;
+  linearPower?: number;
+  totalPower?: number;
+  peakCOMVelocity?: number;
 }
 
 serve(async (req) => {
@@ -95,27 +103,52 @@ serve(async (req) => {
             role: 'user',
             content: [{
               type: 'text',
-              text: `Extract timing data AND the report date from this Reboot Motion PDF report.
+              text: `Extract ALL available data from this Reboot Motion PDF report.
 
-              1. Look for the "Torso Kinematics" table and extract values from the "Avg Time Before Impact" row for:
-                 - Negative Move (seconds before impact)
-                 - Max Pelvis Turn (seconds before impact)  
-                 - Max Shoulder Turn (seconds before impact)
-                 - Max X Factor (seconds before impact)
+              Look for these sections and extract ONLY values that are clearly visible:
+
+              1. TORSO KINEMATICS TABLE - "Avg Time Before Impact" row:
+                 - Negative Move (seconds)
+                 - Max Pelvis Turn (seconds)
+                 - Max Shoulder Turn (seconds)
+                 - Max X Factor (seconds)
               
-              2. Find the date of the report (usually at the top of the report or in the header)
+              2. TORSO KINEMATICS TABLE - "Max Angular Velocity" row:
+                 - Pelvis rotation velocity (°/s)
+                 - Shoulder rotation velocity (°/s)
               
-              Return ONLY a JSON object with these values:
+              3. BAT PATH TABLE:
+                 - Attack Angle (degrees)
+                 - Bat Speed (mph)
+              
+              4. POWER TABLE (if visible):
+                 - Rotational Power (W)
+                 - Linear Power (W)
+                 - Total Power (W)
+              
+              5. CENTER OF MASS TABLE (if visible):
+                 - Peak COM velocity (m/s)
+              
+              6. Report Date (usually at top or header)
+              
+              Return ONLY a JSON object. If a value is not visible in the PDF, omit that field entirely (do not use null or 0):
               {
                 "negativeMoveTime": X,
                 "maxPelvisTurnTime": Y,
                 "maxShoulderTurnTime": Z,
                 "maxXFactorTime": W,
+                "peakPelvisRotVel": A,
+                "peakShoulderRotVel": B,
+                "attackAngle": C,
+                "peakBatSpeed": D,
+                "rotationalPower": E,
+                "linearPower": F,
+                "totalPower": G,
+                "peakCOMVelocity": H,
                 "reportDate": "YYYY-MM-DD"
               }
               
-              If you cannot find exact values, provide best estimates based on similar metrics in the document.
-              If you cannot find the report date, use today's date.`
+              IMPORTANT: Only include fields where you can clearly see the value in the PDF. Skip fields you cannot find.`
             }, {
               type: 'image_url',
               image_url: {
@@ -123,7 +156,7 @@ serve(async (req) => {
               }
             }]
           }],
-          max_tokens: 500
+          max_tokens: 1000
         })
       });
 
@@ -187,6 +220,20 @@ serve(async (req) => {
             maxPelvisTurnTime: extractedData.maxPelvisTurnTime,
             maxShoulderTurnTime: extractedData.maxShoulderTurnTime,
             maxXFactorTime: extractedData.maxXFactorTime
+          },
+          biomechanics: {
+            peakPelvisRotVel: extractedData.peakPelvisRotVel,
+            peakShoulderRotVel: extractedData.peakShoulderRotVel,
+            attackAngle: extractedData.attackAngle,
+            peakBatSpeed: extractedData.peakBatSpeed
+          },
+          power: {
+            rotationalPower: extractedData.rotationalPower,
+            linearPower: extractedData.linearPower,
+            totalPower: extractedData.totalPower
+          },
+          momentum: {
+            peakCOMVelocity: extractedData.peakCOMVelocity
           },
           reportDate: extractedData.reportDate,
           rawAiResponse: content

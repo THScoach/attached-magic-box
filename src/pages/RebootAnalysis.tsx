@@ -270,42 +270,34 @@ export default function RebootAnalysis() {
 
       if (parseError) throw parseError;
 
-      // Process extracted data
+      // Get player profile for height/weight
+      const { data: players } = await supabase
+        .from('players')
+        .select('height, weight')
+        .eq('user_id', user.id)
+        .limit(1);
+      
+      const playerData = players?.[0];
+
+      // Process extracted timing data
       const timingData = parsedData?.timing || {
-        negativeMoveTime: 0.956, // Example defaults
+        negativeMoveTime: 0.956,
         maxPelvisTurnTime: 0.241,
         maxShoulderTurnTime: 0.189,
         maxXFactorTime: 0.156
       };
 
-      // Extract additional metrics from PDF (with defaults for demo)
-      const biomechanicsData = parsedData?.biomechanics || {
-        peakPelvisRotVel: 850,
-        peakShoulderRotVel: 920,
-        peakBatSpeed: 72,
-        xFactor: 52,
-        hipShoulderSeparation: 52,
-        attackAngle: 12,
-        verticalBatAngle: 18,
-        connectionAtImpact: 85,
-        postureAngle: 38,
-        earlyConnection: 78
-      };
+      // Use ONLY extracted biomechanics data (no defaults)
+      const biomechanicsData = parsedData?.biomechanics || {};
 
-      const momentumData = parsedData?.momentum || {
-        height: 72,
-        weight: 185,
-        peakCOMVelocity: 1.15,
-        momentumDirectionAngle: 12,
-        forwardMomentumPct: 82,
-        transferEfficiency: 78
-      };
+      // Use ONLY extracted power data (no defaults)
+      const powerData = parsedData?.power || {};
 
-      const powerData = parsedData?.power || {
-        rotationalPower: 2200,
-        linearPower: 1400,
-        totalPower: 3600,
-        energyTransferEfficiency: 76
+      // Use ONLY extracted momentum data, plus player height/weight
+      const momentumData = {
+        ...parsedData?.momentum,
+        height: playerData?.height,
+        weight: playerData?.weight
       };
 
       // Get the report date from the PDF or use today as fallback
@@ -336,26 +328,20 @@ export default function RebootAnalysis() {
           fire_duration: metrics.fireDuration,
           tempo_ratio: metrics.tempoRatio,
           kinematic_sequence_gap: metrics.kinematicSequenceGap,
-          peak_pelvis_rot_vel: biomechanicsData.peakPelvisRotVel,
-          peak_shoulder_rot_vel: biomechanicsData.peakShoulderRotVel,
-          peak_bat_speed: biomechanicsData.peakBatSpeed,
-          x_factor: biomechanicsData.xFactor,
-          hip_shoulder_separation: biomechanicsData.hipShoulderSeparation,
-          attack_angle: biomechanicsData.attackAngle,
-          vertical_bat_angle: biomechanicsData.verticalBatAngle,
-          connection_at_impact: biomechanicsData.connectionAtImpact,
-          posture_angle: biomechanicsData.postureAngle,
-          early_connection: biomechanicsData.earlyConnection,
-          height: momentumData.height,
-          weight: momentumData.weight,
-          peak_com_velocity: momentumData.peakCOMVelocity,
-          momentum_direction_angle: momentumData.momentumDirectionAngle,
-          forward_momentum_pct: momentumData.forwardMomentumPct,
-          transfer_efficiency: momentumData.transferEfficiency,
-          rotational_power: powerData.rotationalPower,
-          linear_power: powerData.linearPower,
-          total_power: powerData.totalPower,
-          energy_transfer_efficiency: powerData.energyTransferEfficiency,
+          // Only save biomechanics if extracted
+          peak_pelvis_rot_vel: biomechanicsData.peakPelvisRotVel ?? null,
+          peak_shoulder_rot_vel: biomechanicsData.peakShoulderRotVel ?? null,
+          peak_bat_speed: biomechanicsData.peakBatSpeed ?? null,
+          attack_angle: biomechanicsData.attackAngle ?? null,
+          // Height and weight from player profile
+          height: momentumData.height ?? null,
+          weight: momentumData.weight ?? null,
+          peak_com_velocity: momentumData.peakCOMVelocity ?? null,
+          // Only save power if extracted
+          rotational_power: powerData.rotationalPower ?? null,
+          linear_power: powerData.linearPower ?? null,
+          total_power: powerData.totalPower ?? null,
+          energy_transfer_efficiency: powerData.energyTransferEfficiency ?? null,
           fire_duration_score: scores.fireDurationScore,
           tempo_ratio_score: scores.tempoRatioScore,
           body_score: scores.bodyScore,
