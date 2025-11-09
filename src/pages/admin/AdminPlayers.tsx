@@ -164,106 +164,106 @@ export default function AdminPlayers() {
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Players</h1>
-          <p className="text-muted-foreground">Manage your team members</p>
+    <div className="min-h-screen bg-background pb-20 md:pb-6">
+      {/* Header */}
+      <div className="bg-gradient-to-br from-primary/20 to-primary/5 px-4 md:px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold">Players</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">Manage your team</p>
+          </div>
+          <Button onClick={() => setShowAddModal(true)} size="sm">
+            <UserPlus className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Add Player</span>
+          </Button>
         </div>
-        <Button onClick={() => setShowAddModal(true)}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Player
-        </Button>
       </div>
 
-      {/* Search and Filters */}
-      <Card className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative md:col-span-2">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search players..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          <Select value={tierFilter} onValueChange={setTierFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Tiers" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Tiers</SelectItem>
-              <SelectItem value="free">Free</SelectItem>
-              <SelectItem value="challenge">Challenge</SelectItem>
-              <SelectItem value="diy">DIY</SelectItem>
-              <SelectItem value="elite">Elite</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger>
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Name (A-Z)</SelectItem>
-              <SelectItem value="grade">Grade</SelectItem>
-              <SelectItem value="active">Last Active</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </Card>
-
-      {/* Players List */}
-      <Card>
-        <div className="divide-y">
-          {filteredPlayers.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
-              No players found
+      <div className="px-4 md:px-6 py-4 space-y-4">
+        {/* Search and Filters */}
+        <Card className="p-3">
+          <div className="flex flex-col gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search players..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
             </div>
-          ) : (
-            filteredPlayers.map((player) => (
-              <div key={player.id} className="p-4 hover:bg-accent/50 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-lg">{player.name}</h3>
+
+            <div className="grid grid-cols-2 gap-2">
+              <Select value={tierFilter} onValueChange={setTierFilter}>
+                <SelectTrigger className="text-xs">
+                  <SelectValue placeholder="All Tiers" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Tiers</SelectItem>
+                  <SelectItem value="free">Free</SelectItem>
+                  <SelectItem value="challenge">Challenge</SelectItem>
+                  <SelectItem value="diy">DIY</SelectItem>
+                  <SelectItem value="elite">Elite</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="text-xs">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name (A-Z)</SelectItem>
+                  <SelectItem value="grade">Grade</SelectItem>
+                  <SelectItem value="active">Last Active</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </Card>
+
+        {/* Players List */}
+        {filteredPlayers.length === 0 ? (
+          <Card className="p-8 text-center text-muted-foreground">
+            No players found
+          </Card>
+        ) : (
+          <div className="space-y-2">
+            {filteredPlayers.map((player) => (
+              <Card 
+                key={player.id} 
+                className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+                onClick={() => navigate(`/admin/players/${player.id}`)}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <h3 className="font-semibold text-sm md:text-base truncate">{player.name}</h3>
                       {getTierBadge(player.tier)}
                       {getStatusBadge(player.status)}
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>Grade: <span className="font-bold text-primary">{player.grade}</span></span>
-                      <span>Last active: {player.lastActive}</span>
-                      <span className="text-xs">{player.email}</span>
+                    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 text-xs text-muted-foreground">
+                      <span className="font-bold text-primary">Grade: {player.grade}</span>
+                      <span className="truncate">{player.lastActive}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigate(`/admin/players/${player.id}`)}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        navigate(`/player/${player.id}`);
-                      }}
-                    >
-                      <Upload className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/admin/players/${player.id}`);
+                    }}
+                    className="shrink-0"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-      </Card>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       <AddAthleteModal
         open={showAddModal}

@@ -154,118 +154,113 @@ export default function AdminPlayerDetail() {
   const age = getAge(player.birth_date);
 
   return (
-    <div className="p-8 space-y-6 bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-background pb-20 md:pb-6">
+      {/* Mobile Header */}
+      <div className="bg-gradient-to-br from-primary/20 to-primary/5 px-4 md:px-6 pt-6 pb-4">
+        <div className="flex items-center gap-3 mb-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate("/admin/players")}
+            className="h-8 w-8"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
+          <div className="flex-1">
+            <h1 className="text-xl md:text-2xl font-bold">
               {player.first_name} {player.last_name}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-xs md:text-sm text-muted-foreground">
               {[
-                age && `${age} years old`,
+                age && `${age}yo`,
                 player.position,
                 player.handedness && `${player.handedness}HH`,
                 player.jersey_number && `#${player.jersey_number}`
               ].filter(Boolean).join(" • ")}
             </p>
-            {player.team_name && (
-              <p className="text-sm text-muted-foreground">
-                {player.team_name}
-                {player.organization && ` - ${player.organization}`}
-              </p>
-            )}
           </div>
         </div>
-        <Button
-          onClick={() => navigate(`/brain/${id}`)}
-          variant="outline"
-          className="gap-2"
-        >
-          <Brain className="h-4 w-4" />
-          Brain Dashboard
-        </Button>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Swings</CardTitle>
-            <FileVideo className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+      <div className="px-4 md:px-6 py-4 space-y-4">
+        {/* Key Metrics Cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <FileVideo className="h-5 w-5 text-primary" />
+            </div>
             <div className="text-2xl font-bold">{analyses.length}</div>
-            <p className="text-xs text-muted-foreground">All time analyses</p>
-          </CardContent>
-        </Card>
+            <p className="text-xs text-muted-foreground">Total Swings</p>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Latest Score</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+            </div>
             <div className="text-2xl font-bold text-primary">
               {latestAnalysis ? latestAnalysis.overall_score.toFixed(0) : "N/A"}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {latestAnalysis
-                ? formatDistanceToNow(new Date(latestAnalysis.created_at), { addSuffix: true })
-                : "No analyses yet"}
-            </p>
-          </CardContent>
-        </Card>
+            <p className="text-xs text-muted-foreground">Latest Score</p>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Avg Score</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <Target className="h-5 w-5 text-primary" />
+            </div>
             <div className="text-2xl font-bold">
               {analyses.length > 0
                 ? (analyses.reduce((sum, a) => sum + a.overall_score, 0) / analyses.length).toFixed(0)
                 : "N/A"}
             </div>
-            <p className="text-xs text-muted-foreground">Overall average</p>
-          </CardContent>
-        </Card>
+            <p className="text-xs text-muted-foreground">Avg Score</p>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Height / Weight</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {player.height && player.weight
-                ? `${Math.floor(player.height / 12)}'${player.height % 12}" / ${player.weight}lb`
-                : "Not set"}
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <User className="h-5 w-5 text-primary" />
             </div>
-            <p className="text-xs text-muted-foreground">Physical stats</p>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="text-lg font-bold">
+              {player.height && player.weight
+                ? `${Math.floor(player.height / 12)}'${player.height % 12}"`
+                : "N/A"}
+            </div>
+            <p className="text-xs text-muted-foreground">{player.weight ? `${player.weight}lb` : 'Not set'}</p>
+          </Card>
+        </div>
 
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="scorecard" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="scorecard">4 B's Scorecard</TabsTrigger>
-          <TabsTrigger value="progress">Progress Charts</TabsTrigger>
-          <TabsTrigger value="analyses">All Analyses</TabsTrigger>
-          <TabsTrigger value="external">External Data</TabsTrigger>
-          <TabsTrigger value="notes">Coach Notes</TabsTrigger>
-          <TabsTrigger value="drills">Drill Plan</TabsTrigger>
-        </TabsList>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            onClick={() => navigate(`/brain/${id}`)}
+            variant="outline"
+            className="gap-2"
+          >
+            <Brain className="h-4 w-4" />
+            Brain
+          </Button>
+          <Button
+            onClick={() => {
+              sessionStorage.setItem('selectedPlayerId', id!);
+              navigate('/reboot-analysis');
+            }}
+            variant="outline"
+            className="gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            Analyze
+          </Button>
+        </div>
+
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="scorecard" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+            <TabsTrigger value="scorecard" className="text-xs md:text-sm">4 B's</TabsTrigger>
+            <TabsTrigger value="progress" className="text-xs md:text-sm">Progress</TabsTrigger>
+            <TabsTrigger value="analyses" className="text-xs md:text-sm">History</TabsTrigger>
+            <TabsTrigger value="external" className="text-xs md:text-sm">External</TabsTrigger>
+            <TabsTrigger value="notes" className="text-xs md:text-sm">Notes</TabsTrigger>
+            <TabsTrigger value="drills" className="text-xs md:text-sm">Drills</TabsTrigger>
+          </TabsList>
 
         <TabsContent value="scorecard" className="space-y-4">
           {latestAnalysis ? (
@@ -377,77 +372,62 @@ export default function AdminPlayerDetail() {
           )}
         </TabsContent>
 
-        <TabsContent value="analyses" className="space-y-4">
+        <TabsContent value="analyses" className="space-y-3">
           {analyses.length > 0 ? (
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>All Swing Analyses ({analyses.length})</CardTitle>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => {
-                        navigate('/reboot-analysis');
-                      }}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Upload className="h-4 w-4" />
-                      Analyze Video
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        sessionStorage.setItem('selectedPlayerId', id!);
-                        navigate('/reboot-analysis');
-                      }}
-                      variant="outline"
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Target className="h-4 w-4" />
-                      4B Motion Analysis
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {analyses.map(analysis => (
-                    <div
-                      key={analysis.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors cursor-pointer"
-                      onClick={() => navigate(`/result/${analysis.id}`)}
-                    >
-                      <div className="flex items-center gap-4">
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">Analysis History ({analyses.length})</h3>
+                <Button
+                  onClick={() => {
+                    sessionStorage.setItem('selectedPlayerId', id!);
+                    navigate('/reboot-analysis');
+                  }}
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  New
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {analyses.map(analysis => (
+                  <Card
+                    key={analysis.id}
+                    className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+                    onClick={() => navigate(`/result/${analysis.id}`)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
                         <div className="text-2xl font-bold text-primary">
                           {analysis.overall_score.toFixed(0)}
                         </div>
                         <div>
-                          <p className="font-medium">
+                          <p className="font-medium text-sm">
                             {new Date(analysis.created_at).toLocaleDateString()}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(analysis.created_at), { addSuffix: true })}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-sm text-right">
+                      <div className="text-right">
+                        <div className="text-xs space-y-1">
                           <div className="flex gap-2">
-                            <span>Bat: {analysis.bat_score.toFixed(0)}</span>
-                            <span>Ball: {analysis.ball_score.toFixed(0)}</span>
-                            <span>Body: {analysis.body_score.toFixed(0)}</span>
-                            <span>Brain: {analysis.brain_score.toFixed(0)}</span>
+                            <span>🏏 {analysis.bat_score.toFixed(0)}</span>
+                            <span>⚾ {analysis.ball_score.toFixed(0)}</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <span>💪 {analysis.body_score.toFixed(0)}</span>
+                            <span>🧠 {analysis.brain_score.toFixed(0)}</span>
                           </div>
                         </div>
-                        <Button size="sm" variant="outline">
-                          View Details
-                        </Button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  </Card>
+                ))}
+              </div>
+            </>
           ) : (
             <Card>
               <CardContent className="p-8 text-center text-muted-foreground">
@@ -508,6 +488,7 @@ export default function AdminPlayerDetail() {
           )}
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
