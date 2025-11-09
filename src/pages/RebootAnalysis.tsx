@@ -520,7 +520,8 @@ export default function RebootAnalysis() {
       const { data: savedReport, error: saveError } = await supabase
         .from('reboot_reports')
         .insert({
-          user_id: selectedPlayerId || user.id,
+          user_id: user.id, // Always use the authenticated user's ID
+          player_id: selectedPlayerId, // Associate with selected player
           pdf_url: publicUrl,
           label: `Report ${reports.length + 1}`,
           report_date: reportDate.toISOString().split('T')[0],
