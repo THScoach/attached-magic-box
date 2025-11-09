@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock, Trash2 } from "lucide-react";
+import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock, Trash2, Info } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
 import { KinematicSequenceBarChart } from "@/components/KinematicSequenceBarChart";
@@ -20,6 +20,7 @@ import { PlayerProfileHeader } from "@/components/PlayerProfileHeader";
 import { TempoHero } from "@/components/tempo/TempoHero";
 import { TempoContext } from "@/components/tempo/TempoContext";
 import { TempoTrainingPlan } from "@/components/tempo/TempoTrainingPlan";
+import { ImpactSyncRecorder } from "@/components/ImpactSyncRecorder";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -704,10 +705,14 @@ export default function RebootAnalysis() {
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <Tabs defaultValue="upload" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="upload">Upload & Calculate</TabsTrigger>
-            <TabsTrigger value="compare">Compare Reports</TabsTrigger>
-            <TabsTrigger value="history">Analysis History</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="upload">Upload PDF</TabsTrigger>
+            <TabsTrigger value="video">
+              <Target className="h-4 w-4 mr-2" />
+              Video Capture
+            </TabsTrigger>
+            <TabsTrigger value="compare">Compare</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
 
           {/* Upload Tab */}
@@ -1005,6 +1010,148 @@ export default function RebootAnalysis() {
             })()}
               </>
             )}
+          </TabsContent>
+
+          {/* Video Capture Tab */}
+          <TabsContent value="video" className="space-y-6">
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                <strong>NEW: Impact-Synchronized Recording</strong> - Record video at the moment of impact for precise timing analysis. 
+                This method captures exactly what's needed (2s before + 0.5s after impact) for accurate tempo calculation.
+              </AlertDescription>
+            </Alert>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Impact-Sync Recorder */}
+              <ImpactSyncRecorder
+                onRecordingComplete={async (recording) => {
+                  try {
+                    toast.loading('Processing video recording...');
+                    
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) throw new Error('Not authenticated');
+
+                    // Upload video to storage
+                    const fileName = `${user.id}/impact-sync-${Date.now()}.webm`;
+                    const { error: uploadError } = await supabase.storage
+                      .from('swing-videos')
+                      .upload(fileName, recording.videoBlob);
+
+                    if (uploadError) throw uploadError;
+
+                    // TODO: Process video with pose estimation
+                    // For now, just save metadata
+                    toast.success('Video uploaded! Full analysis coming soon.');
+                    
+                    // Future: Call edge function to process video
+                    // - Extract frames
+                    // - Run pose estimation
+                    // - Calculate metrics using known impact frame
+                    // - Save to reboot_reports table
+                    
+                  } catch (error: any) {
+                    console.error('Error processing recording:', error);
+                    toast.error(error.message || 'Failed to process recording');
+                  }
+                }}
+              />
+
+              {/* How it works */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>How Impact-Sync Works</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                        1
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Start Buffering</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Continuously captures frames to a 2-second rolling buffer
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                        2
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Press IMPACT!</h4>
+                        <p className="text-sm text-muted-foreground">
+                          When you hear ball contact, press the button. This marks the exact impact frame.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                        3
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Capture Post-Impact</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Records 0.5 seconds after impact to capture follow-through
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                        4
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Precise Analysis</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Impact frame is known (not estimated), enabling accurate tempo calculation
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Alert className="bg-green-50 border-green-200">
+                    <AlertDescription className="text-xs">
+                      <strong>Why this is better:</strong> Traditional recording requires guessing where impact occurred. 
+                      Impact-sync recording knows exactly when impact happened, making tempo analysis much more accurate.
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Coming Soon Features */}
+            <Card>
+              <CardHeader>
+                <CardTitle>🚀 Coming Soon</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="flex gap-3">
+                    <Target className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <h4 className="font-medium text-sm">Bat Tracking</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Detect bat in video and calculate bat angular velocity (if quality allows)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Zap className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div>
+                      <h4 className="font-medium text-sm">Audio-Based Detection</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Automatically detect ball strike sound and clip video to exact contact frame
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Compare Tab */}
