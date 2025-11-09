@@ -46,7 +46,8 @@ import type { FrameJointData } from "@/lib/poseAnalysis";
 import { calculateFrontLegStability } from "@/lib/frontLegStability";
 import { calculateWeightTransfer } from "@/lib/weightTransfer";
 import { generateMasterCoachReport } from "@/lib/masterCoachReport";
-import { calculateGrade } from "@/lib/gradingSystem";
+import { calculateGrade, calculateMetricPercentage } from "@/lib/gradingSystem";
+import { getBenchmarksForLevel } from "@/lib/benchmarks";
 
 export default function AnalysisResult() {
   const navigate = useNavigate();
@@ -1086,6 +1087,27 @@ export default function AnalysisResult() {
             timeInZone={analysis.timingScore || 85}
             level="High School"
             overallGrade={calculateGrade(analysis.whipScore || 75)}
+            batSpeedPercentage={(() => {
+              const benchmarks = getBenchmarksForLevel("High School");
+              return calculateMetricPercentage(
+                analysis.batMaxVelocity || 70,
+                benchmarks.batSpeed,
+                true
+              );
+            })()}
+            attackAnglePercentage={(() => {
+              const ideal = 12;
+              const deviation = Math.abs((analysis.attackAngle || 15) - ideal);
+              return Math.max(0, 100 - (deviation * 10));
+            })()}
+            timeInZonePercentage={(() => {
+              const benchmarks = getBenchmarksForLevel("High School");
+              return calculateMetricPercentage(
+                (analysis.timingScore || 85) / 1000, // Convert ms to seconds
+                benchmarks.timeInZone,
+                true
+              );
+            })()}
           />
 
         </section>
