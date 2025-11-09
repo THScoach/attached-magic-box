@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, Upload, TrendingUp, TrendingDown, Download, Zap, Target, Clock, Trash2, Info } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { FourBMotionAnalysis } from "@/components/FourBMotionAnalysis";
@@ -131,6 +133,9 @@ export default function RebootAnalysis() {
   const [coachRickInsights, setCoachRickInsights] = useState<any>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [impactSyncRecording, setImpactSyncRecording] = useState<any | null>(null);
+  const [enableBatTracking, setEnableBatTracking] = useState(false);
+  const [enableAudioDetection, setEnableAudioDetection] = useState(false);
 
   // Get selected player ID on mount
   useEffect(() => {
@@ -1023,34 +1028,55 @@ export default function RebootAnalysis() {
               </AlertDescription>
             </Alert>
 
+            {/* Recording Options */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recording Options</CardTitle>
+                <CardDescription>Configure advanced features for video capture</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="audio-detection" className="text-base">
+                      Audio Impact Detection
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Automatically detect impact from ball strike sound (experimental)
+                    </p>
+                  </div>
+                  <Switch
+                    id="audio-detection"
+                    checked={enableAudioDetection}
+                    onCheckedChange={setEnableAudioDetection}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="bat-tracking" className="text-base">
+                      Bat Tracking
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Attempt to detect and track bat angular velocity
+                    </p>
+                  </div>
+                  <Switch
+                    id="bat-tracking"
+                    checked={enableBatTracking}
+                    onCheckedChange={setEnableBatTracking}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid gap-6 lg:grid-cols-2">
               {/* Impact-Sync Recorder */}
               <ImpactSyncRecorder
+                enableAudioDetection={enableAudioDetection}
                 onRecordingComplete={async (recording) => {
                   try {
-                    toast.loading('Processing video recording...');
-                    
-                    const { data: { user } } = await supabase.auth.getUser();
-                    if (!user) throw new Error('Not authenticated');
-
-                    // Upload video to storage
-                    const fileName = `${user.id}/impact-sync-${Date.now()}.webm`;
-                    const { error: uploadError } = await supabase.storage
-                      .from('swing-videos')
-                      .upload(fileName, recording.videoBlob);
-
-                    if (uploadError) throw uploadError;
-
-                    // TODO: Process video with pose estimation
-                    // For now, just save metadata
-                    toast.success('Video uploaded! Full analysis coming soon.');
-                    
-                    // Future: Call edge function to process video
-                    // - Extract frames
-                    // - Run pose estimation
-                    // - Calculate metrics using known impact frame
-                    // - Save to reboot_reports table
-                    
+                    toast.success('Recording captured! Starting analysis...');
+                    setImpactSyncRecording(recording);
                   } catch (error: any) {
                     console.error('Error processing recording:', error);
                     toast.error(error.message || 'Failed to process recording');
@@ -1082,9 +1108,12 @@ export default function RebootAnalysis() {
                         2
                       </div>
                       <div>
-                        <h4 className="font-medium">Press IMPACT!</h4>
+                        <h4 className="font-medium">{enableAudioDetection ? 'Auto-Detect Impact' : 'Press IMPACT!'}</h4>
                         <p className="text-sm text-muted-foreground">
-                          When you hear ball contact, press the button. This marks the exact impact frame.
+                          {enableAudioDetection 
+                            ? 'AI listens for the ball strike sound and auto-captures the moment of impact'
+                            : 'When you hear ball contact, press the button. This marks the exact impact frame.'
+                          }
                         </p>
                       </div>
                     </div>
@@ -1106,53 +1135,41 @@ export default function RebootAnalysis() {
                         4
                       </div>
                       <div>
-                        <h4 className="font-medium">Precise Analysis</h4>
+                        <h4 className="font-medium">AI Analysis</h4>
                         <p className="text-sm text-muted-foreground">
-                          Impact frame is known (not estimated), enabling accurate tempo calculation
+                          Pose estimation analyzes your swing mechanics with known impact timing
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <Alert className="bg-green-50 border-green-200">
-                    <AlertDescription className="text-xs">
-                      <strong>Why this is better:</strong> Traditional recording requires guessing where impact occurred. 
-                      Impact-sync recording knows exactly when impact happened, making tempo analysis much more accurate.
+                  <Alert className="bg-muted">
+                    <Zap className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>Benefits:</strong> More accurate timing, smaller file sizes, faster processing
+                      {enableAudioDetection && (
+                        <span className="block mt-1">
+                          🎤 <strong>Audio Detection:</strong> Automatic impact capture for hands-free operation
+                        </span>
+                      )}
                     </AlertDescription>
                   </Alert>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Coming Soon Features */}
-            <Card>
-              <CardHeader>
-                <CardTitle>🚀 Coming Soon</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="flex gap-3">
-                    <Target className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                    <div>
-                      <h4 className="font-medium text-sm">Bat Tracking</h4>
-                      <p className="text-xs text-muted-foreground">
-                        Detect bat in video and calculate bat angular velocity (if quality allows)
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <Zap className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                    <div>
-                      <h4 className="font-medium text-sm">Audio-Based Detection</h4>
-                      <p className="text-xs text-muted-foreground">
-                        Automatically detect ball strike sound and clip video to exact contact frame
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Analysis Component */}
+            {impactSyncRecording && (
+              <ImpactSyncAnalysis
+                recording={impactSyncRecording}
+                enableBatTracking={enableBatTracking}
+                onAnalysisComplete={(result) => {
+                  toast.success('Analysis complete! Refreshing reports...');
+                  loadReports();
+                  setImpactSyncRecording(null);
+                }}
+              />
+            )}
           </TabsContent>
 
           {/* Compare Tab */}
