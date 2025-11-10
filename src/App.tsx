@@ -61,6 +61,7 @@ import BatDashboardPlayer from "./pages/player/BatDashboard";
 import BallDashboardPlayer from "./pages/player/BallDashboard";
 import CSVImportPage from "./pages/CSVImportPage";
 import SimpleTempoReport from "./pages/SimpleTempoReport";
+import HitTraxSessionReport from "./pages/HitTraxSessionReport";
 import HomeDashboard from "./pages/HomeDashboard";
 import Menu from "./pages/Menu";
 import NotFound from "./pages/NotFound";
@@ -308,6 +309,7 @@ const App = () => {
             <Route path="/player/:id/bat" element={<ProtectedRoute><BatDashboardPlayer /></ProtectedRoute>} />
             <Route path="/player/:id/ball" element={<ProtectedRoute><BallDashboardPlayer /></ProtectedRoute>} />
             <Route path="/player/:id/csv-import" element={<ProtectedRoute><CSVImportPage /></ProtectedRoute>} />
+            <Route path="/hitrax-session/:sessionId" element={<ProtectedRoute><HitTraxSessionReport /></ProtectedRoute>} />
             {/* New streamlined upload routes */}
             <Route path="/record/:playerId" element={<ProtectedRoute><RecordSwing /></ProtectedRoute>} />
             <Route path="/upload/reboot/:playerId" element={<ProtectedRoute><UploadRebootPDF /></ProtectedRoute>} />

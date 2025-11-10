@@ -25,6 +25,17 @@ interface BallData {
   line_drive_percentage: number | null;
 }
 
+interface HitTraxSession {
+  id: string;
+  session_date: string;
+  total_swings: number;
+  total_hits: number;
+  avg_exit_velo: number;
+  ev90: number;
+  barrel_rate: number;
+  home_runs: number;
+}
+
 export default function BallDashboard() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -60,6 +71,15 @@ export default function BallDashboard() {
       .maybeSingle();
 
     setBallData(ballMetrics);
+
+    // Load HitTrax sessions
+    const { data: sessionsData } = await supabase
+      .from("hitrax_sessions")
+      .select("id, session_date, total_swings, total_hits, avg_exit_velo, ev90, barrel_rate, home_runs")
+      .eq("player_id", id)
+      .order("session_date", { ascending: false });
+
+    setSessions(sessionsData || []);
     setLoading(false);
   };
 
@@ -307,6 +327,49 @@ export default function BallDashboard() {
               </Card>
             )}
           </>
+        )}
+
+        {/* HitTrax Sessions */}
+        {sessions.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">📊 HitTrax Sessions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {sessions.map(session => (
+                <div
+                  key={session.id}
+                  className="border rounded-lg p-3 hover:bg-muted/50 cursor-pointer transition"
+                  onClick={() => navigate(`/hitrax-session/${session.id}`)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-sm">
+                        {new Date(session.session_date).toLocaleDateString()}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {session.total_hits} hits / {session.total_swings} swings
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-right">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Avg EV</p>
+                        <p className="text-sm font-bold">{session.avg_exit_velo.toFixed(1)} mph</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Barrel Rate</p>
+                        <p className="text-sm font-bold">{session.barrel_rate.toFixed(1)}%</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Home Runs</p>
+                        <p className="text-sm font-bold text-yellow-500">{session.home_runs}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         )}
 
         {/* Ball Flight Trajectory */}
