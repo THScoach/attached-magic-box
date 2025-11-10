@@ -3,9 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Target, BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ConsistencyScoreCard } from "@/components/ConsistencyScoreCard";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 interface Player {
   id: string;
@@ -31,9 +34,18 @@ interface HitTraxSession {
   total_swings: number;
   total_hits: number;
   avg_exit_velo: number;
+  max_exit_velo: number;
   ev90: number;
   barrel_rate: number;
+  barrel_count: number;
   home_runs: number;
+  exit_velo_std_dev: number;
+  launch_angle_std_dev: number;
+  exit_velo_consistency_grade: string;
+  launch_angle_consistency_grade: string;
+  avg_launch_angle: number;
+  sweet_spot_rate: number;
+  hard_hit_rate: number;
 }
 
 export default function BallDashboard() {
@@ -75,7 +87,12 @@ export default function BallDashboard() {
     // Load HitTrax sessions
     const { data: sessionsData } = await supabase
       .from("hitrax_sessions")
-      .select("id, session_date, total_swings, total_hits, avg_exit_velo, ev90, barrel_rate, home_runs")
+      .select(`
+        id, session_date, total_swings, total_hits, avg_exit_velo, max_exit_velo, ev90, 
+        barrel_rate, barrel_count, home_runs, exit_velo_std_dev, launch_angle_std_dev,
+        exit_velo_consistency_grade, launch_angle_consistency_grade, avg_launch_angle,
+        sweet_spot_rate, hard_hit_rate
+      `)
       .eq("player_id", id)
       .order("session_date", { ascending: false });
 
@@ -329,11 +346,288 @@ export default function BallDashboard() {
           </>
         )}
 
-        {/* HitTrax Sessions */}
+        {/* Latest Ball Metrics - Enhanced */}
+        {sessions.length > 0 && sessions[0].exit_velo_std_dev !== null && (
+          <>
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl">Latest Ball Metrics</CardTitle>
+                  <span className="text-sm text-muted-foreground">
+                    {new Date(sessions[0].session_date).toLocaleDateString()}
+                  </span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Row 1: Exit Velocity Metrics */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card className="bg-muted/50 border-border">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Avg Exit Velo</p>
+                      <p className="text-3xl font-bold">{sessions[0].avg_exit_velo?.toFixed(1) || 0} mph</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ±{sessions[0].exit_velo_std_dev?.toFixed(1) || 0} mph
+                      </p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-muted/50 border-border">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-1">EV90</p>
+                      <p className="text-3xl font-bold">{sessions[0].ev90?.toFixed(1) || 0} mph</p>
+                      <p className="text-xs text-muted-foreground mt-1">90th percentile</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-muted/50 border-border">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Max Exit Velo</p>
+                      <p className="text-3xl font-bold text-yellow-500">
+                        {sessions[0].max_exit_velo?.toFixed(1) || 0} mph
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">Peak power</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-muted/50 border-border">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-1">EV Consistency</p>
+                      <p className="text-3xl font-bold">{sessions[0].exit_velo_std_dev?.toFixed(1) || 0}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant={
+                          (sessions[0].exit_velo_std_dev || 0) < 5 ? 'default' :
+                          (sessions[0].exit_velo_std_dev || 0) < 8 ? 'secondary' : 'destructive'
+                        }>
+                          {(sessions[0].exit_velo_std_dev || 0) < 5 ? 'Elite' :
+                           (sessions[0].exit_velo_std_dev || 0) < 8 ? 'Good' : 'Needs Work'}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Row 2: Launch Angle Metrics */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card className="bg-muted/50 border-border">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Avg Launch Angle</p>
+                      <p className="text-3xl font-bold">{sessions[0].avg_launch_angle?.toFixed(1) || 0}°</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ±{sessions[0].launch_angle_std_dev?.toFixed(1) || 0}°
+                      </p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-muted/50 border-border">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-1">LA Consistency</p>
+                      <p className="text-3xl font-bold">{sessions[0].launch_angle_std_dev?.toFixed(1) || 0}°</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant={
+                          (sessions[0].launch_angle_std_dev || 0) < 10 ? 'default' :
+                          (sessions[0].launch_angle_std_dev || 0) < 15 ? 'secondary' : 'destructive'
+                        }>
+                          {(sessions[0].launch_angle_std_dev || 0) < 10 ? 'Elite' :
+                           (sessions[0].launch_angle_std_dev || 0) < 15 ? 'Good' : 'Needs Work'}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-muted/50 border-border">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Sweet Spot %</p>
+                      <p className="text-3xl font-bold">{sessions[0].sweet_spot_rate?.toFixed(1) || 0}%</p>
+                      <p className="text-xs text-muted-foreground mt-1">8-32° launch angle</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-muted/50 border-border">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Hard Hit %</p>
+                      <p className="text-3xl font-bold">{sessions[0].hard_hit_rate?.toFixed(1) || 0}%</p>
+                      <p className="text-xs text-muted-foreground mt-1">95+ mph exit velo</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Row 3: BARREL RATE (Featured) */}
+                <Card className="bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-2 border-yellow-500">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-4xl">⚡</span>
+                          <h3 className="text-2xl font-bold">Barrel Rate</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          8-50° launch angle + 98+ mph exit velo
+                        </p>
+                      </div>
+                      
+                      <div className="text-right">
+                        <p className="text-6xl font-bold text-yellow-500">
+                          {sessions[0].barrel_rate?.toFixed(1) || 0}%
+                        </p>
+                        <div className="flex items-center justify-end gap-2 mt-2">
+                          <Badge variant={
+                            (sessions[0].barrel_rate || 0) >= 15 ? 'default' :
+                            (sessions[0].barrel_rate || 0) >= 8 ? 'secondary' : 'destructive'
+                          } className="text-lg px-3 py-1">
+                            {(sessions[0].barrel_rate || 0) >= 15 ? 'Elite (15%+)' :
+                             (sessions[0].barrel_rate || 0) >= 8 ? 'Good (8%+)' : 'Needs Work (<8%)'}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Barrel Rate Trend */}
+                    {sessions.length > 1 && sessions[1].barrel_rate !== null && (
+                      <div className="mt-4 pt-4 border-t border-yellow-500/30">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Previous Session:</span>
+                          <span className="font-semibold">
+                            {sessions[1].barrel_rate?.toFixed(1) || 0}%
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm mt-2">
+                          <span className="text-muted-foreground">Change:</span>
+                          <span className={`font-semibold ${
+                            (sessions[0].barrel_rate || 0) > (sessions[1].barrel_rate || 0)
+                              ? 'text-green-500' 
+                              : 'text-red-500'
+                          }`}>
+                            {(sessions[0].barrel_rate || 0) > (sessions[1].barrel_rate || 0) ? '↑' : '↓'}
+                            {Math.abs((sessions[0].barrel_rate || 0) - (sessions[1].barrel_rate || 0)).toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Challenge */}
+                    {sessions.length > 1 && (
+                      <Alert className="mt-4 bg-yellow-900/20 border-yellow-500">
+                        <AlertTitle>🎯 Session Challenge</AlertTitle>
+                        <AlertDescription>
+                          Beat your previous barrel rate of {sessions[1].barrel_rate?.toFixed(1) || 0}%!
+                          Focus on 8-50° launch angles with 98+ mph exit velo.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
+
+            {/* Consistency Score Section */}
+            {sessions[0].exit_velo_std_dev !== null && sessions[0].launch_angle_std_dev !== null && (
+              <ConsistencyScoreCard
+                exitVeloStdDev={sessions[0].exit_velo_std_dev || 0}
+                avgExitVelo={sessions[0].avg_exit_velo || 0}
+                launchAngleStdDev={sessions[0].launch_angle_std_dev || 0}
+                avgLaunchAngle={sessions[0].avg_launch_angle || 0}
+              />
+            )}
+
+            {/* Barrel Rate Progress Chart */}
+            {sessions.length > 1 && (
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-2xl">Barrel Rate Progress</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Track your barrel rate improvement over time. Challenge: beat your previous session!
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px] mb-6">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={sessions.slice(0, 10).reverse()}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis 
+                          dataKey="session_date" 
+                          tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          stroke="hsl(var(--muted-foreground))"
+                        />
+                        <YAxis 
+                          stroke="hsl(var(--muted-foreground))"
+                          label={{ value: 'Barrel Rate (%)', angle: -90, position: 'insideLeft' }}
+                        />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--card))', 
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px'
+                          }}
+                          labelFormatter={(date) => new Date(date).toLocaleDateString()}
+                          formatter={(value: number) => [`${value.toFixed(1)}%`, 'Barrel Rate']}
+                        />
+                        <Legend />
+                        <Line 
+                          type="monotone" 
+                          dataKey="barrel_rate" 
+                          stroke="#FFD700" 
+                          strokeWidth={3}
+                          name="Barrel Rate"
+                          dot={{ fill: '#FFD700', r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  {/* Session Comparison */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="bg-muted/50 border-border text-center">
+                      <CardContent className="p-4">
+                        <p className="text-sm text-muted-foreground mb-2">Best Session</p>
+                        <p className="text-3xl font-bold text-green-500">
+                          {Math.max(...sessions.map(s => s.barrel_rate || 0)).toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(
+                            sessions.find(s => s.barrel_rate === Math.max(...sessions.map(s => s.barrel_rate || 0)))?.session_date || ''
+                          ).toLocaleDateString()}
+                        </p>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-muted/50 border-border text-center">
+                      <CardContent className="p-4">
+                        <p className="text-sm text-muted-foreground mb-2">Latest Session</p>
+                        <p className="text-3xl font-bold">
+                          {sessions[0].barrel_rate?.toFixed(1) || 0}%
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(sessions[0].session_date).toLocaleDateString()}
+                        </p>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-muted/50 border-border text-center">
+                      <CardContent className="p-4">
+                        <p className="text-sm text-muted-foreground mb-2">Improvement</p>
+                        <p className={`text-3xl font-bold ${
+                          (sessions[0].barrel_rate || 0) > (sessions[1]?.barrel_rate || 0)
+                            ? 'text-green-500' 
+                            : 'text-red-500'
+                        }`}>
+                          {(sessions[0].barrel_rate || 0) > (sessions[1]?.barrel_rate || 0) ? '+' : ''}
+                          {((sessions[0].barrel_rate || 0) - (sessions[1]?.barrel_rate || 0)).toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">vs previous</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
+
+        {/* HitTrax Sessions List */}
         {sessions.length > 0 && (
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">📊 HitTrax Sessions</CardTitle>
+              <CardTitle className="text-base">📊 All HitTrax Sessions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {sessions.map(session => (
@@ -354,15 +648,15 @@ export default function BallDashboard() {
                     <div className="grid grid-cols-3 gap-4 text-right">
                       <div>
                         <p className="text-xs text-muted-foreground">Avg EV</p>
-                        <p className="text-sm font-bold">{session.avg_exit_velo.toFixed(1)} mph</p>
+                        <p className="text-sm font-bold">{session.avg_exit_velo?.toFixed(1) || 0} mph</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Barrel Rate</p>
-                        <p className="text-sm font-bold">{session.barrel_rate.toFixed(1)}%</p>
+                        <p className="text-sm font-bold">{session.barrel_rate?.toFixed(1) || 0}%</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Home Runs</p>
-                        <p className="text-sm font-bold text-yellow-500">{session.home_runs}</p>
+                        <p className="text-sm font-bold text-yellow-500">{session.home_runs || 0}</p>
                       </div>
                     </div>
                   </div>

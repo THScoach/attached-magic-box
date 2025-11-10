@@ -1034,14 +1034,19 @@ export type Database = {
         Row: {
           avg_exit_velo: number | null
           avg_launch_angle: number | null
+          barrel_count: number | null
           barrel_rate: number | null
           created_at: string
           ev90: number | null
+          exit_velo_consistency_grade: string | null
+          exit_velo_std_dev: number | null
           fly_ball_rate: number | null
           ground_ball_rate: number | null
           hard_hit_rate: number | null
           home_runs: number | null
           id: string
+          launch_angle_consistency_grade: string | null
+          launch_angle_std_dev: number | null
           line_drive_rate: number | null
           max_exit_velo: number | null
           player_id: string | null
@@ -1055,14 +1060,19 @@ export type Database = {
         Insert: {
           avg_exit_velo?: number | null
           avg_launch_angle?: number | null
+          barrel_count?: number | null
           barrel_rate?: number | null
           created_at?: string
           ev90?: number | null
+          exit_velo_consistency_grade?: string | null
+          exit_velo_std_dev?: number | null
           fly_ball_rate?: number | null
           ground_ball_rate?: number | null
           hard_hit_rate?: number | null
           home_runs?: number | null
           id?: string
+          launch_angle_consistency_grade?: string | null
+          launch_angle_std_dev?: number | null
           line_drive_rate?: number | null
           max_exit_velo?: number | null
           player_id?: string | null
@@ -1076,14 +1086,19 @@ export type Database = {
         Update: {
           avg_exit_velo?: number | null
           avg_launch_angle?: number | null
+          barrel_count?: number | null
           barrel_rate?: number | null
           created_at?: string
           ev90?: number | null
+          exit_velo_consistency_grade?: string | null
+          exit_velo_std_dev?: number | null
           fly_ball_rate?: number | null
           ground_ball_rate?: number | null
           hard_hit_rate?: number | null
           home_runs?: number | null
           id?: string
+          launch_angle_consistency_grade?: string | null
+          launch_angle_std_dev?: number | null
           line_drive_rate?: number | null
           max_exit_velo?: number | null
           player_id?: string | null
